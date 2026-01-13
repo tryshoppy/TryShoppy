@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تتبع طلبك | Track Your Order - TRY SHOPPY</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --brand-yellow: #ffdc5e;
+            --brand-black: #1a1a1a;
+            --soft-bg: #fdfcf0;
+            --card-bg: #ffffff;
+            --success: #27ae60;
+            --error: #e74c3c;
+        }
+
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+
+        body {
+            background-color: var(--soft-bg);
+            margin: 0; padding: 20px; color: var(--brand-black);
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh;
+        }
+
+        .track-box {
+            background: var(--card-bg);
+            padding: 35px 25px;
+            border-radius: 25px;
+            max-width: 480px;
+            width: 100%;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+            border: 1px solid rgba(255, 220, 94, 0.4);
+            text-align: center;
+        }
+
+        .logo img { max-width: 140px; margin-bottom: 20px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1)); }
+
+        h2 { font-size: 1.5rem; margin-bottom: 5px; color: var(--brand-black); }
+        .sub { color: #666; font-size: 0.9rem; margin-bottom: 25px; display: block; }
+
+        .input-group { margin-bottom: 15px; }
+        input {
+            width: 100%; padding: 15px; border: 2px solid #f1f1f1;
+            border-radius: 15px; font-size: 16px; transition: 0.3s;
+            background: #fafafa; text-align: center; font-weight: 600;
+        }
+        input:focus { border-color: var(--brand-yellow); outline: none; background: #fff; }
+
+        button {
+            width: 100%; padding: 15px; border: none; border-radius: 15px;
+            background: var(--brand-black); color: var(--brand-yellow);
+            font-size: 1.1rem; font-weight: 800; cursor: pointer; transition: 0.3s;
+        }
+        button:disabled { background: #555; cursor: not-allowed; }
+
+        .result-area { margin-top: 30px; display: none; text-align: right; animation: fadeIn 0.5s ease; }
+
+        /* Timeline Style */
+        .timeline { position: relative; padding-right: 30px; margin-top: 10px; }
+        .timeline::before {
+            content: ''; position: absolute; right: 7px; top: 10px;
+            width: 2px; height: 90%; background: var(--brand-yellow);
+        }
+
+        .item { position: relative; margin-bottom: 25px; }
+        .item::before {
+            content: ''; position: absolute; right: -28px; top: 8px;
+            width: 16px; height: 16px; background: var(--brand-black);
+            border: 3px solid var(--brand-yellow); border-radius: 50%; z-index: 2;
+        }
+
+        .current-status { color: var(--success); font-weight: 800; font-size: 1.1rem; }
+        .t-time { font-size: 0.75rem; color: #888; display: block; }
+        .t-status { font-weight: 700; font-size: 1rem; color: var(--brand-black); }
+        .t-note { font-size: 0.85rem; color: #555; }
+
+        .lang-en { display: block; font-size: 0.8rem; opacity: 0.7; font-weight: 400; direction: ltr; text-align: right; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<div class="track-box">
+    <div class="logo">
+        <img src="logo.png" alt="TRY SHOPPY">
+    </div>
+    
+    <h2>تتبع حالة طلبك</h2>
+    <span class="sub">Track Your Order Status</span>
+    
+    <div class="input-group">
+        <input id="orderNo" type="text" placeholder="TRY-2026-XXXXXX">
+    </div>
+    
+    <button id="trackBtn" onclick="track()">
+        <span id="btnText">تتبع الآن | Track Now</span>
+    </button>
+
+    <div id="result" class="result-area"></div>
+</div>
+
+<script>
+function track() {
+    const orderInput = document.getElementById("orderNo").value.trim();
+    const resultDiv = document.getElementById("result");
+    const btn = document.getElementById("trackBtn");
+    const btnText = document.getElementById("btnText");
+
+    if (!orderInput) {
+        resultDiv.innerHTML = `<div style="color:var(--error); text-align:center;">يرجى إدخال رقم الطلب<br><small>Please enter order number</small></div>`;
+        resultDiv.style.display = "block";
+        return;
+    }
+
+    // جاري البحث
+    btn.disabled = true;
+    btnText.innerText = "جاري البحث... | Searching...";
+    resultDiv.style.display = "none";
+
+    fetch("https://script.google.com/macros/s/AKfycbw1sDUysx_eCaRigxz2kNAgJ7GyEZYMnWeBAeqZoefyuHeRDez-krcnuUD3UINQ3kBMHg/exec")
+    .then(res => res.json())
+    .then(data => {
+        let found = data.find(o => o.order === orderInput);
+
+        if (found) {
+            // الحالة الحالية مدمجة في البداية
+            let historyHTML = `
+                <div class="item">
+                    <span class="t-time">${found.date}</span>
+                    <span class="t-status current-status">الحالة الحالية: ${found.status || "قيد المعالجة"}</span>
+                    <span class="lang-en">Current Status: ${found.status || "Processing"}</span>
+                    <span class="t-note">السعر النهائي: ${found.finalPrice} EGP</span>
+                    <span class="lang-en">Final Price: ${found.finalPrice} EGP</span>
+                </div>
+            `;
+
+            if (found.history && found.history.length > 0) {
+                found.history.forEach(h => {
+                    historyHTML += `
+                        <div class="item">
+                            <span class="t-time">${h.time}</span>
+                            <span class="t-status">${h.status}</span>
+                            <span class="t-note">${h.note || ""}</span>
+                        </div>`;
+                });
+            }
+
+            resultDiv.innerHTML = `
+                <h4 style="margin-bottom:20px; border-bottom:2px solid var(--brand-yellow); padding-bottom:5px;">
+                    سجل الطلب | Order History:
+                </h4>
+                <div class="timeline">${historyHTML}</div>
+            `;
+        } else {
+            resultDiv.innerHTML = `<div style="color:var(--error); text-align:center;">رقم الطلب غير صحيح<br><small>Invalid Order Number</small></div>`;
+        }
+        
+        resultDiv.style.display = "block";
+        btn.disabled = false;
+        btnText.innerText = "تتبع الآن | Track Now";
+    })
+    .catch(err => {
+        resultDiv.innerHTML = `<div style="color:var(--error); text-align:center;">خطأ في الاتصال<br><small>Connection Error</small></div>`;
+        resultDiv.style.display = "block";
+        btn.disabled = false;
+        btnText.innerText = "تتبع الآن | Track Now";
+    });
+}
+</script>
+
+</body>
+</html>

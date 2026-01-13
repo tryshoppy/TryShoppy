@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRY SHOPPY - Pro Dashboard v6</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0d6efd; --bg: #f4f7fe; --white: #ffffff;
+            --text: #1e293b; --border: #cbd5e1; --success: #22c55e;
+        }
+
+        body { font-family: 'Cairo', sans-serif; background-color: var(--bg); margin: 0; padding: 20px; color: var(--text); }
+        .container { max-width: 1650px; margin: 0 auto; } 
+        header { text-align: center; margin-bottom: 25px; border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .stat-card { background: var(--white); padding: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-right: 5px solid var(--primary); }
+        .stat-card h3 { margin: 0; font-size: 0.85rem; color: #64748b; }
+        .stat-card .value { font-size: 1.5rem; font-weight: 800; margin: 5px 0; color: var(--primary); }
+
+        .filters { background: var(--white); padding: 15px; border-radius: 12px; display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .filters input, .filters select { padding: 10px; border: 1px solid var(--border); border-radius: 8px; flex: 1; min-width: 140px; font-family: 'Cairo'; }
+        
+        .btn-search { background: var(--primary); color: white; border: none; padding: 10px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .btn-group-action { background: #1a1a1a; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-group-action.active { background: #dc2626; }
+        
+        /* زر طباعة الكل الجديد */
+        .btn-print-all { background: #5b21b6; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-print-all:hover { background: #4c1d95; }
+
+        .table-wrapper { background: var(--white); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+        table { width: 100%; border-collapse: collapse; text-align: right; }
+        th { background: #f1f5f9; padding: 15px; border-bottom: 2px solid var(--border); color: #475569; font-size: 0.85rem; }
+        td { padding: 15px; border-bottom: 1px solid #f1f5f9; font-size: 0.95rem; vertical-align: middle; }
+
+        .spec-badge { background: #eff6ff; color: #1e40af; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; display: block; margin-top: 3px; }
+        .btn-print { background: #000; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .btn-update { background: var(--success); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        .link-btn { color: var(--primary); text-decoration: none; font-weight: bold; font-size: 0.8rem; border: 1px solid var(--primary); padding: 4px 8px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1 style="margin:0;">لوحة تحكم TRY SHOPPY</h1>
+    </header>
+
+    <div class="stats-grid">
+        <div class="stat-card"><h3>إجمالي المبيعات (EGP)</h3><div id="totalEGP" class="value">0</div></div>
+        <div class="stat-card" style="border-right-color: var(--success);"><h3>إجمالي التكلفة (USD)</h3><div id="totalUSD" class="value">0</div></div>
+        <div class="stat-card" style="border-right-color: #f59e0b;"><h3>عدد الشحنات</h3><div id="totalCount" class="value">0</div></div>
+    </div>
+
+    <div class="filters">
+        <input type="date" id="dateFrom">
+        <input type="date" id="dateTo">
+        <input id="searchInput" placeholder="🔍 ابحث بالاسم، الموبايل، أو رقم الطلب...">
+        <select id="searchStatus">
+            <option value="">كل الحالات</option>
+            <option value="Pending Review">Pending Review</option>
+            <option value="Shipped">Shipped</option>
+            <option value="Delivered">Delivered</option>
+			<option value="Confirmed Via Try">Confirmed Via Try</option>
+			<option value="Placed">Placed</option>
+			<option value="Canceled">Canceled</option>
+			<option value="Processing">Processing</option>
+        </select>
+        <button class="btn-search" onclick="applyFilters()">بحث</button>
+        <button id="groupBtn" class="btn-group-action" onclick="toggleGrouping()">🔄 تجميع الطلبات</button>
+        <button class="btn-print-all" onclick="printAllDisplayed()">🖨️ طباعة كافة بوالص الجدول</button>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>رقم الطلب</th>
+                    <th>العميل</th>
+                    <th>المواصفات (عدد/كمية/وزن/أبعاد)</th>
+                    <th>الإجمالي (EGP)</th>
+                    <th>اجمالي التكلفة (USD)</th>
+                    <th>الحالة</th>
+                    <th>الإجراء</th>
+                    <th>البوليصة</th>
+                    <th>المنتج</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+const scriptURL = "https://script.google.com/macros/s/AKfycbw1sDUysx_eCaRigxz2kNAgJ7GyEZYMnWeBAeqZoefyuHeRDez-krcnuUD3UINQ3kBMHg/exec";
+let ordersData = [];
+let currentFilteredData = []; // لتخزين البيانات المفلترة الحالية
+let isGrouped = false;
+
+async function loadData() {
+    try {
+        const res = await fetch(scriptURL);
+        ordersData = await res.json();
+        applyFilters(); 
+    } catch(e) { console.error("Data Load Error", e); }
+}
+
+function renderTable(data) {
+    const tbody = document.getElementById("tableBody");
+    tbody.innerHTML = "";
+    data.forEach(o => {
+        const cur = o.status || "Pending Review";
+        const printPhone = o.phone ? o.phone.toString().replace(/\s/g, '') : '';
+        const printOrder = o.order ? o.order.toString().split(' + ')[0] : 'N/A';
+
+        const qtyDisplay = isGrouped ? o.totalQty : (o.quantity || 1);
+        const weightValue = parseFloat(o.totalWeight || o.weight || 0).toFixed(2);
+        const dimensionsValue = isGrouped ? "متعددة" : (o.dimensions || "غير محدد");
+
+        tbody.innerHTML += `<tr>
+            <td style="font-weight:bold;">${o.order}</td>
+            <td><b>${o.customerName}</b><br><small>${o.phone}</small></td>
+            <td>
+                <span class="spec-badge">الكمية المطلوبة: ${qtyDisplay}</span>
+                <span class="spec-badge">عدد الطلبات: ${o.count || 1}</span>
+                <span class="spec-badge">الوزن الكلي: ${weightValue} كجم</span>
+                <span class="spec-badge">الأبعاد: ${dimensionsValue}</span>
+            </td>
+            <td style="color:var(--primary); font-weight:800;">${o.finalPrice} EGP</td>
+            <td style="color:#10b981; font-weight:600;">${parseFloat(o.usd || 0).toFixed(2)} $</td>
+            <td>${cur}</td>
+            <td>
+                <select id="status-${printOrder}" style="padding:4px; font-size:0.8rem;">
+                    <option value="Pending Review" ${cur==='Pending Review'?'selected':''}>Pending Review</option>
+					<option value="Confirmed Via Try" ${cur==='Confirmed Via Try'?'selected':''}>Confirmed Via Try</option>
+					<option value="Placed" ${cur==='Placed'?'selected':''}>Placed</option>
+                    <option value="Processing" ${cur==='Processing'?'selected':''}>Processing</option>
+                    <option value="Shipped" ${cur==='Shipped'?'selected':''}>Shipped</option>
+                    <option value="Delivered" ${cur==='Delivered'?'selected':''}>Delivered</option>
+					<option value="Canceled" ${cur==='Canceled'?'selected':''}>Canceled</option>
+
+                </select>
+                <button class="btn-update" onclick="updateStatus('${printOrder}')">✔</button>
+            </td>
+            <td><button class="btn-print" onclick="printLabel('${printPhone}', '${printOrder}')">📄 بوليصة</button></td>
+            <td>${o.link ? `<a href="${o.link}" target="_blank" class="link-btn">المعاينة</a>` : '-'}</td>
+        </tr>`;
+    });
+}
+
+function toggleGrouping() {
+    isGrouped = !isGrouped;
+    const btn = document.getElementById("groupBtn");
+    btn.innerText = isGrouped ? "🚫 فك التجميع" : "🔄 تجميع الطلبات";
+    btn.classList.toggle("active");
+    applyFilters(); 
+}
+
+function applyFilters() {
+    const from = document.getElementById("dateFrom").value;
+    const to = document.getElementById("dateTo").value;
+    const search = document.getElementById("searchInput").value.toLowerCase();
+    const status = document.getElementById("searchStatus").value;
+
+    let filtered = ordersData.filter(o => {
+        const d = o.date ? new Date(o.date).toISOString().split('T')[0] : "";
+        const dateMatch = (!from || d >= from) && (!to || d <= to);
+        const searchMatch = (o.customerName||"").toLowerCase().includes(search) || 
+                            (o.phone||"").toString().includes(search) || 
+                            (o.order||"").toString().toLowerCase().includes(search);
+        const statusMatch = !status || o.status === status;
+        return dateMatch && searchMatch && statusMatch;
+    });
+
+    const totalEGP = filtered.reduce((a,b) => a + parseFloat(b.finalPrice || 0), 0);
+    const totalUSD = filtered.reduce((a,b) => a + parseFloat(b.usd || 0), 0);
+    document.getElementById("totalEGP").innerText = totalEGP.toLocaleString() + " EGP";
+    document.getElementById("totalUSD").innerText = totalUSD.toLocaleString() + " $";
+    document.getElementById("totalCount").innerText = filtered.length;
+
+    if (isGrouped) {
+        const groups = {};
+        filtered.forEach(o => {
+            const key = o.phone ? o.phone.toString().replace(/\s/g, '') : 'Unknown';
+            if (!groups[key]) {
+                groups[key] = { ...o, order: [o.order], count: 1, totalQty: parseInt(o.quantity || 1), totalWeight: parseFloat(o.weight || 0), finalPrice: parseFloat(o.finalPrice || 0), usd: parseFloat(o.usd || 0) };
+            } else {
+                groups[key].order.push(o.order);
+                groups[key].count += 1;
+                groups[key].totalQty += parseInt(o.quantity || 1);
+                groups[key].totalWeight += parseFloat(o.weight || 0);
+                groups[key].finalPrice += parseFloat(o.finalPrice || 0);
+                groups[key].usd += parseFloat(o.usd || 0);
+            }
+        });
+        filtered = Object.values(groups).map(g => ({ ...g, order: g.order.join(' + ') }));
+    }
+    
+    currentFilteredData = filtered; // حفظ البيانات المعروضة حالياً للطباعة الجماعية
+    renderTable(filtered);
+}
+
+// دالة توليد كود الـ HTML للبوليصة الواحدة (تستخدم في الطباعة الفردية والجماعية)
+function generateLabelHTML(data, isBulk = false) {
+    const totalP = data.finalPrice || 0;
+    const totalW = parseFloat(data.totalWeight || data.weight || 0).toFixed(2);
+    const totalQ = data.totalQty || data.quantity || 1;
+    const ids = data.order;
+
+    return `
+        <div class="card" style="${isBulk ? 'page-break-after: always;' : ''}">
+            <div class="top">
+                <div class="logo">TRY SHOPPY</div>
+                <div style="font-size: 10pt; text-align: center; border: 1px solid #000; padding: 5px;">AIRWAY BILL<br>OFFICIAL</div>
+            </div>
+            <div class="info">
+                <span>إلى السيد/ة:</span>
+                <b>${data.customerName}</b>
+                📍 ${data.governorate} - ${data.address}<br>
+                📞 ${data.phone}
+            </div>
+            <div class="shipping-box">
+                <div>الوزن الإجمالي: <b>${totalW} KG</b></div>
+                <div>إجمالي القطع: <b>${totalQ}</b></div>
+            </div>
+            <div class="ids-strip">أرقام الطلبات: ${ids}</div>
+            <div class="cod-area">
+                <span>المبلغ المطلوب تحصيلة -شامل الشحن  (C.O.D)</span>
+                <div class="cod-val">${totalP} EGP</div>
+            </div>
+            <div class="footer">مسموح فتح الشحنة عند الاستلام | تراي شوبي تتمني لكم تجربة سعيده</div>
+        </div>
+    `;
+}
+
+function printLabel(phone, orderId) {
+    const subset = ordersData.filter(x => x.phone && x.phone.toString().replace(/\s/g, '') === phone);
+    let toPrint = isGrouped ? subset : subset.filter(x => x.order.toString() === orderId.toString());
+    
+    if(toPrint.length === 0) { alert("خطأ في تحديد الطلب"); return; }
+    
+    // إعداد البيانات للطباعة
+    const printData = isGrouped ? currentFilteredData.find(x => x.phone.toString().replace(/\s/g, '') === phone) : toPrint[0];
+
+    const win = window.open('', '_blank');
+    win.document.write(`
+        <html dir="rtl" lang="ar">
+        <head>
+            <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+            <style>
+                @page { size: A5; margin: 0; }
+                body { font-family: 'Cairo', sans-serif; margin: 0; padding: 10mm; background: #fff; }
+                .card { border: 4px solid #000; height: 185mm; position: relative; padding: 15px; box-sizing: border-box; }
+                .top { border-bottom: 4px solid #000; padding-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+                .logo { font-size: 30pt; font-weight: 900; }
+                .info { margin-top: 25px; font-size: 16pt; line-height: 1.6; }
+                .info b { font-size: 20pt; display: block; margin-bottom: 10px; }
+                .shipping-box { display: flex; justify-content: space-between; margin-top: 20px; border-top: 1px solid #000; padding-top: 15px; font-size: 14pt; }
+                .ids-strip { background: #000; color: #fff; padding: 10px; margin-top: 20px; text-align: center; font-size: 9pt; word-break: break-all; }
+                .cod-area { border: 5px solid #000; margin-top: 20px; padding: 20px; text-align: center; }
+                .cod-area span { font-size: 15pt; display: block; }
+                .cod-val { font-size: 42pt; font-weight: 900; }
+                .footer { position: absolute; bottom: 15px; width: 92%; text-align: center; font-size: 10pt; font-weight: bold; }
+            </style>
+        </head>
+        <body>
+            ${generateLabelHTML(printData)}
+            <script>window.onload = () => { window.print(); window.close(); }<\/script>
+        </body>
+        </html>
+    `);
+    win.document.close();
+}
+
+// دالة الطباعة الجماعية الجديدة
+function printAllDisplayed() {
+    if (currentFilteredData.length === 0) {
+        alert("لا توجد بيانات لطباعتها حالياً.");
+        return;
+    }
+
+    if (!confirm(`هل أنت متأكد من طباعة عدد (${currentFilteredData.length}) بوليصة؟`)) return;
+
+    const win = window.open('', '_blank');
+    let allLabelsHTML = "";
+    
+    currentFilteredData.forEach((item, index) => {
+        // نمرر true لـ isBulk لضمان فاصل الصفحات
+        allLabelsHTML += generateLabelHTML(item, true);
+    });
+
+    win.document.write(`
+        <html dir="rtl" lang="ar">
+        <head>
+            <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+            <style>
+                @page { size: A5; margin: 0; }
+                body { font-family: 'Cairo', sans-serif; margin: 0; padding: 10mm; background: #fff; }
+                .card { border: 4px solid #000; height: 185mm; position: relative; padding: 15px; box-sizing: border-box; margin-bottom: 0; }
+                .top { border-bottom: 4px solid #000; padding-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+                .logo { font-size: 30pt; font-weight: 900; }
+                .info { margin-top: 25px; font-size: 16pt; line-height: 1.6; }
+                .info b { font-size: 20pt; display: block; margin-bottom: 10px; }
+                .shipping-box { display: flex; justify-content: space-between; margin-top: 20px; border-top: 1px solid #000; padding-top: 15px; font-size: 14pt; }
+                .ids-strip { background: #000; color: #fff; padding: 10px; margin-top: 20px; text-align: center; font-size: 9pt; word-break: break-all; }
+                .cod-area { border: 5px solid #000; margin-top: 20px; padding: 20px; text-align: center; }
+                .cod-area span { font-size: 15pt; display: block; }
+                .cod-val { font-size: 42pt; font-weight: 900; }
+                .footer { position: absolute; bottom: 15px; width: 92%; text-align: center; font-size: 10pt; font-weight: bold; }
+                @media print {
+                    .card { page-break-after: always; }
+                }
+            </style>
+        </head>
+        <body>
+            ${allLabelsHTML}
+            <script>window.onload = () => { window.print(); window.close(); }<\/script>
+        </body>
+        </html>
+    `);
+    win.document.close();
+}
+
+function updateStatus(orderId) {
+    const newStatus = document.getElementById(`status-${orderId}`).value;
+    fetch(scriptURL, {
+        method: "POST",
+        mode: "no-cors",
+        body: JSON.stringify({ action: "updateStatus", order: orderId, status: newStatus })
+    }).then(() => {
+        alert("تم تحديث الحالة لطلب #" + orderId);
+        loadData();
+    });
+}
+
+loadData();
+</script>
+</body>
+</html>
