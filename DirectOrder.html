@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRY SHOPPY - Smart Order System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1e40af;
+            --success: #22c55e;
+            --warning: #facc15;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --bg-light: #f8fafc;
+            --white: #ffffff;
+            --border: #e2e8f0;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { box-sizing: border-box; transition: all 0.2s ease; }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-light);
+            background-image: radial-gradient(#cbd5e1 0.5px, transparent 0.5px);
+            background-size: 24px 24px;
+            margin: 0;
+            padding: 20px;
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        .container { max-width: 720px; margin: 40px auto; }
+
+        .card {
+            background: var(--white);
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .logo { text-align: center; margin-bottom: 35px; }
+        .logo img { max-width: 200px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05)); }
+        .logo div { color: var(--text-muted); font-size: 0.9rem; margin-top: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+
+        h2 { 
+            text-align: center; 
+            color: var(--text-main); 
+            font-weight: 800; 
+            margin-bottom: 35px;
+            font-size: 1.75rem;
+            position: relative;
+        }
+        h2::after {
+            content: ''; display: block; width: 50px; height: 4px; 
+            background: var(--primary); margin: 10px auto; border-radius: 2px;
+        }
+
+        .input-group { margin-bottom: 24px; }
+        label { 
+            font-weight: 700; 
+            margin-bottom: 8px; 
+            display: block; 
+            color: var(--text-main);
+            font-size: 0.95rem;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            font-size: 1rem;
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg-light);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: var(--white);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+        button {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-main { background: var(--primary); color: var(--white); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
+        .btn-main:hover { background: var(--primary-hover); transform: translateY(-2px); }
+
+        .btn-whatsapp { background: var(--success); color: var(--white); margin-top: 15px; box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2); }
+        .btn-track { background: transparent; color: var(--text-muted); border: 2px solid var(--border); margin-top: 25px; font-size: 0.95rem; }
+        .btn-track:hover { background: var(--warning); color: #000; border-color: var(--warning); }
+
+        .result {
+            background: #f0f7ff;
+            border: 2px dashed var(--primary);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin: 30px 0;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .price { font-size: 2.5rem; font-weight: 900; color: var(--primary); margin: 10px 0; }
+        .order { 
+            background: var(--warning); 
+            color: #000; 
+            padding: 6px 20px; 
+            border-radius: 99px; 
+            display: inline-block; 
+            font-weight: 800;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .hidden { display: none; }
+        hr { border: 0; border-top: 2px solid var(--border); margin: 40px 0; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            .row { grid-template-columns: 1fr; gap: 0; }
+            .card { padding: 25px; }
+            body { padding: 10px; }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+<div class="card">
+
+<div class="logo">
+  <img src="logo.png" alt="TRY SHOPPY">
+  <div>Your Global Shopping Partner</div>
+</div>
+
+<h2>تسجيل الطلب | Order Registration</h2>
+
+<div class="input-group">
+<label>رابط المنتج | Product Link</label>
+<input id="productLink" placeholder="https://amazon.com/...">
+</div>
+
+<div class="row">
+  <div class="input-group">
+    <label>دولة الشراء | Country</label>
+    <select id="country">
+      <option value="USA">USA 🇺🇸</option>
+      <option value="OTHER">Other Countries 🌍</option>
+    </select>
+  </div>
+  <div class="input-group">
+    <label>الفئة | Category</label>
+    <select id="category">
+                    <option value="">اختر الفئة (Select)...</option>
+                    <option value="Clothes (Regular)">ملابس عادية | Clothes (Regular)</option>
+                    <option value="Jacket or BALTO">جاكيت أو بالتو | Jacket or BALTO</option>
+                    <option value="Electronics">إلكترونيات | Electronics</option>
+                    <option value="Shoes (Regular)">أحذية عادية | Shoes (Regular)</option>
+                    <option value="Shoes (Boot)">أحذية بوت | Shoes (Boot)</option>
+                    <option value="Watches">ساعات | Watches</option>
+                    <option value="Accessories">إكسسوارات | Accessories</option>
+                    <option value="Cosmetics">مستحضرات تجميل | Cosmetics</option>
+                    <option value="Sunglasses">نظارات شمسية | Sunglasses</option>
+                    <option value="Food">أغذية | Food</option>
+                    <option value="CarParts">قطع غيار سيارات | CarParts</option>
+                    <option value="Vitamin or Supplements">فيتامينات ومكملات | Vitamin or Supplements</option>
+                    <option value="Shampoo or Conditioner">شامبو وبلسم | Shampoo or Conditioner</option>
+                    <option value="Small Size Hand bag (women)">حقيبة يد صغيرة | Small Hand bag</option>
+                    <option value="Back bag (or Lap bag)">حقيبة ظهر / لابتوب | Back bag</option>
+                    <option value="Large Size Hand bag (women)">حقيبة يد كبيرة | Large Hand bag</option>
+                    <option value="Stationary">أدوات مكتبية | Stationary</option>
+    </select>
+  </div>
+</div>
+
+<div class="row">
+  <div class="input-group">
+    <label>سعر القطعة بالدولار | USD per Item</label>
+    <input id="priceUSD" type="number" placeholder="0.00">
+  </div>
+  <div class="input-group">
+    <label>السعر للقطعة بالمصري | EGP per Item</label>
+    <input id="priceEGP" type="number" placeholder="0.00">
+  </div>
+</div>
+
+<div class="row">
+  <div class="input-group">
+    <label>الكمية | Quantity</label>
+    <input id="quantity" type="number" value="1" min="1">
+  </div>
+  <div class="input-group">
+    <label>الوزن (جرام) | Weight (g)</label>
+    <input id="weight" type="number" placeholder="مثلاً: 500">
+  </div>
+</div>
+
+<div class="row">
+  <div class="input-group">
+    <label>المقاس | Size</label>
+    <input id="size" placeholder="XL, 42, ...">
+  </div>
+  <div class="input-group">
+    <label>اللون | Color</label>
+    <input id="color" placeholder="Red, Black, ...">
+  </div>
+</div>
+
+<div class="input-group">
+<label>ملاحظات أخرى | Other Notes</label>
+<textarea id="notes" rows="3" placeholder="أضف أي تفاصيل إضافية هنا..."></textarea>
+</div>
+
+<button class="btn-main" onclick="showConfirm()">تأكيد المنتج والمتابعة | Confrim</button>
+
+<div id="confirmSection" class="hidden">
+
+<div class="result">
+  <div id="orderNo" class="order"></div>
+  <div style="font-weight: 700; color: var(--text-muted);">السعر النهائي:</div>
+  <div class="price" id="finalPriceDisplay"></div>
+</div>
+
+<hr>
+
+<div class="input-group">
+<label>الاسم بالكامل | Full Name</label>
+<input id="customerName" placeholder="أدخل الاسم ">
+</div>
+
+<div class="row">
+  <div class="input-group">
+    <label>رقم الهاتف | Phone</label>
+    <input id="phone" placeholder="01xxxxxxxxx">
+  </div>
+  <div class="input-group">
+    <label>المحافظة | Governorate</label>
+                      <select id="governorate">
+                        <option value="">اختر المحافظة (Select)...</option>
+                        <option value="القاهرة">القاهرة | Cairo</option>
+                        <option value="الجيزة">الجيزة | Giza</option>
+                        <option value="الإسكندرية">الإسكندرية | Alexandria</option>
+                        <option value="الدقهلية">الدقهلية | Dakahlia</option>
+                        <option value="الشرقية">الشرقية | Sharqia</option>
+                        <option value="الغربية">الغربية | Gharbia</option>
+                        <option value="المنوفية">المنوفية | Monufia</option>
+                        <option value="القليوبية">القليوبية | Qalyubia</option>
+                        <option value="البحيرة">البحيرة | Beheira</option>
+                        <option value="كفر الشيخ">كفر الشيخ | Kafr El Sheikh</option>
+                        <option value="دمياط">دمياط | Damietta</option>
+                        <option value="بورسعيد">بورسعيد | Port Said</option>
+                        <option value="الإسماعيلية">الإسماعيلية | Ismailia</option>
+                        <option value="السويس">السويس | Suez</option>
+                        <option value="الفيوم">الفيوم | Faiyum</option>
+                        <option value="بني سويف">بني سويف | Beni Suef</option>
+                        <option value="المنيا">المنيا | Minya</option>
+                        <option value="أسيوط">أسيوط | Asyut</option>
+                        <option value="سوهاج">سوهاج | Sohag</option>
+                        <option value="قنا">قنا | Qena</option>
+                        <option value="الأقصر">الأقصر | Luxor</option>
+                        <option value="أسوان">أسوان | Aswan</option>
+                        <option value="البحر الأحمر">البحر الأحمر | Red Sea</option>
+                        <option value="الوادي الجديد">الوادي الجديد | New Valley</option>
+                        <option value="مطروح">مطروح | Matrouh</option>
+                        <option value="شمال سيناء">شمال سيناء | North Sinai</option>
+                        <option value="جنوب سيناء">جنوب سيناء | South Sinai</option>
+    </select>
+  </div>
+</div>
+
+<div class="input-group">
+<label>العنوان بالتفصيل | Address</label>
+<textarea id="address" rows="2" placeholder="المنطقة، الشارع، رقم العقار..."></textarea>
+</div>
+
+<button class="btn-main" onclick="confirmOrder()">Confirm Order | تأكيد الطلب الآن</button>
+<button class="btn-whatsapp hidden" id="whatsappBtn" onclick="sendWhatsApp()">إرسال واتساب للتأكيد</button>
+
+</div>
+
+<button class="btn-track" onclick="window.open('track.html','_blank')">🔍 تتبع الطلب | Track Order</button>
+
+</div>
+</div>
+
+<script>
+// الكود البرمجي الأصلي كما هو تماماً لضمان عمل الوظائف بنسبة 100%
+let orderNumber="";
+let finalEGP=0;
+let usdTotal=0;
+
+function generateOrder(){
+  return "TRY-2026-" + Math.floor(100000 + Math.random()*900000);
+}
+
+function showConfirm(){
+  let priceEGP = parseFloat(document.getElementById("priceEGP").value)||0;
+  let priceUSD = parseFloat(document.getElementById("priceUSD").value)||0;
+  let qty = parseInt(document.getElementById("quantity").value)||1;
+
+  if(!priceEGP || !priceUSD){
+    alert("من فضلك أدخل السعر بالدولار والمصري");
+    return;
+  }
+
+  finalEGP = priceEGP * qty;
+  usdTotal = priceUSD * qty;
+
+  orderNumber = generateOrder();
+
+  document.getElementById("orderNo").innerText = "Order No: " + orderNumber;
+  document.getElementById("finalPriceDisplay").innerText = finalEGP + " EGP";
+
+  document.getElementById("confirmSection").classList.remove("hidden");
+  // إضافة تمرير سلس عند ظهور قسم التأكيد
+  document.getElementById("confirmSection").scrollIntoView({ behavior: 'smooth' });
+}
+
+function confirmOrder(){
+  const dimensions =
+    "Size: " + document.getElementById("size").value +
+    " | Color: " + document.getElementById("color").value +
+    " | Notes: " + document.getElementById("notes").value;
+
+  fetch("https://script.google.com/macros/s/AKfycbw1sDUysx_eCaRigxz2kNAgJ7GyEZYMnWeBAeqZoefyuHeRDez-krcnuUD3UINQ3kBMHg/exec", {
+    method:"POST",
+    body:JSON.stringify({
+      order:orderNumber,
+      customerName:document.getElementById("customerName").value,
+      phone:document.getElementById("phone").value,
+      country:document.getElementById("country").value,
+      address:document.getElementById("address").value,
+      governorate:document.getElementById("governorate").value,
+      link:document.getElementById("productLink").value,
+      quantity:document.getElementById("quantity").value,
+      usd:usdTotal,
+      weight:document.getElementById("weight").value,
+      dimensions:dimensions,
+      category:document.getElementById("category").value,
+      finalPrice:finalEGP
+    })
+  });
+
+  alert("تم تسجيل الطلب بنجاح");
+  document.getElementById("whatsappBtn").classList.remove("hidden");
+}
+
+function sendWhatsApp(){
+  let msg = `TRY SHOPPY Order
+Order No: ${orderNumber}
+Name: ${document.getElementById("customerName").value}
+Price: ${finalEGP} EGP
+Product: ${document.getElementById("productLink").value}`;
+
+  window.open("https://wa.me/13022521911?text="+encodeURIComponent(msg));
+}
+</script>
+
+</body>
+</html>
