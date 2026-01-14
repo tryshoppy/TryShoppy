@@ -43,7 +43,17 @@
     </style>
 </head>
 <body>
+<body style="display:none;">
 
+<script>
+  const password = prompt("Enter Password:");
+
+  if (password === "1234") {
+    document.body.style.display = "block";
+  } else {
+    document.body.innerHTML = "<h2 style='text-align:center;margin-top:50px;'>Access Denied ❌</h2>";
+  }
+</script>
 <div class="container">
     <header>
         <h1 style="margin:0;">لوحة تحكم TRY SHOPPY</h1>
