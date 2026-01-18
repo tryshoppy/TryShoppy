@@ -373,10 +373,14 @@ function sendWhatsApp(){
   let msg = `TRY SHOPPY Order
 Order No: ${orderNumber}
 Name: ${document.getElementById("customerName").value}
-Price: ${finalEGP} EGP
-Product: ${document.getElementById("productLink").value}`;
+Governorate: ${document.getElementById("governorate").value}
+Final Price: ${finalPrice} EGP
+Product: ${document.getElementById("productLink").value}
+Product Spcs: ${document.getElementById("dimensions").value}
 
-  window.open("https://wa.me/201005609642?text="+encodeURIComponent(msg));
+Please confirm my order.`;
+
+  window.open(`https://wa.me/201005609642?text=${encodeURIComponent(msg)}`);
 }
 </script>
 
