@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRY SHOPPY - Simplified Dashboard</title>
+    <title>TRY SHOPPY - Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -15,7 +15,6 @@
         .container { max-width: 1650px; margin: 0 auto; } 
         header { text-align: center; margin-bottom: 25px; border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
         
-        /* تعديل شبكة الإحصائيات لتناسب عنصر واحد */
         .stats-grid { display: flex; justify-content: center; margin-bottom: 25px; }
         .stat-card { background: var(--white); padding: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-right: 5px solid #f59e0b; min-width: 300px; text-align: center; }
         .stat-card h3 { margin: 0; font-size: 1rem; color: #64748b; }
@@ -33,17 +32,26 @@
         th { background: #f1f5f9; padding: 15px; border-bottom: 2px solid var(--border); color: #475569; font-size: 0.85rem; }
         td { padding: 15px; border-bottom: 1px solid #f1f5f9; font-size: 0.95rem; vertical-align: middle; }
 
+        /* تنسيق خانات إدخال الأسعار */
+        .price-input {
+            width: 85px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-weight: bold;
+            text-align: center;
+            font-family: 'Cairo';
+        }
+
         .spec-badge { background: #eff6ff; color: #1e40af; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; display: block; margin-top: 3px; }
-        .btn-update { background: var(--success); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        .btn-update { background: var(--success); color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
         .link-btn { color: var(--primary); text-decoration: none; font-weight: bold; font-size: 0.8rem; border: 1px solid var(--primary); padding: 4px 8px; border-radius: 4px; }
     </style>
 </head>
-<body>
 <body style="display:none;">
 
 <script>
   const password = prompt("Enter Password:");
-
   if (password === "12345678") {
     document.body.style.display = "block";
   } else {
@@ -86,7 +94,7 @@
                 <tr>
                     <th>رقم الطلب</th>
                     <th>العميل</th>
-                    <th>المواصفات (عدد/كمية/وزن/وصف)</th>
+                    <th>المواصفات (عدد/وزن/وصف)</th>
                     <th>الإجمالي (EGP)</th>
                     <th>اجمالي التكلفة (USD)</th>
                     <th>الحالة</th>
@@ -100,9 +108,8 @@
 </div>
 
 <script>
-const scriptURL = "https://script.google.com/macros/s/AKfycbw1sDUysx_eCaRigxz2kNAgJ7GyEZYMnWeBAeqZoefyuHeRDez-krcnuUD3UINQ3kBMHg/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycbz4z9Pca_aEDXS7jPlcTXg_3kC5hCw-iIBZOg059w3PFSLEgR9Kzk4R5n-_K0p0svYjCg/exec";
 let ordersData = [];
-let currentFilteredData = [];
 let isGrouped = false;
 
 async function loadData() {
@@ -128,14 +135,16 @@ function renderTable(data) {
             <td style="font-weight:bold;">${o.order}</td>
             <td><b>${o.customerName}</b><br><small>${o.phone}</small></td>
             <td>
-                <span class="spec-badge">الكمية المطلوبة: ${qtyDisplay}</span>
-                <span class="spec-badge">عدد الطلبات: ${o.count || 1}</span>
+                <span class="spec-badge">الكمية: ${qtyDisplay}</span>
                 <span class="spec-badge">الوزن الكلي: ${weightValue} كجم</span>
                 <span class="spec-badge">الوصف: ${dimensionsValue}</span>
             </td>
-            <td style="color:var(--primary); font-weight:800;">${o.finalPrice} EGP</td>
-            <td style="color:#10b981; font-weight:600;">${parseFloat(o.usd || 0).toFixed(2)} $</td>
-            <td>${cur}</td>
+            <td>
+                <input type="number" id="egp-${printOrder}" class="price-input" value="${o.finalPrice}">
+            </td>
+            <td>
+                <input type="number" id="usd-${printOrder}" class="price-input" value="${parseFloat(o.usd || 0).toFixed(2)}">
+            </td>
             <td>
                 <select id="status-${printOrder}" style="padding:4px; font-size:0.8rem;">
                     <option value="Pending Review" ${cur==='Pending Review'?'selected':''}>Pending Review</option>
@@ -148,7 +157,9 @@ function renderTable(data) {
 					<option value="Arrived USA HUB" ${cur==='Arrived USA HUB'?'selected':''}>Arrived USA HUB</option>
 					<option value="Arrived Cairo HUB" ${cur==='Arrived Cairo HUB'?'selected':''}>Arrived Cairo HUB</option>
                 </select>
-                <button class="btn-update" onclick="updateStatus('${printOrder}')">✔</button>
+            </td>
+            <td>
+                <button class="btn-update" onclick="updateOrder('${printOrder}')">تعديل ✔</button>
             </td>
             <td>${o.link ? `<a href="${o.link}" target="_blank" class="link-btn">المعاينة</a>` : '-'}</td>
         </tr>`;
@@ -179,7 +190,6 @@ function applyFilters() {
         return dateMatch && searchMatch && statusMatch;
     });
 
-    // تحديث عداد الشحنات فقط
     document.getElementById("totalCount").innerText = filtered.length;
 
     if (isGrouped) {
@@ -190,7 +200,6 @@ function applyFilters() {
                 groups[key] = { ...o, order: [o.order], count: 1, totalQty: parseInt(o.quantity || 1), totalWeight: parseFloat(o.weight || 0), finalPrice: parseFloat(o.finalPrice || 0), usd: parseFloat(o.usd || 0) };
             } else {
                 groups[key].order.push(o.order);
-                groups[key].count += 1;
                 groups[key].totalQty += parseInt(o.quantity || 1);
                 groups[key].totalWeight += parseFloat(o.weight || 0);
                 groups[key].finalPrice += parseFloat(o.finalPrice || 0);
@@ -200,20 +209,34 @@ function applyFilters() {
         filtered = Object.values(groups).map(g => ({ ...g, order: g.order.join(' + ') }));
     }
     
-    currentFilteredData = filtered;
     renderTable(filtered);
 }
 
-function updateStatus(orderId) {
+// دالة التحديث الشاملة للأسعار والحالة
+async function updateOrder(orderId) {
     const newStatus = document.getElementById(`status-${orderId}`).value;
-    fetch(scriptURL, {
-        method: "POST",
-        mode: "no-cors",
-        body: JSON.stringify({ action: "updateStatus", order: orderId, status: newStatus })
-    }).then(() => {
-        alert("تم تحديث الحالة لطلب #" + orderId);
+    const newEGP = document.getElementById(`egp-${orderId}`).value;
+    const newUSD = document.getElementById(`usd-${orderId}`).value;
+
+    const data = {
+        action: "updateStatus", // سنبقي على نفس اسم الـ Action لعدم تعطيل السكريبت القديم
+        order: orderId,
+        status: newStatus,
+        finalPrice: newEGP,
+        usd: newUSD
+    };
+
+    try {
+        await fetch(scriptURL, {
+            method: "POST",
+            mode: "no-cors",
+            body: JSON.stringify(data)
+        });
+        alert("تم تحديث الطلب #" + orderId + " بنجاح");
         loadData();
-    });
+    } catch(err) {
+        alert("فشل التحديث، يرجى المحاولة مرة أخرى");
+    }
 }
 
 loadData();
