@@ -359,7 +359,7 @@ function confirmOrder(){
       quantity:document.getElementById("quantity").value,
       usd:usdTotal,
       weight:document.getElementById("weight").value,
-      dimensions:dimensions,
+      dimensions:dimensions.getElementById("dimensions").value,
       category:document.getElementById("category").value,
       finalPrice:finalEGP
     })
@@ -373,19 +373,18 @@ function sendWhatsApp(){
   let msg = `TRY SHOPPY Order
 Order No: ${orderNumber}
 Name: ${document.getElementById("customerName").value}
-Governorate: ${document.getElementById("governorate").value}
-Final Price: ${finalPrice} EGP
-Product: ${document.getElementById("productLink").value}
+Price: ${finalEGP} EGP
+Product: ${document.getElementById("productLink").value}`
 Product Spcs: ${document.getElementById("dimensions").value}
-
 Please confirm my order.`;
 
-  window.open(`https://wa.me/201005609642?text=${encodeURIComponent(msg)}`);
+  window.open("https://wa.me/201005609642?text="+encodeURIComponent(msg));
 }
 </script>
 
 </body>
 
 </html>
+
 
 
