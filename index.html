@@ -486,21 +486,25 @@ function confirmOrder(){
   document.getElementById("whatsappBtn").classList.remove("hidden");
   document.getElementById("confirmBtn").classList.add("hidden");
 }
-
+	
 function sendWhatsApp(){
+
+  const spcs =
+    "Size: " + document.getElementById("length").value +
+    " | Color: " + document.getElementById("width").value +
+    " | Notes: " + document.getElementById("height").value;
 
   let msg = `TRY SHOPPY Order
 Order No: ${orderNumber}
 Name: ${document.getElementById("customerName").value}
 Governorate: ${document.getElementById("governorate").value}
-Price: ${finalEGP} EGP
+Final Price: ${finalPrice} EGP
 Product: ${document.getElementById("productLink").value}
-SPCS: ${document.getElementById("dimensions").value}
+SPCS: ${spcs}`;
 
-Please confirm my order.`;
-
-  window.open("https://wa.me/201005609642?text=" + encodeURIComponent(msg));
+  window.open(`https://wa.me/201005609642?text=${encodeURIComponent(msg)}`);
 }
+
 
 </script>
 </body>
