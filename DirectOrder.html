@@ -359,7 +359,7 @@ function confirmOrder(){
       quantity:document.getElementById("quantity").value,
       usd:usdTotal,
       weight:document.getElementById("weight").value,
-      dimensions:dimensions.getElementById("dimensions").value,
+      dimensions:dimensions,
       category:document.getElementById("category").value,
       finalPrice:finalEGP
     })
@@ -370,21 +370,31 @@ function confirmOrder(){
 }
 
 function sendWhatsApp(){
+
+  const spcs =
+    "Size: " + document.getElementById("size").value +
+    " | Color: " + document.getElementById("color").value +
+    " | Notes: " + document.getElementById("notes").value;
+
   let msg = `TRY SHOPPY Order
 Order No: ${orderNumber}
 Name: ${document.getElementById("customerName").value}
+Governorate: ${document.getElementById("governorate").value}
 Price: ${finalEGP} EGP
-Product: ${document.getElementById("productLink").value}`
-Product Spcs: ${document.getElementById("dimensions").value}
+Product: ${document.getElementById("productLink").value}
+SPCS: ${spcs}
+
 Please confirm my order.`;
 
-  window.open("https://wa.me/201005609642?text="+encodeURIComponent(msg));
+  window.open("https://wa.me/201005609642?text=" + encodeURIComponent(msg));
 }
+
 </script>
 
 </body>
 
 </html>
+
 
 
 
