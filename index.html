@@ -488,7 +488,16 @@ function confirmOrder(){
 }
 
 function sendWhatsApp(){
-  let msg = `TRY SHOPPY Order\nOrder No: ${orderNumber}\nName: ${document.getElementById("customerName").value}\nGovernorate: ${document.getElementById("governorate").value}\nFinal Price: ${finalPrice} EGP\nProduct: ${document.getElementById("productLink").value}\n\nPlease confirm my order.`;
+  let msg = `TRY SHOPPY Order
+Order No: ${orderNumber}
+Name: ${document.getElementById("customerName").value}
+Governorate: ${document.getElementById("governorate").value}
+Final Price: ${finalPrice} EGP
+Product: ${document.getElementById("productLink").value}
+Product Spcs: ${document.getElementById("dimensions").value}
+
+Please confirm my order.`;
+
   window.open(`https://wa.me/201005609642?text=${encodeURIComponent(msg)}`);
 }
 </script>
