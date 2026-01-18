@@ -463,7 +463,7 @@ function confirmOrder(){
   const name = document.getElementById("customerName").value;
   if(!name){ alert("برجاء إدخال الاسم"); return; }
 
-  fetch("https://script.google.com/macros/s/AKfycbw1sDUysx_eCaRigxz2kNAgJ7GyEZYMnWeBAeqZoefyuHeRDez-krcnuUD3UINQ3kBMHg/exec", {
+  fetch("https://script.google.com/macros/s/AKfycbz4z9Pca_aEDXS7jPlcTXg_3kC5hCw-iIBZOg059w3PFSLEgR9Kzk4R5n-_K0p0svYjCg/exec", {
     method: "POST",
     body: JSON.stringify({
       order: orderNumber,
