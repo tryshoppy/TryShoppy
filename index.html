@@ -489,18 +489,13 @@ function confirmOrder(){
 
 function sendWhatsApp(){
 
-  const spcs =
-    "Size: " + document.getElementById("size").value +
-    " | Color: " + document.getElementById("color").value +
-    " | Notes: " + document.getElementById("notes").value;
-
   let msg = `TRY SHOPPY Order
 Order No: ${orderNumber}
 Name: ${document.getElementById("customerName").value}
 Governorate: ${document.getElementById("governorate").value}
 Price: ${finalEGP} EGP
 Product: ${document.getElementById("productLink").value}
-SPCS: ${spcs}
+SPCS: ${document.getElementById("dimensions").value}
 
 Please confirm my order.`;
 
