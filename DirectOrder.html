@@ -346,7 +346,7 @@ function confirmOrder(){
     " | Color: " + document.getElementById("color").value +
     " | Notes: " + document.getElementById("notes").value;
 
-  fetch("https://script.google.com/macros/s/AKfycbzYTXkJdcmbOe06XdOCqf9t3J5ttmVRwctJsKs0_O7dK4mMy2ckMz6VXAv8UU8fusiM2w/exec", {
+  fetch("https://script.google.com/macros/s/AKfycbyzDnWhqG4elYJcIsgPPUlVJoA4VjG2aysQoFs0n00kOUaxwkt1GCPBkAGW19_GOwox-A/exec", {
     method:"POST",
     body:JSON.stringify({
       order:orderNumber,
@@ -383,4 +383,5 @@ Product: ${document.getElementById("productLink").value}`;
 </body>
 
 </html>
+
 
