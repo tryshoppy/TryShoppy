@@ -273,15 +273,12 @@ function generateLabelHTML(data, isBulk = false) {
 
 function printLabel(phone, orderId) {
     const subset = ordersData.filter(x => x.phone && x.phone.toString().replace(/\s/g, '') === phone);
-    let toPrint;
+    let toPrint = isGrouped ? subset : subset.filter(x => x.order.toString() === orderId.toString());
     
-    if (isGrouped) {
-        toPrint = currentFilteredData.find(x => x.phone.toString().replace(/\s/g, '') === phone);
-    } else {
-        toPrint = subset.find(x => x.order.toString() === orderId.toString());
-    }
+    if(toPrint.length === 0) { alert("خطأ في تحديد الطلب"); return; }
     
-    if(!toPrint) { alert("خطأ في تحديد الطلب"); return; }
+    // إعداد البيانات للطباعة
+    const printData = isGrouped ? currentFilteredData.find(x => x.phone.toString().replace(/\s/g, '') === phone) : toPrint[0];
 
     const win = window.open('', '_blank');
     win.document.write(`
@@ -305,22 +302,30 @@ function printLabel(phone, orderId) {
             </style>
         </head>
         <body>
-            ${generateLabelHTML(toPrint)}
-        <script>window.onload = () => { window.print(); window.close(); }</script>
-
+            ${generateLabelHTML(printData)}
+            <script>window.onload = () => { window.print(); window.close(); }<\/script>
         </body>
         </html>
     `);
     win.document.close();
 }
 
+// دالة الطباعة الجماعية الجديدة
 function printAllDisplayed() {
-    if (currentFilteredData.length === 0) { alert("لا توجد بيانات لطباعتها حالياً."); return; }
+    if (currentFilteredData.length === 0) {
+        alert("لا توجد بيانات لطباعتها حالياً.");
+        return;
+    }
+
     if (!confirm(`هل أنت متأكد من طباعة عدد (${currentFilteredData.length}) بوليصة؟`)) return;
 
     const win = window.open('', '_blank');
     let allLabelsHTML = "";
-    currentFilteredData.forEach(item => { allLabelsHTML += generateLabelHTML(item, true); });
+    
+    currentFilteredData.forEach((item, index) => {
+        // نمرر true لـ isBulk لضمان فاصل الصفحات
+        allLabelsHTML += generateLabelHTML(item, true);
+    });
 
     win.document.write(`
         <html dir="rtl" lang="ar">
@@ -329,29 +334,41 @@ function printAllDisplayed() {
             <style>
                 @page { size: A5; margin: 0; }
                 body { font-family: 'Cairo', sans-serif; margin: 0; padding: 10mm; background: #fff; }
-                .card { border: 4px solid #000; height: 185mm; position: relative; padding: 15px; box-sizing: border-box; }
+                .card { border: 4px solid #000; height: 185mm; position: relative; padding: 15px; box-sizing: border-box; margin-bottom: 0; }
                 .top { border-bottom: 4px solid #000; padding-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
                 .logo { font-size: 30pt; font-weight: 900; }
-                .info { margin-top: 25px; font-size: 16pt; line-height: 1.6; }
+                .info { margin-top: 20px; font-size: 15pt; line-height: 1.6; }
                 .info b { font-size: 20pt; display: block; margin-bottom: 10px; }
                 .shipping-box { display: flex; justify-content: space-between; margin-top: 20px; border-top: 1px solid #000; padding-top: 15px; font-size: 14pt; }
                 .ids-strip { background: #000; color: #fff; padding: 10px; margin-top: 20px; text-align: center; font-size: 9pt; word-break: break-all; }
                 .cod-area { border: 5px solid #000; margin-top: 20px; padding: 20px; text-align: center; }
                 .cod-area span { font-size: 15pt; display: block; }
-                .cod-val { font-size: 42pt; font-weight: 900; }
+                .cod-val { font-size: 40pt; font-weight: 700; }
                 .footer { position: absolute; bottom: 15px; width: 92%; text-align: center; font-size: 10pt; font-weight: bold; }
-                @media print { .card { page-break-after: always; } }
+                @media print {
+                    .card { page-break-after: always; }
+                }
             </style>
         </head>
         <body>
             ${allLabelsHTML}
-          <script>window.onload = () => { window.print(); window.close(); }</script>
-</script>
-
+            <script>window.onload = () => { window.print(); window.close(); }<\/script>
         </body>
         </html>
     `);
     win.document.close();
+}
+
+function updateStatus(orderId) {
+    const newStatus = document.getElementById(`status-${orderId}`).value;
+    fetch(scriptURL, {
+        method: "POST",
+        mode: "no-cors",
+        body: JSON.stringify({ action: "updateStatus", order: orderId, status: newStatus })
+    }).then(() => {
+        alert("تم تحديث الحالة لطلب #" + orderId);
+        loadData();
+    });
 }
 
 loadData();
