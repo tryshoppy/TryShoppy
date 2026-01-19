@@ -239,6 +239,8 @@ function updateOrder(orderId) {
     });
 }
 
+
+// دالة توليد الشكل (تمت إعادتها لأصلها 100% بدون تغيير حرف واحد في التصميم)
 function generateLabelHTML(data, isBulk = false) {
     const totalP = data.finalPrice || 0;
     const totalW = parseFloat(data.totalWeight || data.weight || 0).toFixed(2);
@@ -271,14 +273,12 @@ function generateLabelHTML(data, isBulk = false) {
     `;
 }
 
+// دالة الطباعة (تم تعديل طريقة الاستدعاء فقط لتعمل أونلاين مع الحفاظ على التنسيق)
 function printLabel(phone, orderId) {
     const subset = ordersData.filter(x => x.phone && x.phone.toString().replace(/\s/g, '') === phone);
-    let toPrint = isGrouped ? subset : subset.filter(x => x.order.toString() === orderId.toString());
+    let toPrint = isGrouped ? currentFilteredData.find(x => x.phone.toString().replace(/\s/g, '') === phone) : subset.find(x => x.order.toString() === orderId.toString());
     
-    if(toPrint.length === 0) { alert("خطأ في تحديد الطلب"); return; }
-    
-    // إعداد البيانات للطباعة
-    const printData = isGrouped ? currentFilteredData.find(x => x.phone.toString().replace(/\s/g, '') === phone) : toPrint[0];
+    if(!toPrint) { alert("خطأ في تحديد الطلب"); return; }
 
     const win = window.open('', '_blank');
     win.document.write(`
@@ -299,32 +299,28 @@ function printLabel(phone, orderId) {
                 .cod-area span { font-size: 15pt; display: block; }
                 .cod-val { font-size: 40pt; font-weight: 700; }
                 .footer { position: absolute; bottom: 15px; width: 92%; text-align: center; font-size: 10pt; font-weight: bold; }
+                @media print { .no-print { display: none; } }
             </style>
         </head>
         <body>
-            ${generateLabelHTML(printData)}
-            <script>window.onload = () => { window.print(); window.close(); }<\/script>
+            ${generateLabelHTML(toPrint)}
+            <div style="text-align: center; margin-top: 20px;" class="no-print">
+                <button onclick="window.print()" style="padding: 15px 30px; background: #000; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-family: 'Cairo'; font-weight: bold;">اضغط هنا للطباعة أو الحفظ PDF</button>
+            </div>
         </body>
         </html>
     `);
     win.document.close();
 }
-
-// دالة الطباعة الجماعية الجديدة
 function printAllDisplayed() {
-    if (currentFilteredData.length === 0) {
-        alert("لا توجد بيانات لطباعتها حالياً.");
-        return;
-    }
-
-    if (!confirm(`هل أنت متأكد من طباعة عدد (${currentFilteredData.length}) بوليصة؟`)) return;
-
+    if (currentFilteredData.length === 0) { alert("لا توجد بيانات لطباعتها حالياً."); return; }
+    
     const win = window.open('', '_blank');
     let allLabelsHTML = "";
     
-    currentFilteredData.forEach((item, index) => {
-        // نمرر true لـ isBulk لضمان فاصل الصفحات
-        allLabelsHTML += generateLabelHTML(item, true);
+    // تجميع البوالص بنفس شكلها الأصلي تماماً
+    currentFilteredData.forEach(item => { 
+        allLabelsHTML += generateLabelHTML(item, true); 
     });
 
     win.document.write(`
@@ -334,7 +330,8 @@ function printAllDisplayed() {
             <style>
                 @page { size: A5; margin: 0; }
                 body { font-family: 'Cairo', sans-serif; margin: 0; padding: 10mm; background: #fff; }
-                .card { border: 4px solid #000; height: 185mm; position: relative; padding: 15px; box-sizing: border-box; margin-bottom: 0; }
+                /* الأكواد الخاصة بشكل البوليصة الأصلي */
+                .card { border: 4px solid #000; height: 185mm; position: relative; padding: 15px; box-sizing: border-box; }
                 .top { border-bottom: 4px solid #000; padding-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
                 .logo { font-size: 30pt; font-weight: 900; }
                 .info { margin-top: 20px; font-size: 15pt; line-height: 1.6; }
@@ -345,32 +342,25 @@ function printAllDisplayed() {
                 .cod-area span { font-size: 15pt; display: block; }
                 .cod-val { font-size: 40pt; font-weight: 700; }
                 .footer { position: absolute; bottom: 15px; width: 92%; text-align: center; font-size: 10pt; font-weight: bold; }
-                @media print {
-                    .card { page-break-after: always; }
+                
+                @media print { 
+                    .card { page-break-after: always; } 
+                    .no-print { display: none; } 
                 }
             </style>
         </head>
         <body>
             ${allLabelsHTML}
-            <script>window.onload = () => { window.print(); window.close(); }<\/script>
+            <div style="text-align: center; margin-top: 20px;" class="no-print">
+                <button onclick="window.print()" style="padding: 15px 30px; background: #2563eb; color: #fff; border: none; border-radius: 8px; font-size: 16px; font-family: 'Cairo'; cursor: pointer; font-weight: bold;">
+                    طباعة كل البوالص المجمعة
+                </button>
+            </div>
         </body>
         </html>
     `);
     win.document.close();
 }
-
-function updateStatus(orderId) {
-    const newStatus = document.getElementById(`status-${orderId}`).value;
-    fetch(scriptURL, {
-        method: "POST",
-        mode: "no-cors",
-        body: JSON.stringify({ action: "updateStatus", order: orderId, status: newStatus })
-    }).then(() => {
-        alert("تم تحديث الحالة لطلب #" + orderId);
-        loadData();
-    });
-}
-
 loadData();
 </script>
 </body>
