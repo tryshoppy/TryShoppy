@@ -306,13 +306,7 @@ function printLabel(phone, orderId) {
         </head>
         <body>
             ${generateLabelHTML(toPrint)}
-           <script>
-  window.onload = () => {
-    setTimeout(() => {
-      window.print();
-    }, 500);
-  };
-</script>
+          <script>window.onload = () => { window.print(); window.close(); }<\/script>
 
         </body>
         </html>
@@ -351,12 +345,7 @@ function printAllDisplayed() {
         </head>
         <body>
             ${allLabelsHTML}
-           <script>
-  window.onload = () => {
-    setTimeout(() => {
-      window.print();
-    }, 500);
-  };
+           <script>window.onload = () => { window.print(); window.close(); }<\/script>
 </script>
 
         </body>
