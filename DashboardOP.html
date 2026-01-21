@@ -207,7 +207,8 @@ function applyFilters() {
         const statusMatch = !status || o.status === status;
         return dateMatch && searchMatch && statusMatch;
     });
-
+  // الأحدث أولاً حسب الإدخال في Google Sheet
+  filtered = filtered.reverse();
     document.getElementById("totalCount").innerText = filtered.length;
 
     if (isGrouped) {
