@@ -51,18 +51,36 @@
 <body style="display:none;">
 
 <script>
+const SESSION_TIME = 2 * 60 * 60 * 1000; // ساعتين بالملي ثانية
+const auth = localStorage.getItem("auth");
+const loginTime = localStorage.getItem("loginTime");
+const now = new Date().getTime();
+
+if(auth === "true" && loginTime && (now - loginTime < SESSION_TIME)){
+  // الجلسة ما زالت صالحة
+  document.body.style.display = "block";
+}else{
+  // الجلسة انتهت أو أول دخول
   const password = prompt("Enter Password:");
-  if (password === "12345678") {
+  if(password === "12345678"){
+    localStorage.setItem("auth","true");
+    localStorage.setItem("loginTime", now);
     document.body.style.display = "block";
-  } else {
-    document.body.innerHTML = "<h2 style='text-align:center;margin-top:50px;'>Access Denied ❌</h2>";
+  }else{
+    document.body.innerHTML="<h2 style='text-align:center;margin-top:50px;'>Access Denied ❌</h2>";
   }
+}
 </script>
 
+
 <div class="container">
-    <header>
-        <h1 style="margin:0;">لوحة تحكم TRY SHOPPY</h1>
-    </header>
+   <header style="display:flex; justify-content:space-between; align-items:center;">
+  <h1>لوحة تحكم TRY SHOPPY</h1>
+  <button onclick="logout()" 
+    style="background:#dc2626;color:white;border:none;padding:8px 15px;border-radius:6px;cursor:pointer;font-weight:bold;">
+    تسجيل الخروج
+  </button>
+</header>
 
     <div class="stats-grid">
         <div class="stat-card"><h3>إجمالي عدد الشحنات</h3><div id="totalCount" class="value">0</div></div>
@@ -241,5 +259,13 @@ async function updateOrder(orderId) {
 
 loadData();
 </script>
+<script>
+function logout(){
+  localStorage.removeItem("auth");
+  localStorage.removeItem("loginTime");
+  location.reload();
+}
+</script>
+
 </body>
 </html>
