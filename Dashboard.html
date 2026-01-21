@@ -200,7 +200,9 @@ function applyFilters() {
         const statusMatch = !status || o.status === status;
         return dateMatch && searchMatch && statusMatch;
     });
-
+  // الأحدث أولاً حسب الإدخال في Google Sheet
+  filtered = filtered.reverse();
+	
     const totalEGP = filtered.reduce((a,b) => a + parseFloat(b.finalPrice || 0), 0);
     const totalUSD = filtered.reduce((a,b) => a + parseFloat(b.usd || 0), 0);
     document.getElementById("totalEGP").innerText = totalEGP.toLocaleString() + " EGP";
