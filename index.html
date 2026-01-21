@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRY SHOPPY - الرئيسية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --brand-yellow: #ffdc5e; 
+            --brand-black: #1a1a1a;
+            --white: #ffffff;
+            --bg-soft: #fdfcf0;
+        }
+
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+
+        body {
+            margin: 0; padding: 10px;
+            background-color: var(--bg-soft);
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; /* يضمن التوسط دائماً */
+        }
+
+        .hero-card {
+            background: var(--white);
+            padding: 30px 25px; /* تقليل الحشو الداخلي */
+            border-radius: 30px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 450px; /* تصغير العرض الأقصى قليلاً */
+            width: 100%;
+            border: 2px solid var(--brand-yellow);
+            animation: fadeIn 0.8s ease-out;
+            display: flex;
+            flex-direction: column;
+            gap: 15px; /* تباعد متساوٍ بين العناصر */
+        }
+
+        .logo-container img {
+            max-width: 160px; /* تصغير اللوجو ليناسب الشاشات الصغيرة */
+            height: auto;
+            margin-bottom: 5px;
+        }
+
+        h1 { font-size: 1.5rem; color: var(--brand-black); margin: 0; font-weight: 900; }
+        .tagline { color: #666; font-size: 0.85rem; margin-bottom: 15px; display: block; }
+
+        .button-stack { display: flex; flex-direction: column; gap: 15px; }
+
+        .btn {
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; padding: 15px; border-radius: 18px;
+            text-decoration: none; font-weight: 800; transition: 0.3s;
+            border: none;
+        }
+
+        .btn-order { background-color: var(--brand-black); color: var(--brand-yellow); }
+        .btn-track { background-color: var(--brand-yellow); color: var(--brand-black); }
+
+        .btn:hover { transform: scale(1.02); }
+
+        .btn span.ar { font-size: 1.1rem; margin-bottom: 2px; }
+        .btn span.en { font-size: 0.75rem; opacity: 0.8; font-weight: 400; letter-spacing: 0.5px; }
+
+        .footer-text { font-size: 0.75rem; color: #aaa; margin-top: 10px; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* حل مشكلة الشاشات القصيرة جداً */
+        @media (max-height: 600px) {
+            .hero-card { padding: 15px; gap: 10px; }
+            .logo-container img { max-width: 120px; }
+            h1 { font-size: 1.2rem; }
+            .btn { padding: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="hero-card">
+    <div class="logo-container">
+        <img src="logo.png" alt="TRY SHOPPY">
+    </div>
+
+    <h1>مرحباً بك في تراي شوبي</h1>
+    <span class="tagline">Your Global Shopping Partner</span>
+
+    <div class="button-stack">
+        <a href="calculator.html" class="btn btn-order">
+            <span class="ar">حساب وتسجيل طلب جديد</span>
+            <span class="en">Calculate & Register New Order</span>
+        </a>
+
+        <a href="track.html" class="btn btn-track">
+            <span class="ar">تتبع حالة طلبك</span>
+            <span class="en">Track Your Order Status</span>
+        </a>
+    </div>
+
+    <div class="footer-text">© 2026 TRY SHOPPY</div>
+</div>
+
+</body>
+</html>
