@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TRY SHOPPY - Professional Dashboard</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --primary: #2563eb; 
+  --primary-dark: #1e40af;
+  --bg: #f8fafc; 
+  --white: #ffffff;
+  --text-main: #0f172a; 
+  --text-muted: #64748b;
+  --border: #e2e8f0; 
+  --success: #10b981;
+  --warning: #f59e0b;
+  --accent: #6366f1;
+}
+
+body {
+  font-family: 'Cairo', sans-serif;
+  background-color: var(--bg);
+  background-image: radial-gradient(#cbd5e1 0.5px, transparent 0.5px);
+  background-size: 24px 24px;
+  margin: 0;
+  padding: 20px;
+  color: var(--text-main);
+}
+
+.container { max-width: 1400px; margin: 0 auto; }
+
+header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding: 20px 0;
+}
+
+header h1 {
+  font-weight: 900;
+  font-size: 2rem;
+  color: var(--text-main);
+  position: relative;
+  display: inline-block;
+}
+
+header h1::after {
+  content: '';
+  display: block;
+  width: 60%;
+  height: 5px;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  margin: 8px auto 0;
+  border-radius: 10px;
+}
+
+.stats-grid {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 40px;
+}
+
+.stat-card {
+  background: var(--white);
+  padding: 25px;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  border-right: 8px solid var(--warning);
+  min-width: 320px;
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.stat-card:hover { transform: translateY(-5px); }
+.stat-card h3 { margin: 0; font-size: 1.1rem; color: var(--text-muted); font-weight: 600; }
+.stat-card .value { font-size: 2.5rem; font-weight: 900; margin: 10px 0; color: var(--text-main); }
+
+.filters {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  padding: 25px;
+  border-radius: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 30px;
+  align-items: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+  border: 1px solid var(--white);
+}
+
+.filters input,
+.filters select {
+  padding: 14px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  flex: 1;
+  min-width: 160px;
+  font-family: 'Cairo';
+  background: var(--white);
+  transition: all 0.3s ease;
+}
+
+.filters input:focus, .filters select:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+.btn-search {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  border: none;
+  padding: 14px 35px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 800;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  transition: 0.3s;
+}
+
+.btn-search:hover { opacity: 0.9; transform: scale(1.02); }
+
+.btn-group-action {
+  background: #1e293b;
+  color: #fbbf24;
+  border: none;
+  padding: 14px 25px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 800;
+  transition: 0.3s;
+}
+
+.btn-group-action.active { background: #ef4444; color: white; }
+
+.table-wrapper {
+  background: var(--white);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+  border: 1px solid var(--border);
+}
+
+table { width: 100%; border-collapse: collapse; text-align: right; }
+
+th {
+  background: #f1f5f9;
+  padding: 18px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+  border-bottom: 2px solid var(--border);
+}
+
+td {
+  padding: 20px;
+  border-bottom: 1px solid var(--border);
+  font-size: 1rem;
+  vertical-align: middle;
+}
+
+.price-input {
+  width: 95px;
+  padding: 8px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  font-weight: 800;
+  text-align: center;
+  font-family: 'Cairo';
+  color: var(--primary);
+}
+
+.spec-badge {
+  background: #f0f9ff;
+  color: var(--primary);
+  padding: 5px 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: block;
+  margin-top: 5px;
+  border: 1px solid #e0f2fe;
+}
+
+.btn-update {
+  background: var(--success);
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 800;
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);
+}
+
+.link-btn {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 0.85rem;
+  border: 2.5px solid var(--primary);
+  padding: 6px 15px;
+  border-radius: 10px;
+  transition: 0.3s;
+}
+
+.link-btn:hover { background: var(--primary); color: white; }
+
+/* ===== موبايل فقط ===== */
+@media (max-width:768px){
+  body { padding: 12px; }
+  header h1 { font-size: 1.5rem; }
+  .stats-grid { margin-bottom: 25px; }
+  .stat-card { min-width: 100%; padding: 20px; }
+  .filters { padding: 15px; border-radius: 18px; }
+  .filters input, .filters select, .btn-search, .btn-group-action { width: 100%; }
+
+  tr {
+    background: var(--white);
+    margin-bottom: 20px;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+    border: 1px solid var(--border);
+  }
+
+  td { padding: 10px 0; border-bottom: 1px solid #f8fafc; }
+  td::before {
+    content: attr(data-label);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .price-input, select { background: #f8fafc; }
+}
+</style>
+</head>
+
+<body style="display:none;">
+
+<script>
+const password = prompt("أدخل كلمة المرور:");
+if(password==="12345678"){
+  document.body.style.display="block";
+}else{
+  document.body.innerHTML = `
+    <div style="text-align:center; margin-top:100px; font-family:'Cairo';">
+        <h1 style="color:#ef4444; font-size:4rem;">❌</h1>
+        <h2 style="color:#1e293b;">عذراً، كلمة المرور غير صحيحة</h2>
+        <p style="color:#64748b;">يرجى المحاولة مرة أخرى أو التواصل مع الإدارة</p>
+    </div>
+  `;
+}
+</script>
+
+<div class="container">
+
+<header>
+<h1>لوحة تحكم TRY SHOPPY</h1>
+</header>
+
+<div class="stats-grid">
+<div class="stat-card">
+<h3>إجمالي عدد الشحنات</h3>
+<div id="totalCount" class="value">0</div>
+</div>
+</div>
+
+<div class="filters">
+<input type="date" id="dateFrom">
+<input type="date" id="dateTo">
+<input id="searchInput" placeholder="🔍 ابحث بالاسم، الموبايل، أو رقم الطلب...">
+
+<select id="searchStatus">
+<option value="">كل الحالات</option>
+<option value="Pending Review">Pending Review</option>
+<option value="Shipped To You">Shipped To You</option>
+<option value="Delivered">Delivered</option>
+<option value="Confirmed Via Try">Confirmed Via Try</option>
+<option value="Placed">Placed</option>
+<option value="Canceled">Canceled</option>
+<option value="Processing">Processing</option>
+<option value="Arrived USA HUB">Arrived USA HUB</option>
+<option value="Arrived Cairo HUB">Arrived Cairo HUB</option>
+</select>
+
+<button class="btn-search" onclick="applyFilters()">بحث</button>
+<button id="groupBtn" class="btn-group-action" onclick="toggleGrouping()">🔄 تجميع الطلبات</button>
+</div>
+
+<div class="table-wrapper">
+<table>
+<thead>
+<tr>
+<th>رقم الطلب</th>
+<th>العميل</th>
+<th>المواصفات</th>
+<th>الإجمالي (EGP)</th>
+<th>الإجمالي (USD)</th>
+<th>الحالة</th>
+<th>الإجراء</th>
+<th>المنتج</th>
+</tr>
+</thead>
+<tbody id="tableBody"></tbody>
+</table>
+</div>
+
+</div>
+
+<script>
+// الكود البرمجي كما هو في الأصل لضمان استقرار الوظائف
+const scriptURL="https://script.google.com/macros/s/AKfycbyzDnWhqG4elYJcIsgPPUlVJoA4VjG2aysQoFs0n00kOUaxwkt1GCPBkAGW19_GOwox-A/exec";
+let ordersData=[];
+let isGrouped=false;
+
+async function loadData(){
+  const res=await fetch(scriptURL);
+  ordersData=await res.json();
+  applyFilters();
+}
+
+function renderTable(data){
+  const tbody=document.getElementById("tableBody");
+  tbody.innerHTML="";
+  data.forEach(o=>{
+    const cur=o.status||"Pending Review";
+    const printOrder=o.order?o.order.toString().split(' + ')[0]:'N/A';
+
+    tbody.innerHTML+=`
+<tr>
+<td data-label="رقم الطلب"><b>#${o.order}</b></td>
+<td data-label="العميل"><b>${o.customerName}</b><br><small style="color:var(--primary); font-weight:600;">${o.phone}</small></td>
+<td data-label="المواصفات">
+<span class="spec-badge">الكمية: ${o.quantity||1}</span>
+<span class="spec-badge">الوزن: ${parseFloat(o.weight||0).toFixed(2)} كجم</span>
+<span class="spec-badge">الوصف: ${o.dimensions||"غير محدد"}</span>
+</td>
+<td data-label="الإجمالي EGP">
+<input type="number" id="egp-${printOrder}" class="price-input" value="${o.finalPrice}">
+</td>
+<td data-label="الإجمالي USD">
+<input type="number" id="usd-${printOrder}" class="price-input" value="${parseFloat(o.usd||0).toFixed(2)}">
+</td>
+<td data-label="الحالة">
+<select id="status-${printOrder}">
+<option value="Pending Review" ${cur==='Pending Review'?'selected':''}>Pending Review</option>
+<option value="Confirmed Via Try" ${cur==='Confirmed Via Try'?'selected':''}>Confirmed Via Try</option>
+<option value="Placed" ${cur==='Placed'?'selected':''}>Placed</option>
+<option value="Processing" ${cur==='Processing'?'selected':''}>Processing</option>
+<option value="Shipped To You" ${cur==='Shipped To You'?'selected':''}>Shipped To You</option>
+<option value="Delivered" ${cur==='Delivered'?'selected':''}>Delivered</option>
+<option value="Canceled" ${cur==='Canceled'?'selected':''}>Canceled</option>
+<option value="Arrived USA HUB" ${cur==='Arrived USA HUB'?'selected':''}>Arrived USA HUB</option>
+<option value="Arrived Cairo HUB" ${cur==='Arrived Cairo HUB'?'selected':''}>Arrived Cairo HUB</option>
+</select>
+</td>
+<td data-label="الإجراء">
+<button class="btn-update" onclick="updateOrder('${printOrder}')">تحديث ✔</button>
+</td>
+<td data-label="المنتج">
+${o.link?`<a href="${o.link}" target="_blank" class="link-btn">المعاينة</a>`:'-'}
+</td>
+</tr>`;
+  });
+}
+
+function toggleGrouping(){
+  isGrouped=!isGrouped;
+  document.getElementById("groupBtn").classList.toggle("active");
+  applyFilters();
+}
+
+function applyFilters(){
+  const search=document.getElementById("searchInput").value.toLowerCase();
+  let filtered=ordersData.filter(o=>
+    (o.customerName||"").toLowerCase().includes(search) ||
+    (o.phone||"").toString().includes(search) ||
+    (o.order||"").toString().includes(search)
+  );
+
+  document.getElementById("totalCount").innerText=filtered.length;
+  renderTable(filtered);
+}
+
+async function updateOrder(orderId){
+  const data={
+    action:"updateStatus",
+    order:orderId,
+    status:document.getElementById(`status-${orderId}`).value,
+    finalPrice:document.getElementById(`egp-${orderId}`).value,
+    usd:document.getElementById(`usd-${orderId}`).value
+  };
+
+  await fetch(scriptURL,{method:"POST",mode:"no-cors",body:JSON.stringify(data)});
+  alert("تم التحديث بنجاح ✅");
+  loadData();
+}
+
+loadData();
+</script>
+
+</body>
+</html>
