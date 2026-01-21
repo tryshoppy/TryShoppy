@@ -377,7 +377,8 @@ function applyFilters(){
     (o.phone||"").toString().includes(search) ||
     (o.order||"").toString().includes(search)
   );
-
+  // الأحدث أولاً حسب الإدخال في Google Sheet
+  filtered = filtered.reverse();
   document.getElementById("totalCount").innerText=filtered.length;
   renderTable(filtered);
 }
