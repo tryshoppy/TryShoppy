@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TRY SHOPPY - Mobile Cards Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --primary:#0d6efd;
+  --bg:#f4f7fe;
+  --white:#fff;
+  --text:#1e293b;
+  --border:#cbd5e1;
+  --success:#22c55e;
+  --danger:#dc2626;
+}
+
+body{font-family:'Cairo',sans-serif;background:var(--bg);margin:0;padding:10px;color:var(--text);}
+.container{max-width:900px;margin:auto;}
+
+header{
+  display:flex;justify-content:space-between;align-items:center;
+  border-bottom:2px solid var(--primary);padding:10px;margin-bottom:10px;
+}
+
+.filters{
+  background:#fff;padding:10px;border-radius:10px;
+  display:flex;flex-direction:column;gap:8px;margin-bottom:10px;
+  box-shadow:0 2px 5px rgba(0,0,0,.05);
+}
+
+.filters input,.filters button{
+  padding:10px;border-radius:8px;border:1px solid var(--border);
+  font-family:'Cairo';width:100%;
+}
+
+.btn-search{background:var(--primary);color:#fff;font-weight:bold;cursor:pointer}
+.btn-group{background:#000;color:#fff;font-weight:bold;cursor:pointer}
+
+.cards-container{display:flex;flex-direction:column;gap:12px;}
+
+.order-card{
+  background:#fff;border-radius:12px;padding:12px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.08);
+  border-right:5px solid var(--primary);
+}
+
+.field{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:6px;font-size:14px;
+}
+.field label{font-weight:600;color:#334155}
+.field input,.field select{
+  width:150px;padding:4px;border-radius:6px;border:1px solid var(--border);
+  text-align:center;font-family:'Cairo';
+}
+
+.net{font-weight:bold;color:var(--success)}
+
+.actions{display:flex;justify-content:space-between;margin-top:8px}
+
+.btn-update{background:var(--success);color:#fff;border:none;padding:6px 14px;border-radius:6px;font-weight:bold;cursor:pointer}
+.btn-print{background:#000;color:#fff;border:none;padding:6px 14px;border-radius:6px;font-weight:bold;cursor:pointer}
+
+.link-btn{color:var(--primary);text-decoration:none;font-weight:bold}
+</style>
+</head>
+
+<body style="display:none;">
+
+<script>
+const SESSION_TIME=2*60*60*1000;
+const auth=localStorage.getItem("auth");
+const loginTime=localStorage.getItem("loginTime");
+const now=new Date().getTime();
+
+if(auth==="true"&&loginTime&&(now-loginTime<SESSION_TIME)){
+  document.body.style.display="block";
+}else{
+  const password=prompt("Enter Password:");
+  if(password==="945992"){
+    localStorage.setItem("auth","true");
+    localStorage.setItem("loginTime",now);
+    document.body.style.display="block";
+  }else{
+    document.body.innerHTML="<h2 style='text-align:center;margin-top:50px;'>Access Denied ❌</h2>";
+  }
+}
+</script>
+
+<div class="container">
+<header>
+  <h3>TRY SHOPPY</h3>
+  <button onclick="logout()" style="background:#dc2626;color:white;border:none;padding:6px 12px;border-radius:6px;">خروج</button>
+</header>
+
+<div class="filters">
+  <input type="date" id="dateFrom">
+  <input type="date" id="dateTo">
+  <input id="searchInput" placeholder="🔍 ابحث بالاسم أو التليفون أو رقم الطلب">
+  <button class="btn-search" onclick="applyFilters()">بحث</button>
+  <button class="btn-group" onclick="toggleGrouping()">🔄 تجميع حسب التليفون</button>
+</div>
+
+<div id="cardsContainer" class="cards-container"></div>
+</div>
+
+<script>
+const scriptURL="https://script.google.com/macros/s/AKfycby-HrSH3DwpAPJAuhiAPlBJAngy-_qUZ7-O925hTA7FnbBVHkrjprfJavEA-WKyofIdlg/exec"; // ← ضع رابط السكربت هنا
+let ordersData=[];
+let isGrouped=false;
+
+async function loadData(){
+  const res=await fetch(scriptURL);
+  ordersData=await res.json();
+  applyFilters();
+}
+
+function renderCards(data){
+  const container=document.getElementById("cardsContainer");
+  container.innerHTML="";
+
+  data.forEach(o=>{
+    const orderId=o.order;
+    const qty=o.quantity||1;
+    const weight=o.weight||0;
+    const dims=o.dimensions||"غير محدد";
+
+    const total=parseFloat(o.finalPrice||0);
+    const dep=parseFloat(o.deposit||0);
+    const usd=parseFloat(o.usd||0);
+    const ship=parseFloat(o.shipping||0);
+    const net=total+ship-dep;
+
+    container.innerHTML+=`
+    <div class="order-card">
+      <div class="field"><label>رقم الأوردر:</label><span>${o.order}</span></div>
+      <div class="field"><label>الاسم:</label><span>${o.customerName||""}</span></div>
+      <div class="field"><label>التليفون:</label><span>${o.phone||""}</span></div>
+
+      <div class="field"><label>الكمية:</label><span>${qty}</span></div>
+      <div class="field"><label>الوزن:</label><span>${weight} جم</span></div>
+      <div class="field"><label>الأبعاد:</label><span>${dims}</span></div>
+
+      <div class="field"><label>الإجمالي:</label>
+        <input type="number" id="egp-${orderId}" value="${total}">
+      </div>
+
+      <div class="field"><label>العربون:</label>
+        <input type="number" id="deposit-${orderId}" value="${dep}">
+      </div>
+
+      <div class="field"><label>الصافي:</label>
+        <span class="net">${net} ج.م</span>
+      </div>
+
+      <div class="field"><label>USD:</label>
+        <input type="number" id="usd-${orderId}" value="${usd}">
+      </div>
+
+      <div class="field"><label>الحالة:</label>
+        <select id="status-${orderId}">
+          <option ${o.status==="Pending Review"?"selected":""}>Pending Review</option>
+          <option ${o.status==="Processing"?"selected":""}>Processing</option>
+          <option ${o.status==="Placed"?"selected":""}>Placed</option>
+          <option ${o.status==="Shipped To You"?"selected":""}>Shipped To You</option>
+          <option ${o.status==="Delivered"?"selected":""}>Delivered</option>
+          <option ${o.status==="Canceled"?"selected":""}>Canceled</option>
+        </select>
+      </div>
+
+      <div class="field"><label>اللينك:</label>
+        ${o.link?`<a href="${o.link}" target="_blank" class="link-btn">فتح المنتج</a>`:"—"}
+      </div>
+
+      <div class="actions">
+        <button class="btn-update" onclick="updateOrder('${orderId}')">✔ حفظ</button>
+        <button class="btn-print" onclick="printLabel('${o.phone}','${orderId}')">📄 بوليصة</button>
+      </div>
+    </div>
+    `;
+  });
+}
+
+function applyFilters(){
+  const search=document.getElementById("searchInput").value.toLowerCase();
+  const from=document.getElementById("dateFrom").value;
+  const to=document.getElementById("dateTo").value;
+
+  let filtered=ordersData.filter(o=>{
+    const d=o.date?new Date(o.date).toISOString().split('T')[0]:"";
+    const dateMatch=(!from||d>=from)&&(!to||d<=to);
+    const searchMatch=
+      (o.customerName||"").toLowerCase().includes(search)||
+      (o.phone||"").toString().includes(search)||
+      (o.order||"").toString().includes(search);
+    return dateMatch&&searchMatch;
+  });
+
+  if(isGrouped){
+    const groups={};
+    filtered.forEach(o=>{
+      const key=o.phone||"Unknown";
+      if(!groups[key]){
+        groups[key]={...o,
+          order:o.order,
+          quantity:o.quantity||1,
+          weight:o.weight||0,
+          finalPrice:parseFloat(o.finalPrice||0),
+          deposit:parseFloat(o.deposit||0),
+          usd:parseFloat(o.usd||0),
+          shipping:parseFloat(o.shipping||0)
+        };
+      }else{
+        groups[key].quantity+=parseInt(o.quantity||1);
+        groups[key].weight+=parseFloat(o.weight||0);
+        groups[key].finalPrice+=parseFloat(o.finalPrice||0);
+        groups[key].deposit+=parseFloat(o.deposit||0);
+        groups[key].usd+=parseFloat(o.usd||0);
+        groups[key].shipping+=parseFloat(o.shipping||0);
+        groups[key].order+=" + "+o.order;
+      }
+    });
+    filtered=Object.values(groups);
+  }
+
+  renderCards(filtered.reverse());
+}
+
+function toggleGrouping(){
+  isGrouped=!isGrouped;
+  applyFilters();
+}
+
+function updateOrder(orderId){
+  const newEGP=document.getElementById("egp-"+orderId).value;
+  const newDeposit=document.getElementById("deposit-"+orderId).value;
+  const newUSD=document.getElementById("usd-"+orderId).value;
+  const newStatus=document.getElementById("status-"+orderId).value;
+
+  fetch(scriptURL,{
+    method:"POST",
+    mode:"no-cors",
+    body:JSON.stringify({
+      action:"updateStatus",
+      order:orderId,
+      finalPrice:newEGP,
+      deposit:newDeposit,
+      usd:newUSD,
+      status:newStatus
+    })
+  }).then(()=>{
+    alert("تم تحديث الطلب #"+orderId);
+    loadData();
+  });
+}
+
+function printLabel(phone,orderId){
+  alert("الطباعة كما في سكربتك الحالي");
+}
+
+function logout(){
+  localStorage.removeItem("auth");
+  localStorage.removeItem("loginTime");
+  location.reload();
+}
+
+loadData();
+</script>
+
+</body>
+</html>
