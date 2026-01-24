@@ -2,8 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TRY SHOPPY - Mobile Cards Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>TRY SHOPPY - Mobile Dashboard v8</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 
 <style>
@@ -17,100 +17,112 @@
   --danger:#dc2626;
 }
 
-/* 🔹 تكبير الخط العام */
 body{
   font-family:'Cairo',sans-serif;
   background:var(--bg);
   margin:0;
-  padding:12px;
+  padding:10px;
   color:var(--text);
   font-size:16px;
 }
 
-.container{max-width:900px;margin:auto;}
+.container{max-width:600px; margin:auto;}
 
 header{
   display:flex;
   justify-content:space-between;
   align-items:center;
   border-bottom:2px solid var(--primary);
-  padding:12px;
-  margin-bottom:12px;
-  font-size:18px;
+  padding:10px 5px;
+  margin-bottom:15px;
 }
+
+header .logo { font-weight: 900; font-size: 1.2rem; color: var(--primary); }
 
 .filters{
   background:#fff;
-  padding:12px;
-  border-radius:12px;
+  padding:15px;
+  border-radius:15px;
   display:flex;
   flex-direction:column;
-  gap:10px;
-  margin-bottom:12px;
-  box-shadow:0 2px 5px rgba(0,0,0,.05);
+  gap:12px;
+  margin-bottom:15px;
+  box-shadow:0 2px 10px rgba(0,0,0,.05);
 }
 
-.filters input,
-.filters select,
-.filters button{
+.filters input, .filters select, .filters button{
   padding:12px;
   border-radius:10px;
   border:1px solid var(--border);
   font-family:'Cairo';
   width:100%;
   font-size:15px;
+  box-sizing: border-box;
 }
 
-.btn-search{background:var(--primary);color:#fff;font-weight:bold;cursor:pointer}
-.btn-group{background:#000;color:#fff;font-weight:bold;cursor:pointer}
+.btn-search{background:var(--primary); color:#fff; font-weight:bold; cursor:pointer; border:none;}
+.btn-group{background:#1a1a1a; color:#fff; font-weight:bold; cursor:pointer; border:none;}
 
-.cards-container{
-  display:flex;
-  flex-direction:column;
-  gap:14px;
-}
+.cards-container{ display:flex; flex-direction:column; gap:15px; }
 
 .order-card{
   background:#fff;
-  border-radius:14px;
-  padding:14px;
-  box-shadow:0 2px 8px rgba(0,0,0,0.08);
-  border-right:6px solid var(--primary);
+  border-radius:18px;
+  padding:15px;
+  box-shadow:0 3px 12px rgba(0,0,0,0.06);
+  border-right:8px solid var(--primary);
+  position: relative;
 }
+
+.order-card.grouped { border-right-color: #000; }
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  border-bottom: 1px dashed var(--border);
+  padding-bottom: 8px;
+}
+
+.order-id { font-weight: 900; color: var(--primary); }
 
 .field{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  margin-bottom:8px;
-  font-size:15px;
+  margin-bottom:10px;
 }
 
-.field label{
-  font-weight:700;
-  color:#334155;
-}
+.field label{ font-weight:700; color:#64748b; font-size: 14px; }
+.field span { font-weight: 600; color: var(--text); }
 
-.field input,
-.field select{
-  width:160px;
-  padding:6px;
+.field input, .field select{
+  width:130px;
+  padding:8px;
   border-radius:8px;
   border:1px solid var(--border);
   text-align:center;
   font-family:'Cairo';
   font-size:14px;
+  font-weight: bold;
 }
 
-.net{
-  font-weight:900;
-  color:var(--success);
-  font-size:16px;
+.net-box {
+  background: #f0fdf4;
+  padding: 10px;
+  border-radius: 10px;
+  margin: 10px 0;
+  text-align: center;
+  border: 1px solid #dcfce7;
 }
+
+.net-label { display: block; font-size: 12px; color: #166534; font-weight: bold; }
+.net-value { font-size: 20px; font-weight: 900; color: var(--success); }
 
 .actions{
-  display:flex;
-  justify-content:center;
+  display:grid;
+  grid-template-columns: 1fr;
+  gap:10px;
   margin-top:10px;
 }
 
@@ -118,17 +130,36 @@ header{
   background:var(--success);
   color:#fff;
   border:none;
-  padding:8px 20px;
-  border-radius:8px;
+  padding:12px;
+  border-radius:10px;
   font-weight:bold;
   cursor:pointer;
-  font-size:15px;
 }
 
 .link-btn{
-  color:var(--primary);
-  text-decoration:none;
-  font-weight:bold;
+  background: #eff6ff;
+  color: var(--primary);
+  padding: 10px;
+  border-radius: 10px;
+  text-align: center;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.spec-row {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+.badge {
+    background: #f1f5f9;
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-size: 12px;
+    color: #475569;
+    font-weight: 600;
 }
 </style>
 </head>
@@ -145,7 +176,7 @@ if(auth==="true"&&loginTime&&(now-loginTime<SESSION_TIME)){
   document.body.style.display="block";
 }else{
   const password=prompt("Enter Password:");
-  if(password==="12345678"){
+  if(password==="945992"){
     localStorage.setItem("auth","true");
     localStorage.setItem("loginTime",now);
     document.body.style.display="block";
@@ -157,42 +188,43 @@ if(auth==="true"&&loginTime&&(now-loginTime<SESSION_TIME)){
 
 <div class="container">
 <header>
-  <div>TRY SHOPPY</div>
-  <button onclick="logout()" style="background:#dc2626;color:white;border:none;padding:8px 14px;border-radius:8px;">خروج</button>
+  <div class="logo">TRY SHOPPY</div>
+  <button onclick="logout()" style="background:#dc2626;color:white;border:none;padding:6px 12px;border-radius:8px; font-family: 'Cairo';">خروج</button>
 </header>
 
 <div class="filters">
-  <input type="date" id="dateFrom">
-  <input type="date" id="dateTo">
-
-  <input id="searchInput" placeholder="🔍 بحث بالاسم أو التليفون أو رقم الأوردر">
-
+  <div style="display: flex; gap: 5px;">
+    <input type="date" id="dateFrom">
+    <input type="date" id="dateTo">
+  </div>
+  <input id="searchInput" placeholder="🔍 بحث بالاسم أو التليفون أو الأوردر">
   <select id="searchStatus">
     <option value="">كل الحالات</option>
-    <option value="Pending Review">Pending Review</option>
-    <option value="Processing">Processing</option>
-    <option value="Placed">Placed</option>
-    <option value="Shipped To You">Shipped To You</option>
-    <option value="Delivered">Delivered</option>
-    <option value="Canceled">Canceled</option>
+    <option>Pending Review</option>
+    <option>Processing</option>
+    <option>Placed</option>
+    <option>Shipped To You</option>
+    <option>Delivered</option>
+    <option>Canceled</option>
   </select>
-
   <button class="btn-search" onclick="applyFilters()">بحث</button>
-  <button class="btn-group" onclick="toggleGrouping()">🔄 تجميع حسب التليفون / فك التجميع</button>
+  <button class="btn-group" onclick="toggleGrouping()">👥 تجميع / فك تجميع الطلبات</button>
 </div>
 
 <div id="cardsContainer" class="cards-container"></div>
 </div>
 
 <script>
-const scriptURL="https://script.google.com/macros/s/AKfycby-HrSH3DwpAPJAuhiAPlBJAngy-_qUZ7-O925hTA7FnbBVHkrjprfJavEA-WKyofIdlg/exec"; // ← ضع رابط السكربت هنا
+const scriptURL="https://script.google.com/macros/s/AKfycby-HrSH3DwpAPJAuhiAPlBJAngy-_qUZ7-O925hTA7FnbBVHkrjprfJavEA-WKyofIdlg/exec";
 let ordersData=[];
 let isGrouped=false;
 
 async function loadData(){
-  const res=await fetch(scriptURL);
-  ordersData=await res.json();
-  applyFilters();
+  try {
+    const res=await fetch(scriptURL, { redirect: 'follow' });
+    ordersData=await res.json();
+    applyFilters();
+  } catch(e) { alert("خطأ في التحميل"); }
 }
 
 function renderCards(data){
@@ -200,45 +232,56 @@ function renderCards(data){
   container.innerHTML="";
 
   data.forEach(o=>{
-    const orderId=o.order;
-    const qty=o.quantity||1;
-    const weight=o.weight||0;
-    const dims=o.dimensions||"غير محدد";
+    const orderId = o.order;
+    const cleanOrderId = orderId.toString().split(' + ')[0];
+    const qty = o.quantity || 1;
+    const weight = o.weight || 0;
+    const dims = o.dimensions || "غير محدد";
 
-    const total=parseFloat(o.finalPrice||0);
-    const dep=parseFloat(o.deposit||0);
-    const usd=parseFloat(o.usd||0);
-    const ship=parseFloat(o.shipping||0);
-    const net=total+ship-dep;
+    const total = parseFloat(o.finalPrice || 0);
+    const dep = parseFloat(o.deposit || 0);
+    const ship = parseFloat(o.shipping || 0);
+    const net = total + ship - dep;
 
     container.innerHTML+=`
-    <div class="order-card">
-      <div class="field"><label>رقم الأوردر:</label><span>${o.order}</span></div>
-      <div class="field"><label>الاسم:</label><span>${o.customerName||""}</span></div>
-      <div class="field"><label>التليفون:</label><span>${o.phone||""}</span></div>
+    <div class="order-card ${isGrouped ? 'grouped' : ''}">
+      <div class="card-header">
+        <span class="order-id">#${orderId}</span>
+        <span class="badge">${o.status || 'Pending'}</span>
+      </div>
+      
+      <div class="field"><label>العميل:</label><span>${o.customerName || "—"}</span></div>
+      <div class="field"><label>التليفون:</label><span>${o.phone || "—"}</span></div>
 
-      <div class="field"><label>الكمية:</label><span>${qty}</span></div>
-      <div class="field"><label>الوزن:</label><span>${weight} جم</span></div>
-      <div class="field"><label>المواصفات:</label><span>${dims}</span></div>
-
-      <div class="field"><label>الإجمالي:</label>
-        <input type="number" id="egp-${orderId}" value="${total}">
+      <div class="spec-row">
+        <span class="badge">الكمية: ${qty}</span>
+        <span class="badge">الوزن: ${weight} جم</span>
+        <span class="badge">الأبعاد: ${dims}</span>
       </div>
 
-      <div class="field"><label>العربون:</label>
-        <input type="number" id="deposit-${orderId}" value="${dep}">
+      <div class="field">
+        <label>الإجمالي (EGP):</label>
+        <input type="number" id="egp-${cleanOrderId}" value="${total}" oninput="recalc('${cleanOrderId}', ${ship})">
       </div>
 
-      <div class="field"><label>الصافي:</label>
-        <span class="net">${net} ج.م</span>
+      <div class="field">
+        <label>العربون:</label>
+        <input type="number" id="deposit-${cleanOrderId}" style="color:red" value="${dep}" oninput="recalc('${cleanOrderId}', ${ship})">
       </div>
 
-      <div class="field"><label>USD:</label>
-        <input type="number" id="usd-${orderId}" value="${usd}">
+      <div class="net-box">
+        <span class="net-label">المبلغ المطلوب تحصيله (الصافي)</span>
+        <span class="net-value" id="net-${cleanOrderId}">${net.toLocaleString()} ج.م</span>
       </div>
 
-      <div class="field"><label>الحالة:</label>
-        <select id="status-${orderId}">
+      <div class="field">
+        <label>التكلفة (USD):</label>
+        <input type="number" id="usd-${cleanOrderId}" value="${parseFloat(o.usd||0).toFixed(2)}">
+      </div>
+
+      <div class="field">
+        <label>تعديل الحالة:</label>
+        <select id="status-${cleanOrderId}">
           <option ${o.status==="Pending Review"?"selected":""}>Pending Review</option>
           <option ${o.status==="Processing"?"selected":""}>Processing</option>
           <option ${o.status==="Placed"?"selected":""}>Placed</option>
@@ -248,16 +291,19 @@ function renderCards(data){
         </select>
       </div>
 
-      <div class="field"><label>اللينك:</label>
-        ${o.link?`<a href="${o.link}" target="_blank" class="link-btn">فتح المنتج</a>`:"—"}
-      </div>
-
       <div class="actions">
-        <button class="btn-update" onclick="updateOrder('${orderId}')">✔ حفظ التعديلات</button>
+        <a href="${o.link || '#'}" target="_blank" class="link-btn">🔗 معاينة المنتج</a>
+        <button class="btn-update" onclick="updateOrder('${cleanOrderId}')">✔ حفظ التعديلات</button>
       </div>
     </div>
     `;
   });
+}
+
+function recalc(id, ship) {
+    const egp = parseFloat(document.getElementById('egp-'+id).value) || 0;
+    const dep = parseFloat(document.getElementById('deposit-'+id).value) || 0;
+    document.getElementById('net-'+id).innerText = (egp + ship - dep).toLocaleString() + " ج.م";
 }
 
 function applyFilters(){
@@ -270,10 +316,9 @@ function applyFilters(){
     const d=o.date?new Date(o.date).toISOString().split('T')[0]:"";
     const dateMatch=(!from||d>=from)&&(!to||d<=to);
     const statusMatch=!status||o.status===status;
-    const searchMatch=
-      (o.customerName||"").toLowerCase().includes(search)||
-      (o.phone||"").toString().includes(search)||
-      (o.order||"").toString().includes(search);
+    const searchMatch=(o.customerName||"").toLowerCase().includes(search)||
+                      (o.phone||"").toString().includes(search)||
+                      (o.order||"").toString().includes(search);
     return dateMatch&&statusMatch&&searchMatch;
   });
 
@@ -282,35 +327,23 @@ function applyFilters(){
     filtered.forEach(o=>{
       const key=o.phone||"Unknown";
       if(!groups[key]){
-        groups[key]={...o,
-          order:o.order,
-          quantity:o.quantity||1,
-          weight:o.weight||0,
-          finalPrice:parseFloat(o.finalPrice||0),
-          deposit:parseFloat(o.deposit||0),
-          usd:parseFloat(o.usd||0),
-          shipping:parseFloat(o.shipping||0)
-        };
+        groups[key]={...o, order:o.order, quantity:o.quantity||1, weight:o.weight||0, finalPrice:parseFloat(o.finalPrice||0), deposit:parseFloat(o.deposit||0), shipping:parseFloat(o.shipping||0), usd:parseFloat(o.usd||0)};
       }else{
         groups[key].quantity+=parseInt(o.quantity||1);
         groups[key].weight+=parseFloat(o.weight||0);
         groups[key].finalPrice+=parseFloat(o.finalPrice||0);
         groups[key].deposit+=parseFloat(o.deposit||0);
-        groups[key].usd+=parseFloat(o.usd||0);
         groups[key].shipping+=parseFloat(o.shipping||0);
+        groups[key].usd+=parseFloat(o.usd||0);
         groups[key].order+=" + "+o.order;
       }
     });
     filtered=Object.values(groups);
   }
-
   renderCards(filtered.reverse());
 }
 
-function toggleGrouping(){
-  isGrouped=!isGrouped;
-  applyFilters();
-}
+function toggleGrouping(){ isGrouped=!isGrouped; applyFilters(); }
 
 function updateOrder(orderId){
   const newEGP=document.getElementById("egp-"+orderId).value;
