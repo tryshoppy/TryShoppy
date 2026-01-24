@@ -120,7 +120,7 @@ function track() {
     btnText.innerText = "جاري البحث... | Searching...";
     resultDiv.style.display = "none";
 
-    fetch("https://script.google.com/macros/s/AKfycbyzDnWhqG4elYJcIsgPPUlVJoA4VjG2aysQoFs0n00kOUaxwkt1GCPBkAGW19_GOwox-A/exec")
+    fetch("https://script.google.com/macros/s/AKfycby-HrSH3DwpAPJAuhiAPlBJAngy-_qUZ7-O925hTA7FnbBVHkrjprfJavEA-WKyofIdlg/exec")
     .then(res => res.json())
     .then(data => {
         let found = data.find(o => o.order === orderInput);
