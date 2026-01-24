@@ -17,54 +17,119 @@
   --danger:#dc2626;
 }
 
-body{font-family:'Cairo',sans-serif;background:var(--bg);margin:0;padding:10px;color:var(--text);}
+/* 🔹 تكبير الخط العام */
+body{
+  font-family:'Cairo',sans-serif;
+  background:var(--bg);
+  margin:0;
+  padding:12px;
+  color:var(--text);
+  font-size:16px;
+}
+
 .container{max-width:900px;margin:auto;}
 
 header{
-  display:flex;justify-content:space-between;align-items:center;
-  border-bottom:2px solid var(--primary);padding:10px;margin-bottom:10px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:2px solid var(--primary);
+  padding:12px;
+  margin-bottom:12px;
+  font-size:18px;
 }
 
 .filters{
-  background:#fff;padding:10px;border-radius:10px;
-  display:flex;flex-direction:column;gap:8px;margin-bottom:10px;
+  background:#fff;
+  padding:12px;
+  border-radius:12px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-bottom:12px;
   box-shadow:0 2px 5px rgba(0,0,0,.05);
 }
 
-.filters input,.filters button{
-  padding:10px;border-radius:8px;border:1px solid var(--border);
-  font-family:'Cairo';width:100%;
+.filters input,
+.filters select,
+.filters button{
+  padding:12px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  font-family:'Cairo';
+  width:100%;
+  font-size:15px;
 }
 
 .btn-search{background:var(--primary);color:#fff;font-weight:bold;cursor:pointer}
 .btn-group{background:#000;color:#fff;font-weight:bold;cursor:pointer}
 
-.cards-container{display:flex;flex-direction:column;gap:12px;}
+.cards-container{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
 
 .order-card{
-  background:#fff;border-radius:12px;padding:12px;
+  background:#fff;
+  border-radius:14px;
+  padding:14px;
   box-shadow:0 2px 8px rgba(0,0,0,0.08);
-  border-right:5px solid var(--primary);
+  border-right:6px solid var(--primary);
 }
 
 .field{
-  display:flex;justify-content:space-between;align-items:center;
-  margin-bottom:6px;font-size:14px;
-}
-.field label{font-weight:600;color:#334155}
-.field input,.field select{
-  width:150px;padding:4px;border-radius:6px;border:1px solid var(--border);
-  text-align:center;font-family:'Cairo';
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:8px;
+  font-size:15px;
 }
 
-.net{font-weight:bold;color:var(--success)}
+.field label{
+  font-weight:700;
+  color:#334155;
+}
 
-.actions{display:flex;justify-content:space-between;margin-top:8px}
+.field input,
+.field select{
+  width:160px;
+  padding:6px;
+  border-radius:8px;
+  border:1px solid var(--border);
+  text-align:center;
+  font-family:'Cairo';
+  font-size:14px;
+}
 
-.btn-update{background:var(--success);color:#fff;border:none;padding:6px 14px;border-radius:6px;font-weight:bold;cursor:pointer}
-.btn-print{background:#000;color:#fff;border:none;padding:6px 14px;border-radius:6px;font-weight:bold;cursor:pointer}
+.net{
+  font-weight:900;
+  color:var(--success);
+  font-size:16px;
+}
 
-.link-btn{color:var(--primary);text-decoration:none;font-weight:bold}
+.actions{
+  display:flex;
+  justify-content:center;
+  margin-top:10px;
+}
+
+.btn-update{
+  background:var(--success);
+  color:#fff;
+  border:none;
+  padding:8px 20px;
+  border-radius:8px;
+  font-weight:bold;
+  cursor:pointer;
+  font-size:15px;
+}
+
+.link-btn{
+  color:var(--primary);
+  text-decoration:none;
+  font-weight:bold;
+}
 </style>
 </head>
 
@@ -80,7 +145,7 @@ if(auth==="true"&&loginTime&&(now-loginTime<SESSION_TIME)){
   document.body.style.display="block";
 }else{
   const password=prompt("Enter Password:");
-  if(password==="945992"){
+  if(password==="12345678"){
     localStorage.setItem("auth","true");
     localStorage.setItem("loginTime",now);
     document.body.style.display="block";
@@ -92,16 +157,28 @@ if(auth==="true"&&loginTime&&(now-loginTime<SESSION_TIME)){
 
 <div class="container">
 <header>
-  <h3>TRY SHOPPY</h3>
-  <button onclick="logout()" style="background:#dc2626;color:white;border:none;padding:6px 12px;border-radius:6px;">خروج</button>
+  <div>TRY SHOPPY</div>
+  <button onclick="logout()" style="background:#dc2626;color:white;border:none;padding:8px 14px;border-radius:8px;">خروج</button>
 </header>
 
 <div class="filters">
   <input type="date" id="dateFrom">
   <input type="date" id="dateTo">
-  <input id="searchInput" placeholder="🔍 ابحث بالاسم أو التليفون أو رقم الطلب">
+
+  <input id="searchInput" placeholder="🔍 بحث بالاسم أو التليفون أو رقم الأوردر">
+
+  <select id="searchStatus">
+    <option value="">كل الحالات</option>
+    <option value="Pending Review">Pending Review</option>
+    <option value="Processing">Processing</option>
+    <option value="Placed">Placed</option>
+    <option value="Shipped To You">Shipped To You</option>
+    <option value="Delivered">Delivered</option>
+    <option value="Canceled">Canceled</option>
+  </select>
+
   <button class="btn-search" onclick="applyFilters()">بحث</button>
-  <button class="btn-group" onclick="toggleGrouping()">🔄 تجميع حسب التليفون</button>
+  <button class="btn-group" onclick="toggleGrouping()">🔄 تجميع حسب التليفون / فك التجميع</button>
 </div>
 
 <div id="cardsContainer" class="cards-container"></div>
@@ -176,8 +253,7 @@ function renderCards(data){
       </div>
 
       <div class="actions">
-        <button class="btn-update" onclick="updateOrder('${orderId}')">✔ حفظ</button>
-        <button class="btn-print" onclick="printLabel('${o.phone}','${orderId}')">📄 بوليصة</button>
+        <button class="btn-update" onclick="updateOrder('${orderId}')">✔ حفظ التعديلات</button>
       </div>
     </div>
     `;
@@ -188,15 +264,17 @@ function applyFilters(){
   const search=document.getElementById("searchInput").value.toLowerCase();
   const from=document.getElementById("dateFrom").value;
   const to=document.getElementById("dateTo").value;
+  const status=document.getElementById("searchStatus").value;
 
   let filtered=ordersData.filter(o=>{
     const d=o.date?new Date(o.date).toISOString().split('T')[0]:"";
     const dateMatch=(!from||d>=from)&&(!to||d<=to);
+    const statusMatch=!status||o.status===status;
     const searchMatch=
       (o.customerName||"").toLowerCase().includes(search)||
       (o.phone||"").toString().includes(search)||
       (o.order||"").toString().includes(search);
-    return dateMatch&&searchMatch;
+    return dateMatch&&statusMatch&&searchMatch;
   });
 
   if(isGrouped){
@@ -255,10 +333,6 @@ function updateOrder(orderId){
     alert("تم تحديث الطلب #"+orderId);
     loadData();
   });
-}
-
-function printLabel(phone,orderId){
-  alert("الطباعة كما في سكربتك الحالي");
 }
 
 function logout(){
