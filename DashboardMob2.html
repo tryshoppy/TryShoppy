@@ -201,6 +201,7 @@ if(auth==="true"&&loginTime&&(now-loginTime<SESSION_TIME)){
   <select id="searchStatus">
     <option value="">كل الحالات</option>
     <option>Pending Review</option>
+    <option>Confirmed Via Try</option>
     <option>Processing</option>
     <option>Placed</option>
     <option>Shipped To You</option>
@@ -283,6 +284,7 @@ function renderCards(data){
         <label>تعديل الحالة:</label>
         <select id="status-${cleanOrderId}">
           <option ${o.status==="Pending Review"?"selected":""}>Pending Review</option>
+          <option ${o.status==="Confirmed Via Try"?"selected":""}>Confirmed Via Try</option>
           <option ${o.status==="Processing"?"selected":""}>Processing</option>
           <option ${o.status==="Placed"?"selected":""}>Placed</option>
           <option ${o.status==="Shipped To You"?"selected":""}>Shipped To You</option>
