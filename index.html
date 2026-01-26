@@ -52,19 +52,22 @@
         h1 span { color: var(--brand-blue); }
         .hero p { font-size: 1.1rem; color: #64748b; margin-bottom: 30px; }
 
-        .cta-group { display: flex; gap: 15px; flex-wrap: wrap; }
-        .btn { padding: 16px 32px; border-radius: 15px; font-weight: 800; text-decoration: none; display: flex; align-items: center; gap: 10px; transition: var(--transition); }
+        .cta-group { display: flex; flex-direction: column; gap: 15px; max-width: 300px; }
+        .btn { padding: 16px 32px; border-radius: 15px; font-weight: 800; text-decoration: none; display: flex; align-items: center; gap: 10px; transition: var(--transition); justify-content: center; }
         .btn-calc { background: var(--brand-dark); color: var(--brand-yellow); }
         .btn-calc:hover { transform: translateY(-5px); background: var(--brand-blue); color: white; }
+        
+        /* زر التتبع الجديد */
+        .btn-track-hero { background: var(--brand-yellow); color: var(--brand-dark); border: 2px solid var(--brand-dark); }
+        .btn-track-hero:hover { transform: translateY(-5px); background: var(--white); border-color: var(--brand-blue); }
 
-        /* Features Section (New from Image) */
+        /* Features Section */
         .features { padding: 60px 8%; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; }
         .feat-card {
             background: var(--white); padding: 40px 30px; border-radius: 25px; text-align: center;
             border-top: 5px solid var(--brand-blue); border-bottom: 5px solid var(--brand-yellow);
             box-shadow: 0 10px 30px rgba(0,0,0,0.03); transition: var(--transition);
         }
-        .feat-card:hover { transform: translateY(-10px); }
         .feat-card i { font-size: 3rem; color: var(--brand-blue); margin-bottom: 20px; display: block; }
         .feat-card h3 { font-size: 1.5rem; margin-bottom: 15px; font-weight: 800; }
         .feat-card p { color: #64748b; font-size: 0.95rem; }
@@ -85,14 +88,12 @@
         footer { background: var(--brand-dark); color: white; padding: 60px 8% 20px; text-align: center; }
         .social-links { display: flex; justify-content: center; gap: 20px; margin: 30px 0; }
         .social-links a { color: var(--brand-yellow); font-size: 1.8rem; transition: 0.3s; }
-        .social-links a:hover { transform: scale(1.2); color: var(--white); }
 
         @media (max-width: 768px) {
-            .hero { grid-template-columns: 1fr; text-align: center; padding-top: 40px; }
+            .hero { grid-template-columns: 1fr; text-align: center; }
             .hero-content { text-align: center; order: 2; }
             .hero-image { order: 1; }
-            h1 { font-size: 2.2rem; }
-            .cta-group { justify-content: center; }
+            .cta-group { margin: 0 auto; }
         }
 
         body.en-mode { direction: ltr; font-family: 'Poppins', sans-serif; }
@@ -118,7 +119,7 @@
             <h1 id="heroTitle">تسوق من <span>أمريكا</span><br>بسهولة وأمان</h1>
             <p id="heroDesc">احسب تكلفة منتجاتك من أمازون والمواقع العالمية شاملة كل شيء (شحن، جمارك، ضريبة) بضغطة واحدة.</p>
             <div class="cta-group">
-                <a href="calculator.html" class="btn btn-calc" id="btnCalc">احسب وسجل طلبك جديد</a>
+                <a href="calculator.html" class="btn btn-calc" id="btnCalc">سجل طلبك الآن</a>
                 <a href="track.html" class="btn btn-track-hero" id="btnTrackHero">تتبع حالة طلبك</a>
             </div>
         </div>
@@ -170,20 +171,18 @@
     </footer>
 
     <script>
-        /* Counter Script */
         let c=0;
         let interval=setInterval(()=>{
             if(c<500){c+=5; document.getElementById('count').innerText=c}else{clearInterval(interval)}
         },20);
 
-        /* Language Switcher Logic */
         let currentLang = 'ar';
         const translations = {
             ar: {
                 lang: "English", navTrack: "تتبع شحنتك",
                 heroTitle: "تسوق من <span>أمريكا</span><br>بسهولة وأمان",
                 heroDesc: "احسب تكلفة منتجاتك من أمازون والمواقع العالمية شاملة كل شيء (شحن، جمارك، ضريبة) بضغطة واحدة.",
-                btnCalc: "سجل طلبك الآن", countText: "طلب تم شحنه",
+                btnCalc: "سجل طلبك الآن", btnTrackHero: "تتبع حالة طلبك", countText: "طلب تم شحنه",
                 f1T: "رحلات شحن منتظمة", f1D: "رحلات شحن منتظمة من مخازننا في أمريكا لضمان وصول طلبك في أسرع وقت ممكن.",
                 f2T: "ضمان كامل", f2D: "نحن مسؤولون عن شحنتك من لحظة الشراء وحتى تسليمها لباب بيتك بأمان تام.",
                 f3T: "حساب فوري", f3D: "نظام ذكي يعطيك السعر النهائي للمنتج شامل الشحن والجمارك دون أي رسوم مخفية.",
@@ -198,7 +197,7 @@
                 lang: "العربية", navTrack: "Track Order",
                 heroTitle: "Shop from <span>USA</span><br>Easy & Secure",
                 heroDesc: "Calculate product costs from Amazon & global stores including shipping, customs, and taxes in one click.",
-                btnCalc: "Order Now", countText: "Orders Shipped",
+                btnCalc: "Order Now", btnTrackHero: "Track Your Order", countText: "Orders Shipped",
                 f1T: "Regular Shipping", f1D: "Regular shipping trips from our US warehouses to ensure the fastest delivery.",
                 f2T: "Full Warranty", f2D: "We are responsible for your shipment from purchase until doorstep delivery.",
                 f3T: "Instant Calc", f3D: "Smart system providing final price including shipping & customs with no hidden fees.",
@@ -222,6 +221,7 @@
             document.getElementById('heroTitle').innerHTML = t.heroTitle;
             document.getElementById('heroDesc').innerText = t.heroDesc;
             document.getElementById('btnCalc').innerText = t.btnCalc;
+            document.getElementById('btnTrackHero').innerText = t.btnTrackHero;
             document.getElementById('countText').innerText = t.countText;
             document.getElementById('f1T').innerText = t.f1T; document.getElementById('f1D').innerText = t.f1D;
             document.getElementById('f2T').innerText = t.f2T; document.getElementById('f2D').innerText = t.f2D;
