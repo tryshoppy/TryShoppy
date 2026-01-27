@@ -426,10 +426,10 @@ function calculatePrice(){
   if(!usd || !cat){ alert("برجاء إدخال السعر واختيار الفئة"); return; }
 
   let base = 0, extra = 0, mult = 1;
-  if(usd <= 31.99){ mult = 2.57; base = usd * 27.5; extra = 50; } 
-  else if(usd <= 71.99){ mult = 2.67; base = usd * 26; extra = 80; }
-  else if(usd <= 180.99){ mult = 2.77; base = usd * 24; extra = 80; }
-  else { mult = 2.87; base = usd * 24; extra = 80; }
+  if(usd <= 31.99){ mult = 2.50; base = usd * 27.5; extra = 50; } 
+  else if(usd <= 71.99){ mult = 2.60; base = usd * 26; extra = 80; }
+  else if(usd <= 180.99){ mult = 2.70; base = usd * 24; extra = 80; }
+  else { mult = 2.80; base = usd * 24; extra = 80; }
 
   const categoryBase = {
    "Clothes (Regular)":150, "Jacket or BALTO":400, "Electronics":400, "Shoes (Regular)":450,
