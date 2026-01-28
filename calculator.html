@@ -440,15 +440,15 @@ function calculatePrice(){
 
   const weightRates = {
    "Clothes (Regular)":30, "Jacket or BALTO":30, "Electronics":80, "Shoes (Regular)":35,
-   "Food":40, "Sunglasses":40, "Shoes (Boot)":35, "Watches":30, "Accessories":40,
-   "Cosmetics":80, "CarParts":60, "Vitamin or Supplements":100, "Shampoo or Conditioner":135,
+   "Food":35, "Sunglasses":40, "Shoes (Boot)":35, "Watches":30, "Accessories":40,
+   "Cosmetics":80, "CarParts":50, "Vitamin or Supplements":110, "Shampoo or Conditioner":110,
    "Small Size Hand bag (women)":35, "Back bag (or Lap bag)":35, "Large Size Hand bag (women)":35, "Stationary":35
   };
 
   let basicPrice = ((base + categoryBase[cat] + extra) * mult);
   let weightPrice = basicPrice;
   if(weightG > 300){
-    weightPrice = ((base + categoryBase[cat] + extra + (weightG/1000 * weightRates[cat])) * mult);
+    weightPrice = ((base + categoryBase[cat] + extra + (weightG/1000 * weightRates[cat]*50)));
   }
 
   finalPrice = roundSmart(Math.max(basicPrice, weightPrice) * quantity);
