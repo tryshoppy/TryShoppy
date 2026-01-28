@@ -204,6 +204,7 @@ if(auth==="true"&&loginTime&&(now-loginTime<SESSION_TIME)){
     <option>Confirmed Via Try</option>
     <option>Processing</option>
     <option>Placed</option>
+    <option>Arrived Cairo HUB</option>
     <option>Shipped To You</option>
     <option>Delivered</option>
     <option>Canceled</option>
@@ -287,6 +288,7 @@ function renderCards(data){
           <option ${o.status==="Confirmed Via Try"?"selected":""}>Confirmed Via Try</option>
           <option ${o.status==="Processing"?"selected":""}>Processing</option>
           <option ${o.status==="Placed"?"selected":""}>Placed</option>
+          <option ${o.status==="Arrived Cairo HUB"?"selected":""}>Arrived Cairo HUB</option>
           <option ${o.status==="Shipped To You"?"selected":""}>Shipped To You</option>
           <option ${o.status==="Delivered"?"selected":""}>Delivered</option>
           <option ${o.status==="Canceled"?"selected":""}>Canceled</option>
