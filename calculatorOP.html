@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRY SHOPPY - Smart Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb; --primary-dark: #1e40af; --accent: #f59e0b;
+            --bg: #f8fafc; --card-bg: #ffffff; --text-dark: #1e293b; --border: #e2e8f0;
+        }
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        body {
+            background-color: var(--bg); background-image: radial-gradient(#cbd5e1 0.5px, transparent 0.5px);
+            background-size: 24px 24px; margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh;
+        }
+        .container { max-width: 600px; width: 100%; }
+        .card {
+            background: var(--card-bg); padding: 35px; border-radius: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); border: 1px solid var(--border);
+        }
+        .logo-section { text-align: center; margin-bottom: 25px; }
+        .logo-section img { max-width: 160px; }
+        
+        h2 { color: var(--text-dark); font-size: 1.6rem; text-align: center; margin-bottom: 30px; line-height: 1.4; }
+        .lang-sub { display: block; font-size: 0.9rem; font-weight: 400; color: #64748b; margin-top: 5px; }
+
+        .input-group { margin-bottom: 18px; }
+        label { display: block; margin-bottom: 8px; font-weight: 700; font-size: 0.95rem; color: var(--text-dark); }
+        .en-label { font-size: 0.8rem; color: #64748b; font-weight: 400; display: block; margin-top: 2px; }
+
+        input, select {
+            width: 100%; padding: 12px 15px; border: 1.5px solid var(--border);
+            border-radius: 10px; font-size: 15px; background: #fcfcfc;
+        }
+        input:focus, select:focus { border-color: var(--primary); outline: none; background: #fff; }
+        
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .dimensions-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        
+        button {
+            width: 100%; padding: 16px; border: none; border-radius: 12px;
+            background: var(--primary); color: white; font-size: 1.1rem; font-weight: 800;
+            cursor: pointer; transition: 0.3s; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+        button:hover { background: var(--primary-dark); transform: translateY(-1px); }
+
+        .result-box {
+            background: #eff6ff; border: 2px solid #bfdbfe; border-radius: 18px;
+            padding: 20px; margin-top: 25px; text-align: center; animation: slideUp 0.4s ease-out;
+        }
+        .final-price { font-size: 2.5rem; color: var(--primary); font-weight: 900; margin: 10px 0; }
+        .weight-note { font-size: 0.85rem; color: #64748b; margin-top: 5px; }
+        .hidden { display: none; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <div class="logo-section">
+            <img src="logo.png" alt="TRY SHOPPY">
+        </div>
+
+        <h2>حاسبة التكلفة الذكية <span class="lang-sub">Smart Cost Calculator</span></h2>
+
+        <div class="row">
+            <div class="input-group">
+                <label>سعر المنتج ($) * <span class="en-label">Product Price ($)</span></label>
+                <input id="price" type="number" placeholder="USD">
+            </div>
+            <div class="input-group">
+                <label>الفئة * <span class="en-label">Category</span></label>
+                <select id="category">
+                    <option value="">اختر الفئة (Select)...</option>
+                    <option value="Clothes (Regular)">ملابس عادية | Regular Clothes</option>
+                    <option value="Jacket or BALTO">جاكيت أو بالتو | Jacket or Balto</option>
+                    <option value="Electronics">إلكترونيات | Electronics</option>
+                    <option value="Shoes (Regular)">أحذية عادية | Regular Shoes</option>
+                    <option value="Shoes (Boot)">أحذية بوت | Boot Shoes</option>
+                    <option value="Watches">ساعات | Watches</option>
+                    <option value="Accessories">إكسسوارات | Accessories</option>
+                    <option value="Cosmetics">مستحضرات تجميل | Cosmetics</option>
+                    <option value="Sunglasses">نظارات شمسية | Sunglasses</option>
+                    <option value="Food">أغذية | Food</option>
+                    <option value="CarParts">قطع غيار سيارات | Car Parts</option>
+                    <option value="Vitamin or Supplements">فيتامينات ومكملات | Vitamins</option>
+                    <option value="Shampoo or Conditioner">شامبو وبلسم | Shampoo</option>
+                    <option value="Small Size Hand bag (women)">حقيبة يد صغيرة | Small Handbag</option>
+                    <option value="Back bag (or Lap bag)">حقيبة ظهر | Backpack</option>
+                    <option value="Large Size Hand bag (women)">حقيبة يد كبيرة | Large Handbag</option>
+                    <option value="Stationary">أدوات مكتبية | Stationary</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>الوزن الفعلي (جرام) * <span class="en-label">Actual Weight (Grams)</span></label>
+            <input id="weight" type="number" placeholder="e.g. 500g">
+        </div>
+
+        <label>الأبعاد بالسنتيمتر (اختياري) <span class="en-label">Dimensions in CM (Optional)</span></label>
+        <div class="dimensions-grid">
+            <input id="length" type="number" placeholder="طول (L)">
+            <input id="width" type="number" placeholder="عرض (W)">
+            <input id="height" type="number" placeholder="ارتفاع (H)">
+        </div>
+
+        <button onclick="calculate()">احسب التكلفة النهائية | Calculate Price</button>
+
+        <div id="resultArea" class="hidden">
+            <div class="result-box">
+                <div style="font-weight: 700; color: #1e293b;">
+                    إجمالي التكلفة شاملة الشحن والجمارك:<br>
+                    <span style="font-weight: 400; font-size: 0.85rem; color: #64748b;">Total Cost (Shipping & Customs included)</span>
+                </div>
+                <div id="finalPriceDisplay" class="final-price"></div>
+                <div id="weightMsg" class="weight-note"></div>
+                <div style="font-size: 0.85rem; color: #22c55e; font-weight: 700; margin-top: 10px;">
+                    ✓ الدفع عند الاستلام متاح حتى 10,000 جنيهاً<br>
+                    <span style="font-weight: 400; font-size: 0.75rem;">COD available up to 10k EGP</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function roundSmart(p) {
+    let r50 = Math.round(p / 50) * 50;
+    let r100 = Math.round(p / 100) * 100;
+    return Math.abs(p - r50) < Math.abs(p - r100) ? r50 : r100;
+}
+
+function calculate() {
+    const usd = parseFloat(document.getElementById("price").value);
+    const cat = document.getElementById("category").value;
+    const actualWeight = parseFloat(document.getElementById("weight").value);
+    
+    // حساب الوزن الحجمي بالجرام
+    const l = parseFloat(document.getElementById("length").value) || 0;
+    const w = parseFloat(document.getElementById("width").value) || 0;
+    const h = parseFloat(document.getElementById("height").value) || 0;
+    const volWeight = (l * w * h / 6000) * 1000;
+
+    if (!usd || !cat || !actualWeight) {
+        alert("برجاء إدخال السعر والفئة والوزن | Please enter Price, Category & Weight");
+        return;
+    }
+
+    const finalWeight = Math.max(actualWeight, volWeight);
+    let base = 0, extra = 0, mult = 1;
+
+    if (usd <= 31.99) { mult = 2.50; base = usd * 27.5; extra = 50; } 
+    else if (usd <= 71.99) { mult = 2.60; base = usd * 26; extra = 80; }
+    else if (usd <= 180.99) { mult = 2.70; base = usd * 24; extra = 80; }
+    else { mult = 2.80; base = usd * 24; extra = 80; }
+
+    const categoryBase = {
+        "Clothes (Regular)": 150, "Jacket or BALTO": 400, "Electronics": 400, "Shoes (Regular)": 450,
+        "Food": 200, "Sunglasses": 300, "Shoes (Boot)": 500, "Watches": 150, "Accessories": 200,
+        "Cosmetics": 300, "CarParts": 400, "Vitamin or Supplements": 370, "Shampoo or Conditioner": 300,
+        "Small Size Hand bag (women)": 150, "Back bag (or Lap bag)": 400, "Large Size Hand bag (women)": 350, "Stationary": 200
+    };
+
+    const weightRates = {
+        "Clothes (Regular)": 30, "Jacket or BALTO": 30, "Electronics": 80, "Shoes (Regular)": 35,
+        "Food": 35, "Sunglasses": 40, "Shoes (Boot)": 35, "Watches": 30, "Accessories": 40,
+        "Cosmetics": 80, "CarParts": 50, "Vitamin or Supplements": 110, "Shampoo or Conditioner": 110,
+        "Small Size Hand bag (women)": 35, "Back bag (or Lap bag)": 35, "Large Size Hand bag (women)": 35, "Stationary": 35
+    };
+
+    let basicPrice = ((base + categoryBase[cat] + extra) * mult);
+    let calculatedPrice = basicPrice;
+    
+    if (finalWeight > 300) {
+        calculatedPrice = (base + categoryBase[cat] + extra + (finalWeight / 1000 * weightRates[cat] * 50));
+    }
+
+    const total = roundSmart(Math.max(basicPrice, calculatedPrice));
+    
+    document.getElementById("finalPriceDisplay").innerText = total + " EGP";
+    document.getElementById("resultArea").classList.remove("hidden");
+    
+    let weightMsg = `الحساب بناءً على: الوزن الفعلي (${actualWeight} جم)`;
+    if (volWeight > actualWeight) {
+        weightMsg = `الحساب بناءً على: الوزن الحجمي (${volWeight.toFixed(0)} جم)`;
+    }
+    document.getElementById("weightMsg").innerText = weightMsg;
+}
+</script>
+</body>
+</html>
