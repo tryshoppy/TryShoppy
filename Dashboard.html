@@ -78,6 +78,7 @@ if(auth === "true" && loginTime && (now - loginTime < SESSION_TIME)){
         <div class="stat-card" style="border-right-color: var(--success);"><h3>صافي التحصيل (End Price)</h3><div id="totalNet" class="value" style="color:var(--success)">0</div></div>
         <div class="stat-card" style="border-right-color: #f59e0b;"><h3>عدد الشحنات</h3><div id="totalCount" class="value">0</div></div>
         <div class="stat-card" style="border-right-color: #6366f1;"><h3>التكلفة (USD)</h3><div id="totalUSD" class="value">0</div></div>
+        <div class="stat-card" style="border-right-color:#16a34a;"><h3>أرباح الطلبات (Profit)</h3><div id="totalProfit" class="value" style="color:#16a34a">0</div></div>
     </div>
 
     <div class="filters">
@@ -192,6 +193,7 @@ function applyFilters() {
     const to = document.getElementById("dateTo").value;
     const search = document.getElementById("searchInput").value.toLowerCase();
     const status = document.getElementById("searchStatus").value;
+    const USD_RATE = 50; // غيره حسب السعر الحالي
 
     let filtered = ordersData.filter(o => {
         const d = o.date ? new Date(o.date).toISOString().split('T')[0] : "";
@@ -238,10 +240,12 @@ function applyFilters() {
         const ship = isGrouped ? (parseFloat(b.totalShipping)||0) : (parseFloat(b.shipping)||0);
         return a + (parseFloat(b.finalPrice||0) + ship - parseFloat(b.deposit||0));
     }, 0);
-
+    const totalProfit = totalEGP - (totalUSD * USD_RATE);
+    
     document.getElementById("totalEGP").innerText = totalEGP.toLocaleString() + " EGP";
     document.getElementById("totalUSD").innerText = totalUSD.toLocaleString() + " $";
     document.getElementById("totalNet").innerText = totalNet.toLocaleString() + " ج.م";
+    document.getElementById("totalProfit").innerText = totalProfit.toLocaleString() + " ج.م";
     document.getElementById("totalCount").innerText = filtered.length;
     
     currentFilteredData = filtered; 
