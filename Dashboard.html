@@ -93,6 +93,7 @@ if(auth === "true" && loginTime && (now - loginTime < SESSION_TIME)){
 			<option value="Placed">Placed</option>
 			<option value="Canceled">Canceled</option>
 			<option value="Processing">Processing</option>
+            <option value="Delayed">Delayed</option>
 			<option value="Arrived USA HUB">Arrived USA HUB</option>
 			<option value="Arrived Cairo HUB">Arrived Cairo HUB</option>
         </select>
@@ -176,6 +177,7 @@ function renderTable(data) {
                     <option value="Shipped To You" ${cur==='Shipped To You'?'selected':''}>Shipped To You</option>
                     <option value="Delivered" ${cur==='Delivered'?'selected':''}>Delivered</option>
 					<option value="Canceled" ${cur==='Canceled'?'selected':''}>Canceled</option>
+                    <option value="Delayed" ${cur==='Delayed'?'selected':''}>Delayed</option>
                 </select>
             </td>
             <td><button class="btn-update" onclick="updateOrder('${printOrder}')">✔</button></td>
