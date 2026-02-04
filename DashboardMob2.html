@@ -250,10 +250,6 @@ function renderCards(data){
     <div class="order-card ${isGrouped ? 'grouped' : ''}">
       <div class="card-header">
         <span class="order-id">#${orderId}</span>
-        <span style="font-size:12px;color:#64748b;">
-      📅 ${o.date ? new Date(o.date).toLocaleDateString('ar-EG') : 'بدون تاريخ'}
-    </span>
-  </div>
         <span class="badge">${o.status || 'Pending'}</span>
       </div>
       
