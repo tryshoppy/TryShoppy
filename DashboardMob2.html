@@ -252,16 +252,12 @@ function renderCards(data){
         <div style="display: flex; flex-direction: column;">
           <span class="order-id">#${orderId}</span>
           <span style="font-size: 11px; color: #94a3b8; font-weight: 600; margin-top: -2px;">
-            📅 ${o.date ? new Date(o.date).toLocaleDateString('ar-EG') : '—'}
+            📅 ${o.date ? new Date(o.date).toLocaleDateString(en-EG') : '—'}
           </span>
         </div>
         <span class="badge" style="height: fit-content;">${o.status || 'Pending'}</span>
       </div>
-     / <div class="card-header">
-      /  <span class="order-id">#${orderId}</span>
-       / <span class="badge">${o.status || 'Pending'}</span>
-     / </div>
-      
+ 
       <div class="field"><label>العميل:</label><span>${o.customerName || "—"}</span></div>
       <div class="field"><label>التليفون:</label><span>${o.phone || "—"}</span></div>
 
