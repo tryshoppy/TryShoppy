@@ -247,7 +247,7 @@ function renderCards(data){
     const net = total + ship - dep;
 
     container.innerHTML+=`
-    <div class="order-card ${isGrouped ? '<div class="card-header" style="align-items: center;">
+   <div class="order-card ${isGrouped ? 'grouped' : ''}">
   <div class="card-header" style="align-items: center;">
     <div style="display: flex; flex-direction: column;">
         <span class="order-id">#${orderId}</span>
