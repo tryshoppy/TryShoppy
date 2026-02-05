@@ -189,6 +189,18 @@ if(auth==="true"&&loginTime&&(now-loginTime<SESSION_TIME)){
 <div class="container">
 <header>
   <div class="logo">TRY SHOPPY</div>
+  <div id="totalBox" style="
+    background:#f0fdf4;
+    border:1px solid #bbf7d0;
+    color:#166534;
+    padding:6px 10px;
+    border-radius:10px;
+    font-weight:900;
+    font-size:14px;
+    text-align:center;
+  ">
+    الإجمالي: 0 ج.م
+  </div>
   <button onclick="logout()" style="background:#dc2626;color:white;border:none;padding:6px 12px;border-radius:8px; font-family: 'Cairo';">خروج</button>
 </header>
 
@@ -351,6 +363,15 @@ function applyFilters(){
     filtered=Object.values(groups);
   }
   renderCards(filtered.reverse());
+// ===== حساب الإجمالي بالمصري =====
+let totalEGP = 0;
+
+filtered.forEach(o=>{
+  totalEGP += parseFloat(o.finalPrice || 0);
+});
+
+document.getElementById("totalBox").innerText =
+  "الإجمالي: " + totalEGP.toLocaleString() + " ج.م";
 }
 
 function toggleGrouping(){ isGrouped=!isGrouped; applyFilters(); }
