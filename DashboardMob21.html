@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>TRY SHOPPY - Mobile App v9</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --primary: #4f46e5; /* Indigo Modern */
+  --primary-dark: #4338ca;
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --text: #1e293b;
+  --text-light: #64748b;
+  --border: #e2e8f0;
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --radius: 16px;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body{
+  font-family:'Cairo',sans-serif;
+  background:var(--bg);
+  margin:0;
+  padding:0;
+  padding-bottom: 40px;
+  color:var(--text);
+  font-size:14px;
+}
+
+/* Header Styles */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+}
+
+header .logo { 
+  font-weight: 900; 
+  font-size: 1.4rem; 
+  background: linear-gradient(45deg, var(--primary), #818cf8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.logout-btn {
+  background: #fee2e2;
+  color: var(--danger);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-family: 'Cairo';
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+/* Main Layout */
+.container{ max-width:600px; margin:auto; padding: 15px; }
+
+/* Filter Section */
+.filter-toggle-btn {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 12px;
+  border-radius: var(--radius);
+  color: var(--text);
+  font-weight: 700;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.filters-panel {
+  background: var(--surface);
+  padding: 15px;
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+  display: none; /* Hidden by default */
+  flex-direction: column;
+  gap: 12px;
+}
+.filters-panel.open { display: flex; }
+
+.status-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+  scrollbar-width: none; 
+}
+.status-scroll::-webkit-scrollbar { display: none; }
+
+.status-chip {
+  padding: 8px 16px;
+  background: #f1f5f9;
+  border-radius: 20px;
+  white-space: nowrap;
+  font-size: 0.85rem;
+  color: var(--text-light);
+  border: 1px solid transparent;
+  transition: 0.2s;
+}
+.status-chip.active {
+  background: var(--primary);
+  color: white;
+  font-weight: bold;
+  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+}
+
+input, select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  font-family: 'Cairo';
+  background: #f8fafc;
+  font-size: 1rem;
+  outline: none;
+}
+input:focus { border-color: var(--primary); background: #fff; }
+
+.search-bar { position: relative; }
+.search-bar input { padding-right: 40px; }
+.search-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); opacity: 0.5; }
+
+/* Order Cards */
+.cards-container{ display:flex; flex-direction:column; gap:20px; }
+
+.order-card {
+  background: var(--surface);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.03);
+  transition: transform 0.2s;
+}
+.order-card.grouped { border: 2px solid var(--text); }
+
+.card-top {
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(to bottom, #f8fafc, #fff);
+  border-bottom: 1px dashed var(--border);
+}
+
+.order-id-group { display: flex; flex-direction: column; }
+.order-ref { font-size: 1.1rem; font-weight: 900; color: var(--text); }
+.order-date { font-size: 0.75rem; color: var(--text-light); }
+
+.status-badge {
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.card-body { padding: 15px; }
+
+.customer-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 15px;
+  background: #f8fafc;
+  padding: 10px;
+  border-radius: 12px;
+}
+.avatar-icon {
+  width: 40px; height: 40px;
+  background: #e0e7ff;
+  color: var(--primary);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: bold; font-size: 1.2rem;
+}
+.c-details { display: flex; flex-direction: column; }
+.c-name { font-weight: 700; color: var(--text); font-size: 0.95rem; }
+.c-phone { font-size: 0.85rem; color: var(--text-light); font-family: monospace; }
+
+.specs-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.spec-item {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 5px;
+  text-align: center;
+}
+.spec-label { display: block; font-size: 0.65rem; color: var(--text-light); margin-bottom: 2px; }
+.spec-val { display: block; font-weight: 800; color: var(--text); font-size: 0.9rem; }
+
+/* Financial Section */
+.finance-block {
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+.finance-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.finance-row label { font-size: 0.85rem; font-weight: 600; color: var(--text-light); }
+.finance-input {
+  width: 100px;
+  padding: 8px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 700;
+  background: #fff;
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+.finance-input:focus { border-color: var(--primary); transform: scale(1.02); }
+
+.net-total-box {
+  background: var(--success);
+  color: white;
+  padding: 15px;
+  border-radius: 12px;
+  text-align: center;
+  margin-top: 10px;
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);
+}
+.net-title { font-size: 0.8rem; opacity: 0.9; margin-bottom: 4px; }
+.net-amount { font-size: 1.6rem; font-weight: 900; line-height: 1; }
+
+/* Actions */
+.actions-row { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; }
+
+.btn-link {
+  background: #f1f5f9;
+  color: var(--text);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.btn-save {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 1rem;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+  transition: 0.2s;
+}
+.btn-save:active { transform: scale(0.98); }
+
+.group-btn-float {
+  background: #1e293b;
+  color: white;
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  margin-top: 10px;
+  font-weight: bold;
+  border: none;
+}
+</style>
+</head>
+
+<body style="display:none;">
+
+<script>
+const SESSION_TIME=2*60*60*1000;
+const auth=localStorage.getItem("auth");
+const loginTime=localStorage.getItem("loginTime");
+const now=new Date().getTime();
+
+if(auth==="true"&&loginTime&&(now-loginTime<SESSION_TIME)){
+  document.body.style.display="block";
+}else{
+  const password=prompt("Enter Password:");
+  if(password==="12345678"){
+    localStorage.setItem("auth","true");
+    localStorage.setItem("loginTime",now);
+    document.body.style.display="block";
+  }else{
+    document.body.innerHTML="<div style='display:flex;height:100vh;justify-content:center;align-items:center;flex-direction:column;color:#ef4444;font-family:sans-serif;'><h1>🚫 Access Denied</h1></div>";
+  }
+}
+</script>
+
+<header>
+  <div class="logo">TRY SHOPPY</div>
+  <button onclick="logout()" class="logout-btn">خروج</button>
+</header>
+
+<div class="container">
+  
+  <button class="filter-toggle-btn" onclick="toggleFilterPanel()">
+    <span>⚡ أدوات البحث والفلترة</span>
+    <span id="filterArrow">▼</span>
+  </button>
+
+  <div class="filters-panel" id="filterPanel">
+    <div class="search-bar">
+      <input id="searchInput" placeholder="ابحث بالاسم، الموبايل، رقم الطلب...">
+      <span class="search-icon">🔍</span>
+    </div>
+    
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+      <input type="date" id="dateFrom">
+      <input type="date" id="dateTo">
+    </div>
+
+    <div>
+      <label style="font-size:0.8rem; color:var(--text-light); margin-bottom:5px; display:block;">حالة الطلب:</label>
+      <div class="status-scroll" id="statusChips">
+        <div class="status-chip active" onclick="setStatusFilter('', this)">الكل</div>
+        <div class="status-chip" onclick="setStatusFilter('Pending Review', this)">Pending</div>
+        <div class="status-chip" onclick="setStatusFilter('Confirmed Via Try', this)">Confirmed</div>
+        <div class="status-chip" onclick="setStatusFilter('Placed', this)">Placed</div>
+        <div class="status-chip" onclick="setStatusFilter('Processing', this)">Processing</div>
+        <div class="status-chip" onclick="setStatusFilter('Shipped To You', this)">Shipped</div>
+        <div class="status-chip" onclick="setStatusFilter('Delivered', this)">Delivered</div>
+        <div class="status-chip" onclick="setStatusFilter('Canceled', this)">Canceled</div>
+      </div>
+      <input type="hidden" id="searchStatus" value="">
+    </div>
+    
+    <button class="btn-save" style="background:var(--text); width:100%; margin-top:5px;" onclick="applyFilters()">تطبيق البحث</button>
+    <button class="group-btn-float" onclick="toggleGrouping()">👥 تجميع / فك تجميع (حسب الموبايل)</button>
+  </div>
+
+  <div id="cardsContainer" class="cards-container"></div>
+</div>
+
+<script>
+const scriptURL="https://script.google.com/macros/s/AKfycby-HrSH3DwpAPJAuhiAPlBJAngy-_qUZ7-O925hTA7FnbBVHkrjprfJavEA-WKyofIdlg/exec";
+let ordersData=[];
+let isGrouped=false;
+
+function toggleFilterPanel() {
+  const p = document.getElementById("filterPanel");
+  p.classList.toggle("open");
+  document.getElementById("filterArrow").innerText = p.classList.contains("open") ? "▲" : "▼";
+}
+
+function setStatusFilter(val, el) {
+  document.getElementById("searchStatus").value = val;
+  document.querySelectorAll(".status-chip").forEach(c => c.classList.remove("active"));
+  el.classList.add("active");
+  applyFilters();
+}
+
+async function loadData(){
+  // Show loading skeleton or spinner here if needed
+  try {
+    const res=await fetch(scriptURL, { redirect: 'follow' });
+    ordersData=await res.json();
+    applyFilters();
+  } catch(e) { alert("خطأ في الاتصال بالبيانات"); }
+}
+
+function getStatusStyle(status) {
+    status = status || "";
+    if(status.includes("Delivered")) return "background:#dcfce7; color:#166534;";
+    if(status.includes("Canceled")) return "background:#fee2e2; color:#991b1b;";
+    if(status.includes("Pending")) return "background:#fef9c3; color:#854d0e;";
+    if(status.includes("Shipped")) return "background:#e0f2fe; color:#075985;";
+    return "background:#f1f5f9; color:#475569;";
+}
+
+function renderCards(data){
+  const container=document.getElementById("cardsContainer");
+  container.innerHTML="";
+
+  if(data.length === 0) {
+      container.innerHTML = "<div style='text-align:center; padding:40px; color:#94a3b8;'> لا توجد طلبات مطابقة 📭</div>";
+      return;
+  }
+
+  data.forEach(o=>{
+    const orderId = o.order;
+    const cleanOrderId = orderId.toString().split(' + ')[0];
+    const qty = o.quantity || 1;
+    const weight = parseFloat(o.weight || 0).toFixed(2);
+    const dims = o.dimensions || "-";
+
+    const total = parseFloat(o.finalPrice || 0);
+    const dep = parseFloat(o.deposit || 0);
+    const ship = parseFloat(o.shipping || 0);
+    const net = total + ship - dep;
+    const usd = parseFloat(o.usd||0).toFixed(2);
+    
+    // Get Initials for Avatar
+    const initials = (o.customerName || "?").split(" ").map(n=>n[0]).join("").substring(0,2).toUpperCase();
+
+    container.innerHTML+=`
+    <div class="order-card ${isGrouped ? 'grouped' : ''}">
+      <div class="card-top">
+        <div class="order-id-group">
+            <span class="order-ref">#${orderId}</span>
+            <span class="order-date">${o.date ? new Date(o.date).toLocaleDateString('ar-EG') : ''}</span>
+        </div>
+        <span class="status-badge" style="${getStatusStyle(o.status)}">${o.status || 'Pending'}</span>
+      </div>
+      
+      <div class="card-body">
+        
+        <div class="customer-info">
+            <div class="avatar-icon">${initials}</div>
+            <div class="c-details">
+                <span class="c-name">${o.customerName || "غير محدد"}</span>
+                <span class="c-phone">${o.phone || "—"}</span>
+            </div>
+        </div>
+
+        <div class="specs-grid">
+            <div class="spec-item"><span class="spec-label">الكمية</span><span class="spec-val">${qty}</span></div>
+            <div class="spec-item"><span class="spec-label">الوزن (gm)</span><span class="spec-val">${weight}</span></div>
+            <div class="spec-item"><span class="spec-label">المواصفات</span><span class="spec-val" style="font-size:0.7rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${dims}</span></div>
+        </div>
+
+        <div class="finance-block">
+            <div class="finance-row">
+                <label>💰 الإجمالي (EGP)</label>
+                <input type="number" class="finance-input" id="egp-${cleanOrderId}" value="${total}" oninput="recalc('${cleanOrderId}', ${ship})">
+            </div>
+            <div class="finance-row">
+                <label>🛑 العربون</label>
+                <input type="number" class="finance-input" id="deposit-${cleanOrderId}" style="color:var(--danger); border-color:#fecaca;" value="${dep}" oninput="recalc('${cleanOrderId}', ${ship})">
+            </div>
+            <div class="finance-row">
+                <label>🇺🇸 التكلفة ($)</label>
+                <input type="number" class="finance-input" id="usd-${cleanOrderId}" style="color:var(--primary);" value="${usd}">
+            </div>
+
+            <div class="net-total-box">
+                <div class="net-title">المطلوب تحصيله (C.O.D)</div>
+                <div class="net-amount" id="net-${cleanOrderId}">${net.toLocaleString()}</div>
+            </div>
+        </div>
+
+        <div style="margin-bottom:15px;">
+            <label style="font-size:0.8rem; color:#64748b; display:block; margin-bottom:5px;">تعديل الحالة:</label>
+            <select id="status-${cleanOrderId}">
+                <option ${o.status==="Pending Review"?"selected":""}>Pending Review</option>
+                <option ${o.status==="Confirmed Via Try"?"selected":""}>Confirmed Via Try</option>
+                <option ${o.status==="Processing"?"selected":""}>Processing</option>
+                <option ${o.status==="Placed"?"selected":""}>Placed</option>
+                <option ${o.status==="Arrived Cairo HUB"?"selected":""}>Arrived Cairo HUB</option>
+                <option ${o.status==="Shipped To You"?"selected":""}>Shipped To You</option>
+                <option ${o.status==="Delivered"?"selected":""}>Delivered</option>
+                <option ${o.status==="Delayed"?"selected":""}>Delayed</option>
+                <option ${o.status==="Canceled"?"selected":""}>Canceled</option>
+            </select>
+         </div>
+
+        <div class="actions-row">
+            <a href="${o.link || '#'}" target="_blank" class="btn-link">🔗</a>
+            <button class="btn-save" onclick="updateOrder('${cleanOrderId}', this)">
+                <span>حفظ التعديلات</span>
+                <span>✔</span>
+            </button>
+        </div>
+
+      </div>
+    </div>
+    `;
+  });
+}
+
+function recalc(id, ship) {
+    const egp = parseFloat(document.getElementById('egp-'+id).value) || 0;
+    const dep = parseFloat(document.getElementById('deposit-'+id).value) || 0;
+    const net = egp + ship - dep;
+    document.getElementById('net-'+id).innerText = net.toLocaleString();
+}
+
+function applyFilters(){
+  const search=document.getElementById("searchInput").value.toLowerCase();
+  const from=document.getElementById("dateFrom").value;
+  const to=document.getElementById("dateTo").value;
+  const status=document.getElementById("searchStatus").value;
+
+  let filtered=ordersData.filter(o=>{
+    const d=o.date?new Date(o.date).toISOString().split('T')[0]:"";
+    const dateMatch=(!from||d>=from)&&(!to||d<=to);
+    const statusMatch=!status||o.status===status;
+    const searchMatch=(o.customerName||"").toLowerCase().includes(search)||
+                      (o.phone||"").toString().includes(search)||
+                      (o.order||"").toString().includes(search);
+    return dateMatch&&statusMatch&&searchMatch;
+  });
+
+  if(isGrouped){
+    const groups={};
+    filtered.forEach(o=>{
+      const key=o.phone ? o.phone.toString().replace(/\s/g, '') : "Unknown";
+      if(!groups[key]){
+        groups[key]={...o, order:o.order, quantity:parseInt(o.quantity||1), weight:parseFloat(o.weight||0), finalPrice:parseFloat(o.finalPrice||0), deposit:parseFloat(o.deposit||0), shipping:parseFloat(o.shipping||0), usd:parseFloat(o.usd||0)};
+      }else{
+        groups[key].quantity+=parseInt(o.quantity||1);
+        groups[key].weight+=parseFloat(o.weight||0);
+        groups[key].finalPrice+=parseFloat(o.finalPrice||0);
+        groups[key].deposit+=parseFloat(o.deposit||0);
+        groups[key].shipping+=parseFloat(o.shipping||0);
+        groups[key].usd+=parseFloat(o.usd||0);
+        groups[key].order+=" + "+o.order;
+      }
+    });
+    filtered=Object.values(groups);
+  }
+  renderCards(filtered.reverse());
+}
+
+function toggleGrouping(){ 
+    isGrouped=!isGrouped; 
+    const btn = document.querySelector(".group-btn-float");
+    btn.innerHTML = isGrouped ? "🚫 إلغاء تجميع الطلبات" : "👥 تجميع الطلبات (حسب الموبايل)";
+    btn.style.background = isGrouped ? "#dc2626" : "#1e293b";
+    applyFilters(); 
+}
+
+function updateOrder(orderId, btn){
+  const originalText = btn.innerHTML;
+  btn.innerHTML = "⏳ جاري الحفظ...";
+  
+  const newEGP=document.getElementById("egp-"+orderId).value;
+  const newDeposit=document.getElementById("deposit-"+orderId).value;
+  const newUSD=document.getElementById("usd-"+orderId).value;
+  const newStatus=document.getElementById("status-"+orderId).value;
+
+  fetch(scriptURL,{
+    method:"POST",
+    mode:"no-cors",
+    body:JSON.stringify({
+      action:"updateStatus",
+      order:orderId,
+      finalPrice:newEGP,
+      deposit:newDeposit,
+      usd:newUSD,
+      status:newStatus
+    })
+  }).then(()=>{
+    alert("تم تحديث الطلب #"+orderId);
+    btn.innerHTML = originalText;
+    loadData();
+  });
+}
+
+function logout(){
+  localStorage.removeItem("auth");
+  localStorage.removeItem("loginTime");
+  location.reload();
+}
+
+loadData();
+</script>
+
+</body>
+</html>
