@@ -248,6 +248,7 @@ function renderCards(data){
 
     container.innerHTML+=`
     <div class="order-card ${isGrouped ? '<div class="card-header" style="align-items: center;">
+  <div class="card-header" style="align-items: center;">
     <div style="display: flex; flex-direction: column;">
         <span class="order-id">#${orderId}</span>
         <span style="font-size: 11px; color: #94a3b8; font-weight: 600; margin-top: -2px;">
@@ -256,7 +257,6 @@ function renderCards(data){
     </div>
     <span class="badge" style="height: fit-content;">${o.status || 'Pending'}</span>
 </div>
- 
       <div class="field"><label>العميل:</label><span>${o.customerName || "—"}</span></div>
       <div class="field"><label>التليفون:</label><span>${o.phone || "—"}</span></div>
 
