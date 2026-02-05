@@ -3,46 +3,265 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRY SHOPPY - Pro Dashboard v7</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <title>TRY SHOPPY - Pro Dashboard v7.1</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #0d6efd; --bg: #f4f7fe; --white: #ffffff;
-            --text: #1e293b; --border: #cbd5e1; --success: #22c55e;
-            --danger: #dc2626;
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #cbd5e1; /* جعلت الحدود أغمق قليلاً للوضوح */
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --radius: 10px;
         }
 
-        body { font-family: 'Cairo', sans-serif; background-color: var(--bg); margin: 0; padding: 20px; color: var(--text); }
-        .container { max-width: 1650px; margin: 0 auto; } 
-        header { text-align: center; margin-bottom: 25px; border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
+        body { 
+            font-family: 'Cairo', sans-serif; 
+            background-color: var(--bg); 
+            margin: 0; 
+            padding: 0; 
+            color: var(--text-main); 
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Header Styles */
+        header { 
+            background: var(--surface); 
+            padding: 15px 30px; 
+            box-shadow: var(--shadow-sm); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border);
+        }
         
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 25px; }
-        .stat-card { background: var(--white); padding: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-right: 5px solid var(--primary); }
-        .stat-card h3 { margin: 0; font-size: 0.85rem; color: #64748b; }
-        .stat-card .value { font-size: 1.5rem; font-weight: 800; margin: 5px 0; color: var(--primary); }
-
-        .filters { background: var(--white); padding: 15px; border-radius: 12px; display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .filters input, .filters select { padding: 10px; border: 1px solid var(--border); border-radius: 8px; flex: 1; min-width: 140px; font-family: 'Cairo'; }
+        header h1 {
+            margin: 0;
+            font-size: 1.25rem;
+            color: var(--primary);
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
         
-        .btn-search { background: var(--primary); color: white; border: none; padding: 10px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .btn-group-action { background: #1a1a1a; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .btn-group-action.active { background: #dc2626; }
+        header h1::before { content: '🚀'; font-size: 1.5rem; }
+
+        .btn-logout {
+            background: #fee2e2;
+            color: var(--danger);
+            border: 1px solid #fecaca;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            font-family: 'Cairo';
+            transition: 0.2s;
+        }
+        .btn-logout:hover { background: #fecaca; }
+
+        .container { max-width: 98%; margin: 25px auto; padding: 0 10px; } 
         
-        .btn-print-all { background: #5b21b6; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        /* Stats Grid */
+        .stats-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 20px; 
+            margin-bottom: 30px; 
+        }
+        .stat-card { 
+            background: var(--surface); 
+            padding: 20px; 
+            border-radius: var(--radius); 
+            box-shadow: var(--shadow-sm); 
+            border: 1px solid var(--border);
+            transition: transform 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+        .stat-card h3 { margin: 0 0 10px 0; font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-card .value { font-size: 1.6rem; font-weight: 800; color: var(--text-main); line-height: 1; }
 
-        .table-wrapper { background: var(--white); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
-        table { width: 100%; border-collapse: collapse; text-align: right; }
-        th { background: #f1f5f9; padding: 15px; border-bottom: 2px solid var(--border); color: #475569; font-size: 0.85rem; }
-        td { padding: 15px; border-bottom: 1px solid #f1f5f9; font-size: 0.95rem; vertical-align: middle; }
+        /* Control Panel */
+        .control-panel {
+            background: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid var(--border);
+        }
 
-        .price-input { width: 90px; padding: 6px; border: 1px solid var(--border); border-radius: 6px; font-family: 'Cairo'; font-weight: bold; text-align: center; }
-        .deposit-input { border-color: var(--danger); color: var(--danger); }
+        .controls-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed var(--border);
+        }
+        .controls-row:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
 
-        .spec-badge { background: #eff6ff; color: #1e40af; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; display: block; margin-top: 3px; }
-        .btn-print { background: #000; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        .btn-update { background: var(--success); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
-        .link-btn { color: var(--primary); text-decoration: none; font-weight: bold; font-size: 0.8rem; border: 1px solid var(--primary); padding: 4px 8px; border-radius: 4px; }
-        .end-price-cell { font-weight: 900; color: var(--success); font-size: 1.1rem; }
+        .input-group { display: flex; gap: 10px; flex: 1; min-width: 250px; }
+        
+        input, select { 
+            padding: 10px 15px; 
+            border: 1px solid var(--border); 
+            border-radius: 8px; 
+            font-family: 'Cairo'; 
+            font-size: 0.9rem;
+            outline: none;
+            transition: 0.2s;
+            background: #f8fafc;
+        }
+        input:focus, select:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+        
+        button { font-family: 'Cairo'; font-weight: 700; cursor: pointer; border: none; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
+        
+        .btn-search { background: var(--primary); color: white; padding: 10px 25px; border-radius: 8px; }
+        .btn-search:hover { background: var(--primary-hover); }
+
+        .btn-action { background: var(--text-main); color: white; padding: 10px 20px; border-radius: 8px; }
+        .btn-action.active { background: var(--warning); color: #000; }
+        .btn-action:hover { opacity: 0.9; }
+
+        .btn-print { background: #7c3aed; color: white; padding: 10px 20px; border-radius: 8px; }
+        .btn-csv { background: #059669; color: white; padding: 10px 20px; border-radius: 8px; }
+
+        /* Table */
+        .table-wrapper { 
+            background: var(--surface); 
+            border-radius: var(--radius); 
+            box-shadow: var(--shadow-md); 
+            border: 1px solid var(--border);
+            overflow-x: auto;
+            max-height: 70vh; 
+        }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: right; }
+        
+        th { 
+            background: #f1f5f9; 
+            padding: 15px; 
+            color: var(--text-muted); 
+            font-size: 0.8rem; 
+            font-weight: 700;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: 2px solid var(--border);
+            white-space: nowrap;
+        }
+        
+        td { 
+            padding: 12px 15px; 
+            border-bottom: 1px solid var(--border); 
+            font-size: 0.9rem; 
+            vertical-align: middle; 
+            color: var(--text-main);
+            transition: background 0.1s;
+        }
+        
+        tr:hover td { background: #f8fafc; }
+        tr:last-child td { border-bottom: none; }
+
+        /* --- تعديل الحقول لتكون واضحة كحقول إدخال --- */
+        .price-input { 
+            width: 90px; 
+            padding: 8px; 
+            border: 1px solid #cbd5e1; /* حدود واضحة */
+            border-radius: 6px; 
+            background: #ffffff; /* خلفية بيضاء */
+            font-weight: bold; 
+            text-align: center; 
+            color: var(--text-main);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05); /* ظل خفيف */
+            transition: all 0.2s ease;
+        }
+        .price-input:focus { 
+            border-color: var(--primary); 
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        .deposit-input { color: var(--danger); border-color: #fecaca; background: #fff5f5; }
+        .deposit-input:focus { border-color: var(--danger); }
+
+        /* Badges */
+        .spec-badge { 
+            background: #e0e7ff; 
+            color: #3730a3; 
+            padding: 2px 8px; 
+            border-radius: 4px; 
+            font-size: 0.75rem; 
+            font-weight: 700; 
+            display: inline-block; 
+            margin: 2px 0; 
+        }
+        
+        .dim-text {
+            display: block;
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 4px;
+            font-style: italic;
+        }
+        
+        .end-price-cell { 
+            font-weight: 900; 
+            color: var(--success); 
+            font-size: 1.1rem; 
+            background: #ecfdf5;
+            padding: 5px 10px !important;
+            border-radius: 6px;
+            text-align: center;
+            border: 1px solid #d1fae5;
+        }
+
+        /* Status Select */
+        td select {
+            padding: 6px;
+            font-size: 0.85rem;
+            border-color: #cbd5e1;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            min-width: 140px;
+            background: #fff;
+        }
+
+        .btn-icon { width: 34px; height: 34px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 1px solid transparent; }
+        .btn-update { background: #dcfce7; color: #166534; border-color: #bbf7d0; }
+        .btn-update:hover { background: #bbf7d0; }
+        .btn-print-sm { background: #e0f2fe; color: #075985; border-color: #bae6fd; }
+        .btn-print-sm:hover { background: #bae6fd; }
+
+        .link-btn { 
+            color: var(--primary); 
+            text-decoration: none; 
+            font-weight: bold; 
+            font-size: 0.8rem; 
+            background: #eef2ff;
+            padding: 5px 10px;
+            border-radius: 6px;
+            display: inline-block;
+            border: 1px solid #c7d2fe;
+        }
+        .link-btn:hover { background: #e0e7ff; }
+
+        @media (max-width: 768px) {
+            .controls-row { flex-direction: column; align-items: stretch; }
+            .input-group { flex-direction: column; }
+        }
     </style>
 </head>
 <body style="display:none;">
@@ -62,62 +281,109 @@ if(auth === "true" && loginTime && (now - loginTime < SESSION_TIME)){
     localStorage.setItem("loginTime", now);
     document.body.style.display = "block";
   }else{
-    document.body.innerHTML="<h2 style='text-align:center;margin-top:50px;'>Access Denied ❌</h2>";
+    document.body.innerHTML="<div style='display:flex;height:100vh;justify-content:center;align-items:center;flex-direction:column;color:#ef4444;font-family:sans-serif;'><h1>🚫 Access Denied</h1><p>Incorrect Password</p></div>";
   }
 }
 </script>
 
-<div class="container">
-    <header style="display:flex; justify-content:space-between; align-items:center;">
-        <h1>لوحة تحكم TRY SHOPPY</h1>
-        <button onclick="logout()" style="background:#dc2626;color:white;border:none;padding:8px 15px;border-radius:6px;cursor:pointer;font-weight:bold;">تسجيل الخروج</button>
-    </header>
+<header>
+    <h1>TRY SHOPPY <span style="font-size:0.7em; opacity:0.6; font-weight:400; margin-right:10px;">Pro Dashboard v7.1</span></h1>
+    <button onclick="logout()" class="btn-logout">تسجيل الخروج</button>
+</header>
 
+<div class="container">
     <div class="stats-grid">
-        <div class="stat-card"><h3>إجمالي المبيعات (EGP)</h3><div id="totalEGP" class="value">0</div></div>
-        <div class="stat-card" style="border-right-color: var(--success);"><h3>صافي التحصيل (End Price)</h3><div id="totalNet" class="value" style="color:var(--success)">0</div></div>
-        <div class="stat-card" style="border-right-color: #f59e0b;"><h3>عدد الشحنات</h3><div id="totalCount" class="value">0</div></div>
-        <div class="stat-card" style="border-right-color: #6366f1;"><h3>التكلفة (USD)</h3><div id="totalUSD" class="value">0</div></div>
-        <div class="stat-card" style="border-right-color:#16a34a;"><h3>أرباح الطلبات (Profit)</h3><div id="totalProfit" class="value" style="color:#16a34a">0</div></div>
+        <div class="stat-card" style="border-right: 4px solid var(--primary);">
+            <h3>إجمالي المبيعات (EGP)</h3>
+            <div id="totalEGP" class="value">0</div>
+        </div>
+        <div class="stat-card" style="border-right: 4px solid var(--success);">
+            <h3>صافي التحصيل (End Price)</h3>
+            <div id="totalNet" class="value" style="color:var(--success)">0</div>
+        </div>
+        <div class="stat-card" style="border-right: 4px solid var(--warning);">
+            <h3>عدد الشحنات</h3>
+            <div id="totalCount" class="value">0</div>
+        </div>
+        <div class="stat-card" style="border-right: 4px solid #6366f1;">
+            <h3>التكلفة (USD)</h3>
+            <div id="totalUSD" class="value">0</div>
+        </div>
+        <div class="stat-card" style="border-right: 4px solid #16a34a;">
+            <h3>أرباح الطلبات (Profit)</h3>
+            <div id="totalProfit" class="value" style="color:#16a34a">0</div>
+        </div>
     </div>
 
-    <div class="filters">
-        <input type="date" id="dateFrom">
-        <input type="date" id="dateTo">
-        <input id="searchInput" placeholder="🔍 ابحث بالاسم، الموبايل، أو رقم الطلب...">
-        <select id="searchStatus">
-            <option value="">كل الحالات</option>
-            <option value="Pending Review">Pending Review</option>
-            <option value="Shipped To You">Shipped To You</option>
-            <option value="Delivered">Delivered</option>
-			<option value="Confirmed Via Try">Confirmed Via Try</option>
-			<option value="Placed">Placed</option>
-			<option value="Canceled">Canceled</option>
-			<option value="Processing">Processing</option>
-            <option value="Delayed">Delayed</option>
-			<option value="Arrived USA HUB">Arrived USA HUB</option>
-			<option value="Arrived Cairo HUB">Arrived Cairo HUB</option>
-        </select>
-        <button class="btn-search" onclick="applyFilters()">بحث</button>
-        <button id="groupBtn" class="btn-group-action" onclick="toggleGrouping()">🔄 تجميع الطلبات</button>
-        <button class="btn-print-all" onclick="printAllDisplayed()">🖨️ طباعة كافة بوالص الجدول</button>
+    <div class="control-panel">
+        <div class="controls-row">
+            <div class="input-group" style="flex: 2;">
+                <input id="searchInput" placeholder="🔍 بحث سريع (اسم، موبايل، رقم طلب)...">
+            </div>
+            <div class="input-group">
+                <input type="date" id="dateFrom" title="من تاريخ">
+                <span style="align-self:center; color:#94a3b8">إلى</span>
+                <input type="date" id="dateTo" title="إلى تاريخ">
+            </div>
+            <div class="input-group">
+                <select id="searchStatus">
+                    <option value="">📂 كل الحالات</option>
+                    <option value="Pending Review">Pending Review</option>
+                    <option value="Confirmed Via Try">Confirmed Via Try</option>
+                    <option value="Placed">Placed</option>
+                    <option value="Processing">Processing</option>
+                    <option value="Arrived USA HUB">Arrived USA HUB</option>
+                    <option value="Arrived Cairo HUB">Arrived Cairo HUB</option>
+                    <option value="Shipped To You">Shipped To You</option>
+                    <option value="Delivered">Delivered</option>
+                    <option value="Delayed">Delayed</option>
+                    <option value="Canceled">Canceled</option>
+                </select>
+                <button class="btn-search" onclick="applyFilters()">بحث</button>
+            </div>
+        </div>
+
+        <div class="controls-row" style="justify-content: space-between;">
+            <div class="input-group">
+                <select id="bulkStatus" style="max-width: 200px;">
+                    <option value="">⚡ تغيير حالة المحدد...</option>
+                    <option value="Pending Review">Pending Review</option>
+                    <option value="Confirmed Via Try">Confirmed Via Try</option>
+                    <option value="Placed">Placed</option>
+                    <option value="Processing">Processing</option>
+                    <option value="Arrived Cairo HUB">Arrived Cairo HUB</option>
+                    <option value="Shipped To You">Shipped To You</option>
+                    <option value="Delivered">Delivered</option>
+                    <option value="Canceled">Canceled</option>
+                    <option value="Delayed">Delayed</option>
+                </select>
+                <button class="btn-action" onclick="applyBulkStatus()">تطبيق الحالة</button>
+            </div>
+
+            <div style="display:flex; gap:10px;">
+                <button id="groupBtn" class="btn-action" onclick="toggleGrouping()">🔄 تجميع الطلبات</button>
+                <button class="btn-print" onclick="printAllDisplayed()">🖨️ طباعة الجدول</button>
+                <button class="btn-csv" onclick="exportCSV()">⬇️ CSV</button>	
+            </div>
+        </div>
     </div>
 
     <div class="table-wrapper">
         <table>
             <thead>
                 <tr>
-                    <th>رقم الطلب</th>
+                    <th width="40"><input type="checkbox" id="checkAll" onclick="toggleAll(this)"></th>
+                    <th>رقم الطلب / التاريخ</th>
                     <th>العميل</th>
-                    <th>المواصفات (الكمية/الوزن/الأبعاد)</th>
+                    <th>المواصفات (الوصف/الأبعاد)</th>
                     <th>الإجمالي (EGP)</th>
                     <th>العربون</th>
                     <th>الصافي (تحصيل)</th>
                     <th>التكلفة (USD)</th>
                     <th>الحالة</th>
-                    <th>الإجراء</th>
-                    <th>بوليصة</th>
-                    <th>المنتج</th>
+                    <th>حفظ</th>
+                    <th>طباعة</th>
+                    <th>لينك</th>
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
@@ -149,6 +415,7 @@ function renderTable(data) {
         
         const qty = isGrouped ? o.totalQty : (o.quantity || 1);
         const weight = parseFloat(isGrouped ? o.totalWeight : (o.weight || 0)).toFixed(2);
+        // هنا تم إعادة الأبعاد/الوصف
         const dims = isGrouped ? "متعددة" : (o.dimensions || "غير محددة");
 
         const ship = isGrouped ? (parseFloat(o.totalShipping) || 0) : (parseFloat(o.shipping) || 0);
@@ -156,20 +423,32 @@ function renderTable(data) {
         const dep = parseFloat(o.deposit || 0);
         const endP = finalP + ship - dep;
 
+        let statusColor = "#333";
+        if(cur.includes("Delivered")) statusColor = "var(--success)";
+        if(cur.includes("Canceled")) statusColor = "var(--danger)";
+        if(cur.includes("Pending")) statusColor = "var(--warning)";
+
         tbody.innerHTML += `<tr>
-            <td style="font-weight:bold;">${o.order}</td>
-            <td><b>${o.customerName}</b><br><small>${o.phone}</small></td>
+            <td><input type="checkbox" class="row-check" value="${printOrder}"></td>
             <td>
-                <span class="spec-badge">الكمية: ${qty}</span>
-                <span class="spec-badge">الوزن: ${weight} جم</span>
-				<span class="spec-badge">الأبعاد: ${dims}</span>
+                <span style="font-weight:800; color:var(--primary);">${o.order}</span>
+                ${o.date ? `<div style="font-size:0.75rem; color:#94a3b8; margin-top:2px;">📅 ${new Date(o.date).toISOString().split('T')[0]}</div>` : ``}
             </td>
-            <td><input type="number" id="egp-${printOrder}" class="price-input" value="${finalP}"></td>
-            <td><input type="number" id="deposit-${printOrder}" class="price-input deposit-input" value="${dep}"></td>
-            <td class="end-price-cell">${endP.toLocaleString()} ج.م</td>
-            <td><input type="number" id="usd-${printOrder}" class="price-input" value="${parseFloat(o.usd || 0).toFixed(2)}"></td>
             <td>
-                <select id="status-${printOrder}" style="padding:4px; font-size:0.8rem;">
+                <div style="font-weight:700;">${o.customerName}</div>
+                <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">📱 ${o.phone}</div>
+            </td>
+            <td>
+                <span class="spec-badge">x${qty}</span>
+                <span class="spec-badge">${weight} gm</span>
+                <div class="dim-text">📦 ${dims}</div>
+            </td>
+            <td><input type="number" id="egp-${printOrder}" class="price-input" value="${finalP}" placeholder="EGP"></td>
+            <td><input type="number" id="deposit-${printOrder}" class="price-input deposit-input" value="${dep}" placeholder="0"></td>
+            <td><div class="end-price-cell">${endP.toLocaleString()}</div></td>
+            <td><input type="number" id="usd-${printOrder}" class="price-input" value="${parseFloat(o.usd || 0).toFixed(2)}" style="color:#6366f1"></td>
+            <td>
+                <select id="status-${printOrder}" style="border-left: 3px solid ${statusColor}">
                     <option value="Pending Review" ${cur==='Pending Review'?'selected':''}>Pending Review</option>
 					<option value="Confirmed Via Try" ${cur==='Confirmed Via Try'?'selected':''}>Confirmed Via Try</option>
 					<option value="Placed" ${cur==='Placed'?'selected':''}>Placed</option>
@@ -181,9 +460,9 @@ function renderTable(data) {
                     <option value="Delayed" ${cur==='Delayed'?'selected':''}>Delayed</option>
                 </select>
             </td>
-            <td><button class="btn-update" onclick="updateOrder('${printOrder}')">✔</button></td>
-            <td><button class="btn-print" onclick="printLabel('${printPhone}', '${printOrder}')">📄</button></td>
-            <td>${o.link ? `<a href="${o.link}" target="_blank" class="link-btn">المعاينة</a>` : '-'}</td>
+            <td style="text-align:center;"><button class="btn-icon btn-update" onclick="updateOrder('${printOrder}')" title="حفظ التعديلات">💾</button></td>
+            <td style="text-align:center;"><button class="btn-icon btn-print-sm" onclick="printLabel('${printPhone}', '${printOrder}')" title="طباعة بوليصة">📄</button></td>
+            <td style="text-align:center;">${o.link ? `<a href="${o.link}" target="_blank" class="link-btn">رابط</a>` : '<span style="color:#ccc">-</span>'}</td>
         </tr>`;
     });
 }
@@ -193,7 +472,7 @@ function applyFilters() {
     const to = document.getElementById("dateTo").value;
     const search = document.getElementById("searchInput").value.toLowerCase();
     const status = document.getElementById("searchStatus").value;
-    const USD_RATE = 50; // غيره حسب السعر الحالي
+    const USD_RATE = 50; 
 
     let filtered = ordersData.filter(o => {
         const d = o.date ? new Date(o.date).toISOString().split('T')[0] : "";
@@ -255,8 +534,13 @@ function applyFilters() {
 function toggleGrouping() {
     isGrouped = !isGrouped;
     const btn = document.getElementById("groupBtn");
-    btn.innerText = isGrouped ? "🚫 فك التجميع" : "🔄 تجميع الطلبات";
-    btn.classList.toggle("active");
+    if(isGrouped) {
+        btn.innerHTML = "🚫 فك التجميع";
+        btn.classList.add("active");
+    } else {
+        btn.innerHTML = "🔄 تجميع الطلبات";
+        btn.classList.remove("active");
+    }
     applyFilters(); 
 }
 
@@ -265,6 +549,10 @@ function updateOrder(orderId) {
     const newEGP = document.getElementById(`egp-${orderId}`).value;
     const newUSD = document.getElementById(`usd-${orderId}`).value;
     const newDeposit = document.getElementById(`deposit-${orderId}`).value; 
+
+    const btn = document.querySelector(`button[onclick="updateOrder('${orderId}')"]`);
+    const originalText = btn.innerHTML;
+    btn.innerHTML = "⏳";
 
     fetch(scriptURL, {
         method: "POST",
@@ -279,6 +567,7 @@ function updateOrder(orderId) {
         })
     }).then(() => {
         alert("تم تحديث الطلب #" + orderId);
+        btn.innerHTML = originalText;
         loadData();
     });
 }
@@ -382,6 +671,52 @@ function logout(){
   localStorage.removeItem("loginTime");
   location.reload();
 }
+
+function exportCSV(){
+    let csv = "Order,Customer,Phone,Status,FinalPrice,USD,Date\n";
+    currentFilteredData.forEach(o=>{
+        const d = o.date ? new Date(o.date).toISOString().split('T')[0] : "";
+        csv += `"${o.order}","${o.customerName}","${o.phone}","${o.status}","${o.finalPrice}","${o.usd}","${d}"\n`;
+    });
+
+    const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "orders.csv";
+    link.click();
+}
+function toggleAll(el){
+    document.querySelectorAll(".row-check").forEach(c=>{
+        c.checked = el.checked;
+    });
+}
+
+function applyBulkStatus(){
+    const status = document.getElementById("bulkStatus").value;
+    if(!status) return alert("اختار الحالة");
+
+    const selected = [...document.querySelectorAll(".row-check:checked")]
+                     .map(c=>c.value);
+
+    if(selected.length === 0)
+        return alert("مفيش طلبات متعلمة");
+
+    selected.forEach(orderId=>{
+        fetch(scriptURL,{
+            method:"POST",
+            mode:"no-cors",
+            body: JSON.stringify({
+                action:"updateStatus",
+                order: orderId,
+                status: status
+            })
+        });
+    });
+
+    alert("تم تحديث الحالات");
+    loadData();
+}
+
 loadData();
 </script>
 </body>
