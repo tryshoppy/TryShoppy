@@ -190,6 +190,7 @@ if(auth==="true"&&loginTime&&(now-loginTime<SESSION_TIME)){
 <header>
   <div class="logo">TRY SHOPPY</div>
   <div id="totalBox" style="
+    display: none; /* <--- أضيف هذا السطر */
     background:#f0fdf4;
     border:1px solid #bbf7d0;
     color:#166534;
@@ -363,17 +364,26 @@ function applyFilters(){
     filtered=Object.values(groups);
   }
   renderCards(filtered.reverse());
-// ===== حساب الإجمالي بالمصري =====
-let totalEGP = 0;
+// ===== بداية التعديل: حساب الإجمالي بناء على الحالة =====
+  const totalBox = document.getElementById("totalBox");
 
-filtered.forEach(o=>{
-  totalEGP += parseFloat(o.finalPrice || 0);
-});
+  // المتغير status تم تعريفه في أول الدالة، إذا كان فارغاً يعني "كل الحالات"
+  if (status === "") {
+    // إخفاء الصندوق إذا لم يتم اختيار حالة محددة
+    totalBox.style.display = "none";
+  } else {
+    // إظهار الصندوق وحساب الإجمالي فقط عند اختيار حالة
+    let totalEGP = 0;
+    filtered.forEach(o => {
+      totalEGP += parseFloat(o.finalPrice || 0);
+    });
 
-document.getElementById("totalBox").innerText =
-  "الإجمالي: " + totalEGP.toLocaleString() + " ج.م";
-}
-
+    totalBox.style.display = "block"; // نتأكد من ظهوره
+    totalBox.innerText = "الإجمالي: " + totalEGP.toLocaleString() + " ج.م";
+  }
+  // ===== نهاية التعديل =====
+} 
+// (هذا هو قوس إغلاق دالة applyFilters الأصلي)
 function toggleGrouping(){ isGrouped=!isGrouped; applyFilters(); }
 
 function updateOrder(orderId){
