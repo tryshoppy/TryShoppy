@@ -190,7 +190,7 @@ if(auth==="true"&&loginTime&&(now-loginTime<SESSION_TIME)){
 <header>
   <div class="logo">TRY SHOPPY</div>
   <div id="totalBox" style="
-      display: none; /* <--- أضيفي هذا السطر */
+    display: none; /* <--- أضيف هذا السطر */
     background:#f0fdf4;
     border:1px solid #bbf7d0;
     color:#166534;
@@ -206,31 +206,9 @@ if(auth==="true"&&loginTime&&(now-loginTime<SESSION_TIME)){
 </header>
 
 <div class="filters">
- <div style="display:flex; flex-direction:column; gap:10px;">
-
-  <div style="display:flex; flex-direction:column; gap:5px;">
-    <label style="font-size:13px; font-weight:700; color:#64748b;">
-      📅 تاريخ الإنشاء (من)
-    </label>
+  <div style="display: flex; gap: 5px;">
     <input type="date" id="dateFrom">
- 
-
-  <div style="display:flex; flex-direction:column; gap:5px;">
-    <label style="font-size:13px; font-weight:700; color:#64748b;">
-      📅 تاريخ الإنشاء (إلى)
-    </label>
     <input type="date" id="dateTo">
-  
-
-  <div style="display:flex; flex-direction:column; gap:5px;">
-    <label style="font-size:13px; font-weight:700; color:#64748b;">
-      📦 بحث بموعد الوصول
-    </label>
-    <input type="date" id="arrivalDate">
-  </div>
-
-
-
   </div>
   <input id="searchInput" placeholder="🔍 بحث بالاسم أو التليفون أو الأوردر">
   <select id="searchStatus">
@@ -253,7 +231,7 @@ if(auth==="true"&&loginTime&&(now-loginTime<SESSION_TIME)){
 </div>
 
 <script>
-const scriptURL="https://script.google.com/macros/s/AKfycbzTo-YoIBY6wcJ4-SOwc_KqD_-qvZ4fEwAM8WeFUFJpXGPkag5PVtf8CH-g9AeYU9JwPQ/exec";
+const scriptURL="https://script.google.com/macros/s/AKfycby-HrSH3DwpAPJAuhiAPlBJAngy-_qUZ7-O925hTA7FnbBVHkrjprfJavEA-WKyofIdlg/exec";
 let ordersData=[];
 let isGrouped=false;
 
@@ -264,19 +242,6 @@ async function loadData(){
     applyFilters();
   } catch(e) { alert("خطأ في التحميل"); }
 }
-
-function formatDateDMY(dateValue){
-  if(!dateValue) return "";
-
-  const date = new Date(dateValue);
-
-  const day = String(date.getDate()).padStart(2,'0');
-  const month = String(date.getMonth()+1).padStart(2,'0');
-  const year = date.getFullYear();
-
-  return `${day}-${month}-${year}`;
-}
-
 
 function renderCards(data){
   const container=document.getElementById("cardsContainer");
@@ -300,7 +265,7 @@ function renderCards(data){
     <div style="display: flex; flex-direction: column;">
         <span class="order-id">#${orderId}</span>
         <span style="font-size: 11px; color: #94a3b8; font-weight: 600; margin-top: -2px;">
-           📅 ${o.date ? formatDateDMY(o.date) : '—'}
+            📅 ${o.date ? new Date(o.date).toLocaleDateString('en-GB') : '—'}
         </span>
     </div>
     <span class="badge" style="height: fit-content;">${o.status || 'Pending'}</span>
@@ -324,24 +289,14 @@ function renderCards(data){
         <input type="number" id="deposit-${cleanOrderId}" style="color:red" value="${dep}" oninput="recalc('${cleanOrderId}', ${ship})">
       </div>
 
-      <div class="field">
-  <label>موعد الوصول:</label>
-  <div style="display:flex; flex-direction:column; align-items:flex-end;">
-    
-    <input type="date" id="arrival-${cleanOrderId}" 
-      value="${o.endprice ? new Date(o.endprice).toLocaleDateString('en-CA') : ''}">
-    
-    <span style="font-size:12px;color:#64748b;margin-top:3px;">
-      ${o.endprice ? formatDateDMY(o.endprice) : ''}
-    </span>
-
-  </div>
-</div>
-
-
       <div class="net-box">
         <span class="net-label">المبلغ المطلوب تحصيله (الصافي)</span>
         <span class="net-value" id="net-${cleanOrderId}">${net.toLocaleString()} ج.م</span>
+      </div>
+
+      <div class="field">
+        <label>التكلفة (USD):</label>
+        <input type="number" id="usd-${cleanOrderId}" value="${parseFloat(o.usd||0).toFixed(2)}">
       </div>
 
       <div class="field">
@@ -379,19 +334,15 @@ function applyFilters(){
   const from=document.getElementById("dateFrom").value;
   const to=document.getElementById("dateTo").value;
   const status=document.getElementById("searchStatus").value;
-  const arrivalDateFilter = document.getElementById("arrivalDate").value;
 
   let filtered=ordersData.filter(o=>{
     const d=o.date?new Date(o.date).toISOString().split('T')[0]:"";
-    const arrivalDate = o.endprice ? new Date(o.endprice).toLocaleDateString('en-CA') : "";
-    const arrivalMatch = !arrivalDateFilter || arrivalDate === arrivalDateFilter;
     const dateMatch=(!from||d>=from)&&(!to||d<=to);
     const statusMatch=!status||o.status===status;
     const searchMatch=(o.customerName||"").toLowerCase().includes(search)||
                       (o.phone||"").toString().includes(search)||
                       (o.order||"").toString().includes(search);
-    return dateMatch && statusMatch && searchMatch && arrivalMatch;
-
+    return dateMatch&&statusMatch&&searchMatch;
   });
 
   if(isGrouped){
@@ -433,7 +384,6 @@ function applyFilters(){
   // ===== نهاية التعديل =====
 } 
 // (هذا هو قوس إغلاق دالة applyFilters الأصلي)
-
 function toggleGrouping(){ isGrouped=!isGrouped; applyFilters(); }
 
 function updateOrder(orderId){
@@ -441,7 +391,6 @@ function updateOrder(orderId){
   const newDeposit=document.getElementById("deposit-"+orderId).value;
   const newUSD=document.getElementById("usd-"+orderId).value;
   const newStatus=document.getElementById("status-"+orderId).value;
-  const newArrival = document.getElementById("arrival-"+orderId).value;
 
   fetch(scriptURL,{
     method:"POST",
@@ -452,8 +401,7 @@ function updateOrder(orderId){
       finalPrice:newEGP,
       deposit:newDeposit,
       usd:newUSD,
-      status:newStatus,
-      endprice:newArrival
+      status:newStatus
     })
   }).then(()=>{
     alert("تم تحديث الطلب #"+orderId);
