@@ -3,24 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRY SHOPPY - Pro Dashboard v8.0</title>
+    <title>TRY SHOPPY - Pro Dashboard v7.1</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* ألوان عصرية أكثر */
             --primary: #4f46e5;
-            --primary-light: #eef2ff;
-            --bg: #f3f4f6;
+            --primary-hover: #4338ca;
+            --bg: #f8fafc;
             --surface: #ffffff;
-            --text-main: #111827;
-            --text-muted: #6b7280;
-            --border: #e5e7eb;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #cbd5e1; /* جعلت الحدود أغمق قليلاً للوضوح */
             --success: #10b981;
-            --success-bg: #d1fae5;
             --danger: #ef4444;
             --warning: #f59e0b;
-            --radius: 12px;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --radius: 10px;
         }
 
         body { 
@@ -29,76 +28,78 @@
             margin: 0; 
             padding: 0; 
             color: var(--text-main); 
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* Header */
+        /* Header Styles */
         header { 
             background: var(--surface); 
-            padding: 15px 40px; 
-            box-shadow: var(--shadow); 
+            padding: 15px 30px; 
+            box-shadow: var(--shadow-sm); 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
             position: sticky;
             top: 0;
-            z-index: 1000;
+            z-index: 100;
             border-bottom: 1px solid var(--border);
         }
         
         header h1 {
             margin: 0;
-            font-size: 1.4rem;
+            font-size: 1.25rem;
             color: var(--primary);
             font-weight: 800;
             display: flex;
             align-items: center;
             gap: 10px;
         }
+        
+        header h1::before { content: '🚀'; font-size: 1.5rem; }
 
         .btn-logout {
-            background: #fef2f2;
+            background: #fee2e2;
             color: var(--danger);
-            border: 1px solid #fee2e2;
-            padding: 8px 20px;
+            border: 1px solid #fecaca;
+            padding: 8px 16px;
             border-radius: 8px;
             cursor: pointer;
             font-weight: 700;
             font-family: 'Cairo';
-            transition: 0.3s;
+            transition: 0.2s;
         }
-        .btn-logout:hover { background: var(--danger); color: white; }
+        .btn-logout:hover { background: #fecaca; }
 
-        .container { max-width: 98%; margin: 30px auto; padding: 0 20px; } 
+        .container { max-width: 98%; margin: 25px auto; padding: 0 10px; } 
         
-        /* Stats Cards */
+        /* Stats Grid */
         .stats-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
             gap: 20px; 
             margin-bottom: 30px; 
         }
         .stat-card { 
             background: var(--surface); 
-            padding: 24px; 
+            padding: 20px; 
             border-radius: var(--radius); 
-            box-shadow: var(--shadow); 
+            box-shadow: var(--shadow-sm); 
             border: 1px solid var(--border);
-            transition: transform 0.2s ease;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            transition: transform 0.2s;
+            position: relative;
+            overflow: hidden;
         }
-        .stat-card:hover { transform: translateY(-5px); }
-        .stat-card h3 { margin: 0 0 10px 0; font-size: 0.9rem; color: var(--text-muted); font-weight: 600; }
-        .stat-card .value { font-size: 1.8rem; font-weight: 800; color: var(--text-main); }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+        .stat-card h3 { margin: 0 0 10px 0; font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-card .value { font-size: 1.6rem; font-weight: 800; color: var(--text-main); line-height: 1; }
 
         /* Control Panel */
         .control-panel {
             background: var(--surface);
             border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 24px;
-            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+            padding: 20px;
+            margin-bottom: 25px;
             border: 1px solid var(--border);
         }
 
@@ -106,142 +107,161 @@
             display: flex;
             gap: 15px;
             flex-wrap: wrap;
-            align-items: flex-end; /* محاذاة العناصر للأسفل */
-            margin-bottom: 20px;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed var(--border);
         }
-        .controls-row:last-child { margin-bottom: 0; padding-top: 20px; border-top: 1px dashed var(--border); }
+        .controls-row:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
 
-        .input-group { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 200px; }
-        .input-group label { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); }
-
+        .input-group { display: flex; gap: 10px; flex: 1; min-width: 250px; }
+        
         input, select { 
-            padding: 10px 14px; 
+            padding: 10px 15px; 
             border: 1px solid var(--border); 
             border-radius: 8px; 
             font-family: 'Cairo'; 
             font-size: 0.9rem;
             outline: none;
-            transition: 0.3s;
-            background: #f9fafb;
-            height: 42px; /* توحيد الارتفاع */
-            box-sizing: border-box;
+            transition: 0.2s;
+            background: #f8fafc;
         }
         input:focus, select:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
         
-        button { font-family: 'Cairo'; font-weight: 700; cursor: pointer; border: none; transition: 0.2s; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 42px; }
+        button { font-family: 'Cairo'; font-weight: 700; cursor: pointer; border: none; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
         
-        .btn-search { background: var(--primary); color: white; padding: 0 25px; }
-        .btn-search:hover { background: #4338ca; }
+        .btn-search { background: var(--primary); color: white; padding: 10px 25px; border-radius: 8px; }
+        .btn-search:hover { background: var(--primary-hover); }
 
-        .btn-action { background: #374151; color: white; padding: 0 20px; }
+        .btn-action { background: var(--text-main); color: white; padding: 10px 20px; border-radius: 8px; }
         .btn-action.active { background: var(--warning); color: #000; }
         .btn-action:hover { opacity: 0.9; }
 
-        .btn-print { background: #7c3aed; color: white; padding: 0 20px; }
-        .btn-csv { background: #059669; color: white; padding: 0 20px; }
+        .btn-print { background: #7c3aed; color: white; padding: 10px 20px; border-radius: 8px; }
+        .btn-csv { background: #059669; color: white; padding: 10px 20px; border-radius: 8px; }
 
-        /* Table Styling */
+        /* Table */
         .table-wrapper { 
             background: var(--surface); 
             border-radius: var(--radius); 
-            box-shadow: var(--shadow); 
+            box-shadow: var(--shadow-md); 
             border: 1px solid var(--border);
-            overflow: hidden;
             overflow-x: auto;
+            max-height: 70vh; 
         }
-        table { width: 100%; border-collapse: collapse; text-align: right; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: right; }
         
         th { 
-            background: #f8fafc; 
-            padding: 16px; 
+            background: #f1f5f9; 
+            padding: 15px; 
             color: var(--text-muted); 
             font-size: 0.8rem; 
-            font-weight: 800;
+            font-weight: 700;
+            position: sticky;
+            top: 0;
+            z-index: 10;
             border-bottom: 2px solid var(--border);
             white-space: nowrap;
         }
         
         td { 
-            padding: 12px 16px; 
+            padding: 12px 15px; 
             border-bottom: 1px solid var(--border); 
             font-size: 0.9rem; 
             vertical-align: middle; 
             color: var(--text-main);
+            transition: background 0.1s;
         }
-        tr:hover td { background: #f9fafb; }
-
-        /* Inputs inside table */
-        .price-input { 
-            width: 80px; 
-            padding: 6px; 
-            text-align: center; 
-            font-weight: bold; 
-            border-radius: 6px;
-            height: 36px;
-        }
-        .deposit-input { color: var(--danger); background: #fef2f2; border-color: #fecaca; }
         
-        /* New Date Input Style */
-        .date-input-table {
-            width: 130px;
-            padding: 4px 8px;
-            font-size: 0.8rem;
-            height: 36px;
-        }
+        tr:hover td { background: #f8fafc; }
+        tr:last-child td { border-bottom: none; }
 
-        .spec-badge { 
-            background: var(--primary-light); 
-            color: var(--primary); 
-            padding: 4px 8px; 
+        /* --- تعديل الحقول لتكون واضحة كحقول إدخال --- */
+        .price-input { 
+            width: 90px; 
+            padding: 8px; 
+            border: 1px solid #cbd5e1; /* حدود واضحة */
             border-radius: 6px; 
+            background: #ffffff; /* خلفية بيضاء */
+            font-weight: bold; 
+            text-align: center; 
+            color: var(--text-main);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05); /* ظل خفيف */
+            transition: all 0.2s ease;
+        }
+        .price-input:focus { 
+            border-color: var(--primary); 
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        .deposit-input { color: var(--danger); border-color: #fecaca; background: #fff5f5; }
+        .deposit-input:focus { border-color: var(--danger); }
+
+        /* Badges */
+        .spec-badge { 
+            background: #e0e7ff; 
+            color: #3730a3; 
+            padding: 2px 8px; 
+            border-radius: 4px; 
             font-size: 0.75rem; 
             font-weight: 700; 
             display: inline-block; 
-            margin-right: 4px;
+            margin: 2px 0; 
+        }
+        
+        .dim-text {
+            display: block;
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 4px;
+            font-style: italic;
         }
         
         .end-price-cell { 
-            font-weight: 800; 
+            font-weight: 900; 
             color: var(--success); 
-            background: var(--success-bg);
-            padding: 6px 12px;
+            font-size: 1.1rem; 
+            background: #ecfdf5;
+            padding: 5px 10px !important;
             border-radius: 6px;
             text-align: center;
-            display: inline-block;
-            min-width: 60px;
+            border: 1px solid #d1fae5;
         }
 
+        /* Status Select */
         td select {
-            padding: 6px 10px;
+            padding: 6px;
             font-size: 0.85rem;
+            border-color: #cbd5e1;
             border-radius: 6px;
             cursor: pointer;
             width: 100%;
-            min-width: 130px;
-            height: 36px;
-            font-weight: 600;
+            min-width: 140px;
+            background: #fff;
         }
 
-        .btn-icon { width: 36px; height: 36px; border-radius: 8px; padding: 0; }
-        .btn-update { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
-        .btn-update:hover { background: #059669; color: white; }
-        
-        .btn-print-sm { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
-        .btn-print-sm:hover { background: #2563eb; color: white; }
+        .btn-icon { width: 34px; height: 34px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 1px solid transparent; }
+        .btn-update { background: #dcfce7; color: #166534; border-color: #bbf7d0; }
+        .btn-update:hover { background: #bbf7d0; }
+        .btn-print-sm { background: #e0f2fe; color: #075985; border-color: #bae6fd; }
+        .btn-print-sm:hover { background: #bae6fd; }
 
         .link-btn { 
             color: var(--primary); 
             text-decoration: none; 
-            font-weight: 700; 
+            font-weight: bold; 
+            font-size: 0.8rem; 
             background: #eef2ff;
-            padding: 6px 12px;
+            padding: 5px 10px;
             border-radius: 6px;
-            font-size: 0.8rem;
+            display: inline-block;
+            border: 1px solid #c7d2fe;
         }
-        
-        /* Checkbox styling */
-        input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary); }
+        .link-btn:hover { background: #e0e7ff; }
 
+        @media (max-width: 768px) {
+            .controls-row { flex-direction: column; align-items: stretch; }
+            .input-group { flex-direction: column; }
+        }
     </style>
 </head>
 <body style="display:none;">
@@ -267,29 +287,29 @@ if(auth === "true" && loginTime && (now - loginTime < SESSION_TIME)){
 </script>
 
 <header>
-    <h1>TRY SHOPPY <span style="font-size:0.7em; opacity:0.6; font-weight:400; margin-right:10px;">Pro Dashboard v8.0</span></h1>
+    <h1>TRY SHOPPY <span style="font-size:0.7em; opacity:0.6; font-weight:400; margin-right:10px;">Pro Dashboard v7.1</span></h1>
     <button onclick="logout()" class="btn-logout">تسجيل الخروج</button>
 </header>
 
 <div class="container">
     <div class="stats-grid">
-        <div class="stat-card" style="border-top: 4px solid var(--primary);">
+        <div class="stat-card" style="border-right: 4px solid var(--primary);">
             <h3>إجمالي المبيعات (EGP)</h3>
             <div id="totalEGP" class="value">0</div>
         </div>
-        <div class="stat-card" style="border-top: 4px solid var(--success);">
+        <div class="stat-card" style="border-right: 4px solid var(--success);">
             <h3>صافي التحصيل (End Price)</h3>
             <div id="totalNet" class="value" style="color:var(--success)">0</div>
         </div>
-        <div class="stat-card" style="border-top: 4px solid var(--warning);">
+        <div class="stat-card" style="border-right: 4px solid var(--warning);">
             <h3>عدد الشحنات</h3>
             <div id="totalCount" class="value">0</div>
         </div>
-        <div class="stat-card" style="border-top: 4px solid #6366f1;">
+        <div class="stat-card" style="border-right: 4px solid #6366f1;">
             <h3>التكلفة (USD)</h3>
             <div id="totalUSD" class="value">0</div>
         </div>
-        <div class="stat-card" style="border-top: 4px solid #16a34a;">
+        <div class="stat-card" style="border-right: 4px solid #16a34a;">
             <h3>أرباح الطلبات (Profit)</h3>
             <div id="totalProfit" class="value" style="color:#16a34a">0</div>
         </div>
@@ -298,69 +318,51 @@ if(auth === "true" && loginTime && (now - loginTime < SESSION_TIME)){
     <div class="control-panel">
         <div class="controls-row">
             <div class="input-group" style="flex: 2;">
-                <label>🔍 بحث سريع</label>
-                <input id="searchInput" placeholder="اسم العميل، الموبايل، رقم الطلب...">
+                <input id="searchInput" placeholder="🔍 بحث سريع (اسم، موبايل، رقم طلب)...">
             </div>
-            
             <div class="input-group">
-                <label>📅 إنشاء (من)</label>
-                <input type="date" id="dateFrom">
+                <input type="date" id="dateFrom" title="من تاريخ">
+                <span style="align-self:center; color:#94a3b8">إلى</span>
+                <input type="date" id="dateTo" title="إلى تاريخ">
             </div>
-
             <div class="input-group">
-                <label>📅 إنشاء (إلى)</label>
-                <input type="date" id="dateTo">
-            </div>
-
-            <div class="input-group">
-                <label>📦 تاريخ الوصول</label>
-                <input type="date" id="arrivalDate">
-            </div>
-            
-            <div class="input-group" style="flex: 1.5;">
-                 <label>📂 حالة الطلب</label>
-                 <div style="display:flex; gap:5px;">
-                    <select id="searchStatus" style="flex:1;">
-                        <option value="">كل الحالات</option>
-                        <option value="Pending Review">Pending Review</option>
-                        <option value="Confirmed Via Try">Confirmed Via Try</option>
-                        <option value="Placed">Placed</option>
-                        <option value="Processing">Processing</option>
-                        <option value="Arrived USA HUB">Arrived USA HUB</option>
-                        <option value="Arrived Cairo HUB">Arrived Cairo HUB</option>
-                        <option value="Shipped To You">Shipped To You</option>
-                        <option value="Delivered">Delivered</option>
-                        <option value="Delayed">Delayed</option>
-                        <option value="Canceled">Canceled</option>
-                    </select>
-                    <button class="btn-search" onclick="applyFilters()">بحث</button>
-                 </div>
+                <select id="searchStatus">
+                    <option value="">📂 كل الحالات</option>
+                    <option value="Pending Review">Pending Review</option>
+                    <option value="Confirmed Via Try">Confirmed Via Try</option>
+                    <option value="Placed">Placed</option>
+                    <option value="Processing">Processing</option>
+                    <option value="Arrived USA HUB">Arrived USA HUB</option>
+                    <option value="Arrived Cairo HUB">Arrived Cairo HUB</option>
+                    <option value="Shipped To You">Shipped To You</option>
+                    <option value="Delivered">Delivered</option>
+                    <option value="Delayed">Delayed</option>
+                    <option value="Canceled">Canceled</option>
+                </select>
+                <button class="btn-search" onclick="applyFilters()">بحث</button>
             </div>
         </div>
 
-        <div class="controls-row">
-            <div class="input-group" style="flex-direction:row; align-items:flex-end; gap:10px; flex:2;">
-                <div style="flex:1;">
-                    <label style="display:block; margin-bottom:5px;">⚡ إجراء جماعي</label>
-                    <select id="bulkStatus" style="width:100%;">
-                        <option value="">تغيير حالة المحدد...</option>
-                        <option value="Pending Review">Pending Review</option>
-                        <option value="Confirmed Via Try">Confirmed Via Try</option>
-                        <option value="Placed">Placed</option>
-                        <option value="Processing">Processing</option>
-                        <option value="Arrived Cairo HUB">Arrived Cairo HUB</option>
-                        <option value="Shipped To You">Shipped To You</option>
-                        <option value="Delivered">Delivered</option>
-                        <option value="Canceled">Canceled</option>
-                        <option value="Delayed">Delayed</option>
-                    </select>
-                </div>
-                <button class="btn-action" onclick="applyBulkStatus()">تطبيق</button>
+        <div class="controls-row" style="justify-content: space-between;">
+            <div class="input-group">
+                <select id="bulkStatus" style="max-width: 200px;">
+                    <option value="">⚡ تغيير حالة المحدد...</option>
+                    <option value="Pending Review">Pending Review</option>
+                    <option value="Confirmed Via Try">Confirmed Via Try</option>
+                    <option value="Placed">Placed</option>
+                    <option value="Processing">Processing</option>
+                    <option value="Arrived Cairo HUB">Arrived Cairo HUB</option>
+                    <option value="Shipped To You">Shipped To You</option>
+                    <option value="Delivered">Delivered</option>
+                    <option value="Canceled">Canceled</option>
+                    <option value="Delayed">Delayed</option>
+                </select>
+                <button class="btn-action" onclick="applyBulkStatus()">تطبيق الحالة</button>
             </div>
 
-            <div style="display:flex; gap:10px; margin-right:auto;">
-                <button id="groupBtn" class="btn-action" onclick="toggleGrouping()">🔄 تجميع</button>
-                <button class="btn-print" onclick="printAllDisplayed()">🖨️ طباعة</button>
+            <div style="display:flex; gap:10px;">
+                <button id="groupBtn" class="btn-action" onclick="toggleGrouping()">🔄 تجميع الطلبات</button>
+                <button class="btn-print" onclick="printAllDisplayed()">🖨️ طباعة الجدول</button>
                 <button class="btn-csv" onclick="exportCSV()">⬇️ CSV</button>	
             </div>
         </div>
@@ -372,16 +374,16 @@ if(auth === "true" && loginTime && (now - loginTime < SESSION_TIME)){
                 <tr>
                     <th width="40"><input type="checkbox" id="checkAll" onclick="toggleAll(this)"></th>
                     <th>رقم الطلب / التاريخ</th>
-                    <th>بيانات العميل</th>
-                    <th>المواصفات</th>
-                    <th>الإجمالي</th>
+                    <th>العميل</th>
+                    <th>المواصفات (الوصف/الأبعاد)</th>
+                    <th>الإجمالي (EGP)</th>
                     <th>العربون</th>
-                    <th>الصافي</th>
-                    <th>التكلفة ($)</th>
-                    <th>📦 تعديل موعد الوصول</th> <th>الحالة</th>
+                    <th>الصافي (تحصيل)</th>
+                    <th>التكلفة (USD)</th>
+                    <th>الحالة</th>
                     <th>حفظ</th>
                     <th>طباعة</th>
-                    <th>رابط</th>
+                    <th>لينك</th>
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
@@ -390,7 +392,7 @@ if(auth === "true" && loginTime && (now - loginTime < SESSION_TIME)){
 </div>
 
 <script>
-const scriptURL = "https://script.google.com/macros/s/AKfycbzTo-YoIBY6wcJ4-SOwc_KqD_-qvZ4fEwAM8WeFUFJpXGPkag5PVtf8CH-g9AeYU9JwPQ/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycby-HrSH3DwpAPJAuhiAPlBJAngy-_qUZ7-O925hTA7FnbBVHkrjprfJavEA-WKyofIdlg/exec";
 let ordersData = [];
 let currentFilteredData = [];
 let isGrouped = false;
@@ -403,29 +405,6 @@ async function loadData() {
     } catch(e) { console.error("Data Load Error", e); }
 }
 
-function formatDateCustom(dateValue){
-    if(!dateValue) return "";
-    const date = new Date(dateValue);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = date.toLocaleString('en-GB', { month: 'short' });
-    const year = date.getFullYear();
-    return `${day}-${month}-${year}`;
-}
-
-// دالة مساعدة لتحويل التاريخ لصيغة Input
-function formatDateForInput(dateValue) {
-    if (!dateValue) return "";
-
-    const d = new Date(dateValue);
-    if (isNaN(d.getTime())) return "";
-
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-
-    return `${year}-${month}-${day}`;
-}
-
 function renderTable(data) {
     const tbody = document.getElementById("tableBody");
     tbody.innerHTML = "";
@@ -436,6 +415,7 @@ function renderTable(data) {
         
         const qty = isGrouped ? o.totalQty : (o.quantity || 1);
         const weight = parseFloat(isGrouped ? o.totalWeight : (o.weight || 0)).toFixed(2);
+        // هنا تم إعادة الأبعاد/الوصف
         const dims = isGrouped ? "متعددة" : (o.dimensions || "غير محددة");
 
         const ship = isGrouped ? (parseFloat(o.totalShipping) || 0) : (parseFloat(o.shipping) || 0);
@@ -443,19 +423,15 @@ function renderTable(data) {
         const dep = parseFloat(o.deposit || 0);
         const endP = finalP + ship - dep;
 
-        let statusColor = "#94a3b8"; // رمادي افتراضي
+        let statusColor = "#333";
         if(cur.includes("Delivered")) statusColor = "var(--success)";
         if(cur.includes("Canceled")) statusColor = "var(--danger)";
         if(cur.includes("Pending")) statusColor = "var(--warning)";
-        if(cur.includes("Placed")) statusColor = "var(--primary)";
-
-        // تجهيز قيمة التاريخ للحقل
-        const arrivalVal = o.endprice ? formatDateForInput(o.endprice) : "";
 
         tbody.innerHTML += `<tr>
             <td><input type="checkbox" class="row-check" value="${printOrder}"></td>
             <td>
-                <span style="font-weight:800; color:var(--primary); font-size:0.95rem;">${o.order}</span>
+                <span style="font-weight:800; color:var(--primary);">${o.order}</span>
                 ${o.date ? `<div style="font-size:0.75rem; color:#94a3b8; margin-top:2px;">📅 ${new Date(o.date).toISOString().split('T')[0]}</div>` : ``}
             </td>
             <td>
@@ -465,24 +441,18 @@ function renderTable(data) {
             <td>
                 <span class="spec-badge">x${qty}</span>
                 <span class="spec-badge">${weight} gm</span>
-                <div style="font-size:0.75rem; color:#64748b; margin-top:4px;">📦 ${dims}</div>
+                <div class="dim-text">📦 ${dims}</div>
             </td>
             <td><input type="number" id="egp-${printOrder}" class="price-input" value="${finalP}" placeholder="EGP"></td>
             <td><input type="number" id="deposit-${printOrder}" class="price-input deposit-input" value="${dep}" placeholder="0"></td>
             <td><div class="end-price-cell">${endP.toLocaleString()}</div></td>
             <td><input type="number" id="usd-${printOrder}" class="price-input" value="${parseFloat(o.usd || 0).toFixed(2)}" style="color:#6366f1"></td>
-            
             <td>
-                <input type="date" id="arrival-${printOrder}" class="date-input-table" value="${arrivalVal}">
-            </td>
-
-            <td>
-                <select id="status-${printOrder}" style="border-right: 4px solid ${statusColor};">
+                <select id="status-${printOrder}" style="border-left: 3px solid ${statusColor}">
                     <option value="Pending Review" ${cur==='Pending Review'?'selected':''}>Pending Review</option>
 					<option value="Confirmed Via Try" ${cur==='Confirmed Via Try'?'selected':''}>Confirmed Via Try</option>
 					<option value="Placed" ${cur==='Placed'?'selected':''}>Placed</option>
                     <option value="Processing" ${cur==='Processing'?'selected':''}>Processing</option>
-					<option value="Arrived USA HUB" ${cur==='Arrived USA HUB'?'selected':''}>Arrived USA HUB</option>
 					<option value="Arrived Cairo HUB" ${cur==='Arrived Cairo HUB'?'selected':''}>Arrived Cairo HUB</option>
                     <option value="Shipped To You" ${cur==='Shipped To You'?'selected':''}>Shipped To You</option>
                     <option value="Delivered" ${cur==='Delivered'?'selected':''}>Delivered</option>
@@ -500,22 +470,18 @@ function renderTable(data) {
 function applyFilters() {
     const from = document.getElementById("dateFrom").value;
     const to = document.getElementById("dateTo").value;
-    const arrivalDateFilter = document.getElementById("arrivalDate").value;
     const search = document.getElementById("searchInput").value.toLowerCase();
     const status = document.getElementById("searchStatus").value;
     const USD_RATE = 50; 
 
     let filtered = ordersData.filter(o => {
         const d = o.date ? new Date(o.date).toISOString().split('T')[0] : "";
-        const arrivalDate = o.endprice ? new Date(o.endprice).toLocaleDateString('en-CA') : ""; // Format yyyy-mm-dd
-        const arrivalMatch = !arrivalDateFilter || arrivalDate === arrivalDateFilter;
-
         const dateMatch = (!from || d >= from) && (!to || d <= to);
         const searchMatch = (o.customerName||"").toLowerCase().includes(search) || 
                             (o.phone||"").toString().includes(search) || 
                             (o.order||"").toString().toLowerCase().includes(search);
         const statusMatch = !status || o.status === status;
-        return dateMatch && searchMatch && statusMatch && arrivalMatch;
+        return dateMatch && searchMatch && statusMatch;
     });
     
     filtered = filtered.reverse();
@@ -572,7 +538,7 @@ function toggleGrouping() {
         btn.innerHTML = "🚫 فك التجميع";
         btn.classList.add("active");
     } else {
-        btn.innerHTML = "🔄 تجميع";
+        btn.innerHTML = "🔄 تجميع الطلبات";
         btn.classList.remove("active");
     }
     applyFilters(); 
@@ -582,10 +548,7 @@ function updateOrder(orderId) {
     const newStatus = document.getElementById(`status-${orderId}`).value;
     const newEGP = document.getElementById(`egp-${orderId}`).value;
     const newUSD = document.getElementById(`usd-${orderId}`).value;
-    const newDeposit = document.getElementById(`deposit-${orderId}`).value;
-    
-    // سحب قيمة التاريخ الجديد
-    const newArrivalDate = document.getElementById(`arrival-${orderId}`).value;
+    const newDeposit = document.getElementById(`deposit-${orderId}`).value; 
 
     const btn = document.querySelector(`button[onclick="updateOrder('${orderId}')"]`);
     const originalText = btn.innerHTML;
@@ -600,11 +563,10 @@ function updateOrder(orderId) {
             status: newStatus,
             finalPrice: newEGP,
             usd: newUSD,
-            deposit: newDeposit,
-            endprice: newArrivalDate // إرسال التاريخ الجديد للسيرفر
+            deposit: newDeposit 
         })
     }).then(() => {
-        alert("تم تحديث الطلب #" + orderId + " بنجاح");
+        alert("تم تحديث الطلب #" + orderId);
         btn.innerHTML = originalText;
         loadData();
     });
@@ -639,7 +601,7 @@ function generateLabelHTML(data, isBulk = false) {
                 <span>المبلغ المطلوب تحصيله (C.O.D)</span>
                 <div class="cod-val">${endP} EGP</div>
             </div>
-            <div class="footer">تراي شوبي تتمني لكم تجربة سعيده</div>
+            <div class="footer">تراي شوبي تتمني لكم تجربة سعيدة|مسموح فتح الشحنة</div>
         </div>
     `;
 }
@@ -664,7 +626,7 @@ function printLabel(phone, orderId) {
                 .shipping-box { display: flex; justify-content: space-between; margin-top: 20px; border-top: 1px solid #000; padding-top: 15px; font-size: 14pt; }
                 .ids-strip { background: #000; color: #fff; padding: 10px; margin-top: 20px; text-align: center; font-size: 9pt; }
                 .cod-area { border: 5px solid #000; margin-top: 20px; padding: 20px; text-align: center; }
-                .cod-val { font-size: 40pt; font-weight: 700; }
+                .cod-val { font-size: 30pt; font-weight: 600; }
                 .footer { position: absolute; bottom: 15px; width: 92%; text-align: center; font-size: 10pt; font-weight: bold; }
             </style>
         </head>
@@ -711,18 +673,29 @@ function logout(){
 }
 
 function exportCSV(){
-    let csv = "Order,Customer,Phone,Status,FinalPrice,USD,Date\n";
-    currentFilteredData.forEach(o=>{
-        const d = o.date ? new Date(o.date).toISOString().split('T')[0] : "";
-        csv += `"${o.order}","${o.customerName}","${o.phone}","${o.status}","${o.finalPrice}","${o.usd}","${d}"\n`;
-    });
+        let csv = '\uFEFF'; // BOM لدعم العربية
+        csv += "اسم العميل,العنوان,رقم التليفون,إجمالي الأوردر,المدفوع,المطلوب عند الاستلام\n";
 
-    const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "orders.csv";
-    link.click();
-}
+        currentFilteredData.forEach(o => {
+            const finalP = parseFloat(o.finalPrice) || 0;
+            const ship = parseFloat(o.shipping) || 0;
+            const dep = parseFloat(o.deposit) || 0;
+            const net = finalP + ship - dep;
+
+            // تنظيف النصوص من الفواصل
+            const name = (o.customerName || "").replace(/,/g, " ");
+            const address = (o.address || "").replace(/,/g, " - ") + " " + (o.governorate || "");
+            const phone = (o.phone || "").toString().replace(/,/g, ""); 
+
+            csv += `"${name}","${address}","${phone}","${finalP}","${dep}","${net}"\n`;
+        });
+
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "TryShoppy_Orders_" + new Date().toISOString().slice(0,10) + ".csv";
+        link.click();
+    }
 function toggleAll(el){
     document.querySelectorAll(".row-check").forEach(c=>{
         c.checked = el.checked;
