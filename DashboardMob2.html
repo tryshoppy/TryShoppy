@@ -133,7 +133,7 @@ function renderCards(data){
    <div class="order-card ${isGrouped ? 'grouped' : ''}">
       <div class="card-header" style="align-items: center;">
         <div style="display: flex; flex-direction: column;">
-            <span class="order-id">#${orderId}</span>
+            <span class="order-id">${orderId}</span>
             <span style="font-size: 11px; color: #94a3b8; font-weight: 600; margin-top: -2px;">
                 📅 ${o.date || '—'}
             </span>
@@ -221,9 +221,12 @@ function applyFilters(){
     const arrivalMatch = !searchArr || 
   (o.arrivaldate || "").toString().toLowerCase().includes(searchArr);
 
+    const cleanOrder = String(o.order || "").toLowerCase().replace(/\s/g, "");
+
     const searchMatch=(o.customerName||"").toLowerCase().includes(search)||
                       (o.phone||"").toString().includes(search)||
-                      (o.order||"").toString().includes(search);
+                      cleanOrder.includes(search.replace(/\s/g, "")); // التعديل هنا
+                      
     return dateMatch&&statusMatch&&searchMatch&&arrivalMatch;
   });
 
