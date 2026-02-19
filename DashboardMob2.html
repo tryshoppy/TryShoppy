@@ -3,164 +3,36 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>TRY SHOPPY - Mobile Dashboard v8</title>
+<title>TRY SHOPPY - Fixed DropList</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 
 <style>
-:root{
-  --primary:#0d6efd;
-  --bg:#f4f7fe;
-  --white:#fff;
-  --text:#1e293b;
-  --border:#cbd5e1;
-  --success:#22c55e;
-  --danger:#dc2626;
-}
-
-body{
-  font-family:'Cairo',sans-serif;
-  background:var(--bg);
-  margin:0;
-  padding:10px;
-  color:var(--text);
-  font-size:16px;
-}
-
-.container{max-width:600px; margin:auto;}
-
-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  border-bottom:2px solid var(--primary);
-  padding:10px 5px;
-  margin-bottom:15px;
-}
-
-header .logo { font-weight: 900; font-size: 1.2rem; color: var(--primary); }
-
-.filters{
-  background:#fff;
-  padding:15px;
-  border-radius:15px;
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-  margin-bottom:15px;
-  box-shadow:0 2px 10px rgba(0,0,0,.05);
-}
-
-.filters input, .filters select, .filters button{
-  padding:12px;
-  border-radius:10px;
-  border:1px solid var(--border);
-  font-family:'Cairo';
-  width:100%;
-  font-size:15px;
-  box-sizing: border-box;
-}
-
-.btn-search{background:var(--primary); color:#fff; font-weight:bold; cursor:pointer; border:none;}
-.btn-group{background:#1a1a1a; color:#fff; font-weight:bold; cursor:pointer; border:none;}
-
+:root{ --primary:#0d6efd; --bg:#f4f7fe; --white:#fff; --text:#1e293b; --border:#cbd5e1; --success:#22c55e; --danger:#dc2626; }
+body{ font-family:'Cairo',sans-serif; background:var(--bg); margin:0; padding:10px; color:var(--text); font-size:16px; }
+.container{ max-width:600px; margin:auto; }
+header{ display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--primary); padding:10px 5px; margin-bottom:15px; }
+.logo { font-weight: 900; font-size: 1.2rem; color: var(--primary); }
+.filters{ background:#fff; padding:15px; border-radius:15px; display:flex; flex-direction:column; gap:12px; margin-bottom:15px; box-shadow:0 2px 10px rgba(0,0,0,.05); }
+.filters input, .filters select, .filters button{ padding:12px; border-radius:10px; border:1px solid var(--border); font-family:'Cairo'; width:100%; font-size:15px; box-sizing: border-box; }
+.btn-search{ background:var(--primary); color:#fff; font-weight:bold; cursor:pointer; border:none; }
+.btn-group{ background:#1a1a1a; color:#fff; font-weight:bold; cursor:pointer; border:none; }
 .cards-container{ display:flex; flex-direction:column; gap:15px; }
-
-.order-card{
-  background:#fff;
-  border-radius:18px;
-  padding:15px;
-  box-shadow:0 3px 12px rgba(0,0,0,0.06);
-  border-right:8px solid var(--primary);
-  position: relative;
-}
-
+.order-card{ background:#fff; border-radius:18px; padding:15px; box-shadow:0 3px 12px rgba(0,0,0,0.06); border-right:8px solid var(--primary); position: relative; }
 .order-card.grouped { border-right-color: #000; }
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 12px;
-  border-bottom: 1px dashed var(--border);
-  padding-bottom: 8px;
-}
-
+.card-header { display: flex; justify-content: space-between; margin-bottom: 12px; border-bottom: 1px dashed var(--border); padding-bottom: 8px; }
 .order-id { font-weight: 900; color: var(--primary); }
-
-.field{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:10px;
-}
-
+.field{ display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
 .field label{ font-weight:700; color:#64748b; font-size: 14px; }
 .field span { font-weight: 600; color: var(--text); }
-
-.field input, .field select{
-  width:130px;
-  padding:8px;
-  border-radius:8px;
-  border:1px solid var(--border);
-  text-align:center;
-  font-family:'Cairo';
-  font-size:14px;
-  font-weight: bold;
-}
-
-.net-box {
-  background: #f0fdf4;
-  padding: 10px;
-  border-radius: 10px;
-  margin: 10px 0;
-  text-align: center;
-  border: 1px solid #dcfce7;
-}
-
+.field input, .field select{ width:130px; padding:8px; border-radius:8px; border:1px solid var(--border); text-align:center; font-family:'Cairo'; font-size:14px; font-weight: bold; }
+.net-box { background: #f0fdf4; padding: 10px; border-radius: 10px; margin: 10px 0; text-align: center; border: 1px solid #dcfce7; }
 .net-label { display: block; font-size: 12px; color: #166534; font-weight: bold; }
 .net-value { font-size: 20px; font-weight: 900; color: var(--success); }
-
-.actions{
-  display:grid;
-  grid-template-columns: 1fr;
-  gap:10px;
-  margin-top:10px;
-}
-
-.btn-update{
-  background:var(--success);
-  color:#fff;
-  border:none;
-  padding:12px;
-  border-radius:10px;
-  font-weight:bold;
-  cursor:pointer;
-}
-
-.link-btn{
-  background: #eff6ff;
-  color: var(--primary);
-  padding: 10px;
-  border-radius: 10px;
-  text-align: center;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 14px;
-}
-
-.spec-row {
-    display: flex;
-    gap: 5px;
-    flex-wrap: wrap;
-    margin-bottom: 10px;
-}
-.badge {
-    background: #f1f5f9;
-    padding: 3px 8px;
-    border-radius: 5px;
-    font-size: 12px;
-    color: #475569;
-    font-weight: 600;
-}
+.actions{ display:grid; grid-template-columns: 1fr; gap:10px; margin-top:10px; }
+.btn-update{ background:var(--success); color:#fff; border:none; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer; }
+.link-btn{ background: #eff6ff; color: var(--primary); padding: 10px; border-radius: 10px; text-align: center; text-decoration: none; font-weight: bold; font-size: 14px; }
+.badge { background: #f1f5f9; padding: 3px 8px; border-radius: 5px; font-size: 12px; color: #475569; font-weight: 600; }
+.spec-row { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
 </style>
 </head>
 
@@ -189,17 +61,7 @@ if(auth==="true"&&loginTime&&(now-loginTime<SESSION_TIME)){
 <div class="container">
 <header>
   <div class="logo">TRY SHOPPY</div>
-  <div id="totalBox" style="
-    display: none; /* <--- أضيف هذا السطر */
-    background:#f0fdf4;
-    border:1px solid #bbf7d0;
-    color:#166534;
-    padding:6px 10px;
-    border-radius:10px;
-    font-weight:900;
-    font-size:14px;
-    text-align:center;
-  ">
+  <div id="totalBox" style="display: none; background:#f0fdf4; border:1px solid #bbf7d0; color:#166534; padding:6px 10px; border-radius:10px; font-weight:900; font-size:14px; text-align:center;">
     الإجمالي: 0 ج.م
   </div>
   <button onclick="logout()" style="background:#dc2626;color:white;border:none;padding:6px 12px;border-radius:8px; font-family: 'Cairo';">خروج</button>
@@ -207,9 +69,13 @@ if(auth==="true"&&loginTime&&(now-loginTime<SESSION_TIME)){
 
 <div class="filters">
   <div style="display: flex; gap: 5px;">
-    <input type="date" id="dateFrom">
-    <input type="date" id="dateTo">
+    <input type="date" id="dateFrom" title="تاريخ الطلب من">
+    <input type="date" id="dateTo" title="تاريخ الطلب إلى">
   </div>
+  
+  <div style="font-size: 13px; font-weight: bold; color: var(--primary); margin-bottom: -8px;">📅 فلتر بموعد الوصول:</div>
+ <input id="searchArrival" placeholder="🔎 بحث بموعد الوصول">
+  
   <input id="searchInput" placeholder="🔍 بحث بالاسم أو التليفون أو الأوردر">
   <select id="searchStatus">
     <option value="">كل الحالات</option>
@@ -231,7 +97,8 @@ if(auth==="true"&&loginTime&&(now-loginTime<SESSION_TIME)){
 </div>
 
 <script>
-const scriptURL="https://script.google.com/macros/s/AKfycby-HrSH3DwpAPJAuhiAPlBJAngy-_qUZ7-O925hTA7FnbBVHkrjprfJavEA-WKyofIdlg/exec";
+// ⚠️ هام: استبدل الرابط أدناه برابط السكريبت الخاص بك
+const scriptURL="https://script.google.com/macros/s/AKfycbzy9-1BfmMJZhCtwiEoIfdzWCFPcWW3CkhfJIRdWo8eyl1Z6tSWK8xHxoAw2cxKDaosrw/exec";
 let ordersData=[];
 let isGrouped=false;
 
@@ -240,7 +107,7 @@ async function loadData(){
     const res=await fetch(scriptURL, { redirect: 'follow' });
     ordersData=await res.json();
     applyFilters();
-  } catch(e) { alert("خطأ في التحميل"); }
+  } catch(e) { alert("خطأ في التحميل - تأكد من الاتصال"); }
 }
 
 function renderCards(data){
@@ -259,17 +126,21 @@ function renderCards(data){
     const ship = parseFloat(o.shipping || 0);
     const net = total + ship - dep;
 
+    // قراءة القيمة الحالية من الشيت
+    const currentArrival = o.arrivaldate || "";
+
     container.innerHTML+=`
    <div class="order-card ${isGrouped ? 'grouped' : ''}">
-  <div class="card-header" style="align-items: center;">
-    <div style="display: flex; flex-direction: column;">
-        <span class="order-id">#${orderId}</span>
-        <span style="font-size: 11px; color: #94a3b8; font-weight: 600; margin-top: -2px;">
-            📅 ${o.date ? new Date(o.date).toLocaleDateString('en-GB') : '—'}
-        </span>
-    </div>
-    <span class="badge" style="height: fit-content;">${o.status || 'Pending'}</span>
-</div>
+      <div class="card-header" style="align-items: center;">
+        <div style="display: flex; flex-direction: column;">
+            <span class="order-id">#${orderId}</span>
+            <span style="font-size: 11px; color: #94a3b8; font-weight: 600; margin-top: -2px;">
+                📅 ${o.date || '—'}
+            </span>
+        </div>
+        <span class="badge" style="height: fit-content;">${o.status || 'Pending'}</span>
+      </div>
+      
       <div class="field"><label>العميل:</label><span>${o.customerName || "—"}</span></div>
       <div class="field"><label>التليفون:</label><span>${o.phone || "—"}</span></div>
 
@@ -297,6 +168,11 @@ function renderCards(data){
       <div class="field">
         <label>التكلفة (USD):</label>
         <input type="number" id="usd-${cleanOrderId}" value="${parseFloat(o.usd||0).toFixed(2)}">
+      </div>
+
+      <div class="field" style="background: #f8fafc; padding: 5px; border-radius: 8px;">
+        <label style="color:var(--primary)">موعد الوصول:</label>
+       <input type="text" id="arrival-${cleanOrderId}" value="${currentArrival}">
       </div>
 
       <div class="field">
@@ -331,18 +207,24 @@ function recalc(id, ship) {
 
 function applyFilters(){
   const search=document.getElementById("searchInput").value.toLowerCase();
+  const searchArr = document.getElementById("searchArrival").value.toLowerCase();
   const from=document.getElementById("dateFrom").value;
   const to=document.getElementById("dateTo").value;
   const status=document.getElementById("searchStatus").value;
 
   let filtered=ordersData.filter(o=>{
-    const d=o.date?new Date(o.date).toISOString().split('T')[0]:"";
+    const d=o.date || "";
     const dateMatch=(!from||d>=from)&&(!to||d<=to);
     const statusMatch=!status||o.status===status;
+    
+    // الفلترة بناءً على الاختيار المطابق تماماً للنص
+    const arrivalMatch = !searchArr || 
+  (o.arrivaldate || "").toString().toLowerCase().includes(searchArr);
+
     const searchMatch=(o.customerName||"").toLowerCase().includes(search)||
                       (o.phone||"").toString().includes(search)||
                       (o.order||"").toString().includes(search);
-    return dateMatch&&statusMatch&&searchMatch;
+    return dateMatch&&statusMatch&&searchMatch&&arrivalMatch;
   });
 
   if(isGrouped){
@@ -350,40 +232,33 @@ function applyFilters(){
     filtered.forEach(o=>{
       const key=o.phone||"Unknown";
       if(!groups[key]){
-        groups[key]={...o, order:o.order, quantity:o.quantity||1, weight:o.weight||0, finalPrice:parseFloat(o.finalPrice||0), deposit:parseFloat(o.deposit||0), shipping:parseFloat(o.shipping||0), usd:parseFloat(o.usd||0)};
+        groups[key]={...o, order:o.order};
       }else{
-        groups[key].quantity+=parseInt(o.quantity||1);
-        groups[key].weight+=parseFloat(o.weight||0);
-        groups[key].finalPrice+=parseFloat(o.finalPrice||0);
-        groups[key].deposit+=parseFloat(o.deposit||0);
-        groups[key].shipping+=parseFloat(o.shipping||0);
-        groups[key].usd+=parseFloat(o.usd||0);
+        groups[key].quantity = (parseInt(groups[key].quantity)||0) + (parseInt(o.quantity)||1);
+        groups[key].weight = (parseFloat(groups[key].weight)||0) + (parseFloat(o.weight)||0);
+        groups[key].finalPrice = (parseFloat(groups[key].finalPrice)||0) + (parseFloat(o.finalPrice)||0);
+        groups[key].deposit = (parseFloat(groups[key].deposit)||0) + (parseFloat(o.deposit)||0);
+        groups[key].shipping = (parseFloat(groups[key].shipping)||0) + (parseFloat(o.shipping)||0);
+        groups[key].usd = (parseFloat(groups[key].usd)||0) + (parseFloat(o.usd)||0);
         groups[key].order+=" + "+o.order;
       }
     });
     filtered=Object.values(groups);
   }
+  
   renderCards(filtered.reverse());
-// ===== بداية التعديل: حساب الإجمالي بناء على الحالة =====
-  const totalBox = document.getElementById("totalBox");
 
-  // المتغير status تم تعريفه في أول الدالة، إذا كان فارغاً يعني "كل الحالات"
+  const totalBox = document.getElementById("totalBox");
   if (status === "") {
-    // إخفاء الصندوق إذا لم يتم اختيار حالة محددة
     totalBox.style.display = "none";
   } else {
-    // إظهار الصندوق وحساب الإجمالي فقط عند اختيار حالة
     let totalEGP = 0;
-    filtered.forEach(o => {
-      totalEGP += parseFloat(o.finalPrice || 0);
-    });
-
-    totalBox.style.display = "block"; // نتأكد من ظهوره
+    filtered.forEach(o => { totalEGP += parseFloat(o.finalPrice || 0); });
+    totalBox.style.display = "block";
     totalBox.innerText = "الإجمالي: " + totalEGP.toLocaleString() + " ج.م";
   }
-  // ===== نهاية التعديل =====
-} 
-// (هذا هو قوس إغلاق دالة applyFilters الأصلي)
+}
+
 function toggleGrouping(){ isGrouped=!isGrouped; applyFilters(); }
 
 function updateOrder(orderId){
@@ -391,6 +266,7 @@ function updateOrder(orderId){
   const newDeposit=document.getElementById("deposit-"+orderId).value;
   const newUSD=document.getElementById("usd-"+orderId).value;
   const newStatus=document.getElementById("status-"+orderId).value;
+  const newArrival=document.getElementById("arrival-"+orderId).value; // القيمة من القائمة
 
   fetch(scriptURL,{
     method:"POST",
@@ -401,7 +277,8 @@ function updateOrder(orderId){
       finalPrice:newEGP,
       deposit:newDeposit,
       usd:newUSD,
-      status:newStatus
+      status:newStatus,
+      arrivaldate:newArrival
     })
   }).then(()=>{
     alert("تم تحديث الطلب #"+orderId);
@@ -417,6 +294,5 @@ function logout(){
 
 loadData();
 </script>
-
 </body>
 </html>
