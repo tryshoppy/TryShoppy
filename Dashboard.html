@@ -638,98 +638,484 @@ function updateOrder(orderId) {
     });
 }
 
+// ================================================================
+// THERMAL 4"×6" LABEL — Full B&W | Barcode | Professional
+// ✅ All original logic preserved | ✅ Thermal-safe (no colors)
+// ================================================================
+
 function generateLabelHTML(data, isBulk = false) {
-    const ship = isGrouped ? (parseFloat(data.totalShipping) || 0) : (parseFloat(data.shipping) || 0);
+    // ── الحسابات الأصلية بدون أي تعديل ──
+    const ship   = isGrouped
+        ? (parseFloat(data.totalShipping) || 0)
+        : (parseFloat(data.shipping)      || 0);
     const finalP = parseFloat(data.finalPrice || 0);
-    const dep = parseFloat(data.deposit || 0);
-    const endP = finalP + ship - dep;
+    const dep    = parseFloat(data.deposit    || 0);
+    const endP   = finalP + ship - dep;
     const totalW = parseFloat(data.totalWeight || data.weight || 0).toFixed(2);
     const totalQ = data.totalQty || data.quantity || 1;
 
+    // ── رقم التليفون للباركود ──
+    const rawPhone   = (data.phone || '').toString().replace(/\s/g, '');
+    const barcodeVal = rawPhone.replace(/\D/g, '') || data.order.toString();
+
     return `
-        <div class="card" style="${isBulk ? 'page-break-after: always;' : ''}">
-            <div class="top">
-                <div class="logo">TRY SHOPPY</div>
-                <div style="font-size: 10pt; text-align: center; border: 1px solid #000; padding: 5px;">AIRWAY BILL<br>OFFICIAL</div>
+    <div class="label${isBulk ? ' bulk' : ''}">
+
+        <!-- ══════════ HEADER ══════════ -->
+        <div class="hd">
+            <div class="hd-left">
+                <div class="brand">TRY SHOPPY</div>
+                <div class="brand-ar">تراي شوبي</div>
             </div>
-            <div class="info">
-                <span>إلى السيد/ة:</span>
-                <b>${data.customerName}</b>
-                📍 ${data.governorate} - ${data.address}<br>
-                📞 ${data.phone}
+            <div class="hd-right">
+                <div class="aw-title">AIRWAY BILL</div>
+                <div class="aw-sub">OFFICIAL · رسمي</div>
             </div>
-            <div class="shipping-box">
-                <div>الوزن الإجمالي: <b>${totalW} جرام</b></div>
-                <div>إجمالي القطع: <b>${totalQ}</b></div>
-            </div>
-            <div class="ids-strip">أرقام الطلبات: ${data.order}</div>
-            <div class="cod-area">
-                <span>المبلغ المطلوب تحصيله (C.O.D)</span>
-                <div class="cod-val">${endP} EGP</div>
-            </div>
-            <div class="footer">تراي شوبي تتمني لكم تجربة سعيدة|مسموح فتح الشحنة</div>
         </div>
-    `;
+
+        <!-- ══════════ TO: RECIPIENT ══════════ -->
+        <div class="sec recipient">
+            <div class="sec-head">&#9654; إلى المستلم / Recipient</div>
+            <div class="cust-name">${data.customerName}</div>
+            <table class="info-tbl">
+                <tr>
+                    <td class="info-icon">&#128205;</td>
+                    <td class="info-val">${data.governorate} &mdash; ${data.address}</td>
+                </tr>
+                <tr>
+                    <td class="info-icon">&#128222;</td>
+                    <td class="info-val phone-num">${data.phone}</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- ══════════ METRICS ══════════ -->
+        <div class="metrics">
+            <div class="metric">
+                <div class="m-val">${totalW}<span class="m-u">جم</span></div>
+                <div class="m-lbl">الوزن الإجمالي</div>
+            </div>
+            <div class="m-div"></div>
+            <div class="metric">
+                <div class="m-val">${totalQ}<span class="m-u">قطعة</span></div>
+                <div class="m-lbl">إجمالي القطع</div>
+            </div>
+            <div class="m-div"></div>
+            <div class="metric">
+                <div class="m-val">${ship}<span class="m-u">ج</span></div>
+                <div class="m-lbl">رسوم الشحن</div>
+            </div>
+        </div>
+
+        <!-- ══════════ ORDER ID STRIP ══════════ -->
+        <div class="order-strip">
+            <span class="ord-lbl">&#9646;&#9646; رقم / رقم الطلب</span>
+            <span class="ord-val">${data.order}</span>
+        </div>
+
+        <!-- ══════════ COD ══════════ -->
+        <div class="cod-sec">
+            <div class="cod-top-label">COD-المبلغ المطلوب تحصيله عند التسليم</div>
+            <div class="cod-box">
+                <span class="cod-num">${endP}</span>
+                <span class="cod-egp">EGP</span>
+            </div>
+        </div>
+
+       
+        <!-- ══════════ BARCODE ══════════ -->
+        <div class="bc-wrap">
+            <svg class="barcode"
+                 data-barcode="${barcodeVal}"
+                 jsbarcode-format="CODE128"
+                 jsbarcode-width="2.2"
+                 jsbarcode-height="45"
+                 jsbarcode-displayvalue="true"
+                 jsbarcode-fontsize="10"
+                 jsbarcode-margin="5"
+                 jsbarcode-background="transparent">
+            </svg>
+        </div>
+
+        <!-- ══════════ FOOTER ══════════ -->
+        <div class="footer">
+            <div class="footer-main">&#9733; تراي شوبي تتمنى لكم تجربة تسوق سعيدة &#9733;</div>
+            <div class="footer-sub">&#10003; مسموح فتح الشحنة عند الاستلام &nbsp;|&nbsp; للشكاوى تواصل معنا</div>
+        </div>
+
+    </div>`;
 }
+
+
+// ================================================================
+// STYLES — Thermal 4"×6" | B&W | print-color-adjust: exact
+// ================================================================
+
+function getLabelStyles() {
+    return `
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap"
+          rel="stylesheet">
+    <style>
+        /* ── RESET ── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        /* ── PAGE ── */
+        @page {
+            size: 4in 6in;
+            margin: 0;
+        }
+
+        html, body {
+            width:  4in;
+            height: 6in;
+            background: #fff;
+            font-family: 'Cairo', 'Tahoma', 'Arial', sans-serif;
+            direction: rtl;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        /* ── LABEL WRAPPER ── */
+        .label {
+            width:  4in;
+            height: 6in;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 2px solid #000;   /* يُرى على الشاشة، اختياري للطباعة */
+        }
+
+        /* bulk: فاصل بين الليبلات عند طباعة الكل */
+        .bulk { page-break-after: always; }
+
+        /* ══ HEADER ══ */
+        .hd {
+            background: #000;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 10px;
+            flex-shrink: 0;
+        }
+        .brand {
+            font-size: 17pt;
+            font-weight: 900;
+            letter-spacing: 1px;
+            line-height: 1;
+        }
+        .brand-ar {
+            font-size: 8pt;
+            color: rgba(255,255,255,0.65);
+            letter-spacing: 0.5px;
+        }
+        .aw-title {
+            font-size: 9pt;
+            font-weight: 800;
+            letter-spacing: 2.5px;
+            border: 1px solid rgba(255,255,255,0.55);
+            padding: 3px 7px 2px;
+            border-radius: 3px;
+            text-align: center;
+        }
+        .aw-sub {
+            font-size: 6pt;
+            color: rgba(255,255,255,0.55);
+            text-align: center;
+            margin-top: 2px;
+            letter-spacing: 1px;
+        }
+
+        /* ══ SECTION GENERIC ══ */
+        .sec {
+            padding: 7px 10px 6px;
+            border-bottom: 1.5px solid #000;
+            flex-shrink: 0;
+        }
+        .sec-head {
+            font-size: 7.5pt;
+            font-weight: 700;
+            color: #000;
+            letter-spacing: 0.3px;
+            margin-bottom: 4px;
+            padding-bottom: 3px;
+            border-bottom: 1px dashed #aaa;
+        }
+
+        /* ══ RECIPIENT ══ */
+        .recipient { flex-shrink: 0; }
+        .cust-name {
+            font-size: 15pt;
+            font-weight: 900;
+            color: #000;
+            line-height: 1.15;
+            margin: 3px 0 5px;
+        }
+        .info-tbl { width: 100%; border-collapse: collapse; }
+        .info-tbl tr { vertical-align: top; }
+        .info-icon {
+            font-size: 11pt;
+            padding-left: 5px;
+            padding-top: 1px;
+            width: 20px;
+        }
+        .info-val {
+            font-size: 10pt;
+            color: #111;
+            line-height: 1.5;
+            padding-bottom: 2px;
+        }
+        .phone-num {
+            font-size: 12pt;
+            font-weight: 800;
+            direction: ltr;
+            text-align: right;
+        }
+
+        /* ══ METRICS ══ */
+        .metrics {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 7px 8px;
+            border-bottom: 1.5px solid #000;
+            background: #000;
+            flex-shrink: 0;
+        }
+        .metric { text-align: center; flex: 1; }
+        .m-val {
+            font-size: 10pt;
+            font-weight: 900;
+            color: #fff;
+            line-height: 1.1;
+        }
+        .m-u {
+            font-size: 7pt;
+            font-weight: 400;
+            color: rgba(255,255,255,0.75);
+            margin-right: 1px;
+        }
+        .m-lbl {
+            font-size: 6pt;
+            color: rgba(255,255,255,0.6);
+            margin-top: 1px;
+        }
+        .m-div {
+            width: 1px;
+            height: 30px;
+            background: rgba(255,255,255,0.25);
+        }
+
+        /* ══ ORDER STRIP ══ */
+        .order-strip {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 10px;
+            border-bottom: 1.5px solid #000;
+            flex-shrink: 0;
+        }
+        .ord-lbl {
+            font-size: 6pt;
+            color: #555;
+        }
+        .ord-val {
+            font-size: 6pt;
+            font-weight: 800;
+            color: #000;
+            letter-spacing: 1px;
+            direction: ltr;
+            border: 1.5px solid #000;
+            padding: 1px 8px;
+            border-radius: 3px;
+        }
+
+        /* ══ COD ══ */
+        .cod-sec {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 6px 8px;
+            border-bottom: 1.5px solid #000;
+        }
+        .cod-top-label {
+            font-size: 8.5pt;
+            color: #333;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+        .cod-pill {
+            border: 1.5px solid #000;
+            border-radius: 20px;
+            font-size: 7.5pt;
+            font-weight: 800;
+            padding: 2px 14px;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+        .cod-box {
+            border: 4px solid #000;
+            border-radius: 6px;
+            padding: 7px 18px;
+            display: flex;
+            align-items: baseline;
+            gap: 7px;
+        }
+        .cod-num {
+            font-size: 16pt;
+            font-weight: 900;
+            color: #000;
+            line-height: 1;
+        }
+        .cod-egp {
+            font-size: 13pt;
+            font-weight: 700;
+            color: #000;
+        }
+
+        /* ══ CUT LINE ══ */
+        .cut-line {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 0;
+            font-size: 9pt;
+            color: #aaa;
+            flex-shrink: 0;
+            border-bottom: 1px dashed #bbb;
+        }
+        .scissors { font-size: 13pt; color: #555; }
+
+        /* ══ BARCODE ══ */
+        .bc-wrap {
+            padding: 5px 8px 3px;
+            text-align: center;
+            border-bottom: 1.5px solid #000;
+            flex-shrink: 0;
+        }
+        .bc-label {
+            font-size: 3pt;
+            color: #666;
+            margin-bottom: 3px;
+        }
+        .barcode {
+            width: 100% !important;
+            max-width: 3.7in;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* ══ FOOTER ══ */
+        .footer {
+            background: #000;
+            color: #fff;
+            text-align: center;
+            padding: 6px 8px;
+            flex-shrink: 0;
+        }
+        .footer-main {
+            font-size: 8pt;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+        .footer-sub {
+            font-size: 6.5pt;
+            color: rgba(255,255,255,0.65);
+            margin-top: 2px;
+        }
+
+        /* ══ PRINT ONLY ══ */
+        @media print {
+            html, body { border: none; }
+            .label { border: none; }
+        }
+    </style>`;
+}
+
+
+// ================================================================
+// BARCODE SCRIPT — renders first, then triggers print
+// ================================================================
+
+function getBarcodeScript() {
+    return `
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>
+    <script>
+        window.addEventListener('load', function () {
+            document.querySelectorAll('svg.barcode').forEach(function (svg) {
+                var val = svg.getAttribute('data-barcode');
+                if (!val) return;
+                try {
+                    JsBarcode(svg, val, {
+                        format:       'CODE128',
+                        width:        2.2,
+                        height:       55,
+                        displayValue: true,
+                        fontSize:     12,
+                        margin:       5,
+                        background:   'transparent',
+                        lineColor:    '#000',
+                        font:         "Cairo, Tahoma, Arial"
+                    });
+                } catch (e) {
+                    svg.closest('.bc-wrap').style.display = 'none';
+                }
+            });
+            setTimeout(function () { window.print(); }, 450);
+        });
+    <\/script>`;
+}
+
+
+// ================================================================
+// printLabel — unchanged logic ✅
+// ================================================================
 
 function printLabel(phone, orderId) {
-    const subset = ordersData.filter(x => x.phone && x.phone.toString().replace(/\s/g, '') === phone);
-    let toPrint = isGrouped ? currentFilteredData.find(x => x.phone.toString().replace(/\s/g, '') === phone) : subset.find(x => x.order.toString() === orderId.toString());
-    if(!toPrint) return;
+    const subset  = ordersData.filter(
+        x => x.phone && x.phone.toString().replace(/\s/g, '') === phone
+    );
+    let toPrint = isGrouped
+        ? currentFilteredData.find(x => x.phone.toString().replace(/\s/g, '') === phone)
+        : subset.find(x => x.order.toString() === orderId.toString());
+
+    if (!toPrint) return;
+
     const win = window.open('', '_blank');
-    win.document.write(`
+    win.document.write(`<!DOCTYPE html>
         <html dir="rtl" lang="ar">
-        <head>
-            <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
-            <style>
-                @page { size: A5; margin: 0; }
-                body { font-family: 'Cairo', sans-serif; margin: 0; padding: 10mm; }
-                .card { border: 4px solid #000; height: 185mm; position: relative; padding: 15px; box-sizing: border-box; }
-                .top { border-bottom: 4px solid #000; padding-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
-                .logo { font-size: 30pt; font-weight: 900; }
-                .info { margin-top: 20px; font-size: 15pt; line-height: 1.6; }
-                .info b { font-size: 20pt; display: block; margin-bottom: 10px; }
-                .shipping-box { display: flex; justify-content: space-between; margin-top: 20px; border-top: 1px solid #000; padding-top: 15px; font-size: 14pt; }
-                .ids-strip { background: #000; color: #fff; padding: 10px; margin-top: 20px; text-align: center; font-size: 9pt; }
-                .cod-area { border: 5px solid #000; margin-top: 20px; padding: 20px; text-align: center; }
-                .cod-val { font-size: 30pt; font-weight: 600; }
-                .footer { position: absolute; bottom: 15px; width: 92%; text-align: center; font-size: 10pt; font-weight: bold; }
-            </style>
-        </head>
-        <body>${generateLabelHTML(toPrint)}</body></html>
-    `);
+        <head><meta charset="UTF-8">${getLabelStyles()}</head>
+        <body>
+            ${generateLabelHTML(toPrint)}
+            ${getBarcodeScript()}
+        </body></html>`);
     win.document.close();
-    win.print();
 }
 
+
+// ================================================================
+// printAllDisplayed — unchanged logic ✅
+// ================================================================
+
 function printAllDisplayed() {
+    let allHTML = '';
+    currentFilteredData.forEach(item => {
+        allHTML += generateLabelHTML(item, true);
+    });
+
     const win = window.open('', '_blank');
-    let allLabelsHTML = "";
-    currentFilteredData.forEach(item => { allLabelsHTML += generateLabelHTML(item, true); });
-    win.document.write(`
+    win.document.write(`<!DOCTYPE html>
         <html dir="rtl" lang="ar">
-        <head>
-            <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
-            <style>
-                @page { size: A5; margin: 0; }
-                body { font-family: 'Cairo', sans-serif; margin: 0; padding: 10mm; }
-                .card { border: 4px solid #000; height: 185mm; position: relative; padding: 15px; box-sizing: border-box; margin-bottom: 10px;}
-                .top { border-bottom: 4px solid #000; padding-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
-                .logo { font-size: 30pt; font-weight: 900; }
-                .info { margin-top: 20px; font-size: 15pt; line-height: 1.6; }
-                .info b { font-size: 20pt; display: block; margin-bottom: 10px; }
-                .shipping-box { display: flex; justify-content: space-between; margin-top: 20px; border-top: 1px solid #000; padding-top: 15px; font-size: 14pt; }
-                .ids-strip { background: #000; color: #fff; padding: 10px; margin-top: 20px; text-align: center; font-size: 9pt; }
-                .cod-area { border: 5px solid #000; margin-top: 20px; padding: 20px; text-align: center; }
-                .cod-val { font-size: 40pt; font-weight: 700; }
-                .footer { position: absolute; bottom: 15px; width: 92%; text-align: center; font-size: 10pt; font-weight: bold; }
-                @media print { .card { page-break-after: always; } }
-            </style>
-        </head>
-        <body>${allLabelsHTML}</body></html>
-    `);
+        <head><meta charset="UTF-8">${getLabelStyles()}</head>
+        <body>
+            ${allHTML}
+            ${getBarcodeScript()}
+        </body></html>`);
     win.document.close();
-    win.print();
 }
 
 function logout(){
