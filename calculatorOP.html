@@ -176,7 +176,7 @@ function calculate() {
     let calculatedPrice = basicPrice;
     
     if (finalWeight > 300) {
-        calculatedPrice = (base + categoryBase[cat] + extra + (finalWeight / 1000 * weightRates[cat] * 54));
+        calculatedPrice = (base + categoryBase[cat] + extra + (finalWeight / 1000 * weightRates[cat] * 55));
     }
 
     const total = roundSmart(Math.max(basicPrice, calculatedPrice));
