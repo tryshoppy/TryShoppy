@@ -107,6 +107,7 @@ async function loadData(){
     const res=await fetch(scriptURL, { redirect: 'follow' });
     ordersData=await res.json();
     applyFilters();
+    checkPendingReview(); // 👈 هنا
   } catch(e) { alert("خطأ في التحميل - تأكد من الاتصال"); }
 }
 
@@ -296,6 +297,24 @@ function logout(){
 }
 
 loadData();
+
+function checkPendingReview() {
+  const pendingOrders = ordersData.filter(o => o.status === "Pending Review");
+
+  if (pendingOrders.length > 0) {
+    let message = `⚠️ عندك ${pendingOrders.length} أوردر Pending Review\n\n`;
+
+    pendingOrders.slice(0,5).forEach(o => {
+      message += `#${o.order} - ${o.customerName}\n`;
+    });
+
+    if (pendingOrders.length > 5) {
+      message += `\n... و المزيد`;
+    }
+
+    alert(message);
+  }
+}
 </script>
 </body>
 </html>
