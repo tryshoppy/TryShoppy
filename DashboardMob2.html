@@ -28,7 +28,16 @@ header{ display:flex; justify-content:space-between; align-items:center; border-
 .net-box { background: #f0fdf4; padding: 10px; border-radius: 10px; margin: 10px 0; text-align: center; border: 1px solid #dcfce7; }
 .net-label { display: block; font-size: 12px; color: #166534; font-weight: bold; }
 .net-value { font-size: 20px; font-weight: 900; color: var(--success); }
-.actions{ display:grid; grid-template-columns: 1fr; gap:10px; margin-top:10px; }
+.actions{
+  display:grid;
+  grid-template-columns: 1fr 1fr; /* 👈 بدل عمود واحد خليهم اتنين */
+  gap:8px;
+  margin-top:10px;
+}
+.actions.grouped {
+  grid-template-columns: 1fr 1fr;
+}
+
 .btn-update{ background:var(--success); color:#fff; border:none; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer; }
 .link-btn{ background: #eff6ff; color: var(--primary); padding: 10px; border-radius: 10px; text-align: center; text-decoration: none; font-weight: bold; font-size: 14px; }
 .badge { background: #f1f5f9; padding: 3px 8px; border-radius: 5px; font-size: 12px; color: #475569; font-weight: 600; }
@@ -130,6 +139,21 @@ function renderCards(data){
     // قراءة القيمة الحالية من الشيت
     const currentArrival = o.arrivaldate || "";
 
+let linksHTML = "";
+
+if (isGrouped && o.links) {
+  linksHTML = o.links.map((l, i) => `
+    <a href="${l}" target="_blank" class="link-btn">
+      🔗 منتج ${i + 1}
+    </a>
+  `).join('');
+} else {
+  linksHTML = `
+    <a href="${o.link || '#'}" target="_blank" class="link-btn">
+      🔗 معاينة المنتج
+    </a>
+  `;
+}
     container.innerHTML+=`
    <div class="order-card ${isGrouped ? 'grouped' : ''}">
       <div class="card-header" style="align-items: center;">
@@ -191,10 +215,11 @@ function renderCards(data){
         </select>
       </div>
 
-      <div class="actions">
-        <a href="${o.link || '#'}" target="_blank" class="link-btn">🔗 معاينة المنتج</a>
-        <button class="btn-update" onclick="updateOrder('${cleanOrderId}')">✔ حفظ التعديلات</button>
-      </div>
+     
+ <div class="actions">
+  ${linksHTML}
+  <button class="btn-update" onclick="updateOrder('${cleanOrderId}')">✔ حفظ التعديلات</button>
+</div>
     </div>
     `;
   });
@@ -236,8 +261,13 @@ function applyFilters(){
     filtered.forEach(o=>{
       const key=o.phone||"Unknown";
       if(!groups[key]){
-        groups[key]={...o, order:o.order};
-      }else{
+  groups[key]={
+    ...o,
+    order:o.order,
+    links: [o.link] // 👈 نخزن أول لينك
+  };
+}else{
+             groups[key].links.push(o.link); // 👈 نجمع باقي اللينكات
         groups[key].quantity = (parseInt(groups[key].quantity)||0) + (parseInt(o.quantity)||1);
         groups[key].weight = (parseFloat(groups[key].weight)||0) + (parseFloat(o.weight)||0);
         groups[key].finalPrice = (parseFloat(groups[key].finalPrice)||0) + (parseFloat(o.finalPrice)||0);
@@ -315,6 +345,8 @@ function checkPendingReview() {
     alert(message);
   }
 }
+
+
 </script>
 </body>
 </html>
