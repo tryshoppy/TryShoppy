@@ -157,8 +157,12 @@ else {
   `;
 }
 
-let message = `السلام عليكم 👋
-الأوردر الخاص بحضرتك وصل مصر ومباشرة هيتحرك علي عنوان حضرتك ادناه للتسليم خلال يومين عمل لعنوان القاهرة و3 ايام عمل للمحافظات. ✅
+let message = `السلام عليكم ${o.customerName ? "أ/ " + o.customerName : "حضرتك"} 👋
+الأوردر الخاص بحضرتك وصل مصر 🇪🇬 وجاهز للتسليم 🚚
+
+سيتم التوصيل خلال:
+📍 يومين عمل داخل القاهرة
+📍 3 أيام عمل للمحافظات
 
 📍 العنوان: ${o.address || "غير متوفر"}
 
@@ -167,17 +171,18 @@ let message = `السلام عليكم 👋
 if (isGrouped && o.items) {
   o.items.forEach((item, i) => {
     message += `🔗 منتج ${i + 1}: ${item.link}\n`;
-    message += `💰 السعر: ${parseFloat(item.price).toLocaleString()} ج.م\n\n`;
+    message += `💰 السعر: ${parseFloat(item.price || 0).toLocaleString()} ج.م\n\n`;
   });
 } else {
   message += `🔗 المنتج: ${o.link}\n`;
-  message += `💰 السعر: ${parseFloat(o.finalPrice).toLocaleString()} ج.م\n`;
+  message += `💰 السعر: ${parseFloat(o.finalPrice || 0).toLocaleString()} ج.م\n`;
 }
 
 message += `
-💰 الإجمالي: ${total} ج.م
-💵 المدفوع: ${dep} ج.م
-📌 المطلوب عند الاستلام: ${net} ج.م
+💰 الإجمالي: ${total.toLocaleString()} ج.م
+🚚 الشحن الداخلي: هدية مننا ليك 🎁✨
+💵 المدفوع: ${dep.toLocaleString()} ج.م
+📌 المطلوب عند الاستلام: ${net.toLocaleString()} ج.م
 
 📞 برجاء تأكيد تواجد حضرتك للاستلام 🙏
 `;
