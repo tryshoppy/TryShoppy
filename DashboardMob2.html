@@ -168,17 +168,35 @@ let message = `السلام عليكم ${o.customerName ? "أ/ " + o.customerNam
 
 📦 التفاصيل:\n`;
 
+// 🧮 حساب إجمالي الكمية
+let totalQty = 0;
+
 if (isGrouped && o.items) {
   o.items.forEach((item, i) => {
+    const price = parseFloat(item.price || 0);
+    const qty = parseInt(item.qty || 1);
+
+    totalQty += qty;
+
     message += `🔗 منتج ${i + 1}: ${item.link}\n`;
-    message += `💰 السعر: ${parseFloat(item.price || 0).toLocaleString()} ج.م\n\n`;
+    message += `💰 السعر: ${price.toLocaleString()} ج.م\n`;
+    message += `📦 العدد: ${qty}\n\n`;
   });
 } else {
+  const price = parseFloat(o.finalPrice || 0);
+  const qty = parseInt(o.quantity || 1);
+
+  totalQty = qty;
+
   message += `🔗 المنتج: ${o.link}\n`;
-  message += `💰 السعر: ${parseFloat(o.finalPrice || 0).toLocaleString()} ج.م\n`;
+  message += `💰 السعر: ${price.toLocaleString()} ج.م\n`;
+  message += `📦 العدد: ${qty}\n`;
 }
 
+// 💰 الجزء المالي
 message += `
+📦 إجمالي عدد المنتجات: ${totalQty}
+
 💰 الإجمالي: ${total.toLocaleString()} ج.م
 🚚 الشحن الداخلي: هدية مننا ليك 🎁✨
 💵 المدفوع: ${dep.toLocaleString()} ج.م
@@ -311,10 +329,10 @@ function applyFilters(){
   groups[key]={
     ...o,
     order:o.order,
-items: [{link: o.link,price: o.finalPrice}]
+items: [{link: o.link,price: o.finalPrice, qty: o.quantity || 1}]
   };
 }else{
-             groups[key].items.push({link: o.link, price: o.finalPrice}); // 👈 نجمع باقي اللينكات
+             groups[key].items.push({link: o.link, price: o.finalPrice, qty: o.quantity || 1}); // 👈 نجمع باقي اللينكات
         groups[key].quantity = (parseInt(groups[key].quantity)||0) + (parseInt(o.quantity)||1);
         groups[key].weight = (parseFloat(groups[key].weight)||0) + (parseFloat(o.weight)||0);
         groups[key].finalPrice = (parseFloat(groups[key].finalPrice)||0) + (parseFloat(o.finalPrice)||0);
