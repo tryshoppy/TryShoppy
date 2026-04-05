@@ -283,6 +283,7 @@ if (o.status === "Arrived Cairo HUB") {
 <div class="actions">
   ${linksHTML}
   <button class="btn-update" onclick="updateOrder('${cleanOrderId}')">✔ حفظ التعديلات</button>
+  <button class="btn-group" onclick='generateInvoice(${JSON.stringify(o)})'>🧾 فاتورة</button>
   ${whatsappBtn}
 </div>
     </div>
@@ -409,6 +410,86 @@ function checkPendingReview() {
 
     alert(message);
   }
+}
+function generateInvoice(order){
+  let itemsHTML = "";
+  let total = 0;
+
+  if(order.items){
+    order.items.forEach((item,i)=>{
+      const price = parseFloat(item.price || 0);
+      total += price;
+
+      itemsHTML += `
+        <tr>
+          <td>Personal imported item ${i+1}</td>
+          <td><a href="${item.link}" target="_blank">Link</a></td>
+          <td>${price.toLocaleString()} ج.م</td>
+        </tr>
+      `;
+    });
+  }else{
+    const price = parseFloat(order.finalPrice || 0);
+    total = price;
+
+    itemsHTML += `
+      <tr>
+        <td>Personal imported item</td>
+        <td><a href="${order.link}" target="_blank">Link</a></td>
+        <td>${price.toLocaleString()} ج.م</td>
+      </tr>
+    `;
+  }
+
+  const invoiceWindow = window.open("", "_blank");
+
+  invoiceWindow.document.write(`
+    <html dir="rtl">
+    <head>
+      <title>Invoice</title>
+      <style>
+        body { font-family: Arial; padding:20px; }
+        h2 { margin-bottom:5px; }
+        table { width:100%; border-collapse: collapse; margin-top:20px; }
+        th, td { border:1px solid #ddd; padding:10px; text-align:center; }
+        th { background:#f5f5f5; }
+      </style>
+    </head>
+    <body>
+
+      <h2>TRY SHOPPY</h2>
+      <p>Zahraa Maadi Cairo Egypt</p>
+      <p>201094112666</p>
+
+      <hr>
+
+      <h3>بيانات العميل</h3>
+      <p>الاسم: ${order.customerName || "-"}</p>
+      <p>العنوان: ${order.address || "-"}</p>
+      <p>التليفون: ${order.phone || "-"}</p>
+
+      <hr>
+
+      <h3>تفاصيل المنتجات</h3>
+
+      <table>
+        <tr>
+          <th>المنتج</th>
+          <th>الرابط</th>
+          <th>السعر</th>
+        </tr>
+        ${itemsHTML}
+      </table>
+
+      <h3 style="margin-top:20px;">
+        Total for personal imported items: ${total.toLocaleString()} ج.م
+      </h3>
+
+    </body>
+    </html>
+  `);
+
+  invoiceWindow.document.close();
 }
 
 
