@@ -109,23 +109,28 @@ if(auth==="true"&&loginTime&&(now-loginTime<SESSION_TIME)){
 // ⚠️ هام: استبدل الرابط أدناه برابط السكريبت الخاص بك
 const scriptURL="https://script.google.com/macros/s/AKfycbzy9-1BfmMJZhCtwiEoIfdzWCFPcWW3CkhfJIRdWo8eyl1Z6tSWK8xHxoAw2cxKDaosrw/exec";
 let ordersData=[];
+let currentViewData = []; // 👈 متغير جديد لحفظ البيانات المعروضة حالياً عشان الفاتورة
 let isGrouped=false;
+let renderTimer;
 
 async function loadData(){
   try {
     const res=await fetch(scriptURL, { redirect: 'follow' });
     ordersData=await res.json();
     applyFilters();
-    checkPendingReview(); // 👈 هنا
+    checkPendingReview(); 
   } catch(e) { alert("خطأ في التحميل - تأكد من الاتصال"); }
 }
 
-function renderCards(data){
-  const container=document.getElementById("cardsContainer");
-  container.innerHTML="";
+function renderCards(data, append = false){
+  const container = document.getElementById("cardsContainer");
+  
+  if(!append) container.innerHTML = ""; 
+  
+  let htmlString = ""; 
 
-  data.forEach(o=>{
-   let phone = String(o.phone || "").replace(/\D/g, "").replace(/^0/, "");
+  data.forEach(o => {
+    let phone = String(o.phone || "").replace(/\D/g, "").replace(/^0/, "");
     const orderId = o.order;
     const cleanOrderId = orderId.toString().split(' + ')[0];
     const qty = o.quantity || 1;
@@ -136,90 +141,44 @@ function renderCards(data){
     const dep = parseFloat(o.deposit || 0);
     const ship = parseFloat(o.shipping || 0);
     const net = total + ship - dep;
-
-    // قراءة القيمة الحالية من الشيت
     const currentArrival = o.arrivaldate || "";
 
-let linksHTML = "";
+    let linksHTML = "";
+    if (isGrouped && o.items) {
+      linksHTML = o.items.map((item, i) => `
+        <a href="${item.link}" target="_blank" class="link-btn">
+          🔗 منتج ${i + 1} - ${parseFloat(item.price).toLocaleString()} ج.م
+        </a>
+      `).join('');
+    } else {
+      linksHTML = `
+        <a href="${o.link || '#'}" target="_blank" class="link-btn">
+          🔗 معاينة المنتج
+        </a>
+      `;
+    }
 
-if (isGrouped && o.items) {
-  linksHTML = o.items.map((item, i) => `
-    <a href="${item.link}" target="_blank" class="link-btn">
-      🔗 منتج ${i + 1} - ${parseFloat(item.price).toLocaleString()} ج.م
-    </a>
-  `).join('');
-} 
-else {
-  linksHTML = `
-    <a href="${o.link || '#'}" target="_blank" class="link-btn">
-      🔗 معاينة المنتج
-    </a>
-  `;
-}
+    let message = `السلام عليكم 👋\nالأوردر الخاص بحضرتك جاهز للتسليم ✅\n\n📦 التفاصيل:\n`;
+    if (isGrouped && o.items) {
+      o.items.forEach((item, i) => {
+        message += `🔗 منتج ${i + 1}: ${item.link}\n💰 السعر: ${parseFloat(item.price).toLocaleString()} ج.م\n\n`;
+      });
+    } else {
+      message += `🔗 المنتج: ${o.link}\n💰 السعر: ${parseFloat(o.finalPrice).toLocaleString()} ج.م\n`;
+    }
+    message += `\n💰 الإجمالي: ${total} ج.م\n💵 المدفوع: ${dep} ج.م\n📌 المطلوب عند الاستلام: ${net} ج.م\n`;
 
-let message = `السلام عليكم ${o.customerName ? "أ/ " + o.customerName : "حضرتك"} 👋
-الأوردر الخاص بحضرتك من تراي شوبي -Try Shoppy وصل مصر 🇪🇬 وجاهز للتسليم 🚚
+    let whatsappBtn = "";
+    if (o.status === "Arrived Cairo HUB") {
+      whatsappBtn = `
+        <a href="https://wa.me/20${phone}?text=${encodeURIComponent(message)}" target="_blank" class="link-btn" style="background:#25D366; color:white;">
+          💬 واتساب
+        </a>
+      `;
+    }
 
-سيتم التوصيل خلال:
-📍 يومين عمل داخل القاهرة
-📍 3 أيام عمل للمحافظات
-
-📍 العنوان: ${o.address || "غير متوفر"}
-
-📦 التفاصيل:\n`;
-
-// 🧮 حساب إجمالي الكمية
-let totalQty = 0;
-
-if (isGrouped && o.items) {
-  o.items.forEach((item, i) => {
-    const price = parseFloat(item.price || 0);
-    const qty = parseInt(item.qty || 1);
-
-    totalQty += qty;
-
-    message += `🔗 منتج ${i + 1}: ${item.link}\n`;
-    message += `💰 السعر: ${price.toLocaleString()} ج.م\n`;
-    message += `📦 العدد: ${qty}\n\n`;
-  });
-} else {
-  const price = parseFloat(o.finalPrice || 0);
-  const qty = parseInt(o.quantity || 1);
-
-  totalQty = qty;
-
-  message += `🔗 المنتج: ${o.link}\n`;
-  message += `💰 السعر: ${price.toLocaleString()} ج.م\n`;
-  message += `📦 العدد: ${qty}\n`;
-}
-
-// 💰 الجزء المالي
-message += `
-📦 إجمالي عدد المنتجات: ${totalQty}
-
-💰 الإجمالي: ${total.toLocaleString()} ج.م
-🚚 الشحن الداخلي: هدية مننا ليك 🎁✨
-💵 المدفوع: ${dep.toLocaleString()} ج.م
-📌 المطلوب عند الاستلام: ${net.toLocaleString()} ج.م
-
-📞 برجاء تأكيد تواجد حضرتك للاستلام 🙏
-`;
-let whatsappBtn = "";
-
-if (o.status === "Arrived Cairo HUB") {
-  whatsappBtn = `
-    <a 
-      href="https://wa.me/20${phone}?text=${encodeURIComponent(message)}" 
-      target="_blank" 
-      class="link-btn"
-      style="background:#25D366; color:white;"
-    >
-      💬 واتساب
-    </a>
-  `;
-}
-    container.innerHTML+=`
-   <div class="order-card ${isGrouped ? 'grouped' : ''}">
+    htmlString += `
+    <div class="order-card ${isGrouped ? 'grouped' : ''}">
       <div class="card-header" style="align-items: center;">
         <div style="display: flex; flex-direction: column;">
             <span class="order-id">${orderId}</span>
@@ -279,16 +238,21 @@ if (o.status === "Arrived Cairo HUB") {
         </select>
       </div>
 
-     
-<div class="actions">
-  ${linksHTML}
-  <button class="btn-update" onclick="updateOrder('${cleanOrderId}')">✔ حفظ التعديلات</button>
-  <button class="btn-group" onclick='generateInvoice(${JSON.stringify(o)})'>🧾 فاتورة</button>
-  ${whatsappBtn}
-</div>
+      <div class="actions">
+        ${linksHTML}
+       <button class="btn-update" onclick="updateOrder('${cleanOrderId}')">✔ حفظ التعديلات</button>
+        <button class="btn-group" onclick="openInvoice('${cleanOrderId}')">🧾 فاتورة</button>
+        ${whatsappBtn}
+      </div>
     </div>
     `;
   });
+
+  if(append){
+      container.insertAdjacentHTML('beforeend', htmlString);
+  } else {
+      container.innerHTML = htmlString;
+  }
 }
 
 function recalc(id, ship) {
@@ -298,28 +262,24 @@ function recalc(id, ship) {
 }
 
 function applyFilters(){
-  const search=document.getElementById("searchInput").value.toLowerCase();
+  const search = document.getElementById("searchInput").value.toLowerCase();
   const searchArr = document.getElementById("searchArrival").value.toLowerCase();
-  const from=document.getElementById("dateFrom").value;
-  const to=document.getElementById("dateTo").value;
-  const status=document.getElementById("searchStatus").value;
+  const from = document.getElementById("dateFrom").value;
+  const to = document.getElementById("dateTo").value;
+  const status = document.getElementById("searchStatus").value;
 
-  let filtered=ordersData.filter(o=>{
-    const d=o.date || "";
-    const dateMatch=(!from||d>=from)&&(!to||d<=to);
-    const statusMatch=!status||o.status===status;
-    
-    // الفلترة بناءً على الاختيار المطابق تماماً للنص
-    const arrivalMatch = !searchArr || 
-  (o.arrivaldate || "").toString().toLowerCase().includes(searchArr);
-
+  let filtered = ordersData.filter(o=>{
+    const d = o.date || "";
+    const dateMatch = (!from||d>=from) && (!to||d<=to);
+    const statusMatch = !status||o.status===status;
+    const arrivalMatch = !searchArr || (o.arrivaldate || "").toString().toLowerCase().includes(searchArr);
     const cleanOrder = String(o.order || "").toLowerCase().replace(/\s/g, "");
 
-    const searchMatch=(o.customerName||"").toLowerCase().includes(search)||
+    const searchMatch = (o.customerName||"").toLowerCase().includes(search)||
                       (o.phone||"").toString().includes(search)||
-                      cleanOrder.includes(search.replace(/\s/g, "")); // التعديل هنا
+                      cleanOrder.includes(search.replace(/\s/g, "")); 
                       
-    return dateMatch&&statusMatch&&searchMatch&&arrivalMatch;
+    return dateMatch && statusMatch && searchMatch && arrivalMatch;
   });
 
   if(isGrouped){
@@ -327,26 +287,39 @@ function applyFilters(){
     filtered.forEach(o=>{
       const key=o.phone||"Unknown";
       if(!groups[key]){
-  groups[key]={
-    ...o,
-    order:o.order,
-items: [{link: o.link,price: o.finalPrice, qty: o.quantity || 1}]
-  };
-}else{
-             groups[key].items.push({link: o.link, price: o.finalPrice, qty: o.quantity || 1}); // 👈 نجمع باقي اللينكات
+        groups[key]={
+          ...o,
+          order:o.order,
+          items: [{link: o.link, price: o.finalPrice}]
+        };
+      }else{
+        groups[key].items.push({link: o.link, price: o.finalPrice}); 
         groups[key].quantity = (parseInt(groups[key].quantity)||0) + (parseInt(o.quantity)||1);
         groups[key].weight = (parseFloat(groups[key].weight)||0) + (parseFloat(o.weight)||0);
         groups[key].finalPrice = (parseFloat(groups[key].finalPrice)||0) + (parseFloat(o.finalPrice)||0);
         groups[key].deposit = (parseFloat(groups[key].deposit)||0) + (parseFloat(o.deposit)||0);
         groups[key].shipping = (parseFloat(groups[key].shipping)||0) + (parseFloat(o.shipping)||0);
         groups[key].usd = (parseFloat(groups[key].usd)||0) + (parseFloat(o.usd)||0);
-        groups[key].order+=" + "+o.order;
+        groups[key].order += " + " + o.order;
       }
     });
-    filtered=Object.values(groups);
+    filtered = Object.values(groups);
   }
   
-  renderCards(filtered.reverse());
+  let finalData = filtered.reverse();
+  
+  // 👈 نحفظ البيانات هنا عشان نقدر نستدعيها براحتنا في الفاتورة بدون أخطاء
+  currentViewData = finalData; 
+
+  if(renderTimer) clearTimeout(renderTimer);
+
+  renderCards(finalData.slice(0, 30), false);
+
+  if(finalData.length > 30) {
+    renderTimer = setTimeout(() => {
+        renderCards(finalData.slice(30), true); 
+    }, 500); 
+  }
 
   const totalBox = document.getElementById("totalBox");
   if (status === "") {
@@ -366,7 +339,7 @@ function updateOrder(orderId){
   const newDeposit=document.getElementById("deposit-"+orderId).value;
   const newUSD=document.getElementById("usd-"+orderId).value;
   const newStatus=document.getElementById("status-"+orderId).value;
-  const newArrival=document.getElementById("arrival-"+orderId).value; // القيمة من القائمة
+  const newArrival=document.getElementById("arrival-"+orderId).value; 
 
   fetch(scriptURL,{
     method:"POST",
@@ -411,6 +384,15 @@ function checkPendingReview() {
     alert(message);
   }
 }
+
+// 👈 دالة جديدة وسيطة بتدور على الأوردر وتفتح الفاتورة بأمان
+function openInvoice(orderId) {
+  const order = currentViewData.find(o => String(o.order).split(' + ')[0] === orderId);
+  if (order) {
+    generateInvoice(order);
+  }
+}
+
 function generateInvoice(order){
   let itemsHTML = "";
   let total = 0;
@@ -491,7 +473,6 @@ function generateInvoice(order){
 
   invoiceWindow.document.close();
 }
-
 
 </script>
 </body>
