@@ -158,15 +158,53 @@ function renderCards(data, append = false){
       `;
     }
 
-    let message = `السلام عليكم 👋\nالأوردر الخاص بحضرتك جاهز للتسليم ✅\n\n📦 التفاصيل:\n`;
-    if (isGrouped && o.items) {
-      o.items.forEach((item, i) => {
-        message += `🔗 منتج ${i + 1}: ${item.link}\n💰 السعر: ${parseFloat(item.price).toLocaleString()} ج.م\n\n`;
-      });
-    } else {
-      message += `🔗 المنتج: ${o.link}\n💰 السعر: ${parseFloat(o.finalPrice).toLocaleString()} ج.م\n`;
-    }
-    message += `\n💰 الإجمالي: ${total} ج.م\n💵 المدفوع: ${dep} ج.م\n📌 المطلوب عند الاستلام: ${net} ج.م\n`;
+   let message = `السلام عليكم ${o.customerName ? "أ/ " + o.customerName : "حضرتك"} 👋
+الأوردر الخاص بحضرتك من تراي شوبي -Try Shoppy وصل مصر 🇪🇬 وجاهز للتسليم 🚚
+
+سيتم التوصيل خلال:
+📍 يومين عمل داخل القاهرة
+📍 3 أيام عمل للمحافظات
+
+📍 العنوان: ${o.address || "غير متوفر"}
+
+📦 التفاصيل:\n`;
+
+// 🧮 حساب إجمالي الكمية
+let totalQty = 0;
+
+if (isGrouped && o.items) {
+  o.items.forEach((item, i) => {
+    const price = parseFloat(item.price || 0);
+    const qty = parseInt(item.qty || 1);
+
+    totalQty += qty;
+
+    message += `🔗 منتج ${i + 1}: ${item.link}\n`;
+    message += `💰 السعر: ${price.toLocaleString()} ج.م\n`;
+    message += `📦 العدد: ${qty}\n\n`;
+  });
+} else {
+  const price = parseFloat(o.finalPrice || 0);
+  const qty = parseInt(o.quantity || 1);
+
+  totalQty = qty;
+
+  message += `🔗 المنتج: ${o.link}\n`;
+  message += `💰 السعر: ${price.toLocaleString()} ج.م\n`;
+  message += `📦 العدد: ${qty}\n`;
+}
+
+// 💰 الجزء المالي
+message += `
+📦 إجمالي عدد المنتجات: ${totalQty}
+
+💰 الإجمالي: ${total.toLocaleString()} ج.م
+🚚 الشحن الداخلي: هدية مننا ليك 🎁✨
+💵 المدفوع: ${dep.toLocaleString()} ج.م
+📌 المطلوب عند الاستلام: ${net.toLocaleString()} ج.م
+
+📞 برجاء تأكيد تواجد حضرتك للاستلام 🙏
+`;
 
     let whatsappBtn = "";
     if (o.status === "Arrived Cairo HUB") {
