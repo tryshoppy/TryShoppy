@@ -279,7 +279,11 @@ message += `
 
       <div class="actions">
         ${linksHTML}
-       <button class="btn-update" onclick="updateOrder('${cleanOrderId}')">✔ حفظ التعديلات</button>
+       <button class="btn-update"
+  ${isGrouped ? 'style="background:#ccc;cursor:not-allowed"' : ''}
+  onclick="${isGrouped ? 'groupLockMsg()' : `updateOrder('${cleanOrderId}')`}">
+  ✔ حفظ التعديلات
+</button>
         <button class="btn-group" onclick="openInvoice('${cleanOrderId}')">🧾 فاتورة</button>
         ${whatsappBtn}
       </div>
@@ -512,7 +516,9 @@ function generateInvoice(order){
 
   invoiceWindow.document.close();
 }
-
+function groupLockMsg(){
+  alert("⚠️ تم تفعيل التجميع\n\n✋ لا يمكن التعديل أثناء التجميع\nيرجى فك التجميع للتعديل");
+}
 </script>
 </body>
 </html>
