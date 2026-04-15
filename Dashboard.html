@@ -517,7 +517,12 @@ function renderTable(data) {
                     <option value="Delayed" ${cur==='Delayed'?'selected':''}>Delayed</option>
                 </select>
             </td>
-            <td style="text-align:center;"><button class="btn-icon btn-update" onclick="updateOrder('${printOrder}')" title="حفظ التعديلات">💾</button></td>
+            <td style="text-align:center;">
+  <button class="btn-icon btn-update"
+    style="${isGrouped ? 'background:#ddd;cursor:not-allowed;opacity:0.6' : ''}"
+    onclick="${isGrouped ? 'groupLockMsg()' : `updateOrder('${printOrder}')`}"
+    title="حفظ التعديلات">💾</button>
+</td>
             <td style="text-align:center;"><button class="btn-icon btn-print-sm" onclick="printLabel('${printPhone}', '${printOrder}')" title="طباعة بوليصة">📄</button></td>
             <td style="text-align:center;">${o.link ? `<a href="${o.link}" target="_blank" class="link-btn">رابط</a>` : '<span style="color:#cbd5e1">-</span>'}</td>
         </tr>`;
@@ -1179,7 +1184,9 @@ function applyBulkStatus(){
     alert("تم تحديث الحالات");
     loadData();
 }
-
+function groupLockMsg(){
+  alert("⚠️ تم تفعيل التجميع\n\n✋ لا يمكن التعديل أثناء التجميع\nيرجى فك التجميع للتعديل");
+}
 loadData();
 </script>
 </body>
