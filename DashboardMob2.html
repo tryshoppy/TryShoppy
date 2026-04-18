@@ -170,42 +170,42 @@ function renderCards(data, append = false){
 
 📦 التفاصيل:\n`;
 
-// 🧮 حساب إجمالي الكمية
+// 🧮 حساب إجمالي الكمية وتفاصيل المنتجات
 let totalQty = 0;
 
 if (isGrouped && o.items) {
   o.items.forEach((item, i) => {
-    const price = parseFloat(item.price || 0);
-    const qty = parseInt(item.qty || 1);
+    const unitPrice = parseFloat(item.price || 0);
+    const itemQty = parseInt(item.qty || 1);
+    totalQty += itemQty;
 
-    totalQty += qty;
-
-    message += `🔗 منتج ${i + 1}: ${item.link}\n`;
-    message += `💰 السعر: ${price.toLocaleString()} ج.م\n`;
-    message += `📦 العدد: ${qty}\n\n`;
+    message += `---
+🔗 منتج ${i + 1}: ${item.link}
+💰 السعر: ${unitPrice.toLocaleString()} ج.م
+📦 العدد: ${itemQty}
+`;
   });
 } else {
-  const price = parseFloat(o.finalPrice || 0);
-  const qty = parseInt(o.quantity || 1);
+  const unitPrice = parseFloat(o.finalPrice || 0);
+  const itemQty = parseInt(o.quantity || 1);
+  totalQty = itemQty;
 
-  totalQty = qty;
-
-  message += `🔗 المنتج: ${o.link}\n`;
-  message += `💰 السعر: ${price.toLocaleString()} ج.م\n`;
-  message += `📦 العدد: ${qty}\n`;
+  message += `🔗 المنتج: ${o.link}
+💰 السعر: ${unitPrice.toLocaleString()} ج.م
+📦 العدد: ${itemQty}
+`;
 }
 
-// 💰 الجزء المالي
+// 💰 الجزء المالي النهائي
 message += `
+━━━━━━━━━━━━
 📦 إجمالي عدد المنتجات: ${totalQty}
-
-💰 الإجمالي: ${total.toLocaleString()} ج.م
+💰 إجمالي الحساب: ${total.toLocaleString()} ج.م
 🚚 الشحن الداخلي: هدية مننا لحضرتك 🎁✨
-💵 المدفوع: ${dep.toLocaleString()} ج.م
-📌 المطلوب عند الاستلام: ${net.toLocaleString()} ج.م
+💵 المدفوع مقدمًا: ${dep.toLocaleString()} ج.م
+📌 المطلوب عند الاستلام: *${net.toLocaleString()} ج.م*
 
-📞 برجاء تأكيد تواجد حضرتك للاستلام 🙏
-`;
+📞 برجاء تأكيد تواجد حضرتك للاستلام 🙏`;
 
     let whatsappBtn = "";
     if (o.status === "Arrived Cairo HUB") {
@@ -325,7 +325,7 @@ function applyFilters(){
     return dateMatch && statusMatch && searchMatch && arrivalMatch;
   });
 
-  if(isGrouped){
+   if(isGrouped){
     const groups={};
     filtered.forEach(o=>{
       const key=o.phone||"Unknown";
@@ -333,10 +333,11 @@ function applyFilters(){
         groups[key]={
           ...o,
           order:o.order,
-          items: [{link: o.link, price: o.finalPrice}]
+          // أضفنا qty هنا لكل عنصر
+          items: [{link: o.link, price: o.finalPrice, qty: parseInt(o.quantity)||1}]
         };
       }else{
-        groups[key].items.push({link: o.link, price: o.finalPrice}); 
+        groups[key].items.push({link: o.link, price: o.finalPrice, qty: parseInt(o.quantity)||1}); 
         groups[key].quantity = (parseInt(groups[key].quantity)||0) + (parseInt(o.quantity)||1);
         groups[key].weight = (parseFloat(groups[key].weight)||0) + (parseFloat(o.weight)||0);
         groups[key].finalPrice = (parseFloat(groups[key].finalPrice)||0) + (parseFloat(o.finalPrice)||0);
