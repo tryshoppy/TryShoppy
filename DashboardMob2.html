@@ -181,8 +181,8 @@ if (isGrouped && o.items) {
 
     message += `---
 🔗 منتج ${i + 1}: ${item.link}
-💰 السعر: ${unitPrice.toLocaleString()} ج.م
 📦 العدد: ${itemQty}
+💰 السعرالاجمالي : ${unitPrice.toLocaleString()} ج.م
 `;
   });
 } else {
@@ -191,8 +191,8 @@ if (isGrouped && o.items) {
   totalQty = itemQty;
 
   message += `🔗 المنتج: ${o.link}
-💰 السعر: ${unitPrice.toLocaleString()} ج.م
 📦 العدد: ${itemQty}
+💰 السعرالاجمالي: ${unitPrice.toLocaleString()} ج.م
 `;
 }
 
