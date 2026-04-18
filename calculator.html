@@ -499,8 +499,13 @@ function sendWhatsApp(){
 Order No: ${orderNumber}
 Name: ${document.getElementById("customerName").value}
 Governorate: ${document.getElementById("governorate").value}
+Address: ${document.getElementById("address").value}
 Quantity: ${document.getElementById("quantity").value}
-Final Price: ${finalPrice} EGP
+Unit Price USD: ${document.getElementById("priceUSD").value} USD
+Unit Price EGP: ${document.getElementById("priceEGP").value} EGP
+
+Total USD: ${usdTotal} USD
+Total Price: ${finalEGP} EGP
 Product: ${document.getElementById("productLink").value}
 SPCS: ${spcs}`;
 
