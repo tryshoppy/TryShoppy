@@ -207,14 +207,34 @@ message += `
 
 📞 برجاء تأكيد تواجد حضرتك للاستلام 🙏`;
 
-    let whatsappBtn = "";
-    if (o.status === "Arrived Cairo HUB") {
-      whatsappBtn = `
-        <a href="https://wa.me/20${phone}?text=${encodeURIComponent(message)}" target="_blank" class="link-btn" style="background:#25D366; color:white;">
-          💬 واتساب
-        </a>
-      `;
-    }
+let whatsappBtn = "";
+
+if (o.status === "Arrived Cairo HUB") {
+  // التأكد إن التجميع متفعل الأول قبل إظهار زر الإرسال
+  if (isGrouped) {
+    whatsappBtn = `
+      <a 
+        href="https://wa.me/20${phone}?text=${encodeURIComponent(message)}" 
+        target="_blank" 
+        class="link-btn"
+        style="background:#25D366; color:white;"
+      >
+        💬 واتساب
+      </a>
+    `;
+  } else {
+    // إظهار زر غير مفعل يطلب من المستخدم الضغط على التجميع أولاً
+    whatsappBtn = `
+      <button 
+        onclick="alert('عفواً، يجب الضغط على زر (تجميع / فك تجميع الطلبات) أعلى الصفحة أولاً لإمكانية إرسال رسالة الواتساب.');" 
+        class="link-btn"
+        style="background:#94a3b8; color:white; border:none; cursor:not-allowed; font-family:'Cairo';"
+      >
+        💬 واتساب (مغلق)
+      </button>
+    `;
+  }
+}
 
     htmlString += `
     <div class="order-card ${isGrouped ? 'grouped' : ''}">
