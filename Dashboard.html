@@ -455,78 +455,93 @@ async function loadData() {
     } catch(e) { console.error("Data Load Error", e); }
 }
 
+// وظيفة مساعدة لإنشاء HTML الصف الواحد (تم استخلاصها من كودك الأصلي)
+function createRowHTML(o) {
+    const cur = o.status || "Pending Review";
+    const printPhone = o.phone ? o.phone.toString().replace(/\s/g, '') : '';
+    const printOrder = o.order ? o.order.toString().split(' + ')[0] : 'N/A';
+    
+    const qty = isGrouped ? o.totalQty : (o.quantity || 1);
+    const weight = parseFloat(isGrouped ? o.totalWeight : (o.weight || 0)).toFixed(2);
+    const dims = isGrouped ? "متعددة" : (o.dimensions || "غير محددة");
+
+    const ship = isGrouped ? (parseFloat(o.totalShipping) || 0) : (parseFloat(o.shipping) || 0);
+    const finalP = parseFloat(o.finalPrice || 0);
+    const dep = parseFloat(o.deposit || 0);
+    const endP = finalP + ship - dep;
+
+    let statusColor = "#e2e8f0";
+    if(cur.includes("Delivered")) statusColor = "var(--success)";
+    if(cur.includes("Canceled")) statusColor = "var(--danger)";
+    if(cur.includes("Pending")) statusColor = "var(--warning)";
+
+    return `<tr>
+        <td><input type="checkbox" class="row-check" value="${printOrder}" style="width:18px;height:18px;"></td>
+        <td>
+            <span style="font-weight:800; color:var(--primary); font-size:1.05rem;">${o.order}</span>
+            ${o.date ? `<div style="font-size:0.8rem; color:#94a3b8; margin-top:4px;">📅 ${new Date(o.date).toISOString().split('T')[0]}</div>` : ``}
+        </td>
+        <td>
+            <div style="font-weight:700; font-size:0.95rem;">${o.customerName}</div>
+            <div style="font-size:0.85rem; color:#64748b; margin-top:4px;">📱 ${o.phone}</div>
+        </td>
+        <td>
+            <span class="spec-badge">x${qty}</span>
+            <span class="spec-badge">${weight} gm</span>
+            <div class="dim-text">📦 ${dims}</div>
+        </td>
+        <td style="text-align:center;"><input type="number" id="egp-${printOrder}" class="price-input" value="${finalP}" placeholder="EGP"></td>
+        <td style="text-align:center;"><input type="number" id="deposit-${printOrder}" class="price-input deposit-input" value="${dep}" placeholder="0"></td>
+        <td style="text-align:center;"><div class="end-price-cell">${endP.toLocaleString()}</div></td>
+        <td style="text-align:center;"><input type="number" id="usd-${printOrder}" class="price-input" value="${parseFloat(o.usd || 0).toFixed(2)}" style="color:#6366f1"></td>
+        <td>
+            <input type="text" id="arrival-${printOrder}" class="price-input" value="${o.arrivaldate || ''}" placeholder="موعد الوصول" style="width: 110px;">
+        </td>
+        <td>
+            <select id="status-${printOrder}" style="border-right: 4px solid ${statusColor}">
+                <option value="Pending Review" ${cur==='Pending Review'?'selected':''}>Pending Review</option>
+                <option value="Confirmed Via Try" ${cur==='Confirmed Via Try'?'selected':''}>Confirmed Via Try</option>
+                <option value="Placed" ${cur==='Placed'?'selected':''}>Placed</option>
+                <option value="Processing" ${cur==='Processing'?'selected':''}>Processing</option>
+                <option value="Arrived Cairo HUB" ${cur==='Arrived Cairo HUB'?'selected':''}>Arrived Cairo HUB</option>
+                <option value="Shipped To You" ${cur==='Shipped To You'?'selected':''}>Shipped To You</option>
+                <option value="Delivered" ${cur==='Delivered'?'selected':''}>Delivered</option>
+                <option value="Canceled" ${cur==='Canceled'?'selected':''}>Canceled</option>
+                <option value="Delayed" ${cur==='Delayed'?'selected':''}>Delayed</option>
+            </select>
+        </td>
+        <td style="text-align:center;">
+            <button class="btn-icon btn-update"
+                style="${isGrouped ? 'background:#ddd;cursor:not-allowed;opacity:0.6' : ''}"
+                onclick="${isGrouped ? 'groupLockMsg()' : `updateOrder('${printOrder}')`}"
+                title="حفظ التعديلات">💾</button>
+        </td>
+        <td style="text-align:center;"><button class="btn-icon btn-print-sm" onclick="printLabel('${printPhone}', '${printOrder}')" title="طباعة بوليصة">📄</button></td>
+        <td style="text-align:center;">${o.link ? `<a href="${o.link}" target="_blank" class="link-btn">رابط</a>` : '<span style="color:#cbd5e1">-</span>'}</td>
+    </tr>`;
+}
+
+// الوظيفة الأساسية لعرض البيانات بشكل تدريجي
 function renderTable(data) {
     const tbody = document.getElementById("tableBody");
-    tbody.innerHTML = "";
-    data.forEach(o => {
-        const cur = o.status || "Pending Review";
-        const printPhone = o.phone ? o.phone.toString().replace(/\s/g, '') : '';
-        const printOrder = o.order ? o.order.toString().split(' + ')[0] : 'N/A';
-        
-        const qty = isGrouped ? o.totalQty : (o.quantity || 1);
-        const weight = parseFloat(isGrouped ? o.totalWeight : (o.weight || 0)).toFixed(2);
-        const dims = isGrouped ? "متعددة" : (o.dimensions || "غير محددة");
+    tbody.innerHTML = ""; // مسح الجدول أولاً
 
-        const ship = isGrouped ? (parseFloat(o.totalShipping) || 0) : (parseFloat(o.shipping) || 0);
-        const finalP = parseFloat(o.finalPrice || 0);
-        const dep = parseFloat(o.deposit || 0);
-        const endP = finalP + ship - dep;
+    // 1. عرض أول 50 أوردر فوراً
+    const firstBatch = data.slice(0, 50);
+    let firstHtml = "";
+    firstBatch.forEach(o => { firstHtml += createRowHTML(o); });
+    tbody.innerHTML = firstHtml;
 
-        let statusColor = "#e2e8f0";
-        if(cur.includes("Delivered")) statusColor = "var(--success)";
-        if(cur.includes("Canceled")) statusColor = "var(--danger)";
-        if(cur.includes("Pending")) statusColor = "var(--warning)";
-
-        tbody.innerHTML += `<tr>
-            <td><input type="checkbox" class="row-check" value="${printOrder}" style="width:18px;height:18px;"></td>
-            <td>
-                <span style="font-weight:800; color:var(--primary); font-size:1.05rem;">${o.order}</span>
-                ${o.date ? `<div style="font-size:0.8rem; color:#94a3b8; margin-top:4px;">📅 ${new Date(o.date).toISOString().split('T')[0]}</div>` : ``}
-            </td>
-            <td>
-                <div style="font-weight:700; font-size:0.95rem;">${o.customerName}</div>
-                <div style="font-size:0.85rem; color:#64748b; margin-top:4px;">📱 ${o.phone}</div>
-            </td>
-            <td>
-                <span class="spec-badge">x${qty}</span>
-                <span class="spec-badge">${weight} gm</span>
-                <div class="dim-text">📦 ${dims}</div>
-            </td>
-            <td style="text-align:center;"><input type="number" id="egp-${printOrder}" class="price-input" value="${finalP}" placeholder="EGP"></td>
-            <td style="text-align:center;"><input type="number" id="deposit-${printOrder}" class="price-input deposit-input" value="${dep}" placeholder="0"></td>
-            <td style="text-align:center;"><div class="end-price-cell">${endP.toLocaleString()}</div></td>
-            <td style="text-align:center;"><input type="number" id="usd-${printOrder}" class="price-input" value="${parseFloat(o.usd || 0).toFixed(2)}" style="color:#6366f1"></td>
-            <td>
-                <input type="text"
-                       id="arrival-${printOrder}"
-                       class="price-input"
-                       value="${o.arrivaldate || ''}"
-                       placeholder="موعد الوصول"
-                       style="width: 110px;">
-            </td>
-            <td>
-                <select id="status-${printOrder}" style="border-right: 4px solid ${statusColor}">
-                    <option value="Pending Review" ${cur==='Pending Review'?'selected':''}>Pending Review</option>
-					<option value="Confirmed Via Try" ${cur==='Confirmed Via Try'?'selected':''}>Confirmed Via Try</option>
-					<option value="Placed" ${cur==='Placed'?'selected':''}>Placed</option>
-                    <option value="Processing" ${cur==='Processing'?'selected':''}>Processing</option>
-					<option value="Arrived Cairo HUB" ${cur==='Arrived Cairo HUB'?'selected':''}>Arrived Cairo HUB</option>
-                    <option value="Shipped To You" ${cur==='Shipped To You'?'selected':''}>Shipped To You</option>
-                    <option value="Delivered" ${cur==='Delivered'?'selected':''}>Delivered</option>
-					<option value="Canceled" ${cur==='Canceled'?'selected':''}>Canceled</option>
-                    <option value="Delayed" ${cur==='Delayed'?'selected':''}>Delayed</option>
-                </select>
-            </td>
-            <td style="text-align:center;">
-  <button class="btn-icon btn-update"
-    style="${isGrouped ? 'background:#ddd;cursor:not-allowed;opacity:0.6' : ''}"
-    onclick="${isGrouped ? 'groupLockMsg()' : `updateOrder('${printOrder}')`}"
-    title="حفظ التعديلات">💾</button>
-</td>
-            <td style="text-align:center;"><button class="btn-icon btn-print-sm" onclick="printLabel('${printPhone}', '${printOrder}')" title="طباعة بوليصة">📄</button></td>
-            <td style="text-align:center;">${o.link ? `<a href="${o.link}" target="_blank" class="link-btn">رابط</a>` : '<span style="color:#cbd5e1">-</span>'}</td>
-        </tr>`;
-    });
+    // 2. إذا كان هناك أكثر من 50، قم بتحميل الباقي في الخلفية
+    if (data.length > 50) {
+        setTimeout(() => {
+            const remainingBatch = data.slice(50);
+            let remainingHtml = "";
+            remainingBatch.forEach(o => { remainingHtml += createRowHTML(o); });
+            tbody.insertAdjacentHTML('beforeend', remainingHtml);
+            console.log("تم تحميل باقي الأوردرات في الخلفية...");
+        }, 100); // تأخير بسيط جداً لإعطاء المتصفح فرصة للتنفس
+    }
 }
 
 function applyFilters() {
@@ -590,10 +605,10 @@ return dateMatch && searchMatch && statusMatch && arrivalMatch;
     }, 0);
     const totalProfit = totalEGP - (totalUSD * USD_RATE);
     
-    document.getElementById("totalEGP").innerText = totalEGP.toLocaleString() + " EGP";
-    document.getElementById("totalUSD").innerText = totalUSD.toLocaleString() + " $";
-    document.getElementById("totalNet").innerText = totalNet.toLocaleString() + " ج.م";
-    document.getElementById("totalProfit").innerText = totalProfit.toLocaleString() + " ج.م";
+    document.getElementById("totalEGP").innerText = Math.round(totalEGP).toLocaleString() + " EGP";
+    document.getElementById("totalUSD").innerText = Math.round(totalUSD).toLocaleString() + " $";
+    document.getElementById("totalNet").innerText = Math.round(totalNet).toLocaleString() + " ج.م";
+    document.getElementById("totalProfit").innerText = Math.round(totalProfit).toLocaleString() + " ج.م";
     document.getElementById("totalCount").innerText = filtered.length;
     
     currentFilteredData = filtered; 
