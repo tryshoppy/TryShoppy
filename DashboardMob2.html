@@ -90,7 +90,7 @@ if(auth==="true"&&loginTime&&(now-loginTime<SESSION_TIME)){
     <option value="">كل الحالات</option>
     <option>Pending Review</option>
     <option>Confirmed Via Try</option>
-    <option>On_Hold</option>
+    <option>On Hold</option>
     <option>Placed</option>
     <option>Arrived Cairo HUB</option>
     <option>Shipped To You</option>
@@ -287,7 +287,7 @@ if (o.status === "Arrived Cairo HUB") {
         <select id="status-${cleanOrderId}">
           <option ${o.status==="Pending Review"?"selected":""}>Pending Review</option>
           <option ${o.status==="Confirmed Via Try"?"selected":""}>Confirmed Via Try</option>
-          <option ${o.status==="On_Hold"?"selected":""}>On_Hold</option>
+          <option ${o.status==="On Hold"?"selected":""}>On Hold</option>
           <option ${o.status==="Placed"?"selected":""}>Placed</option>
           <option ${o.status==="Arrived Cairo HUB"?"selected":""}>Arrived Cairo HUB</option>
           <option ${o.status==="Shipped To You"?"selected":""}>Shipped To You</option>
