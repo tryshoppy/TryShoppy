@@ -391,6 +391,21 @@ async function loadData(){
   } catch(e) { alert("خطأ في التحميل - تأكد من الاتصال"); }
 }
 
+function normalizePhone(phone){
+  return String(phone || "")
+    .replace(/\D/g,'')   // يشيل أي رموز
+    .replace(/^0+/, ''); // يشيل الصفر الأول
+}
+
+// دا يخلي العرض دايمًا يبدأ بـ 0
+function formatPhone(phone){
+  let p = String(phone || "").replace(/\D/g,'');
+  if(!p.startsWith("0")){
+    return "0" + p;
+  }
+  return p;
+}
+
 function renderCards(data, append = false){
   const container = document.getElementById("cardsContainer");
   
@@ -514,7 +529,7 @@ if (o.status === "Arrived Cairo HUB") {
       </div>
       
       <div class="field"><label>العميل:</label><span>${o.customerName || "—"}</span></div>
-      <div class="field"><label>التليفون:</label><span>${o.phone || "—"}</span></div>
+      <div class="field"><label>التليفون:</label><span>${formatPhone(o.phone)}</span></div>
 
       <div class="spec-row">
         <span class="badge">الكمية: ${qty}</span>
@@ -605,7 +620,7 @@ function applyFilters(){
     const cleanOrder = String(o.order || "").toLowerCase().replace(/\s/g, "");
 
     const searchMatch = (o.customerName||"").toLowerCase().includes(search)||
-                      (o.phone||"").toString().includes(search)||
+                      normalizePhone(o.phone).includes(normalizePhone(search))||
                       cleanOrder.includes(search.replace(/\s/g, "")); 
                       
     return dateMatch && statusMatch && searchMatch && arrivalMatch;
