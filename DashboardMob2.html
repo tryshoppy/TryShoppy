@@ -7,41 +7,296 @@
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 
 <style>
-:root{ --primary:#0d6efd; --bg:#f4f7fe; --white:#fff; --text:#1e293b; --border:#cbd5e1; --success:#22c55e; --danger:#dc2626; }
-body{ font-family:'Cairo',sans-serif; background:var(--bg); margin:0; padding:10px; color:var(--text); font-size:16px; }
-.container{ max-width:600px; margin:auto; }
-header{ display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--primary); padding:10px 5px; margin-bottom:15px; }
-.logo { font-weight: 900; font-size: 1.2rem; color: var(--primary); }
-.filters{ background:#fff; padding:15px; border-radius:15px; display:flex; flex-direction:column; gap:12px; margin-bottom:15px; box-shadow:0 2px 10px rgba(0,0,0,.05); }
-.filters input, .filters select, .filters button{ padding:12px; border-radius:10px; border:1px solid var(--border); font-family:'Cairo'; width:100%; font-size:15px; box-sizing: border-box; }
-.btn-search{ background:var(--primary); color:#fff; font-weight:bold; cursor:pointer; border:none; }
-.btn-group{ background:#1a1a1a; color:#fff; font-weight:bold; cursor:pointer; border:none; }
-.cards-container{ display:flex; flex-direction:column; gap:15px; }
-.order-card{ background:#fff; border-radius:18px; padding:15px; box-shadow:0 3px 12px rgba(0,0,0,0.06); border-right:8px solid var(--primary); position: relative; }
-.order-card.grouped { border-right-color: #000; }
-.card-header { display: flex; justify-content: space-between; margin-bottom: 12px; border-bottom: 1px dashed var(--border); padding-bottom: 8px; }
-.order-id { font-weight: 900; color: var(--primary); }
-.field{ display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
-.field label{ font-weight:700; color:#64748b; font-size: 14px; }
-.field span { font-weight: 600; color: var(--text); }
-.field input, .field select{ width:130px; padding:8px; border-radius:8px; border:1px solid var(--border); text-align:center; font-family:'Cairo'; font-size:14px; font-weight: bold; }
-.net-box { background: #f0fdf4; padding: 10px; border-radius: 10px; margin: 10px 0; text-align: center; border: 1px solid #dcfce7; }
-.net-label { display: block; font-size: 12px; color: #166534; font-weight: bold; }
-.net-value { font-size: 20px; font-weight: 900; color: var(--success); }
-.actions{
-  display:grid;
-  grid-template-columns: 1fr 1fr; /* 👈 بدل عمود واحد خليهم اتنين */
-  gap:8px;
-  margin-top:10px;
-}
-.actions.grouped {
-  grid-template-columns: 1fr 1fr;
+:root { 
+  --primary: #6366f1; /* أزرق نيلي ناعم */
+  --primary-hover: #4f46e5;
+  --bg: #f8fafc; /* رمادي فاتح جداً مريح للعين */
+  --white: #ffffff; 
+  --text: #334155; 
+  --text-dark: #0f172a;
+  --border: #e2e8f0; 
+  --success: #10b981; /* أخضر ناعم */
+  --success-hover: #059669;
+  --danger: #ef4444; /* أحمر ناعم */
+  --danger-hover: #dc2626;
+  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  --card-shadow-hover: 0 10px 25px rgba(0, 0, 0, 0.08);
 }
 
-.btn-update{ background:var(--success); color:#fff; border:none; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer; }
-.link-btn{ background: #eff6ff; color: var(--primary); padding: 10px; border-radius: 10px; text-align: center; text-decoration: none; font-weight: bold; font-size: 14px; }
-.badge { background: #f1f5f9; padding: 3px 8px; border-radius: 5px; font-size: 12px; color: #475569; font-weight: 600; }
-.spec-row { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
+body { 
+  font-family: 'Cairo', sans-serif; 
+  background: var(--bg); 
+  margin: 0; 
+  padding: 15px 10px; 
+  color: var(--text); 
+  font-size: 15px; 
+  -webkit-font-smoothing: antialiased; 
+}
+.container { max-width: 600px; margin: auto; }
+
+/* Header */
+header { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  background: var(--white); 
+  padding: 15px 20px; 
+  border-radius: 16px; 
+  margin-bottom: 20px; 
+  box-shadow: var(--card-shadow); 
+}
+.logo { font-weight: 900; font-size: 1.4rem; color: var(--primary); letter-spacing: 0.5px; }
+
+/* Filters Area */
+.filters { 
+  background: var(--white); 
+  padding: 20px; 
+  border-radius: 20px; 
+  display: flex; 
+  flex-direction: column; 
+  gap: 14px; 
+  margin-bottom: 20px; 
+  box-shadow: var(--card-shadow); 
+  border: 1px solid rgba(255,255,255,0.5); 
+}
+.filters input, .filters select { 
+  padding: 12px 16px; 
+  border-radius: 12px; 
+  border: 1.5px solid var(--border); 
+  font-family: 'Cairo'; 
+  width: 100%; 
+  font-size: 14px; 
+  box-sizing: border-box; 
+  background: #f8fafc; 
+  color: var(--text-dark); 
+  transition: all 0.3s ease; 
+}
+.filters input:focus, .filters select:focus { 
+  outline: none; 
+  border-color: var(--primary); 
+  background: var(--white); 
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); 
+}
+
+/* Buttons */
+.btn-search { 
+  background: var(--primary); 
+  color: #fff; 
+  font-weight: bold; 
+  cursor: pointer; 
+  border: none; 
+  padding: 14px; 
+  border-radius: 12px; 
+  font-size: 15px; 
+  transition: all 0.2s ease; 
+  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.25); 
+  font-family: 'Cairo';
+}
+.btn-search:hover { background: var(--primary-hover); transform: translateY(-1px); }
+.btn-search:active { transform: translateY(1px); }
+
+.btn-group { 
+  background: #1e293b; 
+  color: #fff; 
+  font-weight: bold; 
+  cursor: pointer; 
+  border: none; 
+  padding: 14px; 
+  border-radius: 12px; 
+  font-size: 15px; 
+  transition: all 0.2s ease; 
+  font-family: 'Cairo';
+}
+.btn-group:hover { background: #0f172a; transform: translateY(-1px); }
+
+/* Cards Container & Styling */
+.cards-container { display: flex; flex-direction: column; gap: 20px; }
+.order-card { 
+  background: var(--white); 
+  border-radius: 20px; 
+  padding: 20px; 
+  box-shadow: var(--card-shadow); 
+  border-right: 5px solid var(--primary); 
+  position: relative; 
+  transition: all 0.3s ease; 
+  border-left: 1px solid var(--border); 
+  border-top: 1px solid var(--border); 
+  border-bottom: 1px solid var(--border); 
+}
+.order-card:hover { box-shadow: var(--card-shadow-hover); transform: translateY(-2px); }
+.order-card.grouped { border-right-color: #1e293b; }
+
+/* Card Header */
+.card-header { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  margin-bottom: 16px; 
+  border-bottom: 2px dashed #e2e8f0; 
+  padding-bottom: 12px; 
+}
+.order-id { font-weight: 900; color: var(--text-dark); font-size: 1.1rem; }
+
+/* Fields */
+.field { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 4px 0; }
+.field label { font-weight: 700; color: #64748b; font-size: 14px; }
+.field span { font-weight: 700; color: var(--text-dark); font-size: 14px; text-align: left; }
+.field input, .field select { 
+  width: 140px; 
+  padding: 8px 12px; 
+  border-radius: 10px; 
+  border: 1.5px solid var(--border); 
+  text-align: center; 
+  font-family: 'Cairo'; 
+  font-size: 14px; 
+  font-weight: bold; 
+  background: #f8fafc; 
+  color: var(--text-dark); 
+  transition: all 0.2s ease;
+}
+.field input:focus, .field select:focus { outline: none; border-color: var(--primary); background: var(--white); }
+
+/* Net Box (Total Value) */
+.net-box { 
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); 
+  padding: 15px; 
+  border-radius: 16px; 
+  margin: 16px 0; 
+  text-align: center; 
+  border: 1px solid #a7f3d0; 
+  box-shadow: inset 0 2px 4px rgba(255,255,255,0.5); 
+}
+.net-label { display: block; font-size: 13px; color: #065f46; font-weight: 800; margin-bottom: 4px; }
+.net-value { font-size: 22px; font-weight: 900; color: var(--success); text-shadow: 0 1px 1px rgba(255,255,255,0.8); }
+
+/* Actions Grid (Buttons inside Card) */
+.actions { 
+  display: grid; 
+  grid-template-columns: 1fr 1fr; 
+  gap: 10px; 
+  margin-top: 16px; 
+  padding-top: 16px; 
+  border-top: 1px solid #f1f5f9; 
+}
+.actions.grouped { grid-template-columns: 1fr 1fr; }
+
+.btn-update { 
+  background: var(--success); 
+  color: #fff; 
+  border: none; 
+  padding: 12px; 
+  border-radius: 12px; 
+  font-weight: bold; 
+  font-size: 14px; 
+  cursor: pointer; 
+  transition: all 0.2s ease; 
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2); 
+  font-family: 'Cairo';
+}
+.btn-update:hover { background: var(--success-hover); transform: translateY(-1px); }
+.btn-update:active { transform: translateY(1px); }
+
+.link-btn { 
+  background: #eff6ff; 
+  color: var(--primary); 
+  padding: 12px; 
+  border-radius: 12px; 
+  text-align: center; 
+  text-decoration: none; 
+  font-weight: 700; 
+  font-size: 14px; 
+  transition: all 0.2s ease; 
+  border: 1px solid #bfdbfe; 
+  font-family: 'Cairo';
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.link-btn:hover { background: #dbeafe; color: var(--primary-hover); transform: translateY(-1px); }
+
+/* Badges & Spec Row */
+.badge { 
+  background: #f1f5f9; 
+  padding: 6px 12px; 
+  border-radius: 8px; 
+  font-size: 12px; 
+  color: #475569; 
+  font-weight: 700; 
+  border: 1px solid #e2e8f0; 
+}
+.spec-row { 
+  display: flex; 
+  gap: 8px; 
+  flex-wrap: wrap; 
+  margin-bottom: 12px; 
+}
+.spec-row .badge {
+  background: #e0e7ff; 
+  color: #4f46e5; 
+  border: 1px solid #c7d2fe; 
+  padding: 6px 12px; 
+  border-radius: 20px; /* Soft Pill shape */
+  font-weight: 700;
+}
+
+/* Modal Overlay */
+.modal-overlay { 
+  display: none; 
+  position: fixed; 
+  top: 0; 
+  left: 0; 
+  width: 100%; 
+  height: 100%; 
+  background: rgba(15, 23, 42, 0.6); 
+  backdrop-filter: blur(4px); 
+  z-index: 1000; 
+  justify-content: center; 
+  align-items: center; 
+}
+.modal-content { 
+  background: var(--white); 
+  padding: 25px; 
+  border-radius: 24px; 
+  width: 90%; 
+  max-width: 400px; 
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); 
+  animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
+}
+@keyframes modalIn { 
+  from { opacity: 0; transform: translateY(20px) scale(0.95); } 
+  to { opacity: 1; transform: translateY(0) scale(1); } 
+}
+.modal-content input { 
+  width: 100%; 
+  padding: 14px 16px; 
+  margin: 8px 0 16px; 
+  border: 1.5px solid var(--border); 
+  border-radius: 12px; 
+  box-sizing: border-box; 
+  font-family: 'Cairo'; 
+  font-size: 15px; 
+  background: #f8fafc; 
+  transition: all 0.2s ease;
+}
+.modal-content input:focus { 
+  outline: none; 
+  border-color: var(--primary); 
+  background: var(--white); 
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); 
+}
+.modal-content h3 { 
+  margin-top: 0; 
+  color: var(--text-dark); 
+  text-align: center; 
+  font-weight: 900; 
+  margin-bottom: 20px; 
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 </style>
 </head>
 
@@ -70,19 +325,19 @@ if(auth==="true"&&loginTime&&(now-loginTime<SESSION_TIME)){
 <div class="container">
 <header>
   <div class="logo">TRY SHOPPY</div>
-  <div id="totalBox" style="display: none; background:#f0fdf4; border:1px solid #bbf7d0; color:#166534; padding:6px 10px; border-radius:10px; font-weight:900; font-size:14px; text-align:center;">
+  <div id="totalBox" style="display: none; background:#ecfdf5; border:1px solid #a7f3d0; color:#065f46; padding:8px 14px; border-radius:12px; font-weight:900; font-size:14px; text-align:center; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
     الإجمالي: 0 ج.م
   </div>
-  <button onclick="logout()" style="background:#dc2626;color:white;border:none;padding:6px 12px;border-radius:8px; font-family: 'Cairo';">خروج</button>
+  <button onclick="logout()" style="background:var(--danger); color:white; border:none; padding:8px 16px; border-radius:10px; font-family: 'Cairo'; font-weight:bold; cursor:pointer; transition:all 0.2s ease;">خروج</button>
 </header>
 
 <div class="filters">
-  <div style="display: flex; gap: 5px;">
+  <div style="display: flex; gap: 10px;">
     <input type="date" id="dateFrom" title="تاريخ الطلب من">
     <input type="date" id="dateTo" title="تاريخ الطلب إلى">
   </div>
   
-  <div style="font-size: 13px; font-weight: bold; color: var(--primary); margin-bottom: -8px;">📅 فلتر بموعد الوصول:</div>
+  <div style="font-size: 13px; font-weight: bold; color: var(--primary); margin-bottom: -10px;">📅 فلتر بموعد الوصول:</div>
  <input id="searchArrival" placeholder="🔎 بحث بموعد الوصول">
   
   <input id="searchInput" placeholder="🔍 بحث بالاسم أو التليفون أو الأوردر">
@@ -105,11 +360,25 @@ if(auth==="true"&&loginTime&&(now-loginTime<SESSION_TIME)){
 <div id="cardsContainer" class="cards-container"></div>
 </div>
 
+<div id="dupModal" class="modal-overlay">
+  <div class="modal-content">
+    <h3>📋 إضافة منتج لنفس العميل</h3>
+    <input type="text" id="dupOrderId" placeholder="رقم الأوردر الجديد">
+    <input type="text" id="dupLink" placeholder="رابط المنتج الجديد">
+    <input type="number" id="dupUsd" placeholder="السعر بالدولار ($)">
+    <input type="number" id="dupEgp" placeholder="السعر بالمصري (EGP)">
+    <div style="display: flex; gap: 12px; margin-top: 15px;">
+      <button onclick="closeModal()" style="flex:1; padding:12px; border:none; background:#e2e8f0; color:#334155; border-radius:12px; font-weight:bold; cursor:pointer; font-family:'Cairo'; transition:all 0.2s ease;">إلغاء</button>
+      <button id="dupSubmitBtn" onclick="submitDuplicate()" style="flex:1; padding:12px; border:none; background:var(--primary); color:white; border-radius:12px; font-weight:bold; cursor:pointer; font-family:'Cairo'; transition:all 0.2s ease;">حفظ الطلب</button>
+    </div>
+  </div>
+</div>
+
 <script>
-// ⚠️ هام: استبدل الرابط أدناه برابط السكريبت الخاص بك
-const scriptURL="https://script.google.com/macros/s/AKfycbzy9-1BfmMJZhCtwiEoIfdzWCFPcWW3CkhfJIRdWo8eyl1Z6tSWK8xHxoAw2cxKDaosrw/exec";
+// ⚠️ هام: تأكد من وضع رابط السكريبت الجديد بعد عمل Deploy 
+const scriptURL="https://script.google.com/macros/s/AKfycbzkhLD6IncxZcLN5e4gwen-yB4mintZXprqE-kWGxnDuLwXY_EUs0EAyxF3tJeJDdBsxw/exec";
 let ordersData=[];
-let currentViewData = []; // 👈 متغير جديد لحفظ البيانات المعروضة حالياً عشان الفاتورة
+let currentViewData = []; 
 let isGrouped=false;
 let renderTimer;
 
@@ -170,7 +439,6 @@ function renderCards(data, append = false){
 
 📦 التفاصيل:\n`;
 
-// 🧮 حساب إجمالي الكمية وتفاصيل المنتجات
 let totalQty = 0;
 
 if (isGrouped && o.items) {
@@ -196,7 +464,6 @@ if (isGrouped && o.items) {
 `;
 }
 
-// 💰 الجزء المالي النهائي
 message += `
 ━━━━━━━━━━━━
 📦 إجمالي عدد المنتجات: ${totalQty}
@@ -210,25 +477,23 @@ message += `
 let whatsappBtn = "";
 
 if (o.status === "Arrived Cairo HUB") {
-  // التأكد إن التجميع متفعل الأول قبل إظهار زر الإرسال
   if (isGrouped) {
     whatsappBtn = `
       <a 
         href="https://wa.me/20${phone}?text=${encodeURIComponent(message)}" 
         target="_blank" 
         class="link-btn"
-        style="background:#25D366; color:white;"
+        style="background:#10b981; color:white; border-color:#059669;"
       >
         💬 واتساب
       </a>
     `;
   } else {
-    // إظهار زر غير مفعل يطلب من المستخدم الضغط على التجميع أولاً
     whatsappBtn = `
       <button 
         onclick="alert('عفواً، يجب الضغط على زر (تجميع / فك تجميع الطلبات) أعلى الصفحة أولاً لإمكانية إرسال رسالة الواتساب.');" 
         class="link-btn"
-        style="background:#94a3b8; color:white; border:none; cursor:not-allowed; font-family:'Cairo';"
+        style="background:#cbd5e1; color:#475569; border:none; cursor:not-allowed; font-family:'Cairo';"
       >
         💬 واتساب (مغلق)
       </button>
@@ -238,10 +503,10 @@ if (o.status === "Arrived Cairo HUB") {
 
     htmlString += `
     <div class="order-card ${isGrouped ? 'grouped' : ''}">
-      <div class="card-header" style="align-items: center;">
+      <div class="card-header">
         <div style="display: flex; flex-direction: column;">
             <span class="order-id">${orderId}</span>
-            <span style="font-size: 11px; color: #94a3b8; font-weight: 600; margin-top: -2px;">
+            <span style="font-size: 12px; color: #94a3b8; font-weight: 700; margin-top: 2px;">
                 📅 ${o.date || '—'}
             </span>
         </div>
@@ -264,7 +529,7 @@ if (o.status === "Arrived Cairo HUB") {
 
       <div class="field">
         <label>المدفوع مقدما:</label>
-        <input type="number" id="deposit-${cleanOrderId}" style="color:red" value="${dep}" oninput="recalc('${cleanOrderId}', ${ship})">
+        <input type="number" id="deposit-${cleanOrderId}" style="color:var(--danger)" value="${dep}" oninput="recalc('${cleanOrderId}', ${ship})">
       </div>
 
       <div class="net-box">
@@ -277,7 +542,7 @@ if (o.status === "Arrived Cairo HUB") {
         <input type="number" id="usd-${cleanOrderId}" value="${parseFloat(o.usd||0).toFixed(2)}">
       </div>
 
-      <div class="field" style="background: #f8fafc; padding: 5px; border-radius: 8px;">
+      <div class="field" style="background: #f8fafc; padding: 10px; border-radius: 12px; margin-bottom:16px;">
         <label style="color:var(--primary)">موعد الوصول:</label>
        <input type="text" id="arrival-${cleanOrderId}" value="${currentArrival}">
       </div>
@@ -300,12 +565,13 @@ if (o.status === "Arrived Cairo HUB") {
       <div class="actions">
         ${linksHTML}
        <button class="btn-update"
-  ${isGrouped ? 'style="background:#ccc;cursor:not-allowed"' : ''}
+  ${isGrouped ? 'style="background:#cbd5e1; color:#475569; cursor:not-allowed; box-shadow:none;"' : ''}
   onclick="${isGrouped ? 'groupLockMsg()' : `updateOrder('${cleanOrderId}')`}">
   ✔ حفظ التعديلات
 </button>
         <button class="btn-group" onclick="openInvoice('${cleanOrderId}')">🧾 فاتورة</button>
         ${whatsappBtn}
+        <button class="btn-group" ${isGrouped ? 'style="background:#cbd5e1; color:#475569; cursor:not-allowed;"' : 'style="background:var(--primary)"'} onclick="${isGrouped ? 'groupLockMsg()' : `openDuplicateModal('${cleanOrderId}')`}">📋 إضافة منتج لنفس العميل</button>
       </div>
     </div>
     `;
@@ -353,7 +619,6 @@ function applyFilters(){
         groups[key]={
           ...o,
           order:o.order,
-          // أضفنا qty هنا لكل عنصر
           items: [{link: o.link, price: o.finalPrice, qty: parseInt(o.quantity)||1}]
         };
       }else{
@@ -371,8 +636,6 @@ function applyFilters(){
   }
   
   let finalData = filtered.reverse();
-  
-  // 👈 نحفظ البيانات هنا عشان نقدر نستدعيها براحتنا في الفاتورة بدون أخطاء
   currentViewData = finalData; 
 
   if(renderTimer) clearTimeout(renderTimer);
@@ -429,32 +692,19 @@ function logout(){
   location.reload();
 }
 
-loadData();
-
 function checkPendingReview() {
   const pendingOrders = ordersData.filter(o => o.status === "Pending Review");
-
   if (pendingOrders.length > 0) {
     let message = `⚠️ عندك ${pendingOrders.length} أوردر Pending Review\n\n`;
-
-    pendingOrders.slice(0,5).forEach(o => {
-      message += `#${o.order} - ${o.customerName}\n`;
-    });
-
-    if (pendingOrders.length > 5) {
-      message += `\n... و المزيد`;
-    }
-
+    pendingOrders.slice(0,5).forEach(o => { message += `#${o.order} - ${o.customerName}\n`; });
+    if (pendingOrders.length > 5) { message += `\n... و المزيد`; }
     alert(message);
   }
 }
 
-// 👈 دالة جديدة وسيطة بتدور على الأوردر وتفتح الفاتورة بأمان
 function openInvoice(orderId) {
   const order = currentViewData.find(o => String(o.order).split(' + ')[0] === orderId);
-  if (order) {
-    generateInvoice(order);
-  }
+  if (order) { generateInvoice(order); }
 }
 
 function generateInvoice(order){
@@ -465,81 +715,98 @@ function generateInvoice(order){
     order.items.forEach((item,i)=>{
       const price = parseFloat(item.price || 0);
       total += price;
-
-      itemsHTML += `
-        <tr>
-          <td>Personal imported item ${i+1}</td>
-          <td><a href="${item.link}" target="_blank">Link</a></td>
-          <td>${price.toLocaleString()} ج.م</td>
-        </tr>
-      `;
+      itemsHTML += `<tr><td>Personal imported item ${i+1}</td><td><a href="${item.link}" target="_blank">Link</a></td><td>${price.toLocaleString()} ج.م</td></tr>`;
     });
   }else{
     const price = parseFloat(order.finalPrice || 0);
     total = price;
-
-    itemsHTML += `
-      <tr>
-        <td>Personal imported item</td>
-        <td><a href="${order.link}" target="_blank">Link</a></td>
-        <td>${price.toLocaleString()} ج.م</td>
-      </tr>
-    `;
+    itemsHTML += `<tr><td>Personal imported item</td><td><a href="${order.link}" target="_blank">Link</a></td><td>${price.toLocaleString()} ج.م</td></tr>`;
   }
 
   const invoiceWindow = window.open("", "_blank");
-
   invoiceWindow.document.write(`
-    <html dir="rtl">
-    <head>
-      <title>Invoice</title>
-      <style>
-        body { font-family: Arial; padding:20px; }
-        h2 { margin-bottom:5px; }
-        table { width:100%; border-collapse: collapse; margin-top:20px; }
-        th, td { border:1px solid #ddd; padding:10px; text-align:center; }
-        th { background:#f5f5f5; }
-      </style>
-    </head>
-    <body>
-
-      <h2>TRY SHOPPY</h2>
-      <p>Zahraa Maadi Cairo Egypt</p>
-      <p>201094112666</p>
-
-      <hr>
-
-      <h3>بيانات العميل</h3>
-      <p>الاسم: ${order.customerName || "-"}</p>
-      <p>العنوان: ${order.address || "-"}</p>
-      <p>التليفون: ${order.phone || "-"}</p>
-
-      <hr>
-
-      <h3>تفاصيل المنتجات</h3>
-
-      <table>
-        <tr>
-          <th>المنتج</th>
-          <th>الرابط</th>
-          <th>السعر</th>
-        </tr>
-        ${itemsHTML}
-      </table>
-
-      <h3 style="margin-top:20px;">
-        Total for personal imported items: ${total.toLocaleString()} ج.م
-      </h3>
-
-    </body>
-    </html>
+    <html dir="rtl"><head><title>Invoice</title>
+      <style>body{font-family:Arial;padding:20px;} h2{margin-bottom:5px;} table{width:100%;border-collapse:collapse;margin-top:20px;} th,td{border:1px solid #ddd;padding:10px;text-align:center;} th{background:#f5f5f5;}</style>
+    </head><body>
+      <h2>TRY SHOPPY</h2><p>Zahraa Maadi Cairo Egypt</p><p>201094112666</p><hr>
+      <h3>بيانات العميل</h3><p>الاسم: ${order.customerName || "-"}</p><p>العنوان: ${order.address || "-"}</p><p>التليفون: ${order.phone || "-"}</p><hr>
+      <h3>تفاصيل المنتجات</h3><table><tr><th>المنتج</th><th>الرابط</th><th>السعر</th></tr>${itemsHTML}</table>
+      <h3 style="margin-top:20px;">Total for personal imported items: ${total.toLocaleString()} ج.م</h3>
+    </body></html>
   `);
-
   invoiceWindow.document.close();
 }
+
 function groupLockMsg(){
-  alert("⚠️ تم تفعيل التجميع\n\n✋ لا يمكن التعديل أثناء التجميع\nيرجى فك التجميع للتعديل في منتج فردي فقط");
+  alert("⚠️ تم تفعيل التجميع\n\n✋ لا يمكن إتمام هذه العملية أثناء التجميع\nيرجى الضغط على زر 'فك التجميع' أعلى الصفحة أولاً");
 }
+
+// ==========================================
+// 💡 دوال النسخ (Duplicate)
+// ==========================================
+let targetOrderId = "";
+
+function generateTryOrderId() {
+    const randomNum = Math.floor(100000 + Math.random() * 900000);
+    return "TRY" + randomNum;
+}
+
+function openDuplicateModal(orderId) {
+    targetOrderId = orderId;
+
+    // توليد رقم أوردر تلقائي
+    document.getElementById("dupOrderId").value = generateTryOrderId();
+
+    document.getElementById("dupLink").value = "";
+    document.getElementById("dupUsd").value = "";
+    document.getElementById("dupEgp").value = "";
+    document.getElementById("dupModal").style.display = "flex";
+}
+
+function closeModal() {
+    document.getElementById("dupModal").style.display = "none";
+}
+
+function submitDuplicate() {
+    const newOrder = document.getElementById("dupOrderId").value;
+    const link = document.getElementById("dupLink").value;
+    const usd = document.getElementById("dupUsd").value;
+    const egp = document.getElementById("dupEgp").value;
+
+    if (!newOrder || !link) return alert("يرجى ملء رقم الأوردر والرابط!");
+
+    const originalOrder = ordersData.find(o => String(o.order) === targetOrderId);
+    if (!originalOrder) return alert("حدث خطأ في جلب بيانات الأوردر الأصلي.");
+
+    const btn = document.getElementById("dupSubmitBtn");
+    btn.innerText = "جاري النسخ...";
+    btn.disabled = true;
+
+    fetch(scriptURL, {
+        method: "POST",
+        mode: "no-cors",
+        body: JSON.stringify({
+            action: "duplicateOrder",
+            originalOrder: originalOrder, 
+            newOrder: newOrder,          
+            newLink: link,
+            newUsd: usd,
+            newEgp: egp
+        })
+    }).then(() => {
+        alert("✅ تم إضافة منتج لنفس العميل بنجاح!");
+        closeModal();
+        btn.innerText = "حفظ الطلب";
+        btn.disabled = false;
+        loadData(); // تحديث الصفحة لظهور الأوردر الجديد فوراً
+    }).catch(e => {
+        alert("❌ حدث خطأ في الاتصال بالخادم");
+        btn.innerText = "حفظ الطلب";
+        btn.disabled = false;
+    });
+}
+
+loadData();
 </script>
 </body>
 </html>
