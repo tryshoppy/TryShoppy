@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TRY SHOPPY - Quick Order</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+
+<style>
+:root{
+    --primary:#2563eb;
+    --bg:#f4f7fe;
+    --white:#fff;
+    --text:#1e293b;
+    --border:#cbd5e1;
+}
+
+body{
+    font-family:'Cairo',sans-serif;
+    background:var(--bg);
+    margin:0;
+    padding:20px;
+}
+
+.container{
+    max-width:500px;
+    margin:auto;
+}
+
+.card{
+    background:white;
+    border-radius:20px;
+    padding:25px;
+    box-shadow:0 5px 20px rgba(0,0,0,.08);
+}
+
+h2{
+    margin-top:0;
+    text-align:center;
+    color:var(--primary);
+    font-weight:900;
+}
+
+.input-group{
+    margin-bottom:15px;
+}
+
+.input-group label{
+    display:block;
+    margin-bottom:6px;
+    font-weight:bold;
+    color:#475569;
+}
+
+.input-group input{
+    width:100%;
+    padding:14px;
+    border:1px solid var(--border);
+    border-radius:12px;
+    font-family:'Cairo';
+    box-sizing:border-box;
+    font-size:15px;
+}
+
+button{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    background:var(--primary);
+    color:white;
+    font-family:'Cairo';
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+button:hover{
+    opacity:.9;
+}
+
+.customer-box{
+    background:#eff6ff;
+    padding:15px;
+    border-radius:12px;
+    margin-bottom:15px;
+    display:none;
+}
+
+.customer-box div{
+    margin-bottom:5px;
+    font-weight:700;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="card">
+
+<h2>➕ إضافة أوردر سريع</h2>
+
+<div class="input-group">
+<label>رقم التليفون</label>
+<input type="text" id="phone" placeholder="01xxxxxxxxx">
+</div>
+
+<button onclick="searchCustomer()">بحث عن العميل</button>
+
+<div id="customerBox" class="customer-box">
+<div id="customerName"></div>
+<div id="customerAddress"></div>
+</div>
+
+<div class="input-group">
+<label>لينك المنتج الجديد</label>
+<input type="text" id="link">
+</div>
+
+<div class="input-group">
+<label>السعر بالدولار ($)</label>
+<input type="number" id="usd">
+</div>
+
+<div class="input-group">
+<label>السعر بالمصري (EGP)</label>
+<input type="number" id="egp">
+</div>
+
+<button onclick="createOrder()">إنشاء الأوردر</button>
+
+</div>
+</div>
+
+<script>
+
+const scriptURL="https://script.google.com/macros/s/AKfycbzkhLD6IncxZcLN5e4gwen-yB4mintZXprqE-kWGxnDuLwXY_EUs0EAyxF3tJeJDdBsxw/exec";
+
+let ordersData = [];
+let selectedCustomer = null;
+
+async function loadData(){
+    try{
+        const res = await fetch(scriptURL);
+        ordersData = await res.json();
+    }catch(e){
+        alert("خطأ في تحميل البيانات");
+    }
+}
+
+function normalizePhone(phone){
+    return String(phone || "")
+    .replace(/\D/g,'')
+    .replace(/^2/,'')
+    .replace(/^0/,'');
+}
+
+function searchCustomer(){
+
+    const phone = normalizePhone(
+        document.getElementById("phone").value
+    );
+
+    if(!phone){
+        return alert("ادخل رقم التليفون");
+    }
+
+    selectedCustomer = ordersData.find(o =>
+        normalizePhone(o.phone) === phone
+    );
+
+    if(!selectedCustomer){
+        document.getElementById("customerBox").style.display="none";
+        return alert("العميل غير موجود");
+    }
+
+    document.getElementById("customerBox").style.display="block";
+
+    document.getElementById("customerName").innerText =
+        "👤 " + (selectedCustomer.customerName || "-");
+
+    document.getElementById("customerAddress").innerText =
+        "📍 " + (selectedCustomer.address || "-");
+}
+
+function generateTryOrderId(){
+    const randomNum =
+        Math.floor(100000 + Math.random() * 900000);
+
+    return "TRY" + randomNum;
+}
+
+function createOrder(){
+
+    if(!selectedCustomer){
+        return alert("ابحث عن العميل أولاً");
+    }
+
+    const link =
+        document.getElementById("link").value.trim();
+
+    const usd =
+        document.getElementById("usd").value.trim();
+
+    const egp =
+        document.getElementById("egp").value.trim();
+
+    if(!link || !usd || !egp){
+        return alert("يرجى ملء كل البيانات");
+    }
+
+    const newOrderId = generateTryOrderId();
+
+    fetch(scriptURL,{
+        method:"POST",
+        mode:"no-cors",
+        body:JSON.stringify({
+
+            action:"duplicateOrder",
+
+            originalOrder:selectedCustomer,
+
+            newOrder:newOrderId,
+
+            newLink:link,
+
+            newUsd:usd,
+
+            newEgp:egp
+        })
+    })
+    .then(()=>{
+
+        alert("✅ تم إنشاء الأوردر: " + newOrderId);
+
+        document.getElementById("link").value="";
+        document.getElementById("usd").value="";
+        document.getElementById("egp").value="";
+
+    })
+    .catch(()=>{
+        alert("❌ حدث خطأ");
+    });
+}
+
+loadData();
+
+</script>
+
+</body>
+</html>
