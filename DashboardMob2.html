@@ -619,9 +619,10 @@ function applyFilters(){
     const arrivalMatch = !searchArr || (o.arrivaldate || "").toString().toLowerCase().includes(searchArr);
     const cleanOrder = String(o.order || "").toLowerCase().replace(/\s/g, "");
 
-    const searchMatch = (o.customerName||"").toLowerCase().includes(search)||
-                      normalizePhone(o.phone).includes(normalizePhone(search))||
-                      cleanOrder.includes(search.replace(/\s/g, "")); 
+    const searchPhone = normalizePhone(search);
+    const searchMatch = (o.customerName||"").toLowerCase().includes(search) ||
+                        (searchPhone !== "" && normalizePhone(o.phone).includes(searchPhone)) ||
+                        cleanOrder.includes(search.replace(/\s/g, ""));
                       
     return dateMatch && statusMatch && searchMatch && arrivalMatch;
   });
