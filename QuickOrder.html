@@ -92,6 +92,21 @@ button:hover{
     margin-bottom:5px;
     font-weight:700;
 }
+
+.spinner {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 3px solid rgba(255,255,255,0.4);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-left: 8px;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
 </style>
 </head>
 
@@ -126,18 +141,29 @@ button:hover{
 </div>
 
 <div class="input-group">
+<label>المواصفات الخاصة (SPCS)</label>
+<input type="text" id="dimensions" placeholder="مثال: Size: L | Color: Red | Notes: ...">
+</div>
+
+<div class="input-group">
 <label>السعر بالمصري (EGP)</label>
 <input type="number" id="egp">
 </div>
 
-<button onclick="createOrder()">إنشاء الأوردر</button>
+<button id="createBtn" onclick="createOrder()">إنشاء الأوردر</button>
+
+<div id="waContainer" style="display:none; margin-top:14px;">
+  <button onclick="sendWhatsApp()" style="background:#25D366;">
+    💬 تأكيد الأوردر عبر واتساب
+  </button>
+</div>
 
 </div>
 </div>
 
 <script>
 
-const scriptURL="https://script.google.com/macros/s/AKfycbzkhLD6IncxZcLN5e4gwen-yB4mintZXprqE-kWGxnDuLwXY_EUs0EAyxF3tJeJDdBsxw/exec";
+const scriptURL="https://script.google.com/macros/s/AKfycbyW8meVFC4R5TOyVwjYuxTBPDFFeEVUDFdrYeEfmj9scJ_VxG5DBLYsH5koM9PbxQiWlA/exec";
 
 let ordersData = [];
 let selectedCustomer = null;
@@ -193,6 +219,35 @@ function generateTryOrderId(){
     return "TRY" + randomNum;
 }
 
+let lastOrderData = {};
+
+function sendWhatsApp() {
+    const d = lastOrderData;
+    const phone = String(d.phone || "").replace(/\D/g, "").replace(/^0/, "");
+
+    const qty = parseInt(d.quantity || 1);
+    const usdTotal = (parseFloat(d.newUsd || 0) * qty).toFixed(2);
+    const finalEGP = (parseFloat(d.newEgp || 0) * qty).toLocaleString();
+
+    const msg =
+`TRY SHOPPY Order
+Order No: ${d.newOrder}
+Name: ${d.customerName}
+Phone: ${d.phone}
+Governorate: ${d.governorate || ""}
+Address: ${d.address || ""}
+Quantity: ${qty}
+Unit Price USD: ${d.newUsd} USD
+Unit Price EGP: ${d.newEgp} EGP
+
+Total USD: ${usdTotal} USD
+Total Price: ${finalEGP} EGP
+Product: ${d.newLink}
+SPCS: ${d.dimensions || ""}`;
+
+     window.open(`https://wa.me/201005609642?text=${encodeURIComponent(msg)}`);
+}
+
 function createOrder(){
 
     if(!selectedCustomer){
@@ -208,11 +263,18 @@ function createOrder(){
     const egp =
         document.getElementById("egp").value.trim();
 
+    const dimensions =
+        document.getElementById("dimensions").value.trim();
+
     if(!link || !usd || !egp){
         return alert("يرجى ملء كل البيانات");
     }
 
     const newOrderId = generateTryOrderId();
+
+    const btn = document.getElementById("createBtn");
+    btn.disabled = true;
+    btn.innerHTML = 'جاري التسجيل... <span class="spinner"></span>';
 
     fetch(scriptURL,{
         method:"POST",
@@ -229,19 +291,39 @@ function createOrder(){
 
             newUsd:usd,
 
-            newEgp:egp
+            newEgp:egp,
+
+            newDimensions:dimensions
         })
     })
     .then(()=>{
 
+        btn.disabled = false;
+        btn.innerHTML = "إنشاء الأوردر";
         alert("✅ تم إنشاء الأوردر: " + newOrderId);
+
+        // تخزين البيانات لإرسال واتساب
+        lastOrderData = {
+            ...selectedCustomer,
+            newOrder: newOrderId,
+            newLink: link,
+            newUsd: usd,
+            newEgp: egp,
+            dimensions: dimensions
+        };
+
+        // إظهار زرار واتساب
+        document.getElementById("waContainer").style.display = "block";
 
         document.getElementById("link").value="";
         document.getElementById("usd").value="";
         document.getElementById("egp").value="";
+        document.getElementById("dimensions").value="";
 
     })
     .catch(()=>{
+        btn.disabled = false;
+        btn.innerHTML = "إنشاء الأوردر";
         alert("❌ حدث خطأ");
     });
 }
