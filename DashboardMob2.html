@@ -95,6 +95,24 @@ header {
 .btn-search:hover { background: var(--primary-hover); transform: translateY(-1px); }
 .btn-search:active { transform: translateY(1px); }
 
+/* زر البحث الخاص بالموظف */
+.btn-user-search {
+  background: var(--primary); 
+  color: #fff; 
+  font-weight: bold; 
+  cursor: pointer; 
+  border: none; 
+  padding: 12px; 
+  border-radius: 12px; 
+  font-size: 14px; 
+  transition: all 0.2s ease; 
+  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.2); 
+  font-family: 'Cairo';
+  margin-top: -4px;
+}
+.btn-user-search:hover { background: var(--primary-hover); transform: translateY(-1px); }
+.btn-user-search:active { transform: translateY(1px); }
+
 .btn-group { 
   background: #1e293b; 
   color: #fff; 
@@ -303,22 +321,104 @@ header {
 <body style="display:none;">
 
 <script>
-const SESSION_TIME=2*60*60*1000;
-const auth=localStorage.getItem("auth");
-const loginTime=localStorage.getItem("loginTime");
-const now=new Date().getTime();
+const SESSION_TIME = 2 * 60 * 60 * 1000;
 
-if(auth==="true"&&loginTime&&(now-loginTime<SESSION_TIME)){
-  document.body.style.display="block";
-}else{
-  const password=prompt("Enter Password:");
-  if(password==="12345678"){
-    localStorage.setItem("auth","true");
-    localStorage.setItem("loginTime",now);
-    document.body.style.display="block";
-  }else{
-    document.body.innerHTML="<h2 style='text-align:center;margin-top:50px;'>Access Denied ❌</h2>";
-  }
+// ============================================
+// 🔐 جلب قائمة المستخدمين من users.html
+// ============================================
+const TRYSHOPPY_DEFAULT_USERS = [
+  { username: "Gehad",   password: "12345678" },
+  { username: "Haitham", password: "945992"   }
+];
+function loadUSERS() {
+  try {
+    const stored = localStorage.getItem("tryshoppy_users");
+    const list = stored ? JSON.parse(stored) : TRYSHOPPY_DEFAULT_USERS;
+    const map = {};
+    list.forEach(u => { map[u.username.toLowerCase()] = { pass: u.password, label: u.username }; });
+    return map;
+  } catch { return {}; }
+}
+const USERS = loadUSERS();
+
+const storedUser = localStorage.getItem("currentUser");
+const loginTime  = localStorage.getItem("loginTime");
+const nowMs      = new Date().getTime();
+
+const sessionValid = storedUser && USERS[storedUser] && loginTime && (nowMs - loginTime < SESSION_TIME);
+
+// ✅ لو الـ label مش محفوظ (session قديمة)، احفظه دلوقتي
+if (sessionValid && !localStorage.getItem("currentUserLabel")) {
+  localStorage.setItem("currentUserLabel", USERS[storedUser].label);
+}
+
+if (sessionValid) {
+  document.body.style.display = "block";
+} else {
+  // Show login screen
+  document.body.style.display = "block";
+  document.body.innerHTML = `
+    <div id="loginScreen" style="
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      min-height:100vh; background:#f8fafc; font-family:'Cairo',sans-serif;
+      padding: 20px; box-sizing:border-box;
+    ">
+      <div style="
+        background:#fff; border-radius:24px; padding:35px 30px; width:100%;
+        max-width:380px; box-shadow:0 10px 40px rgba(0,0,0,0.08);
+        border:1px solid #e2e8f0;
+      ">
+        <div style="text-align:center; margin-bottom:28px;">
+          <div style="font-size:2rem; font-weight:900; color:#6366f1; letter-spacing:0.5px;">TRY SHOPPY</div>
+          <div style="font-size:13px; color:#94a3b8; margin-top:6px;">سجّل دخولك للمتابعة</div>
+        </div>
+
+        <label style="font-weight:700; font-size:14px; color:#334155; display:block; margin-bottom:6px;">اسم المستخدم</label>
+        <input id="loginUser" type="text" placeholder="أدخل اليوزرنيم" autocomplete="username" style="
+          width:100%; padding:13px 16px; border-radius:12px; border:1.5px solid #e2e8f0;
+          font-family:'Cairo'; font-size:15px; background:#f8fafc; box-sizing:border-box;
+          margin-bottom:16px; transition:all 0.2s ease;
+        " onfocus="this.style.borderColor='#6366f1'; this.style.background='#fff';"
+           onblur="this.style.borderColor='#e2e8f0'; this.style.background='#f8fafc';">
+
+        <label style="font-weight:700; font-size:14px; color:#334155; display:block; margin-bottom:6px;">كلمة المرور</label>
+        <input id="loginPass" type="password" placeholder="أدخل كلمة المرور" autocomplete="current-password" style="
+          width:100%; padding:13px 16px; border-radius:12px; border:1.5px solid #e2e8f0;
+          font-family:'Cairo'; font-size:15px; background:#f8fafc; box-sizing:border-box;
+          margin-bottom:20px; transition:all 0.2s ease;
+        " onfocus="this.style.borderColor='#6366f1'; this.style.background='#fff';"
+           onblur="this.style.borderColor='#e2e8f0'; this.style.background='#f8fafc';"
+           onkeydown="if(event.key==='Enter') doLogin();">
+
+        <div id="loginError" style="display:none; color:#ef4444; font-size:13px; font-weight:700; text-align:center; margin-bottom:14px; background:#fef2f2; padding:10px; border-radius:10px; border:1px solid #fecaca;">
+          ❌ اسم المستخدم أو كلمة المرور غير صحيحة
+        </div>
+
+        <button onclick="doLogin()" style="
+          width:100%; padding:14px; background:#6366f1; color:#fff; border:none;
+          border-radius:12px; font-weight:900; font-size:15px; cursor:pointer;
+          font-family:'Cairo'; transition:all 0.2s ease;
+          box-shadow: 0 4px 10px rgba(99,102,241,0.3);
+        " onmouseover="this.style.background='#4f46e5'"
+           onmouseout="this.style.background='#6366f1'">
+          دخول ←
+        </button>
+      </div>
+    </div>
+  `;
+
+  window.doLogin = function() {
+    const u = document.getElementById("loginUser").value.trim().toLowerCase();
+    const p = document.getElementById("loginPass").value;
+    if (USERS[u] && USERS[u].pass === p) {
+      localStorage.setItem("currentUser", u);                    // key للتحقق
+      localStorage.setItem("currentUserLabel", USERS[u].label);  // label للعرض والتسجيل
+      localStorage.setItem("loginTime", new Date().getTime());
+      location.reload();
+    } else {
+      document.getElementById("loginError").style.display = "block";
+    }
+  };
 }
 </script>
 
@@ -328,7 +428,10 @@ if(auth==="true"&&loginTime&&(now-loginTime<SESSION_TIME)){
   <div id="totalBox" style="display: none; background:#ecfdf5; border:1px solid #a7f3d0; color:#065f46; padding:8px 14px; border-radius:12px; font-weight:900; font-size:14px; text-align:center; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
     الإجمالي: 0 ج.م
   </div>
-  <button onclick="logout()" style="background:var(--danger); color:white; border:none; padding:8px 16px; border-radius:10px; font-family: 'Cairo'; font-weight:bold; cursor:pointer; transition:all 0.2s ease;">خروج</button>
+  <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
+    <div id="headerUserBadge" style="background:#ede9fe; color:#6366f1; padding:5px 12px; border-radius:10px; font-weight:800; font-size:13px; border:1px solid #c4b5fd;"></div>
+    <button onclick="logout()" style="background:var(--danger); color:white; border:none; padding:7px 14px; border-radius:10px; font-family: 'Cairo'; font-weight:bold; cursor:pointer; transition:all 0.2s ease; font-size:13px;">خروج</button>
+  </div>
 </header>
 
 <div class="filters">
@@ -354,6 +457,12 @@ if(auth==="true"&&loginTime&&(now-loginTime<SESSION_TIME)){
     <option>Delayed</option>
   </select>
   <button class="btn-search" onclick="applyFilters()">بحث</button>
+  
+  <select id="searchUser">
+    <option value="">👤 كل الموظفين</option>
+  </select>
+  <button class="btn-user-search" onclick="applyFilters()">🔍 بحث بالموظف المختار</button>
+  
   <button class="btn-group" onclick="toggleGrouping()">👥 تجميع / فك تجميع الطلبات</button>
 </div>
 
@@ -368,6 +477,9 @@ if(auth==="true"&&loginTime&&(now-loginTime<SESSION_TIME)){
     <input type="number" id="dupUsd" placeholder="السعر بالدولار ($)">
     <input type="number" id="dupEgp" placeholder="السعر بالمصري (EGP)">
     <input type="text" id="dupDimensions" placeholder="المواصفات الخاصة (SPCS)" style="margin-top:10px;">
+    <select id="dupUser" style="margin-top:10px; width:100%; padding:12px 14px; border-radius:12px; border:1.5px solid var(--border); font-family:'Cairo'; font-size:14px; font-weight:700; background:#f8fafc; color:var(--text-dark); cursor:pointer;">
+      <option value="">👤 اختر الموظف المسؤول *</option>
+    </select>
     <div style="display: flex; gap: 12px; margin-top: 15px;">
       <button onclick="closeModal()" style="flex:1; padding:12px; border:none; background:#e2e8f0; color:#334155; border-radius:12px; font-weight:bold; cursor:pointer; font-family:'Cairo'; transition:all 0.2s ease;">إلغاء</button>
       <button id="dupSubmitBtn" onclick="submitDuplicate()" style="flex:1; padding:12px; border:none; background:var(--primary); color:white; border-radius:12px; font-weight:bold; cursor:pointer; font-family:'Cairo'; transition:all 0.2s ease;">حفظ الطلب</button>
@@ -382,16 +494,39 @@ if(auth==="true"&&loginTime&&(now-loginTime<SESSION_TIME)){
 
 <script>
 // ⚠️ هام: تأكد من وضع رابط السكريبت الجديد بعد عمل Deploy 
-const scriptURL="https://script.google.com/macros/s/AKfycbzkhLD6IncxZcLN5e4gwen-yB4mintZXprqE-kWGxnDuLwXY_EUs0EAyxF3tJeJDdBsxw/exec";
+const scriptURL="https://script.google.com/macros/s/AKfycbyw8VmhQtKB2NHgysxmHTJU6nimnSjH_5LF2tFdLDywOhaIxi1GmlPi_sibE6fuEPx7Sw/exec";
 let ordersData=[];
 let currentViewData = []; 
 let isGrouped=false;
 let renderTimer;
 
+// === getCurrentUser: بتجيب اليوزر الحالي من localStorage في أي وقت ===
+function getCurrentUser() {
+  return localStorage.getItem("currentUserLabel") || localStorage.getItem("currentUser") || "";
+}
+const userBadge = document.getElementById("headerUserBadge");
+if (userBadge) {
+  userBadge.textContent = getCurrentUser() ? "👤 " + getCurrentUser() : "";
+}
+
 async function loadData(){
   try {
     const res=await fetch(scriptURL, { redirect: 'follow' });
     ordersData=await res.json();
+
+    // بناء فلتر اليوزرز من الداتا
+    const userSelect = document.getElementById("searchUser");
+    if (userSelect) {
+      const users = [...new Set(ordersData.map(o => (o.user || "").trim()).filter(Boolean))].sort();
+      userSelect.innerHTML = '<option value="">👤 كل الموظفين</option>';
+      users.forEach(u => {
+        const opt = document.createElement("option");
+        opt.value = u;
+        opt.textContent = "👤 " + u;
+        userSelect.appendChild(opt);
+      });
+    }
+
     applyFilters();
     checkPendingReview(); 
   } catch(e) { alert("خطأ في التحميل - تأكد من الاتصال"); }
@@ -531,7 +666,10 @@ if (o.status === "Arrived Cairo HUB") {
                 📅 ${o.date || '—'}
             </span>
         </div>
-        <span class="badge" style="height: fit-content;">${o.status || 'Pending'}</span>
+        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:5px;">
+          <span class="badge" style="height: fit-content;">${o.status || 'Pending'}</span>
+          ${o.user ? `<span style="background:#ede9fe; color:#6366f1; padding:4px 10px; border-radius:8px; font-size:11px; font-weight:800; border:1px solid #c4b5fd;">👤 ${o.user}</span>` : ''}
+        </div>
       </div>
       
       <div class="field"><label>العميل:</label><span>${o.customerName || "—"}</span></div>
@@ -617,6 +755,7 @@ function applyFilters(){
   const from = document.getElementById("dateFrom").value;
   const to = document.getElementById("dateTo").value;
   const status = document.getElementById("searchStatus").value;
+  const userFilter = (document.getElementById("searchUser")?.value || "").trim().toLowerCase();
 
   let filtered = ordersData.filter(o=>{
     const d = o.date || "";
@@ -624,13 +763,14 @@ function applyFilters(){
     const statusMatch = !status||o.status===status;
     const arrivalMatch = !searchArr || (o.arrivaldate || "").toString().toLowerCase().includes(searchArr);
     const cleanOrder = String(o.order || "").toLowerCase().replace(/\s/g, "");
+    const userMatch = !userFilter || (o.user || "").trim().toLowerCase() === userFilter;
 
     const searchPhone = normalizePhone(search);
     const searchMatch = (o.customerName||"").toLowerCase().includes(search) ||
                         (searchPhone !== "" && normalizePhone(o.phone).includes(searchPhone)) ||
                         cleanOrder.includes(search.replace(/\s/g, ""));
                       
-    return dateMatch && statusMatch && searchMatch && arrivalMatch;
+    return dateMatch && statusMatch && searchMatch && arrivalMatch && userMatch;
   });
 
    if(isGrouped){
@@ -700,7 +840,8 @@ function updateOrder(orderId){
       deposit:newDeposit,
       usd:newUSD,
       status:newStatus,
-      arrivaldate:newArrival
+      arrivaldate:newArrival,
+      user:getCurrentUser()   // ✅
     })
   }).then(()=>{
     alert("تم تحديث الطلب #"+orderId);
@@ -709,7 +850,8 @@ function updateOrder(orderId){
 }
 
 function logout(){
-  localStorage.removeItem("auth");
+  localStorage.removeItem("currentUser");
+  localStorage.removeItem("currentUserLabel");
   localStorage.removeItem("loginTime");
   location.reload();
 }
@@ -777,14 +919,30 @@ function generateTryOrderId() {
 function openDuplicateModal(orderId) {
     targetOrderId = orderId;
 
-    // توليد رقم أوردر تلقائي
     document.getElementById("dupOrderId").value = generateTryOrderId();
-
     document.getElementById("dupLink").value = "";
     document.getElementById("dupUsd").value = "";
     document.getElementById("dupEgp").value = "";
     document.getElementById("dupDimensions").value = "";
     document.getElementById("dupWhatsappContainer").style.display = "none";
+
+    // ✅ بناء قائمة الموظفين من قائمة المستخدمين المحفوظة في لوكال ستورج
+    const dupUserSelect = document.getElementById("dupUser");
+    dupUserSelect.innerHTML = '<option value="">👤 اختر الموظف المسؤول *</option>';
+    const usersList = localStorage.getItem("tryshoppy_users");
+    const usersArr = usersList ? JSON.parse(usersList) : TRYSHOPPY_DEFAULT_USERS;
+    usersArr.forEach(u => {
+        const opt = document.createElement("option");
+        opt.value = u.username;
+        opt.textContent = "👤 " + u.username;
+        // ✅ تحديد الموظف النشط حالياً بشكل تلقائي كخيار افتراضي لتسهيل الإدخال
+        if (u.username.toLowerCase() === (localStorage.getItem("currentUser") || "").toLowerCase()) {
+            opt.selected = true;
+        }
+        dupUserSelect.appendChild(opt);
+    });
+    dupUserSelect.style.borderColor = "var(--border)";
+
     document.getElementById("dupModal").style.display = "flex";
 }
 
@@ -819,13 +977,22 @@ SPCS: ${d.dimensions || ""}`;
 }
 
 function submitDuplicate() {
-    const newOrder = document.getElementById("dupOrderId").value;
-    const link = document.getElementById("dupLink").value;
-    const usd = document.getElementById("dupUsd").value;
-    const egp = document.getElementById("dupEgp").value;
-    const dimensions = document.getElementById("dupDimensions").value.trim();
+    const newOrder  = document.getElementById("dupOrderId").value;
+    const link      = document.getElementById("dupLink").value;
+    const usd       = document.getElementById("dupUsd").value;
+    const egp       = document.getElementById("dupEgp").value;
+    const dimensions= document.getElementById("dupDimensions").value.trim();
+    const dupUser   = document.getElementById("dupUser").value.trim();
 
     if (!newOrder || !link) return alert("يرجى ملء رقم الأوردر والرابط!");
+
+    // 🔴 التحقق الإجباري من اختيار الموظف
+    if (!dupUser) {
+        document.getElementById("dupUser").style.borderColor = "var(--danger)";
+        document.getElementById("dupUser").focus();
+        return alert("⚠️ يرجى اختيار الموظف المسؤول أولاً!");
+    }
+    document.getElementById("dupUser").style.borderColor = "var(--border)";
 
     const originalOrder = ordersData.find(o => String(o.order) === targetOrderId);
     if (!originalOrder) return alert("حدث خطأ في جلب بيانات الأوردر الأصلي.");
@@ -834,24 +1001,25 @@ function submitDuplicate() {
     btn.innerText = "جاري النسخ...";
     btn.disabled = true;
 
+    // ✅ إرسال البيانات للـ Google Script لادراجها بالكامل بما فيها عمود الـ user
     fetch(scriptURL, {
         method: "POST",
         mode: "no-cors",
         body: JSON.stringify({
             action: "duplicateOrder",
-            originalOrder: originalOrder, 
-            newOrder: newOrder,          
+            originalOrder: originalOrder,
+            newOrder: newOrder,
             newLink: link,
             newUsd: usd,
             newEgp: egp,
-            newDimensions: dimensions
+            newDimensions: dimensions,
+            user: dupUser   
         })
     }).then(() => {
-        alert("✅ تم إضافة منتج لنفس العميل بنجاح!");
+        alert("✅ تم إضافة منتج لنفس العميل بنجاح! - بواسطة الموظف: " + dupUser);
         btn.innerText = "حفظ الطلب";
         btn.disabled = false;
 
-        // تخزين بيانات الأوردر لإرسال واتساب
         lastDupData = {
             ...originalOrder,
             newOrder,
@@ -861,10 +1029,8 @@ function submitDuplicate() {
             dimensions: dimensions
         };
 
-        // إظهار زرار واتساب
         document.getElementById("dupWhatsappContainer").style.display = "block";
-
-        loadData(); // تحديث الصفحة لظهور الأوردر الجديد فوراً
+        loadData();
     }).catch(e => {
         alert("❌ حدث خطأ في الاتصال بالخادم");
         btn.innerText = "حفظ الطلب";
