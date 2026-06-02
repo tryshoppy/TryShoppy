@@ -4,333 +4,312 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TRY SHOPPY - Quick Order</title>
-
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
-
 <style>
 :root{
-    --primary:#2563eb;
-    --bg:#f4f7fe;
-    --white:#fff;
-    --text:#1e293b;
-    --border:#cbd5e1;
+  --primary:#2563eb;
+  --bg:#f4f7fe;
+  --white:#fff;
+  --text:#1e293b;
+  --border:#cbd5e1;
 }
+body{ font-family:'Cairo',sans-serif; background:var(--bg); margin:0; padding:20px; }
+.container{ max-width:500px; margin:auto; }
+.card{ background:white; border-radius:20px; padding:25px; box-shadow:0 5px 20px rgba(0,0,0,.08); }
+h2{ margin-top:0; text-align:center; color:var(--primary); font-weight:900; }
+.input-group{ margin-bottom:15px; }
+.input-group label{ display:block; margin-bottom:6px; font-weight:bold; color:#475569; }
+.input-group input{ width:100%; padding:14px; border:1px solid var(--border); border-radius:12px; font-family:'Cairo'; box-sizing:border-box; font-size:15px; }
+button{ width:100%; padding:14px; border:none; border-radius:12px; background:var(--primary); color:white; font-family:'Cairo'; font-size:16px; font-weight:bold; cursor:pointer; }
+button:hover{ opacity:.9; }
+.customer-box{ background:#eff6ff; padding:15px; border-radius:12px; margin-bottom:15px; display:none; }
+.customer-box div{ margin-bottom:5px; font-weight:700; }
+.spinner{ display:inline-block; width:18px; height:18px; border:3px solid rgba(255,255,255,0.4); border-top-color:white; border-radius:50%; animation:spin 0.7s linear infinite; vertical-align:middle; margin-left:8px; }
+@keyframes spin{ to{ transform:rotate(360deg); } }
 
-body{
-    font-family:'Cairo',sans-serif;
-    background:var(--bg);
-    margin:0;
-    padding:20px;
+/* ── Login Screen ── */
+#loginScreen{
+  display:none;
+  min-height:100vh;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  padding:20px;
+  box-sizing:border-box;
 }
+.login-box{
+  background:#fff; border-radius:24px; padding:35px 30px; width:100%; max-width:380px;
+  box-shadow:0 10px 40px rgba(0,0,0,0.08); border:1px solid #e2e8f0;
+}
+.login-logo{ font-size:2rem; font-weight:900; color:#2563eb; text-align:center; margin-bottom:6px; }
+.login-sub{ font-size:13px; color:#94a3b8; text-align:center; margin-bottom:26px; font-weight:600; }
+.login-label{ font-weight:700; font-size:14px; color:#334155; display:block; margin-bottom:7px; }
+.login-input{
+  width:100%; padding:13px 16px; border-radius:12px; border:1.5px solid #e2e8f0;
+  font-family:'Cairo'; font-size:15px; background:#f8fafc; box-sizing:border-box; margin-bottom:16px;
+  transition:all 0.2s;
+}
+.login-input:focus{ outline:none; border-color:#2563eb; background:#fff; }
+.login-error{
+  display:none; color:#ef4444; font-size:13px; font-weight:700; text-align:center;
+  margin-bottom:14px; background:#fef2f2; padding:10px; border-radius:10px; border:1px solid #fecaca;
+}
+.btn-login{
+  width:100%; padding:14px; background:#2563eb; color:#fff; border:none; border-radius:12px;
+  font-family:'Cairo'; font-weight:900; font-size:15px; cursor:pointer;
+  box-shadow:0 4px 12px rgba(37,99,235,0.3); transition:all 0.2s;
+}
+.btn-login:hover{ background:#1d4ed8; }
 
-.container{
-    max-width:500px;
-    margin:auto;
-}
-
-.card{
-    background:white;
-    border-radius:20px;
-    padding:25px;
-    box-shadow:0 5px 20px rgba(0,0,0,.08);
-}
-
-h2{
-    margin-top:0;
-    text-align:center;
-    color:var(--primary);
-    font-weight:900;
-}
-
-.input-group{
-    margin-bottom:15px;
-}
-
-.input-group label{
-    display:block;
-    margin-bottom:6px;
-    font-weight:bold;
-    color:#475569;
-}
-
-.input-group input{
-    width:100%;
-    padding:14px;
-    border:1px solid var(--border);
-    border-radius:12px;
-    font-family:'Cairo';
-    box-sizing:border-box;
-    font-size:15px;
-}
-
-button{
-    width:100%;
-    padding:14px;
-    border:none;
-    border-radius:12px;
-    background:var(--primary);
-    color:white;
-    font-family:'Cairo';
-    font-size:16px;
-    font-weight:bold;
-    cursor:pointer;
-}
-
-button:hover{
-    opacity:.9;
-}
-
-.customer-box{
-    background:#eff6ff;
-    padding:15px;
-    border-radius:12px;
-    margin-bottom:15px;
-    display:none;
-}
-
-.customer-box div{
-    margin-bottom:5px;
-    font-weight:700;
-}
-
-.spinner {
-    display: inline-block;
-    width: 18px;
-    height: 18px;
-    border: 3px solid rgba(255,255,255,0.4);
-    border-top-color: white;
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    vertical-align: middle;
-    margin-left: 8px;
-}
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
+/* ── Main Content ── */
+#mainContent{ display:none; }
 </style>
 </head>
-
 <body>
 
-<div class="container">
+<!-- ====== شاشة الدخول ====== -->
+<div id="loginScreen" style="display:flex;">
+  <div class="login-box">
+    <div class="login-logo">TRY SHOPPY</div>
+    <div class="login-sub">سجّل دخولك للمتابعة</div>
+    <label class="login-label">اسم المستخدم</label>
+    <input id="loginUser" type="text" class="login-input" placeholder="أدخل اليوزرنيم" autocomplete="username">
+    <label class="login-label">كلمة المرور</label>
+    <input id="loginPass" type="password" class="login-input" placeholder="أدخل كلمة المرور" autocomplete="current-password" onkeydown="if(event.key==='Enter') doLogin();">
+    <div id="loginError" class="login-error">❌ اسم المستخدم أو كلمة المرور غير صحيحة</div>
+    <button class="btn-login" onclick="doLogin()">دخول ←</button>
+  </div>
+</div>
 
+<!-- ====== المحتوى الرئيسي ====== -->
+<div id="mainContent">
+<div class="container">
 <div class="card">
 
 <h2>➕ إضافة أوردر سريع</h2>
+<div style="display:flex; justify-content:center; align-items:center; gap:10px; margin-bottom:16px;">
+  <span id="qUserBadge" style="background:#ede9fe; color:#6366f1; padding:5px 14px; border-radius:10px; font-weight:800; font-size:13px; border:1px solid #c4b5fd;"></span>
+  <button onclick="qLogout()" style="width:auto; padding:7px 16px; font-size:13px; background:#ef4444; border-radius:10px;">خروج</button>
+</div>
 
 <div class="input-group">
-<label>رقم التليفون</label>
-<input type="text" id="phone" placeholder="01xxxxxxxxx">
+  <label>رقم التليفون</label>
+  <input type="text" id="phone" placeholder="01xxxxxxxxx">
 </div>
 
 <button onclick="searchCustomer()">بحث عن العميل</button>
 
 <div id="customerBox" class="customer-box">
-<div id="customerName"></div>
-<div id="customerAddress"></div>
+  <div id="customerName"></div>
+  <div id="customerAddress"></div>
 </div>
 
 <div class="input-group">
-<label>لينك المنتج الجديد</label>
-<input type="text" id="link">
+  <label>لينك المنتج الجديد</label>
+  <input type="text" id="link">
 </div>
 
 <div class="input-group">
-<label>السعر بالدولار ($)</label>
-<input type="number" id="usd">
+  <label>السعر بالدولار ($)</label>
+  <input type="number" id="usd">
 </div>
 
 <div class="input-group">
-<label>المواصفات الخاصة (SPCS)</label>
-<input type="text" id="dimensions" placeholder="مثال: Size: L | Color: Red | Notes: ...">
+  <label>السعر بالمصري (EGP)</label>
+  <input type="number" id="egp">
 </div>
 
 <div class="input-group">
-<label>السعر بالمصري (EGP)</label>
-<input type="number" id="egp">
+  <label>المواصفات الخاصة (SPCS)</label>
+  <input type="text" id="dimensions" placeholder="مثال: Size: L | Color: Red | Notes: ...">
 </div>
-
+    
 <button id="createBtn" onclick="createOrder()">إنشاء الأوردر</button>
 
 <div id="waContainer" style="display:none; margin-top:14px;">
-  <button onclick="sendWhatsApp()" style="background:#25D366;">
-    💬 تأكيد الأوردر عبر واتساب
-  </button>
+  <button onclick="sendWhatsApp()" style="background:#25D366;">💬 تأكيد الأوردر عبر واتساب</button>
 </div>
 
+</div>
 </div>
 </div>
 
 <script>
+const SESSION_TIME = 2 * 60 * 60 * 1000;
+const scriptURL = "https://script.google.com/macros/s/AKfycbyTiEebU1t2NyNDH0R3xAtR_J4gdx_UG1nZmD76iqf0ORK8azJbGHC2oWoTwkFILmxmOg/exec";
 
-const scriptURL="https://script.google.com/macros/s/AKfycbyW8meVFC4R5TOyVwjYuxTBPDFFeEVUDFdrYeEfmj9scJ_VxG5DBLYsH5koM9PbxQiWlA/exec";
+// ── قائمة المستخدمين من users.html ──
+const TRYSHOPPY_DEFAULT_USERS = [
+  { username: "Gehad",   password: "12345678" },
+  { username: "Haitham", password: "945992"   }
+];
+function loadUSERS() {
+  try {
+    const stored = localStorage.getItem("tryshoppy_users");
+    const list = stored ? JSON.parse(stored) : TRYSHOPPY_DEFAULT_USERS;
+    const map = {};
+    list.forEach(u => { map[u.username.toLowerCase()] = { pass: u.password, label: u.username }; });
+    return map;
+  } catch { return {}; }
+}
+const USERS = loadUSERS();
 
+// ── التحقق من الـ Session ──
+function checkSession() {
+  const storedKey = localStorage.getItem("currentUser");
+  const loginTime = localStorage.getItem("loginTime");
+  const now = new Date().getTime();
+  return storedKey && USERS[storedKey] && loginTime && (now - loginTime < SESSION_TIME);
+}
+
+function showLogin() {
+  document.getElementById("loginScreen").style.display = "flex";
+  document.getElementById("mainContent").style.display = "none";
+}
+
+function showMain() {
+  document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("mainContent").style.display = "block";
+
+  // عرض اسم اليوزر
+  const label = localStorage.getItem("currentUserLabel") || localStorage.getItem("currentUser") || "";
+  const badge = document.getElementById("qUserBadge");
+  if (badge) badge.textContent = label ? "👤 " + label : "";
+
+  loadData();
+}
+
+function doLogin() {
+  const u = document.getElementById("loginUser").value.trim().toLowerCase();
+  const p = document.getElementById("loginPass").value;
+  if (USERS[u] && USERS[u].pass === p) {
+    localStorage.setItem("currentUser", u);
+    localStorage.setItem("currentUserLabel", USERS[u].label);
+    localStorage.setItem("loginTime", new Date().getTime());
+    showMain();
+  } else {
+    document.getElementById("loginError").style.display = "block";
+  }
+}
+
+function qLogout() {
+  localStorage.removeItem("currentUser");
+  localStorage.removeItem("currentUserLabel");
+  localStorage.removeItem("loginTime");
+  showLogin();
+}
+
+// ── تشغيل عند تحميل الصفحة ──
+if (checkSession()) {
+  // تأكد إن الـ label موجود
+  const storedKey = localStorage.getItem("currentUser");
+  if (!localStorage.getItem("currentUserLabel")) {
+    localStorage.setItem("currentUserLabel", USERS[storedKey].label);
+  }
+  showMain();
+} else {
+  showLogin();
+}
+
+// ── currentUser للإرسال ──
+function getCurrentUser() {
+  return localStorage.getItem("currentUserLabel") || localStorage.getItem("currentUser") || "";
+}
+
+// ── باقي الكود ──
 let ordersData = [];
 let selectedCustomer = null;
 
-async function loadData(){
-    try{
-        const res = await fetch(scriptURL);
-        ordersData = await res.json();
-    }catch(e){
-        alert("خطأ في تحميل البيانات");
-    }
+async function loadData() {
+  try {
+    const res = await fetch(scriptURL);
+    ordersData = await res.json();
+  } catch(e) {
+    alert("خطأ في تحميل البيانات");
+  }
 }
 
-function normalizePhone(phone){
-    return String(phone || "")
-    .replace(/\D/g,'')
-    .replace(/^2/,'')
-    .replace(/^0/,'');
+function normalizePhone(phone) {
+  return String(phone || "").replace(/\D/g,'').replace(/^2/,'').replace(/^0/,'');
 }
 
-function searchCustomer(){
+function searchCustomer() {
+  const phone = normalizePhone(document.getElementById("phone").value);
+  if (!phone) return alert("ادخل رقم التليفون");
 
-    const phone = normalizePhone(
-        document.getElementById("phone").value
-    );
+  selectedCustomer = ordersData.find(o => normalizePhone(o.phone) === phone);
 
-    if(!phone){
-        return alert("ادخل رقم التليفون");
-    }
+  if (!selectedCustomer) {
+    document.getElementById("customerBox").style.display = "none";
+    return alert("العميل غير موجود");
+  }
 
-    selectedCustomer = ordersData.find(o =>
-        normalizePhone(o.phone) === phone
-    );
-
-    if(!selectedCustomer){
-        document.getElementById("customerBox").style.display="none";
-        return alert("العميل غير موجود");
-    }
-
-    document.getElementById("customerBox").style.display="block";
-
-    document.getElementById("customerName").innerText =
-        "👤 " + (selectedCustomer.customerName || "-");
-
-    document.getElementById("customerAddress").innerText =
-        "📍 " + (selectedCustomer.address || "-");
+  document.getElementById("customerBox").style.display = "block";
+  document.getElementById("customerName").innerText = "👤 " + (selectedCustomer.customerName || "-");
+  document.getElementById("customerAddress").innerText = "📍 " + (selectedCustomer.address || "-");
 }
 
-function generateTryOrderId(){
-    const randomNum =
-        Math.floor(100000 + Math.random() * 900000);
-
-    return "TRY" + randomNum;
+function generateTryOrderId() {
+  return "TRY" + Math.floor(100000 + Math.random() * 900000);
 }
 
 let lastOrderData = {};
 
 function sendWhatsApp() {
-    const d = lastOrderData;
-    const phone = String(d.phone || "").replace(/\D/g, "").replace(/^0/, "");
-
-    const qty = parseInt(d.quantity || 1);
-    const usdTotal = (parseFloat(d.newUsd || 0) * qty).toFixed(2);
-    const finalEGP = (parseFloat(d.newEgp || 0) * qty).toLocaleString();
-
-    const msg =
-`TRY SHOPPY Order
-Order No: ${d.newOrder}
-Name: ${d.customerName}
-Phone: ${d.phone}
-Governorate: ${d.governorate || ""}
-Address: ${d.address || ""}
-Quantity: ${qty}
-Unit Price USD: ${d.newUsd} USD
-Unit Price EGP: ${d.newEgp} EGP
-
-Total USD: ${usdTotal} USD
-Total Price: ${finalEGP} EGP
-Product: ${d.newLink}
-SPCS: ${d.dimensions || ""}`;
-
-     window.open(`https://wa.me/201005609642?text=${encodeURIComponent(msg)}`);
+  const d = lastOrderData;
+  const phone = String(d.phone || "").replace(/\D/g, "").replace(/^0/, "");
+  const qty = parseInt(d.quantity || 1);
+  const usdTotal = (parseFloat(d.newUsd || 0) * qty).toFixed(2);
+  const finalEGP = (parseFloat(d.newEgp || 0) * qty).toLocaleString();
+  const msg = `TRY SHOPPY Order\nOrder No: ${d.newOrder}\nName: ${d.customerName}\nPhone: ${d.phone}\nGovernorate: ${d.governorate||""}\nAddress: ${d.address||""}\nQuantity: ${qty}\nUnit Price USD: ${d.newUsd} USD\nUnit Price EGP: ${d.newEgp} EGP\n\nTotal USD: ${usdTotal} USD\nTotal Price: ${finalEGP} EGP\nProduct: ${d.newLink}\nSPCS: ${d.dimensions||""}`;
+  window.open(`https://wa.me/201005609642?text=${encodeURIComponent(msg)}`);
 }
 
-function createOrder(){
+function createOrder() {
+  if (!selectedCustomer) return alert("ابحث عن العميل أولاً");
 
-    if(!selectedCustomer){
-        return alert("ابحث عن العميل أولاً");
-    }
+  const link = document.getElementById("link").value.trim();
+  const usd  = document.getElementById("usd").value.trim();
+  const egp  = document.getElementById("egp").value.trim();
+  const dimensions = document.getElementById("dimensions").value.trim();
 
-    const link =
-        document.getElementById("link").value.trim();
+  if (!link || !usd || !egp) return alert("يرجى ملء كل البيانات");
 
-    const usd =
-        document.getElementById("usd").value.trim();
+  const newOrderId = generateTryOrderId();
+  const btn = document.getElementById("createBtn");
+  btn.disabled = true;
+  btn.innerHTML = 'جاري التسجيل... <span class="spinner"></span>';
 
-    const egp =
-        document.getElementById("egp").value.trim();
-
-    const dimensions =
-        document.getElementById("dimensions").value.trim();
-
-    if(!link || !usd || !egp){
-        return alert("يرجى ملء كل البيانات");
-    }
-
-    const newOrderId = generateTryOrderId();
-
-    const btn = document.getElementById("createBtn");
-    btn.disabled = true;
-    btn.innerHTML = 'جاري التسجيل... <span class="spinner"></span>';
-
-    fetch(scriptURL,{
-        method:"POST",
-        mode:"no-cors",
-        body:JSON.stringify({
-
-            action:"duplicateOrder",
-
-            originalOrder:selectedCustomer,
-
-            newOrder:newOrderId,
-
-            newLink:link,
-
-            newUsd:usd,
-
-            newEgp:egp,
-
-            newDimensions:dimensions
-        })
+  fetch(scriptURL, {
+    method: "POST",
+    mode: "no-cors",
+    body: JSON.stringify({
+      action: "duplicateOrder",
+      originalOrder: selectedCustomer,
+      newOrder: newOrderId,
+      newLink: link,
+      newUsd: usd,
+      newEgp: egp,
+      newDimensions: dimensions,
+      user: getCurrentUser()   // ✅
     })
-    .then(()=>{
+  }).then(() => {
+    btn.disabled = false;
+    btn.innerHTML = "إنشاء الأوردر";
+    alert("✅ تم إنشاء الأوردر: " + newOrderId);
 
-        btn.disabled = false;
-        btn.innerHTML = "إنشاء الأوردر";
-        alert("✅ تم إنشاء الأوردر: " + newOrderId);
-
-        // تخزين البيانات لإرسال واتساب
-        lastOrderData = {
-            ...selectedCustomer,
-            newOrder: newOrderId,
-            newLink: link,
-            newUsd: usd,
-            newEgp: egp,
-            dimensions: dimensions
-        };
-
-        // إظهار زرار واتساب
-        document.getElementById("waContainer").style.display = "block";
-
-        document.getElementById("link").value="";
-        document.getElementById("usd").value="";
-        document.getElementById("egp").value="";
-        document.getElementById("dimensions").value="";
-
-    })
-    .catch(()=>{
-        btn.disabled = false;
-        btn.innerHTML = "إنشاء الأوردر";
-        alert("❌ حدث خطأ");
-    });
+    lastOrderData = { ...selectedCustomer, newOrder: newOrderId, newLink: link, newUsd: usd, newEgp: egp, dimensions };
+    document.getElementById("waContainer").style.display = "block";
+    document.getElementById("link").value = "";
+    document.getElementById("usd").value  = "";
+    document.getElementById("egp").value  = "";
+    document.getElementById("dimensions").value = "";
+  }).catch(() => {
+    btn.disabled = false;
+    btn.innerHTML = "إنشاء الأوردر";
+    alert("❌ حدث خطأ");
+  });
 }
-
-loadData();
-
 </script>
-
 </body>
 </html>
