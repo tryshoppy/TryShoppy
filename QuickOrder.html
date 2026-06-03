@@ -73,7 +73,7 @@ button:hover{ opacity:.9; }
     <div class="login-logo">TRY SHOPPY</div>
     <div class="login-sub">سجّل دخولك للمتابعة</div>
     <label class="login-label">اسم المستخدم</label>
-    <input id="loginUser" type="text" class="login-input" placeholder="أدخل اليوزرنيم" autocomplete="username">
+    <input id="loginUser" type="text" class="login-input" placeholder="أدخل اسم المستخدم" autocomplete="username">
     <label class="login-label">كلمة المرور</label>
     <input id="loginPass" type="password" class="login-input" placeholder="أدخل كلمة المرور" autocomplete="current-password" onkeydown="if(event.key==='Enter') doLogin();">
     <div id="loginError" class="login-error">❌ اسم المستخدم أو كلمة المرور غير صحيحة</div>
@@ -110,6 +110,11 @@ button:hover{ opacity:.9; }
 </div>
 
 <div class="input-group">
+  <label>الكمية</label>
+  <input type="number" id="qty" value="1" min="1">
+</div>
+
+<div class="input-group">
   <label>السعر بالدولار ($)</label>
   <input type="number" id="usd">
 </div>
@@ -136,7 +141,7 @@ button:hover{ opacity:.9; }
 
 <script>
 const SESSION_TIME = 2 * 60 * 60 * 1000;
-const scriptURL = "https://script.google.com/macros/s/AKfycbyTiEebU1t2NyNDH0R3xAtR_J4gdx_UG1nZmD76iqf0ORK8azJbGHC2oWoTwkFILmxmOg/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycbxkoRGFcYNriJuHHF9KmXzXJeyTqKO0OGGFZyWo28JRQZkF5ABPTxMx58go-fHXOtGKlQ/exec";
 
 // ── قائمة المستخدمين من users.html ──
 const TRYSHOPPY_DEFAULT_USERS = [
@@ -269,11 +274,16 @@ function createOrder() {
   if (!selectedCustomer) return alert("ابحث عن العميل أولاً");
 
   const link = document.getElementById("link").value.trim();
-  const usd  = document.getElementById("usd").value.trim();
-  const egp  = document.getElementById("egp").value.trim();
+  const qty  = parseFloat(document.getElementById("qty").value) || 1;
+  const usd  = parseFloat(document.getElementById("usd").value) || 0;
+  const egp  = parseFloat(document.getElementById("egp").value) || 0;
   const dimensions = document.getElementById("dimensions").value.trim();
 
   if (!link || !usd || !egp) return alert("يرجى ملء كل البيانات");
+
+  // ✅ الإجمالي = سعر الوحدة × الكمية
+  const totalUsd = (usd * qty).toFixed(2);
+  const totalEgp = (egp * qty).toFixed(2);
 
   const newOrderId = generateTryOrderId();
   const btn = document.getElementById("createBtn");
@@ -288,8 +298,9 @@ function createOrder() {
       originalOrder: selectedCustomer,
       newOrder: newOrderId,
       newLink: link,
-      newUsd: usd,
-      newEgp: egp,
+      newQty: qty,
+      newUsd: totalUsd,
+      newEgp: totalEgp,
       newDimensions: dimensions,
       user: getCurrentUser()   // ✅
     })
@@ -298,9 +309,10 @@ function createOrder() {
     btn.innerHTML = "إنشاء الأوردر";
     alert("✅ تم إنشاء الأوردر: " + newOrderId);
 
-    lastOrderData = { ...selectedCustomer, newOrder: newOrderId, newLink: link, newUsd: usd, newEgp: egp, dimensions };
+    lastOrderData = { ...selectedCustomer, newOrder: newOrderId, newLink: link, quantity: qty, newUsd: totalUsd, newEgp: totalEgp, dimensions };
     document.getElementById("waContainer").style.display = "block";
     document.getElementById("link").value = "";
+    document.getElementById("qty").value  = "1";
     document.getElementById("usd").value  = "";
     document.getElementById("egp").value  = "";
     document.getElementById("dimensions").value = "";
