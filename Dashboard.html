@@ -149,6 +149,8 @@
         .btn-print:hover { background: #6d28d9; transform: translateY(-1px); }
         .btn-csv { background: #059669; color: white; padding: 12px 22px; border-radius: 10px; }
         .btn-csv:hover { background: #047857; transform: translateY(-1px); }
+        .btn-reset { background: #f1f5f9; color: #64748b; padding: 12px 18px; border-radius: 10px; border: 1px solid var(--border); }
+        .btn-reset:hover { background: #e2e8f0; color: var(--danger); transform: translateY(-1px); }
 
         /* Table - ناعم ومتباعد */
         .table-wrapper { 
@@ -304,6 +306,29 @@
         }
         .link-btn:hover { background: #e0e7ff; }
 
+        /* User Badges */
+        .user-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+            white-space: nowrap;
+        }
+        /* Auto-color by user hash - cycling through pleasant colors */
+        .user-badge-a, .user-badge-ah, .user-badge-am { background:#ede9fe; color:#5b21b6; border-color:#ddd6fe; }
+        .user-badge-m, .user-badge-mo, .user-badge-ma { background:#fce7f3; color:#9d174d; border-color:#fbcfe8; }
+        .user-badge-s, .user-badge-sa, .user-badge-sh { background:#d1fae5; color:#065f46; border-color:#a7f3d0; }
+        .user-badge-n, .user-badge-na, .user-badge-no { background:#fef3c7; color:#92400e; border-color:#fde68a; }
+        .user-badge-r, .user-badge-ra, .user-badge-re { background:#dbeafe; color:#1e40af; border-color:#bfdbfe; }
+        .user-badge-h, .user-badge-ha, .user-badge-he { background:#ffedd5; color:#9a3412; border-color:#fed7aa; }
+        .user-badge-k, .user-badge-ka, .user-badge-kh { background:#f0fdf4; color:#166534; border-color:#bbf7d0; }
+        .user-badge-y, .user-badge-ya, .user-badge-yo { background:#fdf4ff; color:#7e22ce; border-color:#e9d5ff; }
+        .user-badge-z, .user-badge-za, .user-badge-zo { background:#ecfeff; color:#164e63; border-color:#a5f3fc; }
+
         @media (max-width: 768px) {
             .controls-row { flex-direction: column; align-items: stretch; }
             .input-group { flex-direction: column; }
@@ -360,13 +385,17 @@ if(auth === "true" && loginTime && (now - loginTime < SESSION_TIME)){
             <h3>أرباح الطلبات (Profit)</h3>
             <div id="totalProfit" class="value" style="color:#16a34a">0</div>
         </div>
+        <div class="stat-card" style="border-right: 4px solid #ec4899; cursor:pointer;" onclick="document.getElementById('searchUser').focus()" title="اضغط للفلتر بالموظف">
+            <h3>الموظف الحالي</h3>
+            <div id="activeUser" class="value" style="color:#ec4899; font-size:1rem;">كل الموظفين</div>
+        </div>
     </div>
 
     <div class="control-panel">
         <div class="controls-row">
             <div class="input-group" style="flex: 2;">
-                <input id="searchInput" placeholder="🔍 بحث سريع (اسم، موبايل، رقم طلب)...">
-                <input id="searchArrival" placeholder="🔎 بحث بموعد الوصول">
+                <input id="searchInput" placeholder="🔍 بحث سريع (اسم، موبايل، رقم طلب)..." onkeydown="if(event.key==='Enter') applyFilters()">
+                <input id="searchArrival" placeholder="🔎 بحث بموعد الوصول" onkeydown="if(event.key==='Enter') applyFilters()">
                <button class="btn-search" onclick="applyFilters()">بحث</button>
             </div>
             <div class="input-group">
@@ -375,7 +404,7 @@ if(auth === "true" && loginTime && (now - loginTime < SESSION_TIME)){
                 <input type="date" id="dateTo" title="إلى تاريخ">
             </div>
             <div class="input-group">
-                <select id="searchStatus">
+                <select id="searchStatus" onchange="applyFilters()">
                     <option value="">📂 كل الحالات</option>
                     <option value="Pending Review">Pending Review</option>
                     <option value="Confirmed Via Try">Confirmed Via Try</option>
@@ -388,7 +417,11 @@ if(auth === "true" && loginTime && (now - loginTime < SESSION_TIME)){
                     <option value="Delayed">Delayed</option>
                     <option value="Canceled">Canceled</option>
                 </select>
+                <select id="searchUser" onchange="applyFilters()">
+                    <option value="">👤 كل الموظفين</option>
+                </select>
                 <button class="btn-search" onclick="applyFilters()">بحث</button>
+                <button class="btn-reset" onclick="resetFilters()" title="مسح كل الفلاتر">✕ مسح</button>
             </div>
         </div>
 
@@ -431,6 +464,7 @@ if(auth === "true" && loginTime && (now - loginTime < SESSION_TIME)){
                     <th style="text-align:center;">التكلفة (USD)</th>
                     <th>رقم الوصول</th>
                     <th>الحالة</th>
+                    <th>الموظف</th>
                     <th style="text-align:center;">حفظ</th>
                     <th style="text-align:center;">طباعة</th>
                     <th style="text-align:center;">لينك</th>
@@ -442,7 +476,7 @@ if(auth === "true" && loginTime && (now - loginTime < SESSION_TIME)){
 </div>
 
 <script>
-const scriptURL = "https://script.google.com/macros/s/AKfycbzy9-1BfmMJZhCtwiEoIfdzWCFPcWW3CkhfJIRdWo8eyl1Z6tSWK8xHxoAw2cxKDaosrw/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycbxkoRGFcYNriJuHHF9KmXzXJeyTqKO0OGGFZyWo28JRQZkF5ABPTxMx58go-fHXOtGKlQ/exec";
 let ordersData = [];
 let currentFilteredData = [];
 let isGrouped = false;
@@ -451,8 +485,35 @@ async function loadData() {
     try {
         const res = await fetch(scriptURL, { redirect: 'follow' });
         ordersData = await res.json();
+        populateUserFilter();
         applyFilters(); 
     } catch(e) { console.error("Data Load Error", e); }
+}
+
+function populateUserFilter() {
+    const select = document.getElementById("searchUser");
+    const currentVal = select.value;
+    // collect unique non-empty users
+    const users = [...new Set(ordersData.map(o => o.user || "").filter(u => u.trim() !== ""))].sort();
+    // rebuild options keeping blank one
+    select.innerHTML = `<option value="">👤 كل الموظفين</option>`;
+    users.forEach(u => {
+        const opt = document.createElement("option");
+        opt.value = u;
+        opt.textContent = `👤 ${u}`;
+        if (u === currentVal) opt.selected = true;
+        select.appendChild(opt);
+    });
+}
+
+function resetFilters() {
+    document.getElementById("searchInput").value = "";
+    document.getElementById("searchArrival").value = "";
+    document.getElementById("dateFrom").value = "";
+    document.getElementById("dateTo").value = "";
+    document.getElementById("searchStatus").value = "";
+    document.getElementById("searchUser").value = "";
+    applyFilters();
 }
 
 // وظيفة مساعدة لإنشاء HTML الصف الواحد (تم استخلاصها من كودك الأصلي)
@@ -511,6 +572,9 @@ function createRowHTML(o) {
             </select>
         </td>
         <td style="text-align:center;">
+            ${o.user ? `<span class="user-badge user-badge-${(o.user||'').toLowerCase().replace(/\s+/g,'').substring(0,6)}">${o.user}</span>` : `<span style="color:#cbd5e1;font-size:0.8rem;">—</span>`}
+        </td>
+        <td style="text-align:center;">
             <button class="btn-icon btn-update"
                 style="${isGrouped ? 'background:#ddd;cursor:not-allowed;opacity:0.6' : ''}"
                 onclick="${isGrouped ? 'groupLockMsg()' : `updateOrder('${printOrder}')`}"
@@ -550,6 +614,7 @@ function applyFilters() {
     const to = document.getElementById("dateTo").value;
     const search = document.getElementById("searchInput").value.toLowerCase();
     const status = document.getElementById("searchStatus").value;
+    const userFilter = document.getElementById("searchUser").value;
     const USD_RATE = 50; 
 
     let filtered = ordersData.filter(o => {
@@ -564,8 +629,9 @@ const searchMatch =
         const statusMatch = !status || o.status === status;
         const arrivalMatch = !arrivalSearch ||
     (o.arrivaldate || "").toString().toLowerCase().includes(arrivalSearch);
+        const userMatch = !userFilter || (o.user || "") === userFilter;
 
-return dateMatch && searchMatch && statusMatch && arrivalMatch;
+return dateMatch && searchMatch && statusMatch && arrivalMatch && userMatch;
     });
     
     filtered = filtered.reverse();
@@ -610,6 +676,7 @@ return dateMatch && searchMatch && statusMatch && arrivalMatch;
     document.getElementById("totalNet").innerText = Math.round(totalNet).toLocaleString() + " ج.م";
     document.getElementById("totalProfit").innerText = Math.round(totalProfit).toLocaleString() + " ج.م";
     document.getElementById("totalCount").innerText = filtered.length;
+    document.getElementById("activeUser").innerText = userFilter || "كل الموظفين";
     
     currentFilteredData = filtered; 
     renderTable(filtered);
