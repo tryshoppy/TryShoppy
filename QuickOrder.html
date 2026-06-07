@@ -262,11 +262,9 @@ let lastOrderData = {};
 
 function sendWhatsApp() {
   const d = lastOrderData;
-  const phone = String(d.phone || "").replace(/\D/g, "").replace(/^0/, "");
   const qty = parseInt(d.quantity || 1);
-  const usdTotal = (parseFloat(d.newUsd || 0) * qty).toFixed(2);
-  const finalEGP = (parseFloat(d.newEgp || 0) * qty).toLocaleString();
-  const msg = `TRY SHOPPY Order\nOrder No: ${d.newOrder}\nName: ${d.customerName}\nPhone: ${d.phone}\nGovernorate: ${d.governorate||""}\nAddress: ${d.address||""}\nQuantity: ${qty}\nUnit Price USD: ${d.newUsd} USD\nUnit Price EGP: ${d.newEgp} EGP\n\nTotal USD: ${usdTotal} USD\nTotal Price: ${finalEGP} EGP\nProduct: ${d.newLink}\nSPCS: ${d.dimensions||""}`;
+  const finalEGP = parseFloat(d.newEgp || 0).toLocaleString();
+  const msg = `TRY SHOPPY Order\nOrder No: ${d.newOrder}\nName: ${d.customerName}\nPhone: ${d.phone}\nGovernorate: ${d.governorate||""}\nAddress: ${d.address||""}\nQuantity: ${qty}\nUnit Price USD: ${d.unitUsd} USD\nUnit Price EGP: ${d.unitEgp} EGP\n\nTotal USD: ${d.newUsd} USD\nTotal Price: ${finalEGP} EGP\nProduct: ${d.newLink}\nSPCS: ${d.dimensions||""}`;
   window.open(`https://wa.me/201005609642?text=${encodeURIComponent(msg)}`);
 }
 
@@ -309,7 +307,7 @@ function createOrder() {
     btn.innerHTML = "إنشاء الأوردر";
     alert("✅ تم إنشاء الأوردر: " + newOrderId);
 
-    lastOrderData = { ...selectedCustomer, newOrder: newOrderId, newLink: link, quantity: qty, newUsd: totalUsd, newEgp: totalEgp, dimensions };
+    lastOrderData = { ...selectedCustomer, newOrder: newOrderId, newLink: link, quantity: qty, unitUsd: usd, unitEgp: egp, newUsd: totalUsd, newEgp: totalEgp, dimensions };
     document.getElementById("waContainer").style.display = "block";
     document.getElementById("link").value = "";
     document.getElementById("qty").value  = "1";
