@@ -265,12 +265,15 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyTiEebU1t2NyNDH0R3x
 const USERS_API_URL = "https://script.google.com/macros/s/AKfycbxkoRGFcYNriJuHHF9KmXzXJeyTqKO0OGGFZyWo28JRQZkF5ABPTxMx58go-fHXOtGKlQ/exec";
 
 // ── قائمة المستخدمين الافتراضية (تُستخدم فقط لو فشل الاتصال بالشيت) ──
-// ── المستخدمين بيجوا من الشيت فقط — مفيش بيانات hardcoded ──
+const TRYSHOPPY_DEFAULT_USERS = [
+  { username: "Gehad",   password: "12345678" },
+  { username: "Haitham", password: "945992"   },
+  { username: "Heba",    password: "123456"   }
+];
 function loadUSERS() {
   try {
     const stored = localStorage.getItem("tryshoppy_users");
-    if (!stored) return {};
-    const list = JSON.parse(stored);
+    const list = stored ? JSON.parse(stored) : TRYSHOPPY_DEFAULT_USERS;
     const map = {};
     list.forEach(u => { map[u.username.toLowerCase()] = { pass: u.password, label: u.username }; });
     return map;
