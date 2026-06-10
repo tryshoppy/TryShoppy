@@ -509,11 +509,18 @@ header {
 const ADMIN_PASS = "admin2024"; // ← غيّرها لما تحب
 
 // ============================================
-// القائمة الافتراضية — تُستخدم أول مرة فقط
+// 🔗 رابط سكريبت المستخدمين (users_script.gs)
+// ⚠️ بعد ما ترفع users_script.gs وتعمل Deploy، حط الرابط هنا
+// ============================================
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbybi0nm5NahnQJiyislAnrGMlXj_d2250h29Ab3kR9q5clIsUSRnPt-ZRl0IHuiuHyh0g/exec";
+
+// ============================================
+// القائمة الافتراضية — تُستخدم فقط لو فشل الاتصال بالشيت
 // ============================================
 const DEFAULT_USERS = [
   { username: "Gehad",   password: "12345678" },
-  { username: "Haitham", password: "945992"   }
+  { username: "Haitham", password: "945992"   },
+  { username: "Heba",    password: "123456"   }
 ];
 
 const STORAGE_KEY = "tryshoppy_users";
@@ -536,15 +543,41 @@ document.getElementById("adminPassInput").addEventListener("keydown", e => {
   if (e.key === "Enter") checkAdmin();
 });
 
-// ── Init ──
-function init() {
+// ── Init: تحميل المستخدمين ──
+async function init() {
+  // أولاً: جرب تجيب من الشيت
+  try {
+    const res = await fetch(SCRIPT_URL + "?action=getUsers", { signal: AbortSignal.timeout(5000) });
+    const data = await res.json();
+    // تأكد إن البيانات الراجعة فعلاً قائمة مستخدمين (فيها username وpassword)
+    if (Array.isArray(data) && data.length && data[0].username && data[0].password) {
+      users = data;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+      render();
+      showToast("✅ تم تحميل " + users.length + " مستخدم من الشيت");
+      return;
+    }
+  } catch (e) { /* timeout أو خطأ في الاتصال */ }
+
+  // ثانياً: استخدم النسخة المحفوظة محلياً أو الافتراضية
   const stored = localStorage.getItem(STORAGE_KEY);
   if (stored) {
-    try { users = JSON.parse(stored); } catch { users = [...DEFAULT_USERS]; }
-  } else {
-    users = [...DEFAULT_USERS];
+    try {
+      const parsed = JSON.parse(stored);
+      // تأكد إنها قائمة مستخدمين وليست أوردرات
+      if (Array.isArray(parsed) && parsed.length && parsed[0].username) {
+        users = parsed;
+        render();
+        showToast("✅ تم تحميل " + users.length + " مستخدم (نسخة محفوظة)");
+        return;
+      }
+    } catch { }
   }
+
+  // ثالثاً: القائمة الافتراضية
+  users = [...DEFAULT_USERS];
   render();
+  showToast("ℹ️ تم تحميل القائمة الافتراضية");
 }
 
 // ── Render List ──
@@ -653,10 +686,20 @@ function saveEdit() {
   showToast("✏️ تم تحديث " + uname);
 }
 
-// ── Save All to localStorage ──
-function saveAll() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
-  showToast("💾 تم الحفظ! الملفات التانية هتستخدم القائمة دي تلقائياً");
+// ── Save All: حفظ في جوجل شيت + نسخة محلية ──
+async function saveAll() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(users)); // كاش محلي
+  showToast("⏳ جاري الحفظ في جوجل شيت...");
+  try {
+    await fetch(SCRIPT_URL, {
+      method: "POST",
+      mode: "no-cors",
+      body: JSON.stringify({ action: "saveUsers", users: users })
+    });
+    showToast("💾 تم الحفظ في الشيت! كل الصفحات هتستخدم القائمة دي على أي جهاز");
+  } catch (e) {
+    showToast("❌ تعذر الحفظ في الشيت — اتحفظت نسخة محلية فقط");
+  }
 }
 
 // ── Toast ──
