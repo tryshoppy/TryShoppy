@@ -605,24 +605,28 @@ let totalQty = 0;
 
 if (isGrouped && o.items) {
   o.items.forEach((item, i) => {
-    const unitPrice = parseFloat(item.price || 0);
+    const itemTotal = parseFloat(item.price || 0);
     const itemQty = parseInt(item.qty || 1);
+    const piecePrice = itemQty > 0 ? itemTotal / itemQty : itemTotal;
     totalQty += itemQty;
 
     message += `---
 🔗 منتج ${i + 1}: ${item.link}
 📦 العدد: ${itemQty}
-💰 السعرالاجمالي : ${unitPrice.toLocaleString()} ج.م
+💵 السعر للقطعة: ${piecePrice.toLocaleString()} ج.م
+💰 السعرالاجمالي : ${itemTotal.toLocaleString()} ج.م
 `;
   });
 } else {
-  const unitPrice = parseFloat(o.finalPrice || 0);
+  const itemTotal = parseFloat(o.finalPrice || 0);
   const itemQty = parseInt(o.quantity || 1);
+  const piecePrice = itemQty > 0 ? itemTotal / itemQty : itemTotal;
   totalQty = itemQty;
 
   message += `🔗 المنتج: ${o.link}
 📦 العدد: ${itemQty}
-💰 السعرالاجمالي: ${unitPrice.toLocaleString()} ج.م
+💵 السعر للقطعة: ${piecePrice.toLocaleString()} ج.م
+💰 السعرالاجمالي: ${itemTotal.toLocaleString()} ج.م
 `;
 }
 
