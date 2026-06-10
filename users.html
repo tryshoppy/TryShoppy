@@ -422,14 +422,16 @@ header {
 </head>
 <body>
 
-<!-- Admin Password Gate -->
+<!-- Admin Login Gate -->
 <div id="adminLogin">
   <div class="login-box">
     <div class="login-logo">TRY SHOPPY</div>
     <div class="login-sub">🔐 لوحة إدارة المستخدمين</div>
-    <label class="login-label">كلمة مرور الأدمن</label>
-    <input id="adminPassInput" type="password" class="login-input" placeholder="أدخل كلمة مرور الأدمن" onkeydown="if(event.key==='Enter') checkAdmin()">
-    <div id="adminError" class="login-error">❌ كلمة المرور غير صحيحة</div>
+    <label class="login-label">اسم المستخدم</label>
+    <input id="adminUserInput" type="text" class="login-input" placeholder="أدخل اسم المستخدم" autocomplete="username" onkeydown="if(event.key==='Enter') checkAdmin()">
+    <label class="login-label">كلمة المرور</label>
+    <input id="adminPassInput" type="password" class="login-input" placeholder="أدخل كلمة المرور" autocomplete="current-password" onkeydown="if(event.key==='Enter') checkAdmin()">
+    <div id="adminError" class="login-error">❌ اسم المستخدم أو كلمة المرور غير صحيحة</div>
     <button class="btn-login" onclick="checkAdmin()">دخول ←</button>
   </div>
 </div>
@@ -506,22 +508,18 @@ header {
 // ============================================
 // 🔐 كلمة مرور الأدمن للوصول لهذه الصفحة
 // ============================================
-const ADMIN_PASS = "admin2024"; // ← غيّرها لما تحب
+// ── المستخدمين بيجوا من الشيت فقط ──
 
 // ============================================
-// 🔗 رابط سكريبت المستخدمين (users_script.gs)
-// ⚠️ بعد ما ترفع users_script.gs وتعمل Deploy، حط الرابط هنا
+// 🔗 رابط الـ Apps Script (نفس رابط الأوردرات)
 // ============================================
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbybi0nm5NahnQJiyislAnrGMlXj_d2250h29Ab3kR9q5clIsUSRnPt-ZRl0IHuiuHyh0g/exec";
 
 // ============================================
 // القائمة الافتراضية — تُستخدم فقط لو فشل الاتصال بالشيت
 // ============================================
-const DEFAULT_USERS = [
-  { username: "Gehad",   password: "12345678" },
-  { username: "Haitham", password: "945992"   },
-  { username: "Heba",    password: "123456"   }
-];
+// ── مفيش مستخدمين hardcoded — كل البيانات من الشيت فقط ──
+const DEFAULT_USERS = [];
 
 const STORAGE_KEY = "tryshoppy_users";
 
@@ -529,9 +527,32 @@ let users = [];
 let editIndex = -1;
 
 // ── Admin Login ──
-function checkAdmin() {
-  const val = document.getElementById("adminPassInput").value;
-  if (val === ADMIN_PASS) {
+async function checkAdmin() {
+  const u = document.getElementById("adminUserInput").value.trim().toLowerCase();
+  const p = document.getElementById("adminPassInput").value;
+  if (!u || !p) return;
+
+  // جيب المستخدمين من الشيت أو الـ cache
+  let list = [];
+  try {
+    const res = await fetch(SCRIPT_URL + "?action=getUsers", { signal: AbortSignal.timeout(5000) });
+    const data = await res.json();
+    if (Array.isArray(data) && data.length && data[0].username) {
+      list = data;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+    }
+  } catch (e) {}
+
+  // لو الشيت ما ردش جرب الـ cache
+  if (!list.length) {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) list = JSON.parse(stored);
+    } catch (e) {}
+  }
+
+  const match = list.find(x => String(x.username).toLowerCase() === u && String(x.password) === p);
+  if (match) {
     document.getElementById("adminLogin").style.display = "none";
     document.getElementById("mainPanel").style.display = "block";
     init();
@@ -575,9 +596,9 @@ async function init() {
   }
 
   // ثالثاً: القائمة الافتراضية
-  users = [...DEFAULT_USERS];
+  users = [];
   render();
-  showToast("ℹ️ تم تحميل القائمة الافتراضية");
+  showToast("⚠️ مفيش مستخدمين محفوظين — ضيف مستخدمين من الشيت");
 }
 
 // ── Render List ──
