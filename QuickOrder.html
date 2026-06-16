@@ -141,41 +141,17 @@ button:hover{ opacity:.9; }
 
 
 
+<script src="users.js"></script>
 <script>
 const SESSION_TIME = 2 * 60 * 60 * 1000;
 const scriptURL = "https://script.google.com/macros/s/AKfycbxkoRGFcYNriJuHHF9KmXzXJeyTqKO0OGGFZyWo28JRQZkF5ABPTxMx58go-fHXOtGKlQ/exec";
 
-// ── قائمة المستخدمين الافتراضية (تُستخدم فقط لو فشل الاتصال بالشيت) ──
-const TRYSHOPPY_DEFAULT_USERS = [
-  { username: "Gehad",   password: "12345678" },
-  { username: "Haitham", password: "945992"   },
-  { username: "Heba",    password: "123456"   }
-];
-function loadUSERS() {
-  try {
-    const stored = localStorage.getItem("tryshoppy_users");
-    const list = stored ? JSON.parse(stored) : TRYSHOPPY_DEFAULT_USERS;
-    const map = {};
-    list.forEach(u => { map[u.username.toLowerCase()] = { pass: u.password, label: u.username }; });
-    return map;
-  } catch { return {}; }
-}
-const USERS = loadUSERS();
-
-// ── ✅ تحديث المستخدمين من جوجل شيت (Sheet3) ──
-async function refreshUsersFromSheet() {
-  try {
-    const res = await fetch(scriptURL + "?action=getUsers", { signal: AbortSignal.timeout(5000) });
-    const list = await res.json();
-    // تأكد إن البيانات فعلاً مستخدمين (مش أوردرات)
-    if (Array.isArray(list) && list.length && list[0].username && list[0].password) {
-      localStorage.setItem("tryshoppy_users", JSON.stringify(list));
-      Object.keys(USERS).forEach(k => delete USERS[k]);
-      list.forEach(u => { USERS[String(u.username).toLowerCase()] = { pass: String(u.password), label: u.username }; });
-    }
-  } catch (e) { /* لو النت قاطع أو السكريبت لسه متعملش نكمل بالنسخة المحلية */ }
-}
-refreshUsersFromSheet();
+// ── المستخدمين من users.js ──
+const USERS = {};
+(function buildUsers() {
+  const list = (typeof TRYSHOPPY_DEFAULT_USERS !== "undefined") ? TRYSHOPPY_DEFAULT_USERS : [];
+  list.forEach(u => { USERS[u.username.toLowerCase()] = { pass: u.password, label: u.username }; });
+})();
 
 // ── التحقق من الـ Session ──
 function checkSession() {
@@ -194,7 +170,6 @@ function showMain() {
   document.getElementById("loginScreen").style.display = "none";
   document.getElementById("mainContent").style.display = "block";
 
-  // عرض اسم اليوزر
   const label = localStorage.getItem("currentUserLabel") || localStorage.getItem("currentUser") || "";
   const badge = document.getElementById("qUserBadge");
   if (badge) badge.textContent = label ? "👤 " + label : "";
@@ -202,11 +177,9 @@ function showMain() {
   loadData();
 }
 
-async function doLogin() {
+function doLogin() {
   const u = document.getElementById("loginUser").value.trim().toLowerCase();
   const p = document.getElementById("loginPass").value;
-  // لو اليوزر مش موجود محلياً نجرب نحدّث من الشيت الأول
-  if (!USERS[u] || USERS[u].pass !== p) await refreshUsersFromSheet();
   if (USERS[u] && USERS[u].pass === p) {
     localStorage.setItem("currentUser", u);
     localStorage.setItem("currentUserLabel", USERS[u].label);
