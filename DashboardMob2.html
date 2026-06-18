@@ -935,7 +935,7 @@ function generateUndeliveredSummary(o) {
     const items = dateGroups[dateKey];
     let groupTotal = 0;
 
-    message += `\n━━━━━━━━━━━━\n📅 موعد الوصول: ${dateKey === NO_DATE_KEY ? dateKey.replace("📌 ", "") : dateKey}\n━━━━━━━━━━━━\n`;
+    message += `\n━━━━━━━━━━━━\n📅👇ملخص طلبات موعد وصولها: ${dateKey === NO_DATE_KEY ? dateKey.replace("📌 ", "") : dateKey}\n━━━━━━━━━━━━\n`;
 
     items.forEach(it => {
       const piecePrice = it.qty > 0 ? (it.price / it.qty) : it.price;
@@ -950,7 +950,7 @@ function generateUndeliveredSummary(o) {
     });
 
     grandTotal += groupTotal;
-    message += `\n📌 إجمالي طلبات هذا الموعد: ${groupTotal.toLocaleString()} ج.م\n`;
+    message += `\n📌☝🏻 إجمالي طلبات هذا الموعد: ${groupTotal.toLocaleString()} ج.م\n`;
   });
 
   message += `\n═══════════════\n💰 الإجمالي الكلي لكل الطلبات غير المستلمة: ${grandTotal.toLocaleString()} ج.م\n═══════════════\n\n📞 لو حضرتك عندك أي استفسار، تواصل معنا في أي وقت 🙏`;
