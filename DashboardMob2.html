@@ -575,6 +575,30 @@ message += `
 
 📞 برجاء تأكيد تواجد حضرتك للاستلام 🙏`;
 
+let summaryBtn = "";
+
+if (isGrouped) {
+  summaryBtn = `
+    <button
+      onclick="sendUndeliveredSummary('${cleanOrderId}')"
+      class="link-btn"
+      style="background:#f59e0b; color:white; border-color:#d97706;"
+    >
+      📊 ملخص الطلبات غير المستلمة
+    </button>
+  `;
+} else {
+  summaryBtn = `
+    <button
+      onclick="alert('⚠️ عفواً، يجب الضغط على زر (تجميع / فك تجميع الطلبات) أعلى الصفحة أولاً لإمكانية إظهار ملخص الطلبات غير المستلمة.');"
+      class="link-btn"
+      style="background:#cbd5e1; color:#475569; border:none; cursor:not-allowed; font-family:'Cairo';"
+    >
+      📊 ملخص الطلبات (مغلق)
+    </button>
+  `;
+}
+
 let whatsappBtn = "";
 
 if (o.status === "Arrived Cairo HUB") {
@@ -675,6 +699,7 @@ if (o.status === "Arrived Cairo HUB") {
 </button>
         <button class="btn-group" onclick="openInvoice('${cleanOrderId}')">🧾 فاتورة</button>
         ${whatsappBtn}
+        ${summaryBtn}
         <button class="btn-group" ${isGrouped ? 'style="background:#cbd5e1; color:#475569; cursor:not-allowed;"' : 'style="background:var(--primary)"'} onclick="${isGrouped ? 'groupLockMsg()' : `openDuplicateModal('${cleanOrderId}')`}">📋 إضافة منتج لنفس العميل</button>
       </div>
     </div>
@@ -726,10 +751,10 @@ function applyFilters(){
         groups[key]={
           ...o,
           order:o.order,
-          items: [{link: o.link, price: o.finalPrice, qty: parseInt(o.quantity)||1}]
+          items: [{link: o.link, price: o.finalPrice, qty: parseInt(o.quantity)||1, status: o.status || "", arrivaldate: o.arrivaldate || "", order: o.order || ""}]
         };
       }else{
-        groups[key].items.push({link: o.link, price: o.finalPrice, qty: parseInt(o.quantity)||1}); 
+        groups[key].items.push({link: o.link, price: o.finalPrice, qty: parseInt(o.quantity)||1, status: o.status || "", arrivaldate: o.arrivaldate || "", order: o.order || ""}); 
         groups[key].quantity = (parseInt(groups[key].quantity)||0) + (parseInt(o.quantity)||1);
         groups[key].weight = (parseFloat(groups[key].weight)||0) + (parseFloat(o.weight)||0);
         groups[key].finalPrice = (parseFloat(groups[key].finalPrice)||0) + (parseFloat(o.finalPrice)||0);
@@ -841,6 +866,96 @@ function generateInvoice(order){
 
 function groupLockMsg(){
   alert("⚠️ تم تفعيل التجميع\n\n✋ لا يمكن إتمام هذه العملية أثناء التجميع\nيرجى الضغط على زر 'فك التجميع' أعلى الصفحة أولاً");
+}
+
+// ==========================================
+// 📊 ملخص الطلبات غير المستلمة (واتساب)
+// ==========================================
+function sendUndeliveredSummary(orderId) {
+  const order = currentViewData.find(o => String(o.order).split(' + ')[0] === orderId);
+  if (!order) return alert("حدث خطأ في جلب بيانات العميل.");
+  generateUndeliveredSummary(order);
+}
+
+function generateUndeliveredSummary(o) {
+  const phone = String(o.phone || "").replace(/\D/g, "").replace(/^0/, "");
+
+  // تجميع كل المنتجات (تدعم العرض المجمّع والمفرد)
+  let allItems = [];
+  if (o.items && o.items.length) {
+    allItems = o.items.map(it => ({
+      order: it.order || "",
+      link: it.link || "",
+      price: parseFloat(it.price || 0),
+      qty: parseInt(it.qty || 1) || 1,
+      status: it.status || o.status || "",
+      arrivaldate: (it.arrivaldate || "").toString().trim()
+    }));
+  } else {
+    allItems = [{
+      order: o.order || "",
+      link: o.link || "",
+      price: parseFloat(o.finalPrice || 0),
+      qty: parseInt(o.quantity || 1) || 1,
+      status: o.status || "",
+      arrivaldate: (o.arrivaldate || "").toString().trim()
+    }];
+  }
+
+  // استبعاد المنتجات المُسلَّمة أو الملغاة
+  const pendingItems = allItems.filter(it => it.status !== "Delivered" && it.status !== "Canceled");
+
+  if (pendingItems.length === 0) {
+    alert("🎉 لا يوجد طلبات غير مستلمة لهذا العميل حالياً، كل طلباته تم تسليمها بالفعل!");
+    return;
+  }
+
+  // تجميع المنتجات حسب موعد الوصول
+  const NO_DATE_KEY = "📌 موعد لم يتحدد بعد";
+  const dateGroups = {};
+  pendingItems.forEach(it => {
+    const key = it.arrivaldate ? it.arrivaldate : NO_DATE_KEY;
+    if (!dateGroups[key]) dateGroups[key] = [];
+    dateGroups[key].push(it);
+  });
+
+  // ترتيب المواعيد أبجدياً، وترك "غير محدد" في الآخر دايماً
+  const dateKeys = Object.keys(dateGroups).sort((a, b) => {
+    if (a === NO_DATE_KEY) return 1;
+    if (b === NO_DATE_KEY) return -1;
+    return a.localeCompare(b, 'ar');
+  });
+
+  let message = `السلام عليكم ${o.customerName ? "أ/ " + o.customerName : "حضرتك"} 👋
+ده ملخص بكل طلبات حضرتك اللي لسه في الطريق ولم يتم استلامها 📦✨\n`;
+
+  let grandTotal = 0;
+
+  dateKeys.forEach(dateKey => {
+    const items = dateGroups[dateKey];
+    let groupTotal = 0;
+
+    message += `\n━━━━━━━━━━━━\n📅 موعد الوصول: ${dateKey === NO_DATE_KEY ? dateKey.replace("📌 ", "") : dateKey}\n━━━━━━━━━━━━\n`;
+
+    items.forEach(it => {
+      const piecePrice = it.qty > 0 ? (it.price / it.qty) : it.price;
+      groupTotal += it.price;
+
+      message += `\n🔖 أوردر: ${it.order || "-"}`;
+      if (it.link) message += `\n🔗 المنتج: ${it.link}`;
+      message += `\n📦 العدد: ${it.qty}
+💵 سعر القطعة: ${piecePrice.toLocaleString()} ج.م
+💰 إجمالي القطعة: ${it.price.toLocaleString()} ج.م
+🚦 الحالة الحالية: ${it.status || "—"}\n`;
+    });
+
+    grandTotal += groupTotal;
+    message += `\n📌 إجمالي طلبات هذا الموعد: ${groupTotal.toLocaleString()} ج.م\n`;
+  });
+
+  message += `\n═══════════════\n💰 الإجمالي الكلي لكل الطلبات غير المستلمة: ${grandTotal.toLocaleString()} ج.م\n═══════════════\n\n📞 لو حضرتك عندك أي استفسار، تواصل معنا في أي وقت 🙏`;
+
+  window.open(`https://wa.me/20${phone}?text=${encodeURIComponent(message)}`);
 }
 
 // ==========================================
