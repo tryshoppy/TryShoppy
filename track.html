@@ -175,7 +175,7 @@
     <span class="sub" id="pageSub">Track Your Order Status</span>
 
     <div class="input-group">
-        <input id="orderNo" type="text" placeholder="رقم الطلب أو رقم التليفون">
+        <input id="orderNo" type="text" placeholder="رقم الطلب">
     </div>
     <div class="input-hint">
         <span class="hint-primary" id="inputHintPrimary"></span>
@@ -197,21 +197,20 @@ let currentLang = 'ar';
 
 // نتيجة آخر بحث (تُستخدم لإعادة الرسم فورًا عند تبديل اللغة بدون إعادة الجلب)
 let lastFetchedData = null;
-let lastSearchMode = null;   // 'order' | 'phone'
+let lastSearchMode = null;   // 'order' only now (phone search removed for privacy)
 let lastSearchValue = null;
 
 // ── قاموس الترجمة ──
 const I18N = {
     pageTitle:        { ar: "تتبع حالة طلبك", en: "Track Your Order Status" },
-    inputPlaceholder: { ar: "رقم الطلب أو رقم التليفون", en: "Order Number or Phone Number" },
-    inputHint:        { ar: "يمكنك البحث برقم الطلب (مثال: TRY123 أو TRY-123) أو برقم التليفون المسجل لعرض كل الطلبات",
-                         en: "You can search by order number (e.g. TRY123 Or TRY-123) or by the registered phone number to see all orders" },
+    inputPlaceholder: { ar: "رقم الطلب", en: "Order Number" },
+    inputHint:        { ar: "يمكنك البحث برقم الطلب (مثال: TRY123 أو TRY-123)",
+                         en: "You can search by order number (e.g. TRY123 or TRY-123)" },
     trackBtn:         { ar: "تتبع الآن", en: "Track Now" },
     searching:        { ar: "جاري البحث...", en: "Searching..." },
-    emptyInput:       { ar: "يرجى إدخال رقم الطلب أو رقم التليفون", en: "Please enter an order number or phone number" },
+    emptyInput:       { ar: "يرجى إدخال رقم الطلب", en: "Please enter an order number" },
     connError:        { ar: "خطأ في الاتصال", en: "Connection Error" },
     invalidOrder:     { ar: "رقم الطلب غير صحيح", en: "Invalid Order Number" },
-    noPhoneOrders:    { ar: "لا يوجد طلبات مسجلة بهذا الرقم", en: "No orders found for this phone number" },
     orderLabel:       { ar: "رقم الطلب", en: "Order No." },
     qtyLabel:         { ar: "الكمية", en: "Quantity" },
     arrivalLabel:     { ar: "موعد الوصول المتوقع", en: "Expected Arrival" },
@@ -233,7 +232,7 @@ const STAGES = [
     { key: "Pending Review",     ar: "قيد المراجعة",        en: "Pending Review" },
     { key: "Confirmed Via Try",  ar: "تم تأكيد الطلب",       en: "Confirmed" },
     { key: "Processing",         ar: "جاري التجهيز والشراء", en: "Processing" },
-    { key: "Placed",             ar: "تم الشحن من الخارج",   en: "Shipped from origin" },
+    { key: "Placed",             ar: "تم الطلب وجاري الشحن من الخارج",   en: "Placed and Shipping now from origin" },
     { key: "Arrived Cairo HUB",  ar: "وصل مخزن القاهرة",     en: "Arrived Cairo HUB" },
     { key: "Shipped To You",     ar: "في الطريق إليك",       en: "Out for delivery" },
     { key: "Delivered",          ar: "تم التسليم 🎉",        en: "Delivered" }
@@ -243,7 +242,7 @@ const STATUS_BADGES = {
     "Pending Review":    { ar: "قيد المراجعة",   en: "Pending Review",   cls: "b-gray"   },
     "Confirmed Via Try":  { ar: "تم التأكيد",     en: "Confirmed",        cls: "b-blue"   },
     "Processing":         { ar: "جاري التجهيز",   en: "Processing",       cls: "b-orange" },
-    "Placed":             { ar: "تم الشحن",       en: "Shipped",          cls: "b-orange" },
+    "Placed":             { ar: "تم الطلب",       en: "Placed",          cls: "b-orange" },
     "Arrived Cairo HUB":  { ar: "وصل القاهرة",    en: "Arrived Cairo HUB",cls: "b-blue"   },
     "Shipped To You":     { ar: "في الطريق إليك", en: "Out for delivery", cls: "b-blue"   },
     "Delivered":          { ar: "تم التسليم",     en: "Delivered",        cls: "b-green"  },
@@ -277,8 +276,6 @@ function toggleLang() {
     applyStaticTexts();
     if (lastSearchMode === 'order') {
         renderByOrder(lastFetchedData, lastSearchValue);
-    } else if (lastSearchMode === 'phone') {
-        renderByPhone(lastFetchedData, lastSearchValue);
     }
 }
 
@@ -312,22 +309,13 @@ function track() {
     btnText.textContent = t('searching');
     resultDiv.style.display = "none";
 
-    const digitsOnly = rawInput.replace(/\D/g, "");
-    const looksLikePhone = /^[\d+\s]+$/.test(rawInput) && digitsOnly.length >= 9 && digitsOnly.length <= 13;
-
     fetch(SCRIPT_URL)
         .then(res => res.json())
         .then(data => {
             lastFetchedData = data;
-            if (looksLikePhone) {
-                lastSearchMode = 'phone';
-                lastSearchValue = digitsOnly;
-                renderByPhone(data, digitsOnly);
-            } else {
-                lastSearchMode = 'order';
-                lastSearchValue = rawInput;
-                renderByOrder(data, rawInput);
-            }
+            lastSearchMode = 'order';
+            lastSearchValue = rawInput;
+            renderByOrder(data, rawInput);
         })
         .catch(() => {
             resultDiv.innerHTML = `<div class="err-box">${bilingualBlock('connError')}</div>`;
@@ -405,41 +393,6 @@ function renderByOrder(data, orderInput) {
 
     resultDiv.innerHTML = html;
     resultDiv.style.display = "block";
-}
-
-// ============================
-// 🔍 البحث برقم التليفون
-// ============================
-function renderByPhone(data, digits) {
-    const resultDiv = document.getElementById("result");
-    const matches = data.filter(o => normalizePhone(o.phone) === digits);
-
-    if (matches.length === 0) {
-        resultDiv.innerHTML = `<div class="err-box">${bilingualBlock('noPhoneOrders')}</div>`;
-        resultDiv.style.display = "block";
-        return;
-    }
-
-    const pending = matches.filter(o => o.status !== "Delivered" && o.status !== "Canceled");
-    const others   = matches.filter(o => o.status === "Delivered" || o.status === "Canceled");
-    const sorted = [...pending, ...others];
-
-    let html = `<div class="siblings-title" style="margin-top:0; border-top:none; padding-top:0;">
-        🔎 ${phoneFoundHeader(matches.length)}
-    </div>`;
-
-    sorted.forEach(s => html += siblingCardHTML(s));
-    html += helpLineHTML();
-
-    resultDiv.innerHTML = html;
-    resultDiv.style.display = "block";
-}
-
-function phoneFoundHeader(n) {
-    if (currentLang === 'ar') {
-        return `وجدنا ${n} طلب${n > 1 ? "ات" : ""} مرتبط${n > 1 ? "ة" : ""} بهذا الرقم`;
-    }
-    return `We found ${n} order${n > 1 ? "s" : ""} linked to this number`;
 }
 
 // ============================
