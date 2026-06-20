@@ -133,6 +133,7 @@ button:hover{ opacity:.9; }
 
 <div id="waContainer" style="display:none; margin-top:14px;">
   <button onclick="sendWhatsApp()" style="background:#25D366;">💬 تأكيد الأوردر عبر واتساب</button>
+  <button onclick="sendCustomerSummary()" style="background:#0ea5e9; margin-top:10px;">📩 إرسال ملخص الطلب للعميل</button>
 </div>
 
 </div>
@@ -259,6 +260,31 @@ function sendWhatsApp() {
   const finalEGP = parseFloat(d.newEgp || 0).toLocaleString();
   const msg = `TRY SHOPPY Order\nOrder No: ${d.newOrder}\nName: ${d.customerName}\nPhone: ${d.phone}\nGovernorate: ${d.governorate||""}\nAddress: ${d.address||""}\nQuantity: ${qty}\nUnit Price USD: ${d.unitUsd} USD\nUnit Price EGP: ${d.unitEgp} EGP\n\nTotal USD: ${d.newUsd} USD\nTotal Price: ${finalEGP} EGP\nProduct: ${d.newLink}\nSPCS: ${d.dimensions||""}`;
   window.open(`https://wa.me/201005609642?text=${encodeURIComponent(msg)}`);
+}
+
+function sendCustomerSummary() {
+  const d = lastOrderData;
+  const phone = String(d.phone || "").replace(/\D/g, "").replace(/^0/, "");
+  const qty = parseInt(d.quantity || 1);
+  const piecePrice = parseFloat(d.unitEgp || 0);
+  const total = parseFloat(d.newEgp || 0);
+  const specsLine = d.dimensions && d.dimensions.trim() ? `📝 المواصفات: ${d.dimensions.trim()}\n` : "";
+
+  const msg = `السلام عليكم ${d.customerName ? "أ/ " + d.customerName : "حضرتك"} 👋
+تم تسجيل طلب حضرتك بنجاح في TRY SHOPPY ✅
+
+🔖 رقم الطلب: ${d.newOrder}
+🔗 المنتج: ${d.newLink}
+📦 العدد: ${qty}
+${specsLine}💵 سعر القطعة: ${piecePrice.toLocaleString()} ج.م
+💰 الإجمالي: ${total.toLocaleString()} ج.م
+
+🚚 يمكنك تتبع هذا المنتج في أي وقت من هنا برقم الطلب:
+🔗 https://try-shoppy.com/track
+
+📞 لأي استفسار، تواصل معنا في أي وقت 🙏`;
+
+  window.open(`https://wa.me/20${phone}?text=${encodeURIComponent(msg)}`);
 }
 
 function createOrder() {
