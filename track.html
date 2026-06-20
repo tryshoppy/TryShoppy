@@ -13,6 +13,9 @@
             --card-bg: #ffffff;
             --success: #27ae60;
             --error: #e74c3c;
+            --warning: #f39c12;
+            --info: #3498db;
+            --muted: #aaaaaa;
         }
 
         * { box-sizing: border-box; font-family: 'Cairo', sans-serif; }
@@ -20,7 +23,7 @@
         body {
             background-color: var(--soft-bg);
             margin: 0; padding: 20px; color: var(--brand-black);
-            display: flex; justify-content: center; align-items: center;
+            display: flex; justify-content: center; align-items: flex-start;
             min-height: 100vh;
         }
 
@@ -30,23 +33,36 @@
             border-radius: 25px;
             max-width: 480px;
             width: 100%;
+            margin-top: 30px;
             box-shadow: 0 15px 40px rgba(0,0,0,0.08);
             border: 1px solid rgba(255, 220, 94, 0.4);
             text-align: center;
         }
+
+        .top-bar { display: flex; justify-content: flex-end; margin-bottom: 6px; }
+        .lang-btn {
+            width: auto; padding: 7px 16px; font-size: 0.78rem; font-weight: 800;
+            background: #f4f4f4; color: var(--brand-black); border: 1px solid #eee;
+            border-radius: 99px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+        }
+        .lang-btn:hover { background: var(--brand-yellow); }
 
         .logo img { max-width: 140px; margin-bottom: 20px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1)); }
 
         h2 { font-size: 1.5rem; margin-bottom: 5px; color: var(--brand-black); }
         .sub { color: #666; font-size: 0.9rem; margin-bottom: 25px; display: block; }
 
-        .input-group { margin-bottom: 15px; }
+        .input-group { margin-bottom: 8px; }
         input {
             width: 100%; padding: 15px; border: 2px solid #f1f1f1;
             border-radius: 15px; font-size: 16px; transition: 0.3s;
             background: #fafafa; text-align: center; font-weight: 600;
         }
         input:focus { border-color: var(--brand-yellow); outline: none; background: #fff; }
+
+        .input-hint { font-size: 0.75rem; margin-bottom: 15px; line-height: 1.5; }
+        .hint-primary { color: #888; display: block; }
+        .hint-secondary { color: #bbb; display: block; margin-top: 2px; }
 
         button {
             width: 100%; padding: 15px; border: none; border-radius: 15px;
@@ -57,26 +73,88 @@
 
         .result-area { margin-top: 30px; display: none; text-align: right; animation: fadeIn 0.5s ease; }
 
-        /* Timeline Style */
-        .timeline { position: relative; padding-right: 30px; margin-top: 10px; }
-        .timeline::before {
-            content: ''; position: absolute; right: 7px; top: 10px;
-            width: 2px; height: 90%; background: var(--brand-yellow);
+        /* ── Order Summary Header ── */
+        .order-head {
+            background: var(--soft-bg); border: 1px solid rgba(255,220,94,0.5);
+            border-radius: 16px; padding: 16px; margin-bottom: 20px;
         }
-
-        .item { position: relative; margin-bottom: 25px; }
-        .item::before {
-            content: ''; position: absolute; right: -28px; top: 8px;
-            width: 16px; height: 16px; background: var(--brand-black);
-            border: 3px solid var(--brand-yellow); border-radius: 50%; z-index: 2;
+        .order-head .order-id { font-weight: 800; font-size: 1.05rem; color: var(--brand-black); }
+        .order-head .order-link {
+            display: block; margin-top: 6px; font-size: 0.85rem; color: var(--info);
+            text-decoration: none; word-break: break-all;
         }
+        .order-head .order-meta {
+            display: flex; justify-content: space-between; margin-top: 10px;
+            font-size: 0.85rem; color: #555; flex-wrap: wrap; gap: 6px;
+        }
+        .order-head .price-tag { font-weight: 800; color: var(--brand-black); }
 
-        .current-status { color: var(--success); font-weight: 800; font-size: 1.1rem; }
-        .t-time { font-size: 0.75rem; color: #888; display: block; }
-        .t-status { font-weight: 700; font-size: 1rem; color: var(--brand-black); }
-        .t-note { font-size: 0.85rem; color: #555; }
+        /* ── Status Banner (Canceled / Delayed) ── */
+        .status-banner {
+            border-radius: 14px; padding: 14px 16px; margin-bottom: 18px;
+            font-weight: 700; text-align: center; font-size: 0.95rem;
+        }
+        .status-banner.canceled { background: #fdecea; color: var(--error); border: 1px solid #f7c9c4; }
+        .status-banner.delayed  { background: #fef6e7; color: var(--warning); border: 1px solid #fbe3b5; }
+        .status-banner small { display:block; font-weight:500; opacity:0.85; margin-top:4px; }
 
-        .lang-en { display: block; font-size: 0.8rem; opacity: 0.7; font-weight: 400; direction: ltr; text-align: right; }
+        /* ── Stepper (segmented connectors — no trailing tail) ── */
+        .stepper { position: relative; padding-right: 32px; margin: 10px 0 25px; }
+        .step { position: relative; padding-bottom: 22px; }
+        .step:last-child { padding-bottom: 0; }
+        .step:not(:last-child)::after {
+            content: ''; position: absolute; right: -23px; top: 20px; bottom: 0;
+            width: 3px; background: #ececec; z-index: 0;
+        }
+        .step.done:not(:last-child)::after { background: var(--success); }
+        .step-dot {
+            position: absolute; right: -32px; top: 0; width: 20px; height: 20px; border-radius: 50%;
+            background: #ececec; border: 3px solid #ececec; display: flex; align-items: center;
+            justify-content: center; font-size: 11px; color: #fff; transition: .3s; z-index: 1;
+        }
+        .step.done .step-dot { background: var(--success); border-color: var(--success); }
+        .step.active .step-dot {
+            background: var(--brand-black); border-color: var(--brand-yellow);
+            box-shadow: 0 0 0 4px rgba(255,220,94,.35);
+        }
+        .step-label { font-weight: 700; font-size: 0.92rem; color: var(--muted); }
+        .step.done .step-label, .step.active .step-label { color: var(--brand-black); }
+        .step-sub { font-size: 0.72rem; color: #bbb; text-align: right; }
+
+        /* ── Sibling Orders ── */
+        .siblings-title {
+            font-weight: 800; font-size: 0.95rem; margin: 22px 0 12px;
+            border-top: 2px dashed #eee; padding-top: 18px;
+        }
+        .sibling-card {
+            background: #fafafa; border: 1px solid #eee; border-radius: 14px;
+            padding: 12px 14px; margin-bottom: 10px;
+        }
+        .sibling-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+        .sibling-order { font-weight: 800; font-size: 0.9rem; }
+        .sibling-link {
+            display: block; font-size: 0.78rem; color: var(--info); margin-top: 4px;
+            text-decoration: none; word-break: break-all;
+        }
+        .sibling-meta { font-size: 0.78rem; color: #777; margin-top: 6px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:4px; }
+
+        .badge {
+            display: inline-block; padding: 4px 12px; border-radius: 99px;
+            font-size: 0.72rem; font-weight: 800; white-space: nowrap;
+        }
+        .badge.b-gray   { background:#eee; color:#666; }
+        .badge.b-orange { background:#fef0e0; color:#d4720a; }
+        .badge.b-blue   { background:#e3f1fb; color:#1d6fa5; }
+        .badge.b-green  { background:#e6f6ec; color:var(--success); }
+        .badge.b-red    { background:#fdecea; color:var(--error); }
+        .badge.b-yellow { background:#fef6e7; color:var(--warning); }
+
+        .help-line {
+            margin-top: 22px; text-align: center; font-size: 0.8rem; color: #888;
+        }
+        .help-line a { color: #1d6fa5; font-weight: 700; text-decoration: none; }
+
+        .err-box { color: var(--error); text-align: center; padding: 10px 0; }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
@@ -84,91 +162,341 @@
 <body>
 
 <div class="track-box">
+
+    <div class="top-bar">
+        <button id="langToggleBtn" class="lang-btn" onclick="toggleLang()">🌐 English</button>
+    </div>
+
     <div class="logo">
         <img src="logo.png" alt="TRY SHOPPY">
     </div>
-    
-    <h2>تتبع حالة طلبك</h2>
-    <span class="sub">Track Your Order Status</span>
-    
+
+    <h2 id="pageTitle">تتبع حالة طلبك</h2>
+    <span class="sub" id="pageSub">Track Your Order Status</span>
+
     <div class="input-group">
-        <input id="orderNo" type="text" placeholder="TRY-2026-XXXXXX">
+        <input id="orderNo" type="text" placeholder="رقم الطلب أو رقم التليفون">
     </div>
-    
+    <div class="input-hint">
+        <span class="hint-primary" id="inputHintPrimary"></span>
+        <span class="hint-secondary" id="inputHintSecondary"></span>
+    </div>
+
     <button id="trackBtn" onclick="track()">
-        <span id="btnText">تتبع الآن | Track Now</span>
+        <span id="btnText">تتبع الآن</span>
     </button>
 
     <div id="result" class="result-area"></div>
 </div>
 
 <script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby-HrSH3DwpAPJAuhiAPlBJAngy-_qUZ7-O925hTA7FnbBVHkrjprfJavEA-WKyofIdlg/exec";
+const SUPPORT_PHONE = "201005609642";
+
+let currentLang = 'ar';
+
+// نتيجة آخر بحث (تُستخدم لإعادة الرسم فورًا عند تبديل اللغة بدون إعادة الجلب)
+let lastFetchedData = null;
+let lastSearchMode = null;   // 'order' | 'phone'
+let lastSearchValue = null;
+
+// ── قاموس الترجمة ──
+const I18N = {
+    pageTitle:        { ar: "تتبع حالة طلبك", en: "Track Your Order Status" },
+    inputPlaceholder: { ar: "رقم الطلب أو رقم التليفون", en: "Order Number or Phone Number" },
+    inputHint:        { ar: "يمكنك البحث برقم الطلب (مثال: TRY123 أو TRY-123) أو برقم التليفون المسجل لعرض كل الطلبات",
+                         en: "You can search by order number (e.g. TRY123 Or TRY-123) or by the registered phone number to see all orders" },
+    trackBtn:         { ar: "تتبع الآن", en: "Track Now" },
+    searching:        { ar: "جاري البحث...", en: "Searching..." },
+    emptyInput:       { ar: "يرجى إدخال رقم الطلب أو رقم التليفون", en: "Please enter an order number or phone number" },
+    connError:        { ar: "خطأ في الاتصال", en: "Connection Error" },
+    invalidOrder:     { ar: "رقم الطلب غير صحيح", en: "Invalid Order Number" },
+    noPhoneOrders:    { ar: "لا يوجد طلبات مسجلة بهذا الرقم", en: "No orders found for this phone number" },
+    orderLabel:       { ar: "رقم الطلب", en: "Order No." },
+    qtyLabel:         { ar: "الكمية", en: "Quantity" },
+    arrivalLabel:     { ar: "موعد الوصول المتوقع", en: "Expected Arrival" },
+    canceledMsg:      { ar: "تم إلغاء هذا الطلب", en: "This order has been canceled" },
+    delayedMsg:       { ar: "هذا الطلب متأخر قليلاً عن الموعد المتوقع، نعمل على متابعته", en: "This order is slightly delayed — we're following up on it" },
+    historyTitle:     { ar: "سجل التحديثات", en: "Update History" },
+    siblingsTitle:    { ar: "باقي طلباتك الجارية", en: "Your other In progress orders" },
+    helpQuestion:     { ar: "عندك استفسار عن طلبك؟", en: "Have a question about your order?" },
+    helpCta:          { ar: "تواصل معنا على واتساب 💬", en: "Contact us on WhatsApp 💬" },
+    pieceWord:        { ar: "قطعة", en: "pcs" },
+    currency:         { ar: "ج.م", en: "EGP" }
+};
+
+function t(key) { return I18N[key][currentLang]; }
+function other(key) { return I18N[key][currentLang === 'ar' ? 'en' : 'ar']; }
+
+// مراحل رحلة الطلب الفعلية (مطابقة لقايمة الحالات في الداشبورد)
+const STAGES = [
+    { key: "Pending Review",     ar: "قيد المراجعة",        en: "Pending Review" },
+    { key: "Confirmed Via Try",  ar: "تم تأكيد الطلب",       en: "Confirmed" },
+    { key: "Processing",         ar: "جاري التجهيز والشراء", en: "Processing" },
+    { key: "Placed",             ar: "تم الشحن من الخارج",   en: "Shipped from origin" },
+    { key: "Arrived Cairo HUB",  ar: "وصل مخزن القاهرة",     en: "Arrived Cairo HUB" },
+    { key: "Shipped To You",     ar: "في الطريق إليك",       en: "Out for delivery" },
+    { key: "Delivered",          ar: "تم التسليم 🎉",        en: "Delivered" }
+];
+
+const STATUS_BADGES = {
+    "Pending Review":    { ar: "قيد المراجعة",   en: "Pending Review",   cls: "b-gray"   },
+    "Confirmed Via Try":  { ar: "تم التأكيد",     en: "Confirmed",        cls: "b-blue"   },
+    "Processing":         { ar: "جاري التجهيز",   en: "Processing",       cls: "b-orange" },
+    "Placed":             { ar: "تم الشحن",       en: "Shipped",          cls: "b-orange" },
+    "Arrived Cairo HUB":  { ar: "وصل القاهرة",    en: "Arrived Cairo HUB",cls: "b-blue"   },
+    "Shipped To You":     { ar: "في الطريق إليك", en: "Out for delivery", cls: "b-blue"   },
+    "Delivered":          { ar: "تم التسليم",     en: "Delivered",        cls: "b-green"  },
+    "Canceled":           { ar: "ملغي",           en: "Canceled",         cls: "b-red"    },
+    "Delayed":            { ar: "متأخر",          en: "Delayed",          cls: "b-yellow" }
+};
+
+function normalizePhone(phone) {
+    return String(phone || "").replace(/\D/g, "").replace(/^2/, "").replace(/^0/, "");
+}
+
+function fmtPrice(v) {
+    return parseFloat(v || 0).toLocaleString();
+}
+
+function statusBadge(status) {
+    const m = STATUS_BADGES[status];
+    if (!m) return { label: status || "—", cls: "b-gray" };
+    return { label: currentLang === 'ar' ? m.ar : m.en, cls: m.cls };
+}
+
+function bilingualBlock(key) {
+    return `${t(key)}<br><small>${other(key)}</small>`;
+}
+
+// ============================
+// 🌐 تبديل اللغة الأساسية
+// ============================
+function toggleLang() {
+    currentLang = currentLang === 'ar' ? 'en' : 'ar';
+    applyStaticTexts();
+    if (lastSearchMode === 'order') {
+        renderByOrder(lastFetchedData, lastSearchValue);
+    } else if (lastSearchMode === 'phone') {
+        renderByPhone(lastFetchedData, lastSearchValue);
+    }
+}
+
+function applyStaticTexts() {
+    document.getElementById("pageTitle").textContent = t('pageTitle');
+    document.getElementById("pageSub").textContent = other('pageTitle');
+    document.getElementById("orderNo").placeholder = t('inputPlaceholder');
+    document.getElementById("inputHintPrimary").textContent = t('inputHint');
+    document.getElementById("inputHintSecondary").textContent = other('inputHint');
+    document.getElementById("btnText").textContent = t('trackBtn');
+    document.getElementById("langToggleBtn").textContent = currentLang === 'ar' ? "🌐 English" : "🌐 العربية";
+    document.documentElement.setAttribute("lang", currentLang);
+}
+
+// ============================
+// 🔎 البحث الرئيسي
+// ============================
 function track() {
-    const orderInput = document.getElementById("orderNo").value.trim();
+    const rawInput = document.getElementById("orderNo").value.trim();
     const resultDiv = document.getElementById("result");
     const btn = document.getElementById("trackBtn");
     const btnText = document.getElementById("btnText");
 
-    if (!orderInput) {
-        resultDiv.innerHTML = `<div style="color:var(--error); text-align:center;">يرجى إدخال رقم الطلب<br><small>Please enter order number</small></div>`;
+    if (!rawInput) {
+        resultDiv.innerHTML = `<div class="err-box">${bilingualBlock('emptyInput')}</div>`;
         resultDiv.style.display = "block";
         return;
     }
 
-    // جاري البحث
     btn.disabled = true;
-    btnText.innerText = "جاري البحث... | Searching...";
+    btnText.textContent = t('searching');
     resultDiv.style.display = "none";
 
-    fetch("https://script.google.com/macros/s/AKfycby-HrSH3DwpAPJAuhiAPlBJAngy-_qUZ7-O925hTA7FnbBVHkrjprfJavEA-WKyofIdlg/exec")
-    .then(res => res.json())
-    .then(data => {
-        let found = data.find(o => o.order === orderInput);
+    const digitsOnly = rawInput.replace(/\D/g, "");
+    const looksLikePhone = /^[\d+\s]+$/.test(rawInput) && digitsOnly.length >= 9 && digitsOnly.length <= 13;
 
-        if (found) {
-            // الحالة الحالية مدمجة في البداية
-            let historyHTML = `
-                <div class="item">
-                    <span class="t-time">${found.date}</span>
-                    <span class="t-status current-status">الحالة الحالية: ${found.status || "قيد المعالجة"}</span>
-                    <span class="lang-en">Current Status: ${found.status || "Processing"}</span>
-                    <span class="t-note">السعر النهائي: ${found.finalPrice} EGP</span>
-                    <span class="lang-en">Final Price: ${found.finalPrice} EGP</span>
-                </div>
-            `;
-
-            if (found.history && found.history.length > 0) {
-                found.history.forEach(h => {
-                    historyHTML += `
-                        <div class="item">
-                            <span class="t-time">${h.time}</span>
-                            <span class="t-status">${h.status}</span>
-                            <span class="t-note">${h.note || ""}</span>
-                        </div>`;
-                });
+    fetch(SCRIPT_URL)
+        .then(res => res.json())
+        .then(data => {
+            lastFetchedData = data;
+            if (looksLikePhone) {
+                lastSearchMode = 'phone';
+                lastSearchValue = digitsOnly;
+                renderByPhone(data, digitsOnly);
+            } else {
+                lastSearchMode = 'order';
+                lastSearchValue = rawInput;
+                renderByOrder(data, rawInput);
             }
-
-            resultDiv.innerHTML = `
-                <h4 style="margin-bottom:20px; border-bottom:2px solid var(--brand-yellow); padding-bottom:5px;">
-                    سجل الطلب | Order History:
-                </h4>
-                <div class="timeline">${historyHTML}</div>
-            `;
-        } else {
-            resultDiv.innerHTML = `<div style="color:var(--error); text-align:center;">رقم الطلب غير صحيح<br><small>Invalid Order Number</small></div>`;
-        }
-        
-        resultDiv.style.display = "block";
-        btn.disabled = false;
-        btnText.innerText = "تتبع الآن | Track Now";
-    })
-    .catch(err => {
-        resultDiv.innerHTML = `<div style="color:var(--error); text-align:center;">خطأ في الاتصال<br><small>Connection Error</small></div>`;
-        resultDiv.style.display = "block";
-        btn.disabled = false;
-        btnText.innerText = "تتبع الآن | Track Now";
-    });
+        })
+        .catch(() => {
+            resultDiv.innerHTML = `<div class="err-box">${bilingualBlock('connError')}</div>`;
+            resultDiv.style.display = "block";
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btnText.textContent = t('trackBtn');
+        });
 }
+
+// ============================
+// 🔍 البحث برقم الأوردر
+// ============================
+function renderByOrder(data, orderInput) {
+    const resultDiv = document.getElementById("result");
+    const found = data.find(o => String(o.order || "").trim().toUpperCase() === orderInput.toUpperCase());
+
+    if (!found) {
+        resultDiv.innerHTML = `<div class="err-box">${bilingualBlock('invalidOrder')}</div>`;
+        resultDiv.style.display = "block";
+        return;
+    }
+
+    let html = "";
+
+    html += `
+        <div class="order-head">
+            <div class="order-id">🔖 ${t('orderLabel')}: ${found.order}</div>
+            ${found.link ? `<a class="order-link" href="${found.link}" target="_blank">🔗 ${found.link}</a>` : ""}
+            <div class="order-meta">
+                <span>📦 ${t('qtyLabel')}: ${found.quantity || 1}</span>
+                <span class="price-tag">💰 ${fmtPrice(found.finalPrice)} ${t('currency')}</span>
+            </div>
+            ${found.arrivaldate ? `<div class="order-meta"><span>📅 ${t('arrivalLabel')}: ${found.arrivaldate}</span></div>` : ""}
+        </div>
+    `;
+
+    if (found.status === "Canceled") {
+        html += `<div class="status-banner canceled">❌ ${t('canceledMsg')}<small>${other('canceledMsg')}</small></div>`;
+    } else if (found.status === "Delayed") {
+        html += `<div class="status-banner delayed">⏳ ${t('delayedMsg')}<small>${other('delayedMsg')}</small></div>`;
+    } else {
+        html += buildStepper(found.status);
+    }
+
+    if (found.history && found.history.length > 0) {
+        html += `<div class="siblings-title">${t('historyTitle')}</div>`;
+        found.history.forEach(h => {
+            html += `
+                <div class="sibling-card">
+                    <div class="sibling-top">
+                        <span class="sibling-order">${h.status || ""}</span>
+                        <span style="font-size:0.75rem; color:#999;">${h.time || ""}</span>
+                    </div>
+                    <div class="sibling-meta">👤 By Try Agent</div>
+                </div>`;
+        });
+    }
+
+    const customerPhone = normalizePhone(found.phone);
+    const siblings = data.filter(o =>
+        normalizePhone(o.phone) === customerPhone &&
+        String(o.order) !== String(found.order) &&
+        o.status !== "Delivered" &&
+        o.status !== "Canceled"
+    );
+
+    if (siblings.length > 0) {
+        html += `<div class="siblings-title">📦 ${t('siblingsTitle')} (${siblings.length})</div>`;
+        siblings.forEach(s => html += siblingCardHTML(s));
+    }
+
+    html += helpLineHTML();
+
+    resultDiv.innerHTML = html;
+    resultDiv.style.display = "block";
+}
+
+// ============================
+// 🔍 البحث برقم التليفون
+// ============================
+function renderByPhone(data, digits) {
+    const resultDiv = document.getElementById("result");
+    const matches = data.filter(o => normalizePhone(o.phone) === digits);
+
+    if (matches.length === 0) {
+        resultDiv.innerHTML = `<div class="err-box">${bilingualBlock('noPhoneOrders')}</div>`;
+        resultDiv.style.display = "block";
+        return;
+    }
+
+    const pending = matches.filter(o => o.status !== "Delivered" && o.status !== "Canceled");
+    const others   = matches.filter(o => o.status === "Delivered" || o.status === "Canceled");
+    const sorted = [...pending, ...others];
+
+    let html = `<div class="siblings-title" style="margin-top:0; border-top:none; padding-top:0;">
+        🔎 ${phoneFoundHeader(matches.length)}
+    </div>`;
+
+    sorted.forEach(s => html += siblingCardHTML(s));
+    html += helpLineHTML();
+
+    resultDiv.innerHTML = html;
+    resultDiv.style.display = "block";
+}
+
+function phoneFoundHeader(n) {
+    if (currentLang === 'ar') {
+        return `وجدنا ${n} طلب${n > 1 ? "ات" : ""} مرتبط${n > 1 ? "ة" : ""} بهذا الرقم`;
+    }
+    return `We found ${n} order${n > 1 ? "s" : ""} linked to this number`;
+}
+
+// ============================
+// 🧩 مكونات مشتركة
+// ============================
+function siblingCardHTML(o) {
+    const b = statusBadge(o.status);
+    return `
+        <div class="sibling-card">
+            <div class="sibling-top">
+                <span class="sibling-order">🔖 ${o.order}</span>
+                <span class="badge ${b.cls}">${b.label}</span>
+            </div>
+            ${o.link ? `<a class="sibling-link" href="${o.link}" target="_blank">🔗 ${o.link}</a>` : ""}
+            <div class="sibling-meta">
+                <span>📦 ${o.quantity || 1} ${t('pieceWord')} — 💰 ${fmtPrice(o.finalPrice)} ${t('currency')}</span>
+                ${o.arrivaldate ? `<span>📅 ${o.arrivaldate}</span>` : ""}
+            </div>
+        </div>`;
+}
+
+function buildStepper(status) {
+    const idx = STAGES.findIndex(s => s.key === status);
+    let html = `<div class="stepper">`;
+
+    STAGES.forEach((s, i) => {
+        let cls = "step";
+        let dotContent = "";
+        if (idx !== -1) {
+            if (i < idx) { cls += " done"; dotContent = "✓"; }
+            else if (i === idx) { cls += " active"; }
+        }
+        const primaryText = currentLang === 'ar' ? s.ar : s.en;
+        const secondaryText = currentLang === 'ar' ? s.en : s.ar;
+
+        html += `
+            <div class="${cls}">
+                <div class="step-dot">${dotContent}</div>
+                <div class="step-label">${primaryText}</div>
+                <div class="step-sub">${secondaryText}</div>
+            </div>`;
+    });
+
+    html += `</div>`;
+    return html;
+}
+
+function helpLineHTML() {
+    return `
+        <div class="help-line">
+            ${t('helpQuestion')}
+            <a href="https://wa.me/${SUPPORT_PHONE}" target="_blank">${t('helpCta')}</a>
+        </div>`;
+}
+
+// تهيئة النصوص الافتراضية عند التحميل
+applyStaticTexts();
 </script>
 
 </body>
