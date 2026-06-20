@@ -247,6 +247,7 @@
 </div>
 <button class="btn-main" onclick="confirmOrder()">Confirm Order | تأكيد الطلب الآن</button>
 <button class="btn-whatsapp hidden" id="whatsappBtn" onclick="sendWhatsApp()">إرسال واتساب للتأكيد</button>
+<button class="btn-whatsapp hidden" id="customerSummaryBtn" style="background:#0ea5e9;" onclick="sendCustomerSummary()">📩 إرسال ملخص الطلب للعميل</button>
 </div>
 
 <button class="btn-track" onclick="window.open('track.html','_blank')">🔍 تتبع الطلب | Track Order</button>
@@ -377,6 +378,7 @@ function confirmOrder() {
 
   alert("تم تسجيل الطلب بنجاح");
   document.getElementById("whatsappBtn").classList.remove("hidden");
+  document.getElementById("customerSummaryBtn").classList.remove("hidden");
 }
 
 function sendWhatsApp() {
@@ -385,6 +387,39 @@ function sendWhatsApp() {
     " | Notes: " + document.getElementById("notes").value;
   let msg = `TRY SHOPPY Order\nOrder No: ${orderNumber}\nName: ${document.getElementById("customerName").value}\nPhone: ${document.getElementById("phone").value}\nGovernorate: ${document.getElementById("governorate").value}\nAddress: ${document.getElementById("address").value}\nQuantity: ${document.getElementById("quantity").value}\nUnit Price USD: ${document.getElementById("priceUSD").value} USD\nUnit Price EGP: ${document.getElementById("priceEGP").value} EGP\n\nTotal USD: ${usdTotal} USD\nTotal Price: ${finalEGP} EGP\nProduct: ${document.getElementById("productLink").value}\nSPCS: ${spcs}\n\nPlease confirm my order.`;
   window.open("https://wa.me/201005609642?text=" + encodeURIComponent(msg));
+}
+
+function sendCustomerSummary() {
+  const phone = document.getElementById("phone").value.replace(/\D/g, "").replace(/^0/, "");
+  const customerName = document.getElementById("customerName").value;
+  const qty = document.getElementById("quantity").value || 1;
+  const piecePrice = parseFloat(document.getElementById("priceEGP").value) || 0;
+  const link = document.getElementById("productLink").value;
+
+  const size = document.getElementById("size").value.trim();
+  const color = document.getElementById("color").value.trim();
+  const notes = document.getElementById("notes").value.trim();
+  const specsParts = [];
+  if (size) specsParts.push("المقاس: " + size);
+  if (color) specsParts.push("اللون: " + color);
+  if (notes) specsParts.push("ملاحظات: " + notes);
+  const specsLine = specsParts.length ? `📝 المواصفات: ${specsParts.join(" | ")}\n` : "";
+
+  const msg = `السلام عليكم ${customerName ? "أ/ " + customerName : "حضرتك"} 👋
+تم تسجيل طلب حضرتك بنجاح في TRY SHOPPY ✅
+
+🔖 رقم الطلب: ${orderNumber}
+🔗 المنتج: ${link}
+📦 العدد: ${qty}
+${specsLine}💵 سعر القطعة: ${piecePrice.toLocaleString()} ج.م
+💰 الإجمالي: ${finalEGP.toLocaleString()} ج.م
+
+🚚 يمكنك تتبع هذا المنتج في أي وقت من هنا برقم الطلب:
+🔗 https://try-shoppy.com/track
+
+📞 لأي استفسار، تواصل معنا في أي وقت 🙏`;
+
+  window.open("https://wa.me/20" + phone + "?text=" + encodeURIComponent(msg));
 }
 </script>
 </body>
