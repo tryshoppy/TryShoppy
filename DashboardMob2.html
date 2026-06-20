@@ -437,6 +437,9 @@ header {
       <button id="dupWhatsappBtn" onclick="sendDupWhatsApp()" style="width:100%; padding:13px; border:none; background:#25D366; color:white; border-radius:12px; font-weight:bold; font-size:15px; cursor:pointer; font-family:'Cairo'; transition:all 0.2s ease; display:flex; align-items:center; justify-content:center; gap:8px;">
         💬 تأكيد الأوردر عبر واتساب
       </button>
+      <button id="dupCustomerSummaryBtn" onclick="sendDupCustomerSummary()" style="width:100%; padding:13px; border:none; background:#0ea5e9; color:white; border-radius:12px; font-weight:bold; font-size:15px; cursor:pointer; font-family:'Cairo'; transition:all 0.2s ease; display:flex; align-items:center; justify-content:center; gap:8px; margin-top:10px;">
+        📩 إرسال ملخص الطلب للعميل
+      </button>
     </div>
   </div>
 </div>
@@ -1027,6 +1030,31 @@ Product: ${d.newLink}
 SPCS: ${d.dimensions || ""}`;
 
     window.open(`https://wa.me/201005609642?text=${encodeURIComponent(msg)}`);
+}
+
+function sendDupCustomerSummary() {
+    const d = lastDupData;
+    const phone = String(d.phone || "").replace(/\D/g, "").replace(/^0/, "");
+    const qty = parseInt(d.quantity || 1);
+    const piecePrice = parseFloat(d.newEgp || 0);
+    const total = piecePrice * qty;
+    const specsLine = d.dimensions && d.dimensions.trim() ? `📝 المواصفات: ${d.dimensions.trim()}\n` : "";
+
+    const msg = `السلام عليكم ${d.customerName ? "أ/ " + d.customerName : "حضرتك"} 👋
+تم تسجيل طلب حضرتك بنجاح في TRY SHOPPY ✅
+
+🔖 رقم الطلب: ${d.newOrder}
+🔗 المنتج: ${d.newLink}
+📦 العدد: ${qty}
+${specsLine}💵 سعر القطعة: ${piecePrice.toLocaleString()} ج.م
+💰 الإجمالي: ${total.toLocaleString()} ج.م
+
+🚚 يمكنك تتبع هذا المنتج في أي وقت من هنا برقم الطلب:
+🔗 https://try-shoppy.com/track
+
+📞 لأي استفسار، تواصل معنا في أي وقت 🙏`;
+
+    window.open(`https://wa.me/20${phone}?text=${encodeURIComponent(msg)}`);
 }
 
 function submitDuplicate() {
