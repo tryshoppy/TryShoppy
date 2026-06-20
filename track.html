@@ -79,6 +79,7 @@
             border-radius: 16px; padding: 16px; margin-bottom: 20px;
         }
         .order-head .order-id { font-weight: 800; font-size: 1.05rem; color: var(--brand-black); }
+        .order-head .arrival-line { font-size: 0.82rem; color: #555; margin-top: 5px; font-weight: 600; }
         .order-head .order-link {
             display: block; margin-top: 6px; font-size: 0.85rem; color: var(--info);
             text-decoration: none; word-break: break-all;
@@ -132,6 +133,7 @@
         }
         .sibling-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
         .sibling-order { font-weight: 800; font-size: 0.9rem; }
+        .sibling-arrival { font-size: 0.78rem; color: #777; margin-top: 5px; font-weight: 600; }
         .sibling-link {
             display: block; font-size: 0.78rem; color: var(--info); margin-top: 4px;
             text-decoration: none; word-break: break-all;
@@ -190,7 +192,7 @@
 </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby-HrSH3DwpAPJAuhiAPlBJAngy-_qUZ7-O925hTA7FnbBVHkrjprfJavEA-WKyofIdlg/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxkoRGFcYNriJuHHF9KmXzXJeyTqKO0OGGFZyWo28JRQZkF5ABPTxMx58go-fHXOtGKlQ/exec";
 const SUPPORT_PHONE = "201005609642";
 
 let currentLang = 'ar';
@@ -345,12 +347,12 @@ function renderByOrder(data, orderInput) {
     html += `
         <div class="order-head">
             <div class="order-id">🔖 ${t('orderLabel')}: ${found.order}</div>
+            ${found.arrivaldate ? `<div class="arrival-line">📅 ${t('arrivalLabel')}: ${found.arrivaldate}</div>` : ""}
             ${found.link ? `<a class="order-link" href="${found.link}" target="_blank">🔗 ${found.link}</a>` : ""}
             <div class="order-meta">
                 <span>📦 ${t('qtyLabel')}: ${found.quantity || 1}</span>
                 <span class="price-tag">💰 ${fmtPrice(found.finalPrice)} ${t('currency')}</span>
             </div>
-            ${found.arrivaldate ? `<div class="order-meta"><span>📅 ${t('arrivalLabel')}: ${found.arrivaldate}</span></div>` : ""}
         </div>
     `;
 
@@ -406,10 +408,10 @@ function siblingCardHTML(o) {
                 <span class="sibling-order">🔖 ${o.order}</span>
                 <span class="badge ${b.cls}">${b.label}</span>
             </div>
+            ${o.arrivaldate ? `<div class="sibling-arrival">📅 ${o.arrivaldate}</div>` : ""}
             ${o.link ? `<a class="sibling-link" href="${o.link}" target="_blank">🔗 ${o.link}</a>` : ""}
             <div class="sibling-meta">
                 <span>📦 ${o.quantity || 1} ${t('pieceWord')} — 💰 ${fmtPrice(o.finalPrice)} ${t('currency')}</span>
-                ${o.arrivaldate ? `<span>📅 ${o.arrivaldate}</span>` : ""}
             </div>
         </div>`;
 }
