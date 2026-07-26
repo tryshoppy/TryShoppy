@@ -1312,7 +1312,6 @@ function applyBulkStatus(){
 function groupLockMsg(){
   alert("⚠️ تم تفعيل التجميع\n\n✋ لا يمكن التعديل أثناء التجميع\nيرجى فك التجميع للتعديل");
 }
-loadData();
 </script>
 
 <!-- ملف تسجيل الدخول الآمن الجديد — مفيش أي باسورد بيتحمّل هنا خالص -->
@@ -1342,6 +1341,7 @@ function showDashboard() {
   document.getElementById("loginScreen").style.display = "none";
   const badge = document.getElementById("dashUserBadge");
   if (badge) badge.textContent = getCurrentUser() ? "👤 " + getCurrentUser() : "";
+  loadData();
 }
 
 async function doLogin() {
