@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TRY SHOPPY - مرجع طلبات العملاء</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#2563eb;
+  --bg:#f4f7fe;
+  --white:#fff;
+  --text:#1e293b;
+  --border:#cbd5e1;
+  --gray:#64748b;
+}
+*{box-sizing:border-box;}
+body{ font-family:'Cairo',sans-serif; background:var(--bg); margin:0; padding:20px; color:var(--text); }
+.container{ max-width:760px; margin:auto; }
+.card{ background:white; border-radius:20px; padding:25px; box-shadow:0 5px 20px rgba(0,0,0,.08); margin-bottom:18px; }
+h2{ margin-top:0; text-align:center; color:var(--primary); font-weight:900; }
+.input-group{ margin-bottom:15px; }
+.input-group label{ display:block; margin-bottom:6px; font-weight:bold; color:#475569; }
+.input-group input{ width:100%; padding:14px; border:1px solid var(--border); border-radius:12px; font-family:'Cairo'; box-sizing:border-box; font-size:15px; }
+button{ padding:14px; border:none; border-radius:12px; background:var(--primary); color:white; font-family:'Cairo'; font-size:16px; font-weight:bold; cursor:pointer; }
+button:hover{ opacity:.9; }
+.search-row{ display:flex; gap:10px; }
+.search-row input{ flex:1; }
+.search-row button{ flex-shrink:0; padding:14px 22px; }
+
+/* ── Login Screen ── */
+#loginScreen{
+  display:none; min-height:100vh; align-items:center; justify-content:center;
+  flex-direction:column; padding:20px; box-sizing:border-box;
+}
+.login-box{
+  background:#fff; border-radius:24px; padding:35px 30px; width:100%; max-width:380px;
+  box-shadow:0 10px 40px rgba(0,0,0,0.08); border:1px solid #e2e8f0;
+}
+.login-logo{ font-size:2rem; font-weight:900; color:#2563eb; text-align:center; margin-bottom:6px; }
+.login-sub{ font-size:13px; color:#94a3b8; text-align:center; margin-bottom:26px; font-weight:600; }
+.login-label{ font-weight:700; font-size:14px; color:#334155; display:block; margin-bottom:7px; }
+.login-input{
+  width:100%; padding:13px 16px; border-radius:12px; border:1.5px solid #e2e8f0;
+  font-family:'Cairo'; font-size:15px; background:#f8fafc; box-sizing:border-box; margin-bottom:16px;
+}
+.login-input:focus{ outline:none; border-color:#2563eb; background:#fff; }
+.login-error{
+  display:none; color:#ef4444; font-size:13px; font-weight:700; text-align:center;
+  margin-bottom:14px; background:#fef2f2; padding:10px; border-radius:10px; border:1px solid #fecaca;
+}
+.btn-login{
+  width:100%; padding:14px; background:#2563eb; color:#fff; border:none; border-radius:12px;
+  font-family:'Cairo'; font-weight:900; font-size:15px; cursor:pointer;
+  box-shadow:0 4px 12px rgba(37,99,235,0.3);
+}
+.btn-login:hover{ background:#1d4ed8; }
+
+/* ── Main Content ── */
+#mainContent{ display:none; }
+.topbar{ display:flex; justify-content:center; align-items:center; gap:10px; margin-bottom:16px; }
+.user-badge{ background:#ede9fe; color:#6366f1; padding:5px 14px; border-radius:10px; font-weight:800; font-size:13px; border:1px solid #c4b5fd; }
+.btn-logout{ width:auto; padding:7px 16px; font-size:13px; background:#ef4444; border-radius:10px; }
+
+.empty-hint{ text-align:center; color:#94a3b8; font-weight:700; padding:20px 0; }
+.spinner{ display:inline-block; width:16px; height:16px; border:3px solid rgba(255,255,255,0.4); border-top-color:white; border-radius:50%; animation:spin .7s linear infinite; vertical-align:middle; margin-left:8px; }
+@keyframes spin{ to{ transform:rotate(360deg); } }
+
+/* customer summary */
+.cust-head{ display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px; margin-bottom:16px; }
+.cust-name{ font-size:1.3rem; font-weight:900; color:var(--text); }
+.cust-sub{ color:var(--gray); font-size:13px; font-weight:700; margin-top:4px; }
+.stats-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:10px; margin-bottom:6px; }
+.stat-box{ background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:14px 10px; text-align:center; }
+.stat-box .num{ font-size:1.4rem; font-weight:900; color:var(--primary); }
+.stat-box.open .num{ color:#d97706; }
+.stat-box.spent .num{ color:#16a34a; font-size:1.1rem; }
+.stat-box .lbl{ font-size:11.5px; color:var(--gray); font-weight:700; margin-top:3px; }
+
+/* orders list */
+.order-row{ border:1px solid #e2e8f0; border-radius:14px; padding:14px 16px; margin-bottom:10px; cursor:pointer; }
+.order-row:hover{ border-color:#c7d2fe; }
+.order-top{ display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
+.order-id{ font-weight:900; color:var(--text); }
+.order-date{ font-size:12px; color:var(--gray); font-weight:700; }
+.order-meta{ display:flex; gap:14px; margin-top:8px; font-size:13px; color:#475569; font-weight:700; flex-wrap:wrap; }
+.order-history{ display:none; margin-top:10px; padding-top:10px; border-top:1px dashed #e2e8f0; font-size:12.5px; color:#64748b; }
+.order-history div{ margin-bottom:4px; }
+.badge{ display:inline-block; padding:4px 12px; border-radius:20px; font-size:11px; font-weight:800; }
+.b-gray{ background:#f1f5f9; color:#475569; }
+.b-blue{ background:#eff6ff; color:#2563eb; }
+.b-orange{ background:#fff7ed; color:#c2410c; }
+.b-green{ background:#f0fdf4; color:#16a34a; }
+.b-red{ background:#fef2f2; color:#dc2626; }
+.b-yellow{ background:#fffbeb; color:#a16207; }
+</style>
+</head>
+<body>
+
+<!-- ====== شاشة الدخول ====== -->
+<div id="loginScreen" style="display:flex;">
+  <div class="login-box">
+    <div class="login-logo">TRY SHOPPY</div>
+    <div class="login-sub">مرجع طلبات العملاء — دخول موظفين مصرّح لهم فقط</div>
+    <label class="login-label">اسم المستخدم</label>
+    <input id="loginUser" type="text" class="login-input" placeholder="أدخل اسم المستخدم" autocomplete="username">
+    <label class="login-label">كلمة المرور</label>
+    <input id="loginPass" type="password" class="login-input" placeholder="أدخل كلمة المرور" autocomplete="current-password" onkeydown="if(event.key==='Enter') doLogin();">
+    <div id="loginError" class="login-error">❌ اسم المستخدم أو كلمة المرور غير صحيحة</div>
+    <button class="btn-login" id="loginBtn" onclick="doLogin()">دخول ←</button>
+  </div>
+</div>
+
+<!-- ====== المحتوى الرئيسي ====== -->
+<div id="mainContent">
+<div class="container">
+
+  <div class="card">
+    <h2>📇 مرجع طلبات العملاء</h2>
+    <div class="topbar">
+      <span id="userBadge" class="user-badge"></span>
+      <button class="btn-logout" onclick="doLogout()">خروج</button>
+    </div>
+
+    <div class="search-row">
+      <input type="text" id="phoneInput" placeholder="رقم موبايل العميل (01xxxxxxxxx)" onkeydown="if(event.key==='Enter') doSearch();">
+      <button id="searchBtn" onclick="doSearch()">🔍 بحث</button>
+    </div>
+  </div>
+
+  <div id="resultArea"></div>
+
+</div>
+</div>
+
+<script src="assets/config.js"></script>
+<script src="assets/app.js"></script>
+<script src="staff-auth.js"></script>
+<script>
+/* ============================================================
+   🔐 صفحة داخلية مقيّدة — الدخول محتاج تحقق من خطوتين مع بعض:
+   1) tsStaffLogin  → نفس حساب الموظف العادي (يوزر + باسورد)،
+      وده اللي بيدّينا staffToken لقراءة كل الطلبات من Orders_Code.gs
+   2) tsMartAdminLogin → نفس التحقق اللي بتستخدمه mart-admin.html
+      بالظبط، وهو بيرفض أي حد عمود CanManageMart بتاعه FALSE.
+      استخدمنا نفس العمود ده هنا بدل ما نضيف عمود صلاحية جديد في
+      شيت الموظفين — يعني "اللي يقدر يدير المارت" هو نفسه "اللي
+      يقدر يفتح مرجع الطلبات ده"، زي ما اتطلب بالظبط.
+   لازم الاتنين ينجحوا مع بعض، وإلا مفيش دخول للصفحة خالص.
+   ============================================================ */
+const SESSION_TIME = 2 * 60 * 60 * 1000;
+const scriptURL = TS_CONFIG.ORDERS_SCRIPT_URL;
+
+function getStaffToken(){ return localStorage.getItem("crefStaffToken") || ""; }
+
+function checkSession(){
+  const key = localStorage.getItem("crefUser");
+  const time = localStorage.getItem("crefLoginTime");
+  const now = new Date().getTime();
+  return !!(key && time && (now - time < SESSION_TIME) && getStaffToken());
+}
+
+function showLogin(){
+  document.getElementById("loginScreen").style.display = "flex";
+  document.getElementById("mainContent").style.display = "none";
+}
+function showMain(){
+  document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("mainContent").style.display = "block";
+  document.getElementById("userBadge").textContent = "👤 " + (localStorage.getItem("crefUserLabel") || "");
+}
+
+async function doLogin(){
+  const u = document.getElementById("loginUser").value.trim();
+  const p = document.getElementById("loginPass").value;
+  const errBox = document.getElementById("loginError");
+  const btn = document.getElementById("loginBtn");
+  if(!u || !p) return;
+
+  errBox.style.display = "none";
+  btn.disabled = true;
+  btn.innerHTML = "جاري التحقق... <span class=\"spinner\"></span>";
+
+  let staffRes, martRes;
+  try{
+    staffRes = await tsStaffLogin(u, p);
+  }catch(err){
+    staffRes = { success:false, message:"تعذر الاتصال بالسيرفر" };
+  }
+
+  if(!staffRes || !staffRes.success){
+    btn.disabled = false; btn.textContent = "دخول ←";
+    errBox.textContent = (staffRes && staffRes.code === "locked") ? "⏳ " + staffRes.message : "❌ اسم المستخدم أو كلمة المرور غير صحيحة";
+    errBox.style.display = "block";
+    return;
+  }
+
+  try{
+    martRes = await tsMartAdminLogin(u, p);
+  }catch(err){
+    martRes = { success:false };
+  }
+
+  btn.disabled = false; btn.textContent = "دخول ←";
+
+  if(!martRes || !martRes.success){
+    // اليوزر والباسورد صح، بس مفيش صلاحية وصول للأداة دي تحديدًا
+    errBox.textContent = "🚫 حسابك مش عنده صلاحية الدخول لمرجع الطلبات";
+    errBox.style.display = "block";
+    return;
+  }
+
+  localStorage.setItem("crefUser", u.toLowerCase());
+  localStorage.setItem("crefUserLabel", martRes.label || staffRes.label || u);
+  localStorage.setItem("crefLoginTime", new Date().getTime());
+  localStorage.setItem("crefStaffToken", staffRes.token || "");
+  document.getElementById("loginPass").value = "";
+  showMain();
+}
+
+function doLogout(){
+  localStorage.removeItem("crefUser");
+  localStorage.removeItem("crefUserLabel");
+  localStorage.removeItem("crefLoginTime");
+  localStorage.removeItem("crefStaffToken");
+  allOrders = null;
+  document.getElementById("resultArea").innerHTML = "";
+  document.getElementById("phoneInput").value = "";
+  showLogin();
+}
+
+function initAuth(){
+  if(checkSession()){ showMain(); }
+  else{ doLogout(); }
+}
+initAuth();
+
+/* ---------- تحميل الطلبات (مرة واحدة في الجلسة، وبتوكن موظف) ---------- */
+let allOrders = null;
+
+async function loadAllOrders(){
+  const url = scriptURL + "?staffToken=" + encodeURIComponent(getStaffToken());
+  const res = await fetch(url);
+  const data = await res.json();
+  if(!Array.isArray(data)){
+    alert("⚠️ الجلسة انتهت أو مش صالحة — سجّل دخول تاني.");
+    doLogout();
+    throw new Error("Unauthorized");
+  }
+  allOrders = data;
+  return data;
+}
+
+function normPhone(v){ return String(v||"").replace(/\D/g,"").replace(/^2/,"").replace(/^0/,""); }
+function fmt(v){ return parseFloat(v||0).toLocaleString(); }
+
+const OPEN_STATUSES_LABELS = { "Pending Review":"قيد المراجعة","Confirmed Via Try":"تم التأكيد","Processing":"جاري التجهيز","Placed":"تم الطلب وجاري الشحن","Arrived Cairo HUB":"وصل مخزن القاهرة","Shipped To You":"في الطريق إليك" };
+const STATUS_LABELS = Object.assign({ "Delivered":"تم التسليم 🎉","Canceled":"ملغي","Delayed":"متأخر" }, OPEN_STATUSES_LABELS);
+const STATUS_BADGE_CLASS = { "Delivered":"b-green","Canceled":"b-red","Delayed":"b-yellow","Pending Review":"b-gray","Confirmed Via Try":"b-blue","Processing":"b-orange","Placed":"b-orange","Arrived Cairo HUB":"b-blue","Shipped To You":"b-blue" };
+
+function statusLabel(s){ return STATUS_LABELS[s] || s || "—"; }
+function statusClass(s){ return STATUS_BADGE_CLASS[s] || "b-gray"; }
+function isOpenStatus(s){ return s !== "Delivered" && s !== "Canceled"; }
+
+async function doSearch(){
+  const raw = document.getElementById("phoneInput").value.trim();
+  const area = document.getElementById("resultArea");
+  const btn = document.getElementById("searchBtn");
+  if(!raw){ area.innerHTML = '<div class="card empty-hint">اكتب رقم موبايل العميل الأول</div>'; return; }
+
+  const target = normPhone(raw);
+  btn.disabled = true; btn.innerHTML = "جاري البحث... <span class=\"spinner\"></span>";
+  area.innerHTML = '<div class="card empty-hint">جاري تحميل بيانات الطلبات…</div>';
+
+  try{
+    if(!allOrders) await loadAllOrders();
+  }catch(e){
+    btn.disabled = false; btn.textContent = "🔍 بحث";
+    return; // loadAllOrders already alerted + logged out
+  }
+
+  btn.disabled = false; btn.textContent = "🔍 بحث";
+
+  const matches = allOrders.filter(o => normPhone(o.phone) === target);
+  if(matches.length === 0){
+    area.innerHTML = '<div class="card empty-hint">🚫 مفيش أي طلبات مسجّلة بالرقم ده</div>';
+    return;
+  }
+
+  renderCustomer(matches);
+}
+
+function renderCustomer(orders){
+  const area = document.getElementById("resultArea");
+  // الأحدث الأول
+  const sorted = [...orders].sort((a,b)=> new Date(b.date||0) - new Date(a.date||0));
+  const latest = sorted[0];
+
+  const totalOrders = sorted.length;
+  const openOrders = sorted.filter(o => isOpenStatus(o.status));
+  const deliveredOrders = sorted.filter(o => o.status === "Delivered");
+  const canceledOrders = sorted.filter(o => o.status === "Canceled");
+  const totalSpent = sorted.reduce((sum,o) => {
+    // بنجمع بس الطلبات اللي مش ملغية — الملغي مش حصل فيه تحصيل فعلي غالبًا
+    if(o.status === "Canceled") return sum;
+    const end = (o.EndPrice !== undefined && o.EndPrice !== null && o.EndPrice !== "")
+      ? parseFloat(o.EndPrice) : (parseFloat(o.finalPrice||0) + parseFloat(o.shipping||0) - parseFloat(o.deposit||0));
+    return sum + (isNaN(end) ? 0 : end);
+  }, 0);
+
+  let h = '<div class="card">';
+  h += '<div class="cust-head"><div>';
+  h += '<div class="cust-name">👤 ' + (latest.customerName || "—") + '</div>';
+  h += '<div class="cust-sub">📞 ' + (latest.phone || "—") + (latest.governorate ? ' &nbsp;•&nbsp; 📍 ' + latest.governorate : '') + '</div>';
+  if(latest.address) h += '<div class="cust-sub">🏠 ' + latest.address + '</div>';
+  h += '</div></div>';
+
+  h += '<div class="stats-grid">';
+  h += '<div class="stat-box"><div class="num">' + totalOrders + '</div><div class="lbl">إجمالي الطلبات</div></div>';
+  h += '<div class="stat-box open"><div class="num">' + openOrders.length + '</div><div class="lbl">طلبات مفتوحة/جارية</div></div>';
+  h += '<div class="stat-box"><div class="num">' + deliveredOrders.length + '</div><div class="lbl">تم التسليم</div></div>';
+  h += '<div class="stat-box"><div class="num">' + canceledOrders.length + '</div><div class="lbl">ملغية</div></div>';
+  h += '<div class="stat-box spent"><div class="num">' + fmt(totalSpent) + '</div><div class="lbl">إجمالي المحصّل (EGP)</div></div>';
+  h += '</div></div>';
+
+  h += '<div class="card"><h2 style="font-size:1.05rem;">📦 كل الطلبات (' + totalOrders + ')</h2>';
+  sorted.forEach((o, idx) => {
+    const rowId = "hist_" + idx;
+    h += '<div class="order-row" onclick="toggleHistory(\'' + rowId + '\')">';
+    h += '<div class="order-top"><span class="order-id">🔖 ' + (o.order || "—") + '</span><span class="badge ' + statusClass(o.status) + '">' + statusLabel(o.status) + '</span></div>';
+    h += '<div class="order-meta">';
+    h += '<span>📅 ' + (o.date ? new Date(o.date).toLocaleDateString('ar-EG') : "—") + '</span>';
+    h += '<span>💰 ' + fmt(o.EndPrice !== undefined ? o.EndPrice : o.finalPrice) + ' جنيه</span>';
+    h += '<span>📦 ' + (o.quantity || 1) + ' قطعة</span>';
+    if(o.arrivaldate) h += '<span>🚚 وصول متوقع: ' + o.arrivaldate + '</span>';
+    h += '</div>';
+    if(o.link) h += '<div class="order-meta"><a href="' + o.link + '" target="_blank" onclick="event.stopPropagation()" style="color:var(--primary);font-weight:700;">🔗 لينك المنتج</a></div>';
+    h += '<div class="order-history" id="' + rowId + '">';
+    if(o.history && o.history.length){
+      o.history.forEach(ev => { h += '<div>• ' + statusLabel(ev.status) + ' — ' + ev.time + (ev.note ? ' (' + ev.note + ')' : '') + '</div>'; });
+    } else {
+      h += '<div>مفيش سجل تحديثات لسه لهذا الطلب</div>';
+    }
+    h += '</div></div>';
+  });
+  h += '</div>';
+
+  area.innerHTML = h;
+}
+
+function toggleHistory(id){
+  const el = document.getElementById(id);
+  if(el) el.style.display = (el.style.display === "block") ? "none" : "block";
+}
+</script>
+</body>
+</html>
