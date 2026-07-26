@@ -492,21 +492,10 @@ let ordersData = [];
 let currentFilteredData = [];
 let isGrouped = false;
 
-function getStaffToken(){ return localStorage.getItem("staffToken") || ""; }
-
 async function loadData() {
     try {
-        const url = scriptURL + "?staffToken=" + encodeURIComponent(getStaffToken());
-        const res = await fetch(url, { redirect: 'follow' });
-        const data = await res.json();
-        if (!Array.isArray(data)) {
-            console.error("Unauthorized or bad response loading orders", data);
-            ordersData = [];
-            alert("⚠️ الجلسة انتهت أو مش صالحة — سجّل دخول تاني.");
-            logout();
-            return;
-        }
-        ordersData = data;
+        const res = await fetch(scriptURL, { redirect: 'follow' });
+        ordersData = await res.json();
         populateUserFilter();
         applyFilters(); 
     } catch(e) { console.error("Data Load Error", e); }
@@ -738,8 +727,7 @@ function updateOrder(orderId) {
             usd: newUSD,
             deposit: newDeposit,
                    arrivaldate: newArrival,
-            user: (typeof getCurrentUser === "function" ? getCurrentUser() : ""),
-            staffToken: getStaffToken()
+            user: (typeof getCurrentUser === "function" ? getCurrentUser() : "")
         })
     }).then(res => res.text()).then(text => {
         btn.innerHTML = originalText;
@@ -1240,7 +1228,6 @@ function logout(){
   localStorage.removeItem("currentUser");
   localStorage.removeItem("currentUserLabel");
   localStorage.removeItem("loginTime");
-  localStorage.removeItem("staffToken");
   location.reload();
 }
 
@@ -1291,8 +1278,7 @@ function applyBulkStatus(){
                 action:"updateStatus",
                 order: orderId,
                 status: status,
-                user: (typeof getCurrentUser === "function" ? getCurrentUser() : ""),
-                staffToken: getStaffToken()
+                user: (typeof getCurrentUser === "function" ? getCurrentUser() : "")
             })
         }).then(res=>res.text()).then(text=>({orderId, ok: text && text.indexOf("Success")!==-1, text}))
           .catch(err=>({orderId, ok:false, text:String(err)}))
@@ -1364,7 +1350,6 @@ async function doLogin() {
     localStorage.setItem("currentUser", u.toLowerCase());
     localStorage.setItem("currentUserLabel", res.label || u);
     localStorage.setItem("loginTime", new Date().getTime());
-    localStorage.setItem("staffToken", res.token || "");
     document.getElementById("loginError").style.display = "none";
     showDashboard();
   } else {
@@ -1380,13 +1365,12 @@ async function doLogin() {
 function checkSession() {
   const key = localStorage.getItem("currentUser");
   const time = localStorage.getItem("loginTime");
-  if (key && time && (new Date().getTime() - time < SESSION_TIME) && localStorage.getItem("staffToken")) {
+  if (key && time && (new Date().getTime() - time < SESSION_TIME)) {
     showDashboard();
   } else {
     localStorage.removeItem("currentUser");
     localStorage.removeItem("currentUserLabel");
     localStorage.removeItem("loginTime");
-    localStorage.removeItem("staffToken");
     showLoginScreen();
   }
 }
