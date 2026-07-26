@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Track Your Order — Try Shoppy</title>
+<link rel="icon" href="assets/logo.png">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.track-bg{display:flex;justify-content:center;padding:40px 16px 80px;background:radial-gradient(ellipse 560px 380px at 50% 0%,var(--y0) 0%,transparent 65%)}
+.track-box{background:var(--card);border-radius:28px;box-shadow:var(--sh3);border:1px solid rgba(232,219,194,.35);max-width:480px;width:100%;margin-top:24px;padding:36px 30px;text-align:center}
+.track-box h2{font-size:1.4rem;font-weight:800;margin:12px 0 5px;letter-spacing:-.02em}
+.track-sub{font-size:13.5px;color:var(--ink2);display:block;margin-bottom:22px}
+.track-input-wrap{position:relative;margin-bottom:8px}
+.track-input-wrap input{text-align:center;font-weight:700;font-size:15px;padding:15px 20px;border-radius:var(--rpill)}
+.track-hint{font-size:12px;color:var(--ink3);margin-bottom:16px;line-height:1.5}
+.track-btn{width:100%;padding:15px;border:none;border-radius:var(--rpill);background:var(--ink);color:var(--y2);font-family:var(--f);font-size:15px;font-weight:800;cursor:pointer;transition:box-shadow .18s,transform .18s;box-shadow:var(--sh2)}
+.track-btn:hover{box-shadow:var(--sh3);transform:translateY(-1px)}
+.track-btn:disabled{background:#aaa;cursor:not-allowed;transform:none;box-shadow:none}
+.logo-img{height:52px;margin:0 auto 16px;display:block}
+.result-area{margin-top:26px;display:none;text-align:start;animation:fadeIn .4s ease}
+.order-head{background:var(--n1);border-radius:16px;padding:16px;margin-bottom:18px;border:1px solid rgba(232,219,194,.5)}
+.order-id{font-weight:800;font-size:14.5px;color:var(--ink)}
+.arrival-line{font-size:12.5px;color:var(--ink2);margin-top:5px;font-weight:600}
+.order-link{display:block;margin-top:6px;font-size:13px;color:var(--inf);text-decoration:none;word-break:break-all}
+.order-meta{display:flex;justify-content:space-between;margin-top:10px;font-size:13px;color:var(--ink2);flex-wrap:wrap;gap:6px}
+.price-tag{font-weight:800;color:var(--ink)}
+.status-banner{border-radius:14px;padding:13px 16px;margin-bottom:16px;font-weight:700;text-align:center;font-size:14px}
+.status-banner.canceled{background:var(--err-bg);color:var(--err);border:1px solid rgba(217,91,69,.15)}
+.status-banner.delayed{background:var(--y0);color:var(--y4);border:1px solid rgba(245,184,32,.25)}
+.status-banner small{display:block;font-weight:500;opacity:.8;margin-top:3px;font-size:12px}
+.stepper{position:relative;padding-inline-start:30px;margin:10px 0 22px}
+.step{position:relative;padding-bottom:20px}
+.step:last-child{padding-bottom:0}
+.step:not(:last-child)::after{content:'';position:absolute;inset-inline-start:-20px;top:20px;bottom:0;width:2px;background:var(--n2);z-index:0}
+.step.done:not(:last-child)::after{background:var(--ok)}
+.step-dot{position:absolute;inset-inline-start:-28px;top:0;width:18px;height:18px;border-radius:50%;background:var(--n2);display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;transition:.25s;z-index:1;border:2px solid var(--n2)}
+.step.done .step-dot{background:var(--ok);border-color:var(--ok)}
+.step.active .step-dot{background:var(--ink);border-color:var(--y3);box-shadow:0 0 0 4px rgba(245,184,32,.2)}
+.step-label{font-weight:700;font-size:13.5px;color:var(--ink3)}
+.step.done .step-label,.step.active .step-label{color:var(--ink)}
+.step-sub{font-size:11.5px;color:var(--ink3);text-align:start;margin-top:2px}
+.siblings-title{font-weight:800;font-size:14px;margin:20px 0 10px;padding-top:16px;border-top:2px dashed var(--n2);color:var(--ink)}
+.sibling-card{background:var(--n1);border-radius:14px;padding:12px 14px;margin-bottom:9px}
+.sibling-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.sibling-order{font-weight:800;font-size:13px}
+.sibling-arrival{font-size:12px;color:var(--ink2);margin-top:4px;font-weight:600}
+.sibling-link{display:block;font-size:12px;color:var(--inf);margin-top:3px;text-decoration:none;word-break:break-all}
+.sibling-meta{font-size:12px;color:var(--ink2);margin-top:5px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px}
+.help-line{margin-top:20px;text-align:center;font-size:13px;color:var(--ink2)}
+.help-line a{color:var(--inf);font-weight:700}
+.err-box{color:var(--err);text-align:center;padding:10px 0;font-size:14px}
+.site-header button{width:auto}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="nav-row container">
+    <a href="index.html" class="brand"><img src="assets/logo.png" alt="Try Shoppy" style="height:36px;width:36px"> Try Shoppy</a>
+    <nav class="nav-links">
+      <a href="index.html" data-i18n="nav_home">Home</a>
+      <a href="calculator.html" data-i18n="nav_calc">Get a Price</a>
+      <a href="mart.html" data-i18n="nav_mart">Try Shoppy Mart</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="lang-pill">🌐 العربية</button>
+      <span data-auth-slot="pill"></span>
+      <button class="burger btn btn-ghost" aria-label="Menu">☰</button>
+    </div>
+  </div>
+  <div class="mobile-menu">
+    <a href="index.html" data-i18n="nav_home">Home</a>
+    <a href="calculator.html" data-i18n="nav_calc">Get a Price</a>
+    <a href="mart.html" data-i18n="nav_mart">Try Shoppy Mart</a>
+    <a href="login.html" data-i18n="nav_login">Login / Register</a>
+  </div>
+</header>
+
+<div class="track-bg">
+  <div class="track-box animate-in">
+    <img class="logo-img" src="assets/logo.png" alt="Try Shoppy">
+    <h2 data-i18n="trk_pageTitle">Track Your Order Status</h2>
+    <span class="track-sub" data-i18n-other="trk_pageTitle">تتبع حالة طلبك</span>
+    <div class="track-input-wrap">
+      <input id="orderNo" type="text" data-i18n-ph="trk_inputPlaceholder" placeholder="Order Number">
+    </div>
+    <div class="track-hint" data-i18n="trk_inputHint"></div>
+    <button class="track-btn" id="trackBtn" onclick="track()">
+      <span id="btnText" data-i18n="trk_trackBtn">Track Now</span>
+    </button>
+    <div id="result" class="result-area"></div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="foot-grid">
+      <div><div class="foot-brand"><img src="assets/logo.png" alt=""> Try Shoppy</div><p data-i18n="foot_about_d">Try Shoppy buys, consolidates and ships products from US stores straight to your door in Egypt.</p></div>
+      <div><h4 data-i18n="foot_links_t">Quick Links</h4><p><a href="calculator.html" data-i18n="nav_calc">Get a Price</a></p><p><a href="track.html" data-i18n="nav_track">Track Order</a></p><p><a href="mart.html" data-i18n="nav_mart">Try Shoppy Mart</a></p><p><a href="login.html" data-i18n="nav_login">Login / Register</a></p></div>
+      <div><h4 data-i18n="foot_legal_t">Legal</h4><p><a href="privacy.html" data-i18n="foot_privacy">Privacy Policy</a></p><p><a href="terms.html" data-i18n="foot_terms">Terms & Conditions</a></p><p><a href="shipping-policy.html" data-i18n="foot_shipping">Shipping Policy</a></p><p><a href="returns-policy.html" data-i18n="foot_returns">Returns & Refunds</a></p><p><a href="cancellation-policy.html" data-i18n="foot_cancellation">Cancellation Policy</a></p><p><a href="restricted-items.html" data-i18n="foot_restricted">Restricted Items</a></p></div>
+      <div><h4 data-i18n="foot_support_t">Support</h4><p><a href="https://wa.me/201005609642" target="_blank" data-i18n="foot_whatsapp">Chat on WhatsApp</a></p><p><a href="https://www.facebook.com/TryShoppy.eg/" target="_blank" rel="noopener" class="foot-social-link"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="vertical-align:-2.5px;margin-inline-end:5px"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.51 1.49-3.9 3.77-3.9 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.44 2.91h-2.34V22c4.78-.76 8.44-4.92 8.44-9.94z"/></svg><span data-i18n="foot_facebook">Follow us on Facebook</span></a></p></div>
+      <div><h4 data-i18n="foot_payments_t">Payments</h4><p data-i18n="pay_cod">Cash on Delivery</p><p data-i18n="pay_instapay">InstaPay</p><p data-i18n="pay_card">Visa & Mastercard</p><p data-i18n="pay_paypal">PayPal</p><p data-i18n="pay_bank">Bank Transfer</p></div>
+    </div>
+    <div class="foot-bottom"><span data-i18n="foot_rights">© 2026 Try Shoppy. All rights reserved.</span><span>Made for shoppers in Egypt 🇪🇬</span></div>
+  </div>
+</footer>
+
+<script src="assets/config.js"></script>
+<script src="assets/i18n.js"></script>
+<script src="assets/app.js"></script>
+<script>
+/* رابط واحد للقراءة والكتابة — من config.js */
+const SCRIPT_URL=TS_CONFIG.ORDERS_SCRIPT_URL,SUPPORT_PHONE=TS_CONFIG.SUPPORT_PHONE;
+function applyOtherHints(){document.querySelectorAll('[data-i18n-other]').forEach(el=>{el.textContent=tsOther(el.getAttribute('data-i18n-other'));});}
+document.addEventListener('ts-lang-changed',applyOtherHints);
+document.addEventListener('DOMContentLoaded',applyOtherHints);
+let lastData=null,lastMode=null,lastVal=null;
+const STAGES=[{key:"Pending Review",ar:"قيد المراجعة",en:"Pending Review"},{key:"Confirmed Via Try",ar:"تم تأكيد الطلب",en:"Confirmed"},{key:"Processing",ar:"جاري التجهيز والشراء",en:"Processing"},{key:"Placed",ar:"تم الطلب وجاري الشحن",en:"Placed — shipping from origin"},{key:"Arrived Cairo HUB",ar:"وصل مخزن القاهرة",en:"Arrived Cairo HUB"},{key:"Shipped To You",ar:"في الطريق إليك",en:"Out for delivery"},{key:"Delivered",ar:"تم التسليم 🎉",en:"Delivered"}];
+const SB={"Pending Review":{ar:"قيد المراجعة",en:"Pending Review",cls:"b-gray"},"Confirmed Via Try":{ar:"تم التأكيد",en:"Confirmed",cls:"b-blue"},"Processing":{ar:"جاري التجهيز",en:"Processing",cls:"b-orange"},"Placed":{ar:"تم الطلب",en:"Placed",cls:"b-orange"},"Arrived Cairo HUB":{ar:"وصل القاهرة",en:"Arrived Cairo HUB",cls:"b-blue"},"Shipped To You":{ar:"في الطريق إليك",en:"Out for delivery",cls:"b-blue"},"Delivered":{ar:"تم التسليم",en:"Delivered",cls:"b-green"},"Canceled":{ar:"ملغي",en:"Canceled",cls:"b-red"},"Delayed":{ar:"متأخر",en:"Delayed",cls:"b-yellow"}};
+function fmt(v){return parseFloat(v||0).toLocaleString();}
+function sbadge(s){const m=SB[s];if(!m)return{label:s||'—',cls:'b-gray'};return{label:TS_LANG==='ar'?m.ar:m.en,cls:m.cls};}
+function bi(k){return tsT(k)+'<br><small style="opacity:.75">'+tsOther(k)+'</small>';}
+document.addEventListener('ts-lang-changed',()=>{if(lastMode==='order')renderByOrder(lastData);});
+function track(){
+  const raw=document.getElementById('orderNo').value.trim();
+  const res=document.getElementById('result'),btn=document.getElementById('trackBtn'),btext=document.getElementById('btnText');
+  if(!raw){res.innerHTML='<div class="err-box">'+bi('trk_emptyInput')+'</div>';res.style.display='block';return;}
+  btn.disabled=true;btext.textContent=tsT('trk_searching');res.style.display='none';
+  /* 🔐 بنبعت رقم الطلب بس للسيرفر، وهو اللي يرجّع الطلب ده + إخوته —
+     مش كل قاعدة بيانات الطلبات زي الأول (شوف Orders_Code.gs doGet) */
+  tsFetchOrderByNumber(raw).then(d=>{lastData=d;lastMode='order';lastVal=raw;renderByOrder(d);}).catch(()=>{res.innerHTML='<div class="err-box">'+bi('trk_connError')+'</div>';res.style.display='block';}).finally(()=>{btn.disabled=false;btext.textContent=tsT('trk_trackBtn');});
+}
+function renderByOrder(d){
+  const res=document.getElementById('result');
+  if(!d||!d.success||!d.order){res.innerHTML='<div class="err-box">'+bi('trk_invalidOrder')+'</div>';res.style.display='block';return;}
+  const found=d.order, sibs=d.siblings||[];
+  let h='<div class="order-head"><div class="order-id">🔖 '+tsT('trk_orderLabel')+': '+found.order+'</div>';
+  if(found.arrivaldate)h+='<div class="arrival-line">📅 '+tsT('trk_arrivalLabel')+': '+found.arrivaldate+'</div>';
+  if(found.link)h+='<a class="order-link" href="'+found.link+'" target="_blank">🔗 '+found.link+'</a>';
+  h+='<div class="order-meta"><span>📦 '+tsT('trk_qtyLabel')+': '+(found.quantity||1)+'</span><span class="price-tag">💰 '+fmt(found.finalPrice)+' '+tsT('trk_currency')+'</span></div></div>';
+  if(found.status==='Canceled')h+='<div class="status-banner canceled">❌ '+tsT('trk_canceledMsg')+'<small>'+tsOther('trk_canceledMsg')+'</small></div>';
+  else if(found.status==='Delayed')h+='<div class="status-banner delayed">⏳ '+tsT('trk_delayedMsg')+'<small>'+tsOther('trk_delayedMsg')+'</small></div>';
+  else h+=buildStepper(found.status);
+  if(found.history&&found.history.length){h+='<div class="siblings-title">'+tsT('trk_historyTitle')+'</div>';found.history.forEach(e=>{h+='<div class="sibling-card"><div class="sibling-top"><span class="sibling-order">'+e.status+'</span><span style="font-size:12px;color:var(--ink3)">'+e.time+'</span></div></div>';});}
+  if(sibs.length){h+='<div class="siblings-title">📦 '+tsT('trk_siblingsTitle')+' ('+sibs.length+')</div>';sibs.forEach(s=>{const b=sbadge(s.status);h+='<div class="sibling-card"><div class="sibling-top"><span class="sibling-order">🔖 '+s.order+'</span><span class="badge '+b.cls+'">'+b.label+'</span></div>'+(s.arrivaldate?'<div class="sibling-arrival">📅 '+s.arrivaldate+'</div>':'')+(s.link?'<a class="sibling-link" href="'+s.link+'" target="_blank">🔗 '+s.link+'</a>':'')+'<div class="sibling-meta"><span>📦 '+(s.quantity||1)+' '+tsT('trk_pieceWord')+' — 💰 '+fmt(s.finalPrice)+' '+tsT('trk_currency')+'</span></div></div>';});}
+  h+='<div class="help-line">'+tsT('trk_helpQuestion')+' <a href="https://wa.me/'+SUPPORT_PHONE+'" target="_blank">'+tsT('trk_helpCta')+'</a></div>';
+  res.innerHTML=h;res.style.display='block';
+}
+function buildStepper(status){
+  const idx=STAGES.findIndex(s=>s.key===status);
+  let h='<div class="stepper">';
+  STAGES.forEach((s,i)=>{let cls='step',dot='';if(idx!==-1){if(i<idx){cls+=' done';dot='✓';}else if(i===idx)cls+=' active';}const p=TS_LANG==='ar'?s.ar:s.en,q=TS_LANG==='ar'?s.en:s.ar;h+='<div class="'+cls+'"><div class="step-dot">'+dot+'</div><div class="step-label">'+p+'</div><div class="step-sub">'+q+'</div></div>';});
+  return h+'</div>';
+}
+tsInitNav();
+</script>
+</body>
+</html>

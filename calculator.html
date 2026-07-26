@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Try Shoppy — Calculate &amp; Confirm Order</title>
+<link rel="icon" href="assets/logo.png">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.calc-bg{min-height:calc(100vh - 66px);display:flex;align-items:flex-start;justify-content:center;padding:44px 16px 90px;background:radial-gradient(ellipse 600px 400px at 30% 0%,var(--y0) 0%,transparent 65%)}
+.calc-card{width:100%;max-width:640px;padding:36px}
+.calc-logo{text-align:center;margin-bottom:22px}
+.calc-logo img{height:56px;margin:0 auto 8px}
+.calc-slogan{font-family:var(--fm);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3)}
+.calc-card h2{text-align:center;font-size:1.45rem;font-weight:800;margin:0 0 28px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.dims{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:22px}
+.country-msg{background:var(--err-bg);color:var(--err);padding:11px 14px;border-radius:var(--r);font-size:13.5px;margin-bottom:14px;text-align:center;border:1px solid rgba(217,91,69,.12)}
+.result-box{background:linear-gradient(135deg,var(--y0) 0%,var(--y1) 100%);border-radius:20px;padding:26px;margin:24px 0;text-align:center;animation:fadeUp .4s ease-out;border:1px solid rgba(245,184,32,.2)}
+.result-price{font-family:var(--fm);font-size:2.6rem;font-weight:700;margin:10px 0;color:var(--ink)}
+.result-note{font-size:13px;color:var(--ok);font-weight:700}
+.order-badge-wrap{margin-bottom:10px}
+.shipping-head{font-weight:800;font-size:15px;margin:24px 0 18px;display:flex;align-items:center;gap:8px;color:var(--ink)}
+.sup-box{background:var(--gold-wash);border:1.5px dashed var(--gold);border-radius:var(--r2);padding:18px;margin-bottom:18px}
+.sup-box .sup-title{font-weight:800;font-size:14px;color:var(--gold-deep);margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.sup-box .field{margin-bottom:0}
+.sup-note{font-size:12.5px;color:var(--ink-2);margin-top:7px;line-height:1.5}
+.sup-note.warn{color:var(--gold-deep);font-weight:700}
+input:read-only{background:var(--gold-wash);color:var(--gold-deep);font-weight:700;border-color:var(--gold)}
+@media(max-width:560px){.row,.dims{grid-template-columns:1fr}.calc-card{padding:22px}}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="nav-row container">
+    <a href="index.html" class="brand"><img src="assets/logo.png" alt="Try Shoppy"> Try Shoppy</a>
+    <nav class="nav-links">
+      <a href="index.html" data-i18n="nav_home">Home</a>
+      <a href="track.html" data-i18n="nav_track">Track Order</a>
+      <a href="mart.html" data-i18n="nav_mart">Try Shoppy Mart</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="lang-pill">🌐 العربية</button>
+      <span data-auth-slot="pill"></span>
+      <button class="burger btn btn-ghost" aria-label="Menu">☰</button>
+    </div>
+  </div>
+  <div class="mobile-menu">
+    <a href="index.html" data-i18n="nav_home">Home</a>
+    <a href="track.html" data-i18n="nav_track">Track Order</a>
+    <a href="mart.html" data-i18n="nav_mart">Try Shoppy Mart</a>
+    <a href="login.html" data-i18n="nav_login">Login / Register</a>
+  </div>
+</header>
+
+<div class="calc-bg">
+  <div class="card calc-card animate-in">
+    <div class="calc-logo">
+      <img src="assets/logo.png" alt="Try Shoppy">
+      <div class="calc-slogan" data-i18n="brand_slogan">Your Global Shopping Partner</div>
+    </div>
+    <h2 data-i18n="calc_title">Calculate &amp; Confirm Order</h2>
+
+    <div class="field"><label data-i18n="calc_link_label">Product Link</label><input id="productLink" type="url" placeholder="https://amazon.com/..."></div>
+    <div class="field"><label data-i18n="calc_qty_label">Quantity</label><input id="quantity" type="number" value="1" min="1"></div>
+
+    <div class="row">
+      <div class="field">
+        <label data-i18n="calc_country_label">Country</label>
+        <select id="country" onchange="checkCountry()">
+          <option value="USA" data-i18n="calc_country_usa">USA 🇺🇸</option>
+          <option value="OTHER" data-i18n="calc_country_other">Other Countries</option>
+        </select>
+      </div>
+      <div class="field"><label data-i18n="calc_price_label">Total Price in USD *</label><input id="price" type="number" placeholder="0.00"></div>
+    </div>
+
+    <div id="countryMsg" class="country-msg hidden" data-i18n="calc_country_msg">Sorry, we only serve orders from USA currently.</div>
+
+    <div class="row">
+      <div class="field">
+        <label data-i18n="calc_weight_label">Weight (g) *</label>
+        <input id="weight" type="number" data-i18n-ph="calc_weight_ph" placeholder="e.g. 500">
+        <div id="weightAutoNote" class="sup-note hidden"></div>
+      </div>
+      <div class="field">
+        <label data-i18n="calc_category_label">Category *</label>
+        <select id="category" onchange="onCategoryChange()">
+          <option value="" data-i18n="calc_category_select">Select category...</option>
+          <option value="Clothes (Regular)" data-i18n="cat_clothes">Clothes (Regular)</option>
+          <option value="Jacket or BALTO" data-i18n="cat_jacket">Jacket or BALTO</option>
+          <option value="Electronics" data-i18n="cat_electronics">Electronics</option>
+          <option value="Shoes (Regular)" data-i18n="cat_shoes_regular">Shoes (Regular)</option>
+          <option value="Shoes (Boot)" data-i18n="cat_shoes_boot">Shoes (Boot)</option>
+          <option value="Watches" data-i18n="cat_watches">Watches</option>
+          <option value="Accessories" data-i18n="cat_accessories">Accessories</option>
+          <option value="Cosmetics" data-i18n="cat_cosmetics">Cosmetics</option>
+          <option value="Sunglasses" data-i18n="cat_sunglasses">Sunglasses</option>
+          <option value="Food" data-i18n="cat_food">Food</option>
+          <option value="CarParts" data-i18n="cat_carparts">Car Parts</option>
+          <option value="Vitamin or Supplements" data-i18n="cat_vitamins">Vitamins &amp; Supplements</option>
+          <option value="Shampoo or Conditioner" data-i18n="cat_shampoo">Shampoo or Conditioner</option>
+          <option value="Small Size Hand bag (women)" data-i18n="cat_bag_small">Small Hand Bag (Women)</option>
+          <option value="Back bag (or Lap bag)" data-i18n="cat_bag_back">Back Bag / Laptop Bag</option>
+          <option value="Large Size Hand bag (women)" data-i18n="cat_bag_large">Large Hand Bag (Women)</option>
+          <option value="Stationary" data-i18n="cat_stationary">Stationary</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="supplementBox" class="sup-box hidden">
+      <div class="sup-title">💊 <span data-i18n="calc_sup_title">Vitamins / Supplements Details</span></div>
+      <div class="row">
+        <div class="field">
+          <label data-i18n="calc_sup_type">Product Type</label>
+          <select id="supplementType" onchange="onSupplementTypeChange()">
+            <option value="capsules" data-i18n="sup_opt_capsules">Capsules</option>
+            <option value="gummies" data-i18n="sup_opt_gummies">Gummies</option>
+            <option value="powder" data-i18n="sup_opt_powder">Powder</option>
+            <option value="liquid" data-i18n="sup_opt_liquid">Liquid</option>
+          </select>
+        </div>
+        <div class="field">
+          <label data-i18n="calc_sup_pieces">Piece Count</label>
+          <select id="supplementRange" onchange="onSupplementRangeChange()"></select>
+          <div id="manualWeightNote" class="sup-note warn hidden"></div>
+        </div>
+      </div>
+    </div>
+
+
+    <label data-i18n="calc_desc_label" style="margin-bottom:8px">Additional Description (optional)</label>
+    <div class="dims">
+      <input id="length" type="text" data-i18n-ph="calc_size_ph" placeholder="Size">
+      <input id="width" type="text" data-i18n-ph="calc_color_ph" placeholder="Color">
+      <input id="height" type="text" data-i18n-ph="calc_notes_ph" placeholder="Other Notes">
+    </div>
+
+    <button class="btn btn-primary btn-block" onclick="calculatePrice()" data-i18n="calc_btn_calculate">Calculate Price</button>
+
+    <div id="resultArea" class="hidden">
+      <div class="result-box">
+        <div class="order-badge-wrap"><span class="stamp" id="orderNoBadge"></span></div>
+        <div style="font-size:13px;color:var(--ink2)" data-i18n="calc_result_total_label">Total Cost (Shipping &amp; Customs included)</div>
+        <div id="priceDetails" class="result-price">— EGP</div>
+        <div class="result-note" data-i18n="calc_result_cod_note">Cash on Delivery up to 10,000 EGP ✓</div>
+      </div>
+
+      <hr style="border:0;border-top:1.5px dashed var(--n2);margin:24px 0">
+
+      <div class="shipping-head">📍 <span data-i18n="calc_shipping_title">Shipping Details</span></div>
+
+      <div class="field"><label data-i18n="calc_name_label">Full Name</label><input id="customerName" data-i18n-ph="calc_name_ph" placeholder="Enter your full name"></div>
+      <div class="field"><label data-i18n="lbl_email_optional">Email (optional — for order confirmation)</label><input id="customerEmail" type="email" placeholder="name@example.com"></div>
+      <div class="row">
+        <div class="field"><label data-i18n="calc_phone_label">Phone Number</label><input id="phone" placeholder="01xxxxxxxxx"></div>
+        <div class="field">
+          <label data-i18n="calc_gov_label">Governorate</label>
+          <select id="governorate">
+            <option value="" data-i18n="calc_gov_select">Select governorate...</option>
+            <option value="القاهرة" data-i18n="gov_cairo">Cairo</option>
+            <option value="الجيزة" data-i18n="gov_giza">Giza</option>
+            <option value="الإسكندرية" data-i18n="gov_alex">Alexandria</option>
+            <option value="الدقهلية" data-i18n="gov_dakahlia">Dakahlia</option>
+            <option value="الشرقية" data-i18n="gov_sharqia">Sharqia</option>
+            <option value="الغربية" data-i18n="gov_gharbia">Gharbia</option>
+            <option value="المنوفية" data-i18n="gov_monufia">Monufia</option>
+            <option value="القليوبية" data-i18n="gov_qalyubia">Qalyubia</option>
+            <option value="البحيرة" data-i18n="gov_beheira">Beheira</option>
+            <option value="كفر الشيخ" data-i18n="gov_kafr_elsheikh">Kafr El Sheikh</option>
+            <option value="دمياط" data-i18n="gov_damietta">Damietta</option>
+            <option value="بورسعيد" data-i18n="gov_portsaid">Port Said</option>
+            <option value="الإسماعيلية" data-i18n="gov_ismailia">Ismailia</option>
+            <option value="السويس" data-i18n="gov_suez">Suez</option>
+            <option value="الفيوم" data-i18n="gov_faiyum">Faiyum</option>
+            <option value="بني سويف" data-i18n="gov_beni_suef">Beni Suef</option>
+            <option value="المنيا" data-i18n="gov_minya">Minya</option>
+            <option value="أسيوط" data-i18n="gov_asyut">Asyut</option>
+            <option value="سوهاج" data-i18n="gov_sohag">Sohag</option>
+            <option value="قنا" data-i18n="gov_qena">Qena</option>
+            <option value="الأقصر" data-i18n="gov_luxor">Luxor</option>
+            <option value="أسوان" data-i18n="gov_aswan">Aswan</option>
+            <option value="البحر الأحمر" data-i18n="gov_redsea">Red Sea</option>
+            <option value="الوادي الجديد" data-i18n="gov_newvalley">New Valley</option>
+            <option value="مطروح" data-i18n="gov_matrouh">Matrouh</option>
+            <option value="شمال سيناء" data-i18n="gov_north_sinai">North Sinai</option>
+            <option value="جنوب سيناء" data-i18n="gov_south_sinai">South Sinai</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label data-i18n="calc_address_label">Detailed Address</label><textarea id="address" rows="2" data-i18n-ph="calc_address_ph" placeholder="Building number, street name, apartment..."></textarea></div>
+
+      <button id="confirmBtn" class="btn btn-dark btn-block" onclick="confirmOrder()" data-i18n="calc_btn_confirm">Confirm Order Now</button>
+      <button id="whatsappBtn" class="btn btn-whatsapp btn-block hidden" style="margin-top:12px" onclick="sendWhatsApp()" data-i18n="calc_btn_whatsapp">Send WhatsApp Confirmation</button>
+    </div>
+
+    <button class="btn btn-ghost btn-block" style="margin-top:20px" onclick="window.location.href='track.html'">🔍 <span data-i18n="calc_btn_track">Track Your Order</span></button>
+  </div>
+</div>
+
+<script src="assets/function_calc.js"></script>
+<footer class="site-footer">
+  <div class="container">
+    <div class="foot-grid">
+      <div><div class="foot-brand"><img src="assets/logo.png" alt=""> Try Shoppy</div><p data-i18n="foot_about_d">Try Shoppy buys, consolidates and ships products from US stores straight to your door in Egypt.</p></div>
+      <div><h4 data-i18n="foot_links_t">Quick Links</h4><p><a href="calculator.html" data-i18n="nav_calc">Get a Price</a></p><p><a href="track.html" data-i18n="nav_track">Track Order</a></p><p><a href="mart.html" data-i18n="nav_mart">Try Shoppy Mart</a></p><p><a href="login.html" data-i18n="nav_login">Login / Register</a></p></div>
+      <div><h4 data-i18n="foot_legal_t">Legal</h4><p><a href="privacy.html" data-i18n="foot_privacy">Privacy Policy</a></p><p><a href="terms.html" data-i18n="foot_terms">Terms &amp; Conditions</a></p><p><a href="shipping-policy.html" data-i18n="foot_shipping">Shipping Policy</a></p><p><a href="returns-policy.html" data-i18n="foot_returns">Returns &amp; Refunds</a></p><p><a href="cancellation-policy.html" data-i18n="foot_cancellation">Cancellation Policy</a></p><p><a href="restricted-items.html" data-i18n="foot_restricted">Restricted Items</a></p></div>
+      <div><h4 data-i18n="foot_support_t">Support</h4><p><a href="https://wa.me/201005609642" target="_blank" data-i18n="foot_whatsapp">Chat on WhatsApp</a></p><p><a href="https://www.facebook.com/TryShoppy.eg/" target="_blank" rel="noopener" class="foot-social-link"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="vertical-align:-2.5px;margin-inline-end:5px"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.51 1.49-3.9 3.77-3.9 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.44 2.91h-2.34V22c4.78-.76 8.44-4.92 8.44-9.94z"/></svg><span data-i18n="foot_facebook">Follow us on Facebook</span></a></p></div>
+      <div><h4 data-i18n="foot_payments_t">Payments</h4><p data-i18n="pay_cod">Cash on Delivery</p><p data-i18n="pay_instapay">InstaPay</p><p data-i18n="pay_card">Visa &amp; Mastercard</p><p data-i18n="pay_paypal">PayPal</p><p data-i18n="pay_bank">Bank Transfer</p></div>
+    </div>
+    <div class="foot-bottom"><span data-i18n="foot_rights">© 2026 Try Shoppy. All rights reserved.</span><span>Made for shoppers in Egypt 🇪🇬</span></div>
+  </div>
+</footer>
+<script src="assets/config.js"></script>
+<script src="assets/i18n.js"></script>
+<script src="assets/app.js"></script>
+<script>
+tsInitNav();
+let finalPrice=0,orderNumber='',usdTotal=0;
+
+/* prefill from logged-in session */
+(function(){const s=tsGetSession();if(s){if(s.name)document.getElementById('customerName').value=s.name;if(s.phone)document.getElementById('phone').value=s.phone;if(s.email)document.getElementById('customerEmail').value=s.email;if(s.address)document.getElementById('address').value=s.address;if(s.governorate){const g=document.getElementById('governorate');for(const o of g.options)if(o.value===s.governorate)o.selected=true;}}})();
+
+function generateOrder(){return'TRY-'+Math.floor(100000+Math.random()*900000);}
+function checkCountry(){const v=document.getElementById('country').value;document.getElementById('countryMsg').classList.toggle('hidden',v!=='OTHER');}
+
+/* ============================================
+   المكملات: كبسولات / جميز / بودر / سوائل
+   ============================================ */
+function isManualWeightType(type){ return type==='powder' || type==='liquid'; }
+
+function onCategoryChange(){
+  const cat=document.getElementById('category').value;
+  const box=document.getElementById('supplementBox');
+  const weightInput=document.getElementById('weight');
+  const note=document.getElementById('weightAutoNote');
+  if(cat==='Vitamin or Supplements'){
+    box.classList.remove('hidden');
+    onSupplementTypeChange();
+  } else {
+    box.classList.add('hidden');
+    weightInput.readOnly=false;
+    weightInput.value='';
+    note.classList.add('hidden');
+  }
+}
+
+function buildSupplementRangeOptions(){
+  const typeSel=document.getElementById('supplementType');
+  if(!typeSel) return;
+  const type=typeSel.value||'capsules';
+  const ranges=tryShoppyGetSupplementRanges(type);
+  const unitKey=type==='gummies' ? 'sup_unit_gummies' : 'sup_unit_tablets';
+  const unit=tsT(unitKey);
+  const sel=document.getElementById('supplementRange');
+  const prevValue=sel.value;
+  sel.innerHTML='';
+  ranges.forEach((r,idx)=>{
+    const o=document.createElement('option');
+    o.value=idx;
+    o.textContent = TS_LANG==='ar' ? `من ${r.min} إلى ${r.max} ${unit}` : `${r.min} - ${r.max} ${unit}`;
+    sel.appendChild(o);
+  });
+  if(prevValue!=='' && ranges[prevValue]) sel.value=prevValue;
+}
+
+function onSupplementTypeChange(){
+  const type=document.getElementById('supplementType').value||'capsules';
+  const rangeSel=document.getElementById('supplementRange');
+  const manualNote=document.getElementById('manualWeightNote');
+  const weightInput=document.getElementById('weight');
+  const autoNote=document.getElementById('weightAutoNote');
+
+  if(isManualWeightType(type)){
+    rangeSel.classList.add('hidden');
+    weightInput.readOnly=false;
+    weightInput.value='';
+    autoNote.classList.add('hidden');
+    manualNote.textContent = type==='powder' ? tsT('calc_sup_note_powder') : tsT('calc_sup_note_liquid');
+    manualNote.classList.remove('hidden');
+  } else {
+    rangeSel.classList.remove('hidden');
+    manualNote.classList.add('hidden');
+    buildSupplementRangeOptions();
+    onSupplementRangeChange();
+  }
+}
+
+function onSupplementRangeChange(){
+  const type=document.getElementById('supplementType').value||'capsules';
+  if(isManualWeightType(type)) return;
+  const ranges=tryShoppyGetSupplementRanges(type);
+  const idx=parseInt(document.getElementById('supplementRange').value)||0;
+  const range=ranges[idx];
+  if(!range) return;
+  const weightInput=document.getElementById('weight');
+  const note=document.getElementById('weightAutoNote');
+  weightInput.value=range.weight;
+  weightInput.readOnly=true;
+  note.textContent = `⚙️ ${tsT('calc_sup_note_auto')} (${range.weight}${TS_LANG==='ar'?' جم':'g'}) ${tsT('calc_sup_note_auto2')}`;
+  note.classList.remove('hidden');
+}
+
+/* re-render dynamic supplement text when the site language flips */
+document.addEventListener('ts-lang-changed', ()=>{
+  const box=document.getElementById('supplementBox');
+  if(box.classList.contains('hidden')) return;
+  const type=document.getElementById('supplementType').value||'capsules';
+  if(isManualWeightType(type)){
+    const manualNote=document.getElementById('manualWeightNote');
+    if(!manualNote.classList.contains('hidden')){
+      manualNote.textContent = type==='powder' ? tsT('calc_sup_note_powder') : tsT('calc_sup_note_liquid');
+    }
+  } else {
+    buildSupplementRangeOptions();
+    onSupplementRangeChange();
+  }
+});
+
+function calculatePrice(){
+  if(document.getElementById('country').value==='OTHER'){alert(tsT('calc_alert_country'));return;}
+  const usd=parseFloat(document.getElementById('price').value);
+  const weightG=parseFloat(document.getElementById('weight').value);
+  const cat=document.getElementById('category').value;
+  const qty=parseInt(document.getElementById('quantity').value)||1;
+  usdTotal=usd*qty;
+  if(!usd||!cat||!weightG){alert(tsT('calc_alert_missing'));return;}
+
+  /* ✅ المعادلة من function_calc.js — عدّل الأسعار هناك فقط */
+  const result=tryShoppyCalculatePrice({usd,category:cat,weightGrams:weightG,quantity:qty});
+  finalPrice=result.finalPrice;
+
+  document.getElementById('priceDetails').innerHTML=finalPrice.toLocaleString()+' EGP';
+  orderNumber=generateOrder();renderBadge();
+  document.getElementById('resultArea').classList.remove('hidden');
+  document.getElementById('resultArea').scrollIntoView({behavior:'smooth'});
+}
+function renderBadge(){if(!orderNumber)return;document.getElementById('orderNoBadge').innerText=tsT('calc_order_no_label')+': '+orderNumber;}
+document.addEventListener('ts-lang-changed',renderBadge);
+function confirmOrder(){
+  const name=document.getElementById('customerName').value;
+  if(!name){alert(tsT('calc_alert_name'));return;}
+  tsSubmitOrderRow({order:orderNumber,customerName:name,phone:document.getElementById('phone').value,email:document.getElementById('customerEmail').value.trim(),country:document.getElementById('country').value,address:document.getElementById('address').value,governorate:document.getElementById('governorate').value,link:document.getElementById('productLink').value,quantity:document.getElementById('quantity').value,usd:usdTotal,weight:document.getElementById('weight').value,dimensions:document.getElementById('length').value+'x'+document.getElementById('width').value+'x'+document.getElementById('height').value,category:document.getElementById('category').value,finalPrice:finalPrice});
+  alert(tsT('calc_alert_confirmed'));
+  document.getElementById('whatsappBtn').classList.remove('hidden');
+  document.getElementById('confirmBtn').classList.add('hidden');
+}
+function sendWhatsApp(){
+  const spcs='Size: '+document.getElementById('length').value+' | Color: '+document.getElementById('width').value+' | Notes: '+document.getElementById('height').value;
+  const msg='TRY SHOPPY Order\nOrder No: '+orderNumber+'\nName: '+document.getElementById('customerName').value+'\nPhone: '+document.getElementById('phone').value+'\nGov: '+document.getElementById('governorate').value+'\nAddress: '+document.getElementById('address').value+'\nQty: '+document.getElementById('quantity').value+'\nUnit USD: '+document.getElementById('price').value+' USD\nTotal USD: '+usdTotal+' USD\nTotal EGP: '+finalPrice+'\nProduct: '+document.getElementById('productLink').value+'\nSPCS: '+spcs;
+  window.open('https://wa.me/'+TS_CONFIG.SUPPORT_PHONE+'?text='+encodeURIComponent(msg));
+}
+</script>
+</body>
+</html>

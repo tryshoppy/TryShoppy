@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My Account — Try Shoppy</title>
+<link rel="icon" href="assets/logo.png">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.dash-wrap{padding:44px 0 90px}
+.dash-header{margin-bottom:32px}
+.dash-header h1{font-size:1.8rem;margin:8px 0 0;font-weight:900;letter-spacing:-.02em}
+.dash-layout{display:grid;grid-template-columns:210px 1fr;gap:24px;align-items:flex-start}
+.dash-tabs{display:flex;flex-direction:column;gap:4px;background:var(--card);border-radius:20px;padding:10px;box-shadow:var(--sh1);border:1px solid rgba(232,219,194,.4)}
+.dash-tabs button{text-align:start;padding:12px 15px;border-radius:12px;border:none;background:transparent;font-family:var(--f);font-weight:700;font-size:14px;cursor:pointer;color:var(--ink2);transition:background .15s,color .15s}
+.dash-tabs button.active{background:var(--y1);color:var(--y4)}
+.dash-tabs button:hover:not(.active){background:var(--n1);color:var(--ink)}
+.dash-panel{display:none}
+.dash-panel.active{display:block;animation:fadeUp .3s ease-out}
+.dash-section-head{margin-bottom:20px}
+.dash-section-head h2{font-size:1.25rem;margin:0 0 4px;font-weight:800}
+.dash-section-head p{font-size:13.5px;color:var(--ink2);margin:0}
+.order-card{padding:18px 20px;margin-bottom:12px;transition:box-shadow .18s,transform .18s}
+.order-card:hover{box-shadow:var(--sh2);transform:translateY(-1px)}
+.oc-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.oc-id{font-family:var(--fm);font-size:13px;font-weight:700;color:var(--ink)}
+.oc-meta{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--ink2)}
+.oc-price{font-weight:800;color:var(--ink)}
+.oc-link{font-size:12px;margin-top:7px;word-break:break-all}
+.oc-link a{color:var(--inf)}
+.empty-state{text-align:center;padding:50px 20px;color:var(--ink2)}
+.empty-emoji{font-size:2.2rem;margin-bottom:10px}
+.new-order-card{padding:44px;text-align:center}
+.new-order-card .big-emoji{font-size:2.6rem;margin-bottom:14px}
+.new-order-card h2{font-size:1.3rem;font-weight:800;margin:0 0 8px}
+.new-order-card p{color:var(--ink2);font-size:14px;max-width:340px;margin:0 auto 22px}
+@media(max-width:760px){.dash-layout{grid-template-columns:1fr}.dash-tabs{flex-direction:row;overflow-x:auto;padding:8px}}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="nav-row container">
+    <a href="index.html" class="brand"><img src="assets/logo.png" alt="Try Shoppy"> Try Shoppy</a>
+    <nav class="nav-links">
+      <a href="index.html" data-i18n="nav_home">Home</a>
+      <a href="calculator.html" data-i18n="nav_calc">Get a Price</a>
+      <a href="track.html" data-i18n="nav_track">Track Order</a>
+      <a href="mart.html" data-i18n="nav_mart">Try Shoppy Mart</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="lang-pill">🌐 العربية</button>
+      <button class="btn btn-ghost" id="logoutBtn" data-i18n="nav_logout">Log out</button>
+      <button class="burger btn btn-ghost" aria-label="Menu">☰</button>
+    </div>
+  </div>
+  <div class="mobile-menu">
+    <a href="index.html" data-i18n="nav_home">Home</a>
+    <a href="calculator.html" data-i18n="nav_calc">Get a Price</a>
+    <a href="track.html" data-i18n="nav_track">Track Order</a>
+    <a href="mart.html" data-i18n="nav_mart">Try Shoppy Mart</a>
+  </div>
+</header>
+
+<div class="dash-wrap container">
+  <div class="dash-header">
+    <span class="eyebrow" data-i18n="dash_eyebrow">MY ACCOUNT</span>
+    <h1><span data-i18n="dash_hello">Hello</span>, <span id="dashName">there</span> 👋</h1>
+  </div>
+  <div class="dash-layout">
+    <div class="dash-tabs">
+      <button class="active" data-tab="profile" data-i18n="dash_tab_profile">Profile</button>
+      <button data-tab="orders" data-i18n="dash_tab_orders">My Orders</button>
+      <button data-tab="new" data-i18n="dash_tab_new">New Order</button>
+    </div>
+    <div>
+      <!-- PROFILE -->
+      <div class="dash-panel active" id="panel-profile">
+        <div class="card" style="padding:28px">
+          <div class="dash-section-head"><h2 data-i18n="dash_profile_t">Your details</h2><p data-i18n="dash_profile_d">Keep your name and address up to date so deliveries reach you without delay.</p></div>
+          <form id="profileForm">
+            <div class="row2">
+              <div class="field"><label data-i18n="lbl_phone">Phone</label><input id="pfPhone" type="text" disabled></div>
+              <div class="field">
+                <label data-i18n="lbl_email">Email</label>
+                <div style="display:flex;gap:8px;align-items:flex-start">
+                  <input id="pfEmail" type="email" style="flex:1">
+                  <button type="button" class="btn btn-secondary btn-sm" id="emailVerifyBtn" style="flex-shrink:0;white-space:nowrap"></button>
+                </div>
+                <div id="emailOtpBox" class="hidden" style="margin-top:10px;padding:14px;background:var(--gold-wash);border:1.5px dashed var(--gold);border-radius:var(--r)">
+                  <div style="font-size:12.5px;color:var(--ink-2);margin-bottom:8px" data-i18n="email_verify_sent">A 6-digit code was sent to your email.</div>
+                  <div style="display:flex;gap:8px">
+                    <input id="emailOtpCode" type="text" inputmode="numeric" maxlength="6" data-i18n-ph="email_verify_code_ph" placeholder="Enter 6-digit code" style="flex:1">
+                    <button type="button" class="btn btn-primary btn-sm" id="emailOtpConfirmBtn" data-i18n="email_verify_confirm" style="white-space:nowrap">Confirm Code</button>
+                  </div>
+                  <button type="button" id="emailOtpResendBtn" style="background:none;border:none;color:var(--gold-deep);font-size:12px;font-weight:700;cursor:pointer;margin-top:9px;padding:0" data-i18n="email_verify_resend">Resend code</button>
+                </div>
+              </div>
+            </div>
+            <div class="field"><label data-i18n="lbl_name">Full Name</label><input id="pfName" type="text"></div>
+            <div class="field"><label data-i18n="lbl_governorate">Governorate</label><select id="pfGov"></select></div>
+            <div class="field"><label data-i18n="lbl_address">Detailed Address</label><textarea id="pfAddress" rows="3"></textarea></div>
+            <button type="submit" class="btn btn-primary" id="profileSaveBtn" data-i18n="btn_save">Save Changes</button>
+          </form>
+        </div>
+      </div>
+      <!-- ORDERS -->
+      <div class="dash-panel" id="panel-orders">
+        <div class="dash-section-head"><h2 data-i18n="dash_orders_t">Order history</h2><p data-i18n="dash_orders_d">All orders linked to your phone number.</p></div>
+        <div id="ordersList" style="margin-top:16px"></div>
+      </div>
+      <!-- NEW -->
+      <div class="dash-panel" id="panel-new">
+        <div class="card new-order-card">
+          <div class="big-emoji">📦</div>
+          <h2 data-i18n="dash_new_t">Place a new order</h2>
+          <p data-i18n="dash_new_d">Use the full calculator to price and confirm your next order.</p>
+          <a href="calculator.html" class="btn btn-primary" data-i18n="dash_new_cta">Open Calculator</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="foot-grid">
+      <div><div class="foot-brand"><img src="assets/logo.png" alt=""> Try Shoppy</div><p data-i18n="foot_about_d">Try Shoppy buys, consolidates and ships products from US stores straight to your door in Egypt.</p></div>
+      <div><h4 data-i18n="foot_links_t">Quick Links</h4><p><a href="calculator.html" data-i18n="nav_calc">Get a Price</a></p><p><a href="track.html" data-i18n="nav_track">Track Order</a></p><p><a href="mart.html" data-i18n="nav_mart">Try Shoppy Mart</a></p><p><a href="login.html" data-i18n="nav_login">Login / Register</a></p></div>
+      <div><h4 data-i18n="foot_legal_t">Legal</h4><p><a href="privacy.html" data-i18n="foot_privacy">Privacy Policy</a></p><p><a href="terms.html" data-i18n="foot_terms">Terms &amp; Conditions</a></p><p><a href="shipping-policy.html" data-i18n="foot_shipping">Shipping Policy</a></p><p><a href="returns-policy.html" data-i18n="foot_returns">Returns &amp; Refunds</a></p><p><a href="cancellation-policy.html" data-i18n="foot_cancellation">Cancellation Policy</a></p><p><a href="restricted-items.html" data-i18n="foot_restricted">Restricted Items</a></p></div>
+      <div><h4 data-i18n="foot_support_t">Support</h4><p><a href="https://wa.me/201005609642" target="_blank" data-i18n="foot_whatsapp">Chat on WhatsApp</a></p><p><a href="https://www.facebook.com/TryShoppy.eg/" target="_blank" rel="noopener" class="foot-social-link"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="vertical-align:-2.5px;margin-inline-end:5px"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.51 1.49-3.9 3.77-3.9 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.44 2.91h-2.34V22c4.78-.76 8.44-4.92 8.44-9.94z"/></svg><span data-i18n="foot_facebook">Follow us on Facebook</span></a></p></div>
+      <div><h4 data-i18n="foot_payments_t">Payments</h4><p data-i18n="pay_cod">Cash on Delivery</p><p data-i18n="pay_instapay">InstaPay</p><p data-i18n="pay_card">Visa &amp; Mastercard</p><p data-i18n="pay_paypal">PayPal</p><p data-i18n="pay_bank">Bank Transfer</p></div>
+    </div>
+    <div class="foot-bottom"><span data-i18n="foot_rights">© 2026 Try Shoppy. All rights reserved.</span><span>Made for shoppers in Egypt 🇪🇬</span></div>
+  </div>
+</footer>
+<script src="assets/config.js"></script>
+<script src="assets/i18n.js"></script>
+<script src="assets/app.js"></script>
+<script>
+const session=tsRequireAuth();
+if(!session){throw new Error('No session');}
+const GOVS=["القاهرة | Cairo","الجيزة | Giza","الإسكندرية | Alexandria","الدقهلية | Dakahlia","الشرقية | Sharqia","الغربية | Gharbia","المنوفية | Monufia","القليوبية | Qalyubia","البحيرة | Beheira","كفر الشيخ | Kafr El Sheikh","دمياط | Damietta","بورسعيد | Port Said","الإسماعيلية | Ismailia","السويس | Suez","الفيوم | Faiyum","بني سويف | Beni Suef","المنيا | Minya","أسيوط | Asyut","سوهاج | Sohag","قنا | Qena","الأقصر | Luxor","أسوان | Aswan","البحر الأحمر | Red Sea","الوادي الجديد | New Valley","مطروح | Matrouh","شمال سيناء | North Sinai","جنوب سيناء | South Sinai"];
+function fillGovSelect(sel){document.getElementById('pfGov').innerHTML='<option value=""></option>'+GOVS.map(g=>'<option value="'+g+'"'+(g===sel?' selected':'')+'>'+g+'</option>').join('');}
+
+/* ---------- email verification state ---------- */
+let emailVerified = false;
+let savedEmail = '';
+
+function renderEmailVerifyBtn(){
+  const btn = document.getElementById('emailVerifyBtn');
+  const currentEmail = document.getElementById('pfEmail').value.trim();
+
+  if(!currentEmail){
+    btn.classList.add('hidden');
+    return;
+  }
+  btn.classList.remove('hidden');
+
+  if(emailVerified && currentEmail.toLowerCase() === savedEmail.toLowerCase()){
+    btn.textContent = '✓ ' + tsT('email_verified_badge');
+    btn.disabled = true;
+    btn.style.color = 'var(--ok)';
+    btn.style.borderColor = 'var(--ok)';
+  } else {
+    btn.textContent = tsT('email_verify_btn');
+    btn.disabled = false;
+    btn.style.color = '';
+    btn.style.borderColor = '';
+  }
+}
+
+function populateProfile(p){
+  document.getElementById('dashName').textContent=p.name||p.username||p.phone;
+  document.getElementById('pfPhone').value=p.phone||'';
+  document.getElementById('pfEmail').value=p.email||'';
+  document.getElementById('pfName').value=p.name||'';
+  document.getElementById('pfAddress').value=p.address||'';
+  fillGovSelect(p.governorate||'');
+  emailVerified = !!p.emailVerified;
+  savedEmail = p.email || '';
+  document.getElementById('emailOtpBox').classList.add('hidden');
+  renderEmailVerifyBtn();
+}
+populateProfile(session);
+document.getElementById('pfEmail').addEventListener('input', renderEmailVerifyBtn);
+document.getElementById('logoutBtn').addEventListener('click',()=>{tsClearSession();window.location.href='index.html';});
+document.querySelectorAll('.dash-tabs button').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.dash-tabs button').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.dash-panel').forEach(p=>p.classList.remove('active'));btn.classList.add('active');document.getElementById('panel-'+btn.dataset.tab).classList.add('active');if(btn.dataset.tab==='orders')loadOrders();});});
+document.getElementById('profileForm').addEventListener('submit',function(e){e.preventDefault();const btn=document.getElementById('profileSaveBtn');btn.disabled=true;const payload={phone:session.phone,token:session.token,email:document.getElementById('pfEmail').value.trim(),name:document.getElementById('pfName').value.trim(),governorate:document.getElementById('pfGov').value,address:document.getElementById('pfAddress').value.trim()};tsUpdateProfile(payload).then(res=>{btn.disabled=false;if(res&&res.success){res.profile.token=session.token;tsSetSession(res.profile);document.getElementById('dashName').textContent=res.profile.name||res.profile.username||res.profile.phone;emailVerified=!!res.profile.emailVerified;savedEmail=res.profile.email||'';document.getElementById('emailOtpBox').classList.add('hidden');renderEmailVerifyBtn();tsToast(tsT('save_success'));}else{tsToast(tsT('auth_err_connection'));}}).catch(()=>{btn.disabled=false;tsToast(tsT('auth_err_connection'));});});
+
+/* ---------- email OTP: send / confirm / resend ---------- */
+function sendEmailOtp(){
+  const email = document.getElementById('pfEmail').value.trim();
+  if(!email){ tsToast(tsT('email_verify_need_email')); return; }
+  if(email.toLowerCase() !== savedEmail.toLowerCase()){ tsToast(tsT('email_verify_save_first')); return; }
+
+  const btn = document.getElementById('emailVerifyBtn');
+  btn.disabled = true;
+  btn.textContent = tsT('email_verify_sending');
+
+  tsSendEmailOtp(email).then(res=>{
+    renderEmailVerifyBtn();
+    if(res && res.success){
+      document.getElementById('emailOtpBox').classList.remove('hidden');
+      document.getElementById('emailOtpCode').value = '';
+      document.getElementById('emailOtpCode').focus();
+      tsToast(tsT('email_verify_sent'));
+    } else {
+      tsToast(tsT('auth_err_connection'));
+    }
+  }).catch(()=>{ renderEmailVerifyBtn(); tsToast(tsT('auth_err_connection')); });
+}
+
+document.getElementById('emailVerifyBtn').addEventListener('click', sendEmailOtp);
+document.getElementById('emailOtpResendBtn').addEventListener('click', sendEmailOtp);
+
+document.getElementById('emailOtpConfirmBtn').addEventListener('click', function(){
+  const email = document.getElementById('pfEmail').value.trim();
+  const code = document.getElementById('emailOtpCode').value.trim();
+  if(!code){ return; }
+  const btn = this;
+  btn.disabled = true;
+  tsVerifyEmailOtp(email, code).then(res=>{
+    btn.disabled = false;
+    if(res && res.success){
+      emailVerified = true;
+      savedEmail = email;
+      const updatedSession = tsGetSession() || {};
+      updatedSession.emailVerified = true;
+      tsSetSession(updatedSession);
+      document.getElementById('emailOtpBox').classList.add('hidden');
+      renderEmailVerifyBtn();
+      tsToast(tsT('email_verify_success'));
+    } else {
+      tsToast(tsT('email_verify_wrong'));
+    }
+  }).catch(()=>{ btn.disabled=false; tsToast(tsT('auth_err_connection')); });
+});
+
+const STATUS_MAP={"Pending Review":{en:"Pending Review",ar:"قيد المراجعة",cls:"gray"},"Confirmed Via Try":{en:"Confirmed",ar:"تم التأكيد",cls:"blue"},"Processing":{en:"Processing",ar:"جاري التجهيز",cls:"orange"},"Placed":{en:"Placed",ar:"تم الطلب",cls:"orange"},"Arrived Cairo HUB":{en:"Arrived Cairo HUB",ar:"وصل القاهرة",cls:"blue"},"Shipped To You":{en:"Out for delivery",ar:"في الطريق إليك",cls:"blue"},"Delivered":{en:"Delivered",ar:"تم التسليم",cls:"green"},"Canceled":{en:"Canceled",ar:"ملغي",cls:"red"},"Delayed":{en:"Delayed",ar:"متأخر",cls:"yellow"}};
+let ordersLoaded=false;
+function loadOrders(){if(ordersLoaded)return;const list=document.getElementById('ordersList');list.innerHTML='<p style="color:var(--ink2)">'+(TS_LANG==='ar'?'جاري التحميل...':'Loading...')+'</p>';tsFetchMyOrders(session.phone,session.token).then(orders=>{ordersLoaded=true;if(!orders.length){list.innerHTML='<div class="empty-state"><div class="empty-emoji">📭</div><span data-i18n="dash_orders_empty"></span></div>';applyI18N();return;}list.innerHTML=orders.map(o=>{const st=STATUS_MAP[o.status]||{en:o.status||'—',ar:o.status||'—',cls:'gray'};const label=TS_LANG==='ar'?st.ar:st.en;return'<div class="card order-card"><div class="oc-top"><span class="oc-id">🔖 '+(o.order||'')+'</span><span class="badge '+st.cls+'">'+label+'</span></div><div class="oc-meta"><span>📦 '+(o.quantity||1)+'</span><span class="oc-price">💰 '+parseFloat(o.finalPrice||0).toLocaleString()+' '+(TS_LANG==='ar'?'ج.م':'EGP')+'</span>'+(o.arrivaldate?'<span>📅 '+o.arrivaldate+'</span>':'')+'</div>'+(o.link?'<div class="oc-link">🔗 <a href="'+o.link+'" target="_blank">'+o.link+'</a></div>':'')+'</div>';}).join('');}).catch(()=>{list.innerHTML='<p style="color:var(--err)">'+tsT('auth_err_connection')+'</p>';});}
+document.addEventListener('ts-lang-changed',()=>{ordersLoaded=false;const panel=document.getElementById('panel-orders');if(panel.classList.contains('active'))loadOrders();renderEmailVerifyBtn();});
+tsInitNav();
+</script>
+</body>
+</html>

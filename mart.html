@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Try Shoppy Mart — Outlet &amp; Discounted Finds</title>
+<link rel="icon" href="assets/logo.png">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.mart-hero{padding:56px 0 26px;text-align:center;background:radial-gradient(ellipse 620px 340px at 50% -60px,var(--gold-pale) 0%,transparent 68%)}
+.mart-hero h1{font-size:2.15rem;margin:12px 0 9px;font-weight:900;letter-spacing:-.02em}
+.mart-hero p{max-width:520px;margin:0 auto;color:var(--ink-2);font-size:.96rem}
+.filter-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:28px 0 34px}
+.filter-row button{font-family:var(--f);font-size:13px;font-weight:700;border-radius:var(--pill);padding:9px 19px;background:var(--white);cursor:pointer;color:var(--ink-2);box-shadow:var(--sh-1);border:1.5px solid var(--sand);transition:.15s}
+.filter-row button.active{background:var(--ink);color:var(--gold-light);border-color:var(--ink)}
+.filter-row button:hover:not(.active){border-color:var(--sand-2);color:var(--ink)}
+.mart-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;padding-bottom:80px;align-items:stretch}
+@media(max-width:1000px){.mart-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:760px){.mart-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:460px){.mart-grid{grid-template-columns:1fr}}
+.pcard{padding:0;overflow:hidden;display:flex;flex-direction:column;height:100%}
+.pcard .prod-img{border-radius:0;aspect-ratio:1/1;background:#fff;position:relative}
+.pcard .prod-img img{object-fit:contain;padding:12px}
+/* ── multi-image arrows + dots ── */
+.img-nav{position:absolute;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;border:none;background:rgba(255,255,255,.92);box-shadow:var(--sh-1);cursor:pointer;font-size:16px;line-height:1;z-index:2;display:flex;align-items:center;justify-content:center;color:var(--ink)}
+.img-nav:hover{background:#fff}
+.img-nav.prev{inset-inline-start:8px}
+.img-nav.next{inset-inline-end:8px}
+.img-dots{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:4px;z-index:2}
+.img-dots i{width:6px;height:6px;border-radius:50%;background:rgba(0,0,0,.25)}
+.img-dots i.on{background:var(--ink)}
+.prod-img img{cursor:zoom-in}
+/* 🔍 magnifier hint on hover */
+.prod-img::after{content:'🔍';position:absolute;top:10px;inset-inline-start:10px;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.94);box-shadow:var(--sh-1);display:flex;align-items:center;justify-content:center;font-size:13px;opacity:0;transform:scale(.7);transition:.2s;pointer-events:none;z-index:2}
+.pcard:hover .prod-img::after{opacity:1;transform:scale(1)}
+/* in-lightbox true zoom: click image to magnify 2.2x and pan with cursor */
+.lb-imgwrap img{cursor:zoom-in;transition:transform .25s ease}
+.lb-imgwrap.zoomed img{transform:scale(2.2);cursor:zoom-out}
+.lb-imgwrap.zoomed .img-nav,.lb-imgwrap.zoomed .img-dots{display:none}
+.pcard-desc{font-size:11.5px;color:var(--ink-2);line-height:1.45;margin:3px 0 2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.9em}
+/* ── lightbox (image zoom) ── */
+.lb-overlay{position:fixed;inset:0;background:rgba(20,16,10,.88);z-index:200;display:flex;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(4px)}
+.lb-box{max-width:min(560px,94vw);width:100%;max-height:92vh;background:var(--white);border-radius:20px;overflow:hidden;box-shadow:var(--sh-4);display:flex;flex-direction:column;animation:fadeUp .2s ease-out}
+.lb-imgwrap{position:relative;background:#fff;aspect-ratio:1/1;flex-shrink:1;min-height:0;display:flex;align-items:center;justify-content:center;touch-action:pan-y}
+.lb-imgwrap img{width:100%;height:100%;object-fit:contain;padding:20px;user-select:none;-webkit-user-drag:none}
+.lb-close{position:absolute;top:10px;inset-inline-end:10px;width:32px;height:32px;border-radius:50%;border:none;background:rgba(255,255,255,.92);box-shadow:var(--sh-1);cursor:pointer;font-size:17px;line-height:1;z-index:3;display:flex;align-items:center;justify-content:center;color:var(--ink)}
+.lb-close:hover{background:#fff}
+.lb-info{padding:13px 18px 16px;border-top:1px solid var(--cream-2);overflow-y:auto}
+.lb-name{font-weight:800;font-size:14px}
+.lb-desc{font-size:12.5px;color:var(--ink-2);line-height:1.55;margin-top:5px;white-space:pre-line}
+.lb-price{font-family:var(--fm);font-weight:700;font-size:1rem;margin-top:7px}
+.lb-price .old{font-size:.75rem;color:var(--ink-3);text-decoration:line-through;margin-inline-start:7px;font-weight:400}
+.pcard-tag{position:absolute;top:10px;inset-inline-start:10px;z-index:2}
+.pcard-body{padding:15px 16px 16px;display:flex;flex-direction:column;flex:1}
+.pcard-name{font-weight:700;font-size:13.5px;line-height:1.35;min-height:2.6em;color:var(--ink)}
+.pcard-price{display:flex;align-items:baseline;gap:7px;margin:7px 0 4px;margin-top:auto}
+.pcard-stock{margin-bottom:10px}
+.pcard-now{font-family:var(--fm);font-weight:700;font-size:1.05rem;color:var(--ink)}
+.pcard-old{font-family:var(--fm);font-size:.75rem;color:var(--ink-3);text-decoration:line-through}
+.pcard-stock{font-size:11.5px;color:var(--err);font-weight:700;margin-bottom:10px;min-height:1.2em}
+.pcard-stock.ok{color:var(--ok)}
+.pcard-body .btn{font-size:13px;padding:10px 14px}
+.state-msg{grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--ink-2)}
+.state-msg .big{font-size:2.4rem;margin-bottom:12px}
+.skeleton{background:linear-gradient(90deg,var(--cream-2) 25%,var(--sand) 50%,var(--cream-2) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:var(--r2);aspect-ratio:3/4}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* drawer */
+.cart-overlay{position:fixed;inset:0;background:rgba(34,28,19,.5);z-index:100;backdrop-filter:blur(3px)}
+.cart-drawer{position:fixed;top:0;inset-inline-end:0;height:100%;width:min(400px,100%);background:var(--white);box-shadow:var(--sh-4);z-index:101;display:flex;flex-direction:column}
+[dir="ltr"] .cart-drawer{animation:dLtr .24s cubic-bezier(.2,.8,.2,1)}
+[dir="rtl"] .cart-drawer{animation:dRtl .24s cubic-bezier(.2,.8,.2,1)}
+@keyframes dLtr{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes dRtl{from{transform:translateX(-100%)}to{transform:translateX(0)}}
+.drawer-head{display:flex;justify-content:space-between;align-items:center;padding:17px 22px;border-bottom:1px solid var(--sand)}
+.drawer-head h3{margin:0;font-size:1rem;font-weight:800}
+.drawer-close{background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--ink-2);line-height:1;padding:4px 8px;border-radius:8px;transition:.15s}
+.drawer-close:hover{background:var(--cream-2);color:var(--ink)}
+.drawer-body{flex:1;overflow-y:auto;padding:14px 22px;display:flex;flex-direction:column}
+.drawer-footer{padding:15px 22px 19px;border-top:1px solid var(--sand)}
+.cart-line{display:flex;gap:11px;align-items:center;padding:11px 0;border-bottom:1px solid var(--cream-2)}
+.ci-img{width:46px;height:46px;border-radius:10px;background:#fff;border:1px solid var(--cream-2);overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.3rem}
+.ci-img img{width:100%;height:100%;object-fit:contain;padding:3px}
+.ci-info{flex:1;min-width:0}
+.ci-name{font-weight:700;font-size:12.5px}
+.ci-price{font-family:var(--fm);font-size:11.5px;color:var(--ink-2);margin-top:2px}
+.qty-ctrl{display:flex;align-items:center;gap:7px}
+.qty-btn{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--sand-2);background:var(--white);cursor:pointer;font-weight:800;line-height:1;font-size:13px;display:flex;align-items:center;justify-content:center;color:var(--ink);transition:.15s}
+.qty-btn:hover{border-color:var(--ink);background:var(--cream-2)}
+.qty-num{font-family:var(--fm);font-weight:700;min-width:16px;text-align:center;font-size:12.5px}
+.ci-remove{background:none;border:none;color:var(--err);font-size:12px;font-weight:700;cursor:pointer;margin-inline-start:5px;opacity:.65;transition:.15s}
+.ci-remove:hover{opacity:1}
+.subtotal-row{display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:.98rem;margin-bottom:13px}
+.subtotal-val{font-family:var(--fm)}
+.empty-cart{text-align:center;padding:44px 10px;color:var(--ink-2);flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.empty-emoji{font-size:2.2rem;margin-bottom:10px}
+.checkout-form .field{margin-bottom:12px}
+.checkout-form label{font-size:12px;margin-bottom:5px}
+.checkout-form input,.checkout-form select,.checkout-form textarea{padding:10px 13px;font-size:13px}
+.success-view{text-align:center;padding:32px 10px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+.success-icon{font-size:2.5rem}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="nav-row container">
+    <a href="index.html" class="brand"><img src="assets/logo.png" alt="Try Shoppy"> Try Shoppy</a>
+    <nav class="nav-links">
+      <a href="index.html" data-i18n="nav_home">Home</a>
+      <a href="calculator.html" data-i18n="nav_calc">Get a Price</a>
+      <a href="track.html" data-i18n="nav_track">Track Order</a>
+      <a href="mart.html" class="active" data-i18n="nav_mart">Try Shoppy Mart</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="lang-pill">🌐 العربية</button>
+      <button class="btn btn-ghost cart-btn" id="openCartBtn" aria-label="Cart">🛒<span class="cart-badge hidden" data-cart-count>0</span></button>
+      <span data-auth-slot="pill"></span>
+      <button class="burger btn btn-ghost" aria-label="Menu">☰</button>
+    </div>
+  </div>
+  <div class="mobile-menu">
+    <a href="index.html" data-i18n="nav_home">Home</a>
+    <a href="calculator.html" data-i18n="nav_calc">Get a Price</a>
+    <a href="track.html" data-i18n="nav_track">Track Order</a>
+    <a href="mart.html" data-i18n="nav_mart">Try Shoppy Mart</a>
+    <a href="login.html" data-i18n="nav_login">Login / Register</a>
+  </div>
+</header>
+
+<div class="mart-hero">
+  <div class="container">
+    <span class="eyebrow" style="justify-content:center;display:flex" data-i18n="mart_page_eyebrow">ALREADY IN EGYPT</span>
+    <h1 data-i18n="mart_page_title">Try Shoppy Mart</h1>
+    <p data-i18n="mart_page_sub">Discounted, outlet and lightly-returned items — cleared and in stock, ships in days.</p>
+  </div>
+</div>
+
+<div class="container">
+  <div class="filter-row" id="filterRow">
+    <button class="active" data-filter="all" data-i18n="mart_filter_all">All</button>
+    <button data-filter="discount" data-i18n="mart_filter_discount">Discounted</button>
+    <button data-filter="outlet" data-i18n="mart_filter_outlet">Outlet</button>
+    <button data-filter="returns" data-i18n="mart_filter_returns">Returns</button>
+  </div>
+  <div class="mart-grid" id="martGrid"></div>
+</div>
+
+<!-- CART DRAWER -->
+<div class="cart-overlay hidden" id="cartOverlay">
+  <aside class="cart-drawer" id="cartDrawer" onclick="event.stopPropagation()">
+    <div class="drawer-head">
+      <h3 data-i18n="mart_cart_title">Your Cart</h3>
+      <button class="drawer-close" id="cartCloseBtn" aria-label="Close">&times;</button>
+    </div>
+    <div id="cartView" class="drawer-body"></div>
+    <div class="drawer-footer" id="cartFooter">
+      <div class="subtotal-row"><span data-i18n="mart_cart_subtotal">Subtotal</span><span class="subtotal-val" id="cartSubtotalValue">0 EGP</span></div>
+      <button class="btn btn-dark btn-block" id="cartCheckoutBtn" data-i18n="mart_cart_checkout">Checkout</button>
+    </div>
+    <div id="checkoutView" class="drawer-body hidden checkout-form">
+      <p style="font-size:12.5px;color:var(--ink-2);margin-top:0" data-i18n="mart_checkout_sub">We'll confirm by WhatsApp right after.</p>
+      <div class="field"><label data-i18n="calc_name_label">Full Name</label><input id="coName" data-i18n-ph="calc_name_ph" placeholder="Your full name"></div>
+      <div class="field"><label data-i18n="calc_phone_label">Phone Number</label><input id="coPhone" placeholder="01xxxxxxxxx"></div>
+      <div class="field"><label data-i18n="lbl_email_optional">Email (optional — for order confirmation)</label><input id="coEmail" type="email" placeholder="name@example.com"></div>
+      <div class="field">
+        <label data-i18n="calc_gov_label">Governorate</label>
+        <select id="coGov">
+          <option value="" data-i18n="calc_gov_select">Select governorate...</option>
+          <option value="القاهرة" data-i18n="gov_cairo">Cairo</option>
+          <option value="الجيزة" data-i18n="gov_giza">Giza</option>
+          <option value="الإسكندرية" data-i18n="gov_alex">Alexandria</option>
+          <option value="الدقهلية" data-i18n="gov_dakahlia">Dakahlia</option>
+          <option value="الشرقية" data-i18n="gov_sharqia">Sharqia</option>
+          <option value="الغربية" data-i18n="gov_gharbia">Gharbia</option>
+          <option value="المنوفية" data-i18n="gov_monufia">Monufia</option>
+          <option value="القليوبية" data-i18n="gov_qalyubia">Qalyubia</option>
+          <option value="البحيرة" data-i18n="gov_beheira">Beheira</option>
+          <option value="كفر الشيخ" data-i18n="gov_kafr_elsheikh">Kafr El Sheikh</option>
+          <option value="دمياط" data-i18n="gov_damietta">Damietta</option>
+          <option value="بورسعيد" data-i18n="gov_portsaid">Port Said</option>
+          <option value="الإسماعيلية" data-i18n="gov_ismailia">Ismailia</option>
+          <option value="السويس" data-i18n="gov_suez">Suez</option>
+          <option value="الفيوم" data-i18n="gov_faiyum">Faiyum</option>
+          <option value="بني سويف" data-i18n="gov_beni_suef">Beni Suef</option>
+          <option value="المنيا" data-i18n="gov_minya">Minya</option>
+          <option value="أسيوط" data-i18n="gov_asyut">Asyut</option>
+          <option value="سوهاج" data-i18n="gov_sohag">Sohag</option>
+          <option value="قنا" data-i18n="gov_qena">Qena</option>
+          <option value="الأقصر" data-i18n="gov_luxor">Luxor</option>
+          <option value="أسوان" data-i18n="gov_aswan">Aswan</option>
+          <option value="البحر الأحمر" data-i18n="gov_redsea">Red Sea</option>
+          <option value="الوادي الجديد" data-i18n="gov_newvalley">New Valley</option>
+          <option value="مطروح" data-i18n="gov_matrouh">Matrouh</option>
+          <option value="شمال سيناء" data-i18n="gov_north_sinai">North Sinai</option>
+          <option value="جنوب سيناء" data-i18n="gov_south_sinai">South Sinai</option>
+        </select>
+      </div>
+      <div class="field"><label data-i18n="calc_address_label">Detailed Address</label><textarea id="coAddress" rows="2" data-i18n-ph="calc_address_ph"></textarea></div>
+    </div>
+    <div class="drawer-footer hidden" id="checkoutFooter">
+      <button class="btn btn-primary btn-block" id="placeOrderBtn" data-i18n="mart_btn_place_order">Place Order</button>
+    </div>
+    <div id="successView" class="drawer-body hidden">
+      <div class="success-view">
+        <div class="success-icon">🎉</div>
+        <div class="stamp green" data-i18n="mart_checkout_success">Your order was placed successfully! ✅</div>
+        <div id="successEmailNote" class="hidden" style="font-size:12.5px;color:var(--ink-2)" data-i18n="order_email_note">A confirmation email is on its way to you.</div>
+        <div id="successOrderNos" style="font-family:var(--fm);font-size:12px;color:var(--ink-2);word-break:break-word"></div>
+        <div style="font-size:12px;color:var(--ink-3)" data-i18n="order_wa_optional">You can also confirm on WhatsApp (optional):</div>
+        <button class="btn btn-whatsapp btn-block" id="cartWhatsAppBtn" data-i18n="mart_cart_whatsapp_btn">Send WhatsApp Confirmation (optional)</button>
+        <button class="btn btn-ghost btn-block" id="continueShoppingBtn" data-i18n="mart_cart_continue">Continue Shopping</button>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lb-overlay hidden" id="lbOverlay"></div>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="foot-grid">
+      <div><div class="foot-brand"><img src="assets/logo.png" alt=""> Try Shoppy</div><p data-i18n="foot_about_d">Try Shoppy buys, consolidates and ships products from US stores straight to your door in Egypt.</p></div>
+      <div><h4 data-i18n="foot_links_t">Quick Links</h4><p><a href="calculator.html" data-i18n="nav_calc">Get a Price</a></p><p><a href="track.html" data-i18n="nav_track">Track Order</a></p><p><a href="mart.html" data-i18n="nav_mart">Try Shoppy Mart</a></p><p><a href="login.html" data-i18n="nav_login">Login / Register</a></p></div>
+      <div><h4 data-i18n="foot_legal_t">Legal</h4><p><a href="privacy.html" data-i18n="foot_privacy">Privacy Policy</a></p><p><a href="terms.html" data-i18n="foot_terms">Terms & Conditions</a></p><p><a href="shipping-policy.html" data-i18n="foot_shipping">Shipping Policy</a></p><p><a href="returns-policy.html" data-i18n="foot_returns">Returns & Refunds</a></p><p><a href="cancellation-policy.html" data-i18n="foot_cancellation">Cancellation Policy</a></p><p><a href="restricted-items.html" data-i18n="foot_restricted">Restricted Items</a></p></div>
+      <div><h4 data-i18n="foot_support_t">Support</h4><p><a href="https://wa.me/201005609642" target="_blank" data-i18n="foot_whatsapp">Chat on WhatsApp</a></p><p><a href="https://www.facebook.com/TryShoppy.eg/" target="_blank" rel="noopener" class="foot-social-link"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="vertical-align:-2.5px;margin-inline-end:5px"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.51 1.49-3.9 3.77-3.9 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.44 2.91h-2.34V22c4.78-.76 8.44-4.92 8.44-9.94z"/></svg><span data-i18n="foot_facebook">Follow us on Facebook</span></a></p></div>
+      <div><h4 data-i18n="foot_payments_t">Payments</h4><p data-i18n="pay_cod">Cash on Delivery</p><p data-i18n="pay_instapay">InstaPay</p><p data-i18n="pay_card">Visa & Mastercard</p><p data-i18n="pay_paypal">PayPal</p><p data-i18n="pay_bank">Bank Transfer</p></div>
+    </div>
+    <div class="foot-bottom"><span data-i18n="foot_rights">© 2026 Try Shoppy. All rights reserved.</span><span>Made for shoppers in Egypt 🇪🇬</span></div>
+  </div>
+</footer>
+
+<script src="assets/config.js"></script>
+<script src="assets/i18n.js"></script>
+<script src="assets/app.js"></script>
+<script>
+/* ── products load from a fully separate sheet/script (MART_PRODUCTS_SCRIPT_URL) ── */
+let MART_PRODUCTS=[];
+const TAG_CLS={discount:"green",outlet:"orange",returns:"blue"};
+const TAG_LABEL={discount:{en:"SALE",ar:"خصم"},outlet:{en:"OUTLET",ar:"أوت ليت"},returns:{en:"RETURN",ar:"مرتجع"}};
+function pid(id){return MART_PRODUCTS.find(p=>String(p.id)===String(id));}
+let curFilter='all';
+
+function showState(msgKey,emoji,detail){
+  const detailHtml = detail ? '<div style="font-family:var(--fm);font-size:11px;color:var(--ink-3);margin-top:10px;word-break:break-word;max-width:480px;margin-inline:auto">'+detail+'</div>' : '';
+  document.getElementById('martGrid').innerHTML='<div class="state-msg"><div class="big">'+emoji+'</div><span data-i18n="'+msgKey+'"></span>'+detailHtml+'</div>';
+  applyI18N();
+}
+function showSkeletons(){
+  document.getElementById('martGrid').innerHTML=Array(8).fill('<div class="skeleton"></div>').join('');
+}
+
+/* ── multi-image support ──
+   في خانة الصورة (الشيت/الأدمن) حط كذا رابط مفصولين بـ |
+   مثال: https://a.com/1.jpg|https://a.com/2.jpg|https://a.com/3.jpg */
+function pimgs(p){return String((p&&p.image)||'').split('|').map(s=>s.trim()).filter(Boolean);}
+
+function prodImgHtml(p){
+  const imgs=pimgs(p);
+  if(!imgs.length) return '<span class="ph">🛍️</span>';
+  const nav=imgs.length>1
+    ? '<button class="img-nav prev" type="button" onclick="event.stopPropagation();swapImg(this,-1)">‹</button>'
+      +'<button class="img-nav next" type="button" onclick="event.stopPropagation();swapImg(this,1)">›</button>'
+      +'<span class="img-dots">'+imgs.map((_,i)=>'<i'+(i===0?' class="on"':'')+'></i>').join('')+'</span>'
+    : '';
+  return '<img src="'+imgs[0]+'" data-imgs="'+imgs.join('|')+'" data-idx="0" alt="" loading="lazy" onclick="openLightbox(\''+p.id+'\',parseInt(this.dataset.idx)||0)" onerror="this.parentElement.innerHTML=\'<span class=&quot;ph&quot;>🛍️</span>\'">'+nav;
+}
+
+function swapImg(btn,dir){
+  const wrap=btn.parentElement, img=wrap.querySelector('img');
+  if(!img) return;
+  const imgs=img.dataset.imgs.split('|');
+  const i=(parseInt(img.dataset.idx)+dir+imgs.length)%imgs.length;
+  img.src=imgs[i]; img.dataset.idx=i;
+  wrap.querySelectorAll('.img-dots i').forEach((d,k)=>d.classList.toggle('on',k===i));
+}
+
+/* ── lightbox: click image to zoom + navigate all images ── */
+const lbOverlay=document.getElementById('lbOverlay');
+let LB={imgs:[],idx:0,p:null};
+function openLightbox(id,startIdx){
+  const p=pid(id);if(!p)return;
+  const imgs=pimgs(p);if(!imgs.length)return;
+  LB={imgs,idx:Math.min(startIdx||0,imgs.length-1),p};
+  const name=TS_LANG==='ar'?(p.nameAr||p.nameEn):(p.nameEn||p.nameAr);
+  const desc=TS_LANG==='ar'?(p.descAr||p.descEn):(p.descEn||p.descAr);
+  const nav=imgs.length>1
+    ? '<button class="img-nav prev" type="button" onclick="lbNav(-1)">\u2039</button>'
+      +'<button class="img-nav next" type="button" onclick="lbNav(1)">\u203a</button>'
+      +'<span class="img-dots" id="lbDots">'+imgs.map((_,i)=>'<i'+(i===LB.idx?' class="on"':'')+'></i>').join('')+'</span>'
+    : '';
+  const oldP=p.oldPrice&&p.oldPrice>p.price?'<span class="old">'+p.oldPrice.toLocaleString()+'</span>':'';
+  lbOverlay.innerHTML='<div class="lb-box" onclick="event.stopPropagation()">'
+    +'<div class="lb-imgwrap" id="lbImgWrap"><button class="lb-close" type="button" onclick="closeLightbox()">\u2715</button><img id="lbImg" src="'+LB.imgs[LB.idx]+'" alt="">'+nav+'</div>'
+    +'<div class="lb-info"><div class="lb-name">'+name+'</div>'
+    +(desc?'<div class="lb-desc">'+desc+'</div>':'')
+    +'<div class="lb-price">'+p.price.toLocaleString()+' EGP'+oldP+'</div></div>'
+    +'</div>';
+  lbOverlay.classList.remove('hidden');
+  /* swipe on touch devices */
+  let sx=null;const w=document.getElementById('lbImgWrap');
+  w.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;},{passive:true});
+  w.addEventListener('touchend',e=>{
+    if(sx===null)return;const dx=e.changedTouches[0].clientX-sx;sx=null;
+    if(Math.abs(dx)>40)lbNav(dx<0?1:-1);
+  },{passive:true});
+}
+function lbNav(dir){
+  if(LB.imgs.length<2)return;
+  const w=document.getElementById('lbImgWrap');
+  if(w){w.classList.remove('zoomed');const im=document.getElementById('lbImg');if(im)im.style.transformOrigin='';}
+  LB.idx=(LB.idx+dir+LB.imgs.length)%LB.imgs.length;
+  document.getElementById('lbImg').src=LB.imgs[LB.idx];
+  const dots=document.getElementById('lbDots');
+  if(dots)dots.querySelectorAll('i').forEach((d,k)=>d.classList.toggle('on',k===LB.idx));
+}
+function closeLightbox(){lbOverlay.classList.add('hidden');lbOverlay.innerHTML='';}
+/* click the big image to zoom in/out; move the cursor to pan while zoomed
+   (capture phase — the .lb-box stops click bubbling, so we intercept first) */
+lbOverlay.addEventListener('click',function(e){
+  const img=e.target.closest('#lbImg');if(!img)return;
+  e.stopPropagation();
+  const w=img.parentElement;
+  w.classList.toggle('zoomed');
+  if(!w.classList.contains('zoomed')){img.style.transformOrigin='';}
+},true);
+lbOverlay.addEventListener('mousemove',function(e){
+  const w=document.getElementById('lbImgWrap');
+  if(!w||!w.classList.contains('zoomed'))return;
+  const img=document.getElementById('lbImg');
+  const r=w.getBoundingClientRect();
+  const x=((e.clientX-r.left)/r.width)*100, y=((e.clientY-r.top)/r.height)*100;
+  img.style.transformOrigin=Math.max(0,Math.min(100,x))+'% '+Math.max(0,Math.min(100,y))+'%';
+});
+lbOverlay.addEventListener('click',closeLightbox);
+document.addEventListener('keydown',e=>{
+  if(lbOverlay.classList.contains('hidden'))return;
+  if(e.key==='Escape')closeLightbox();
+  else if(e.key==='ArrowRight')lbNav(1);
+  else if(e.key==='ArrowLeft')lbNav(-1);
+});
+
+function renderMart(filter){
+  const grid=document.getElementById('martGrid');
+  const items=(filter==='all'?MART_PRODUCTS:MART_PRODUCTS.filter(p=>p.category===filter)).filter(p=>p.active!==false);
+  if(!items.length){showState('mart_empty','🛍️');return;}
+  grid.innerHTML=items.map(p=>{
+    const tl=TAG_LABEL[p.category]||TAG_LABEL.outlet;
+    const tag=TS_LANG==='ar'?tl.ar:tl.en;
+    const name=TS_LANG==='ar'?(p.nameAr||p.nameEn):(p.nameEn||p.nameAr);
+    const out=p.stock<=0;
+    const stockLine=out
+      ? '<span data-i18n="mart_out_of_stock">Out of stock</span>'
+      : p.stock+' '+tsT('mart_only_left');
+    const oldHtml=p.oldPrice&&p.oldPrice>p.price?'<span class="pcard-old">'+p.oldPrice.toLocaleString()+'</span>':'';
+    const desc=TS_LANG==='ar'?(p.descAr||p.descEn):(p.descEn||p.descAr);
+    const descHtml='<div class="pcard-desc">'+(desc||'')+'</div>';
+    return '<div class="card pcard lift"><div class="prod-img"><span class="badge '+(TAG_CLS[p.category]||'orange')+' pcard-tag">'+tag+'</span>'+prodImgHtml(p)+'</div><div class="pcard-body"><div class="pcard-name">'+name+'</div>'+descHtml+'<div class="pcard-price"><span class="pcard-now">'+p.price.toLocaleString()+' EGP</span>'+oldHtml+'</div><div class="pcard-stock'+(out?'':' ')+'">'+stockLine+'</div><button class="btn btn-primary btn-block" onclick="handleAdd(\''+p.id+'\')" '+(out?'disabled':'')+' data-i18n="mart_add_to_cart">Add to Cart</button></div></div>';
+  }).join('');
+  applyI18N();
+}
+
+function loadProducts(){
+  showSkeletons();
+  tsFetchMartProducts().then(products=>{
+    MART_PRODUCTS=(products||[]).map(p=>({...p,price:parseFloat(p.price)||0,oldPrice:parseFloat(p.oldPrice)||0,stock:parseInt(p.stock)||0}));
+    renderMart(curFilter);
+  }).catch(err=>{showState('mart_load_error','⚠️', err && err.message ? err.message : '');});
+}
+loadProducts();
+
+document.querySelectorAll('#filterRow button').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('#filterRow button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');curFilter=btn.dataset.filter;renderMart(curFilter);});});
+document.addEventListener('ts-lang-changed',()=>{renderMart(curFilter);renderCartItems();});
+function handleAdd(id){
+  const p=pid(id);if(!p||p.stock<=0)return;
+  tsAddToCart({id:p.id,name:{en:p.nameEn,ar:p.nameAr},price:p.price,cat:p.category});
+  tsToast(tsT('mart_added_toast'));openCart();
+}
+
+/* cart drawer */
+const overlay=document.getElementById('cartOverlay');
+const cartView=document.getElementById('cartView'),cartFooter=document.getElementById('cartFooter'),checkoutView=document.getElementById('checkoutView'),checkoutFooter=document.getElementById('checkoutFooter'),successView=document.getElementById('successView');
+function openCart(){showStep('cart');renderCartItems();overlay.classList.remove('hidden');}
+function closeCart(){overlay.classList.add('hidden');}
+document.getElementById('openCartBtn').addEventListener('click',openCart);
+document.getElementById('cartCloseBtn').addEventListener('click',closeCart);
+overlay.addEventListener('click',closeCart);
+function showStep(s){cartView.classList.toggle('hidden',s!=='cart');cartFooter.classList.toggle('hidden',s!=='cart');checkoutView.classList.toggle('hidden',s!=='checkout');checkoutFooter.classList.toggle('hidden',s!=='checkout');successView.classList.toggle('hidden',s!=='success');}
+function renderCartItems(){
+  const cart=tsGetCart();
+  if(!cart.length){cartView.innerHTML='<div class="empty-cart"><div class="empty-emoji">🛒</div><span data-i18n="mart_cart_empty">Your cart is empty.</span></div>';applyI18N();document.getElementById('cartCheckoutBtn').disabled=true;}
+  else{
+    cartView.innerHTML=cart.map(item=>{
+      const p=pid(item.id);
+      const name=(item.name&&item.name[TS_LANG])||(item.name&&item.name.en)||'';
+      const cimgs=p?pimgs(p):[];
+      const imgHtml=cimgs.length?'<img src="'+cimgs[0]+'" alt="">':'🛍️';
+      const qm=item.qty-1,qp=item.qty+1;
+      return '<div class="cart-line"><div class="ci-img">'+imgHtml+'</div><div class="ci-info"><div class="ci-name">'+name+'</div><div class="ci-price">'+item.price.toLocaleString()+' EGP</div></div><div class="qty-ctrl"><button class="qty-btn" onclick="chqty(\''+item.id+'\','+qm+')">−</button><span class="qty-num">'+item.qty+'</span><button class="qty-btn" onclick="chqty(\''+item.id+'\','+qp+')">+</button></div><button class="ci-remove" onclick="chqty(\''+item.id+'\',0)" aria-label="Remove">✕</button></div>';
+    }).join('');
+    document.getElementById('cartCheckoutBtn').disabled=false;
+  }
+  document.getElementById('cartSubtotalValue').textContent=tsCartSubtotal().toLocaleString()+' EGP';
+}
+function chqty(id,qty){tsUpdateCartQty(id,qty);renderCartItems();}
+document.getElementById('cartCheckoutBtn').addEventListener('click',()=>{const s=tsGetSession();if(s){document.getElementById('coName').value=s.name||'';document.getElementById('coPhone').value=s.phone||'';document.getElementById('coEmail').value=s.email||'';document.getElementById('coAddress').value=s.address||'';if(s.governorate){const sel=document.getElementById('coGov');for(const o of sel.options)if(o.value===s.governorate)o.selected=true;}}showStep('checkout');});
+
+let lastSummary=null;
+document.getElementById('placeOrderBtn').addEventListener('click',function(){
+  const name=document.getElementById('coName').value.trim(),phone=document.getElementById('coPhone').value.trim(),email=document.getElementById('coEmail').value.trim(),gov=document.getElementById('coGov').value,addr=document.getElementById('coAddress').value.trim(),cart=tsGetCart();
+  if(!name||!phone||!cart.length){tsToast(tsT('auth_err_required'));return;}
+  const btn=this;btn.disabled=true;
+  const orders=[];
+  /* ملخص كل المنتجات — يتبعت مرة واحدة مع أول صف عشان
+     العميل والموظف يستلموا إيميل واحد فيه كل حاجة */
+  const emailSummary=cart.map(item=>((item.name&&item.name.en)||'')+' x'+item.qty+' — '+(item.price*item.qty).toLocaleString()+' EGP').join('\n');
+  cart.forEach((item,idx)=>{
+    const o=tsGenerateMartOrderNumber();orders.push({orderNo:o,item});
+    tsSubmitOrderRow({order:o,customerName:name,phone,email,country:"Try Shoppy Mart",address:addr,governorate:gov,link:'',quantity:item.qty,usd:'',weight:'',dimensions:(item.name&&item.name.en)||'',category:'Mart - '+item.cat,finalPrice:item.price*item.qty,status:'Pending Review',
+      suppressEmail:idx>0,                                  // إيميل واحد فقط للطلب كله
+      emailSummary:idx===0?emailSummary+'\nTotal: '+tsCartSubtotal().toLocaleString()+' EGP':''});
+  });
+  lastSummary={name,phone,gov,addr,orders,total:tsCartSubtotal()};
+  document.getElementById('successEmailNote').classList.toggle('hidden',!email);
+  document.getElementById('successOrderNos').textContent=orders.map(o=>o.orderNo).join(' · ');
+
+  /* 📉 تقليل المخزون فعليًا في شيت المارت لكل منتج اتباع —
+     وتحديث الأرقام في الذاكرة فورًا عشان لو العميل ضغط
+     "Continue Shopping" يشوف الكمية الجديدة من غير ما يعمل Refresh */
+  cart.forEach(item=>{
+    tsDecrementMartStock(item.id,item.qty).then(res=>{
+      if(res&&res.success){
+        const p=MART_PRODUCTS.find(x=>String(x.id)===String(item.id));
+        if(p){ p.stock=res.stock; renderMart(curFilter); }   // الشبكة موجودة دايمًا خلف الدرج، فتحديثها آمن أيًّا كانت الخطوة الظاهرة
+      }
+    }).catch(()=>{ /* فشل تحديث المخزون لا يلغي نجاح الطلب نفسه */ });
+  });
+
+  tsClearCart();btn.disabled=false;showStep('success');
+});
+document.getElementById('cartWhatsAppBtn').addEventListener('click',()=>{
+  if(!lastSummary)return;
+  const s=lastSummary;
+  const lines=s.orders.map(o=>o.orderNo+' — '+((o.item.name&&o.item.name.en)||'')+' x'+o.item.qty+' ('+(o.item.price*o.item.qty).toLocaleString()+' EGP)').join('\n');
+  const msg='TRY SHOPPY MART Order\nName: '+s.name+'\nPhone: '+s.phone+'\nGov: '+s.gov+'\nAddress: '+s.addr+'\n\nItems:\n'+lines+'\n\nTotal: '+s.total.toLocaleString()+' EGP';
+  window.open('https://wa.me/'+TS_CONFIG.SUPPORT_PHONE+'?text='+encodeURIComponent(msg));
+});
+document.getElementById('continueShoppingBtn').addEventListener('click',closeCart);
+tsInitNav();
+</script>
+</body>
+</html>

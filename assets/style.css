@@ -1,0 +1,191 @@
+/* =========================================================
+   TRY SHOPPY — design system v4 "Honey Route"
+   Professional, calm, warm. Brand: honey gold + warm ink
+   on soft cream. Receipt/label vernacular via Space Mono
+   for numbers only. Generous air, diffused depth.
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap');
+
+:root{
+  /* brand */
+  --gold:#F5B820; --gold-light:#FFD966; --gold-pale:#FFF3D1; --gold-wash:#FFFAEC; --gold-deep:#B9860B;
+
+  /* legacy v3 aliases (older page CSS may still reference these) */
+  --y0:var(--gold-wash); --y1:var(--gold-pale); --y2:var(--gold-light); --y3:var(--gold); --y4:var(--gold-deep);
+  --n0:var(--cream); --n1:var(--cream-2); --n2:var(--sand); --n3:var(--sand-2); --n4:#C4B698;
+  --ink2:var(--ink-2); --ink3:var(--ink-3);
+  --rpill:var(--pill);
+  --sh0:var(--sh-1); --sh1:var(--sh-2); --sh2:var(--sh-3); --sh3:var(--sh-4); --shy:var(--sh-gold);
+  --ink:#221C13; --ink-2:#6E6355; --ink-3:#A89C8A;
+  --cream:#FFFDF7; --cream-2:#FAF5E9; --sand:#F0E8D6; --sand-2:#E2D7BE;
+  --white:#FFFFFF;
+  --ok:#178F5F; --ok-bg:#E5F6EE;
+  --err:#D4543E; --err-bg:#FBEEE9;
+  --inf:#2B6FA8; --inf-bg:#E9F2F9;
+
+  --f:'Cairo',sans-serif;
+  --fm:'Space Mono',monospace;
+  --maxw:1160px;
+  --r:14px; --r2:22px; --r3:32px; --pill:999px;
+
+  --sh-1:0 1px 2px rgba(34,28,19,.05);
+  --sh-2:0 3px 10px rgba(34,28,19,.06);
+  --sh-3:0 10px 30px rgba(34,28,19,.09);
+  --sh-4:0 24px 60px rgba(34,28,19,.13);
+  --sh-gold:0 8px 24px rgba(245,184,32,.30);
+}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:var(--f);background:var(--cream);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.6;font-size:15px}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+.container{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+:focus-visible{outline:2.5px solid var(--gold);outline-offset:2px;border-radius:4px}
+
+/* ── nav ── */
+.site-header{position:sticky;top:0;z-index:60;background:rgba(255,253,247,.86);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--sand)}
+.nav-row{display:flex;align-items:center;justify-content:space-between;padding:12px 24px;gap:14px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:16.5px;letter-spacing:-.2px}
+.brand img{height:36px;width:36px;border-radius:10px}
+.nav-links{display:flex;align-items:center;gap:22px;font-weight:600;font-size:14px}
+.nav-links a{color:var(--ink-2);transition:color .15s;padding:5px 2px;position:relative}
+.nav-links a:hover,.nav-links a.active{color:var(--ink)}
+.nav-links a.active::after{content:'';position:absolute;left:2px;right:2px;bottom:-2px;height:2px;background:var(--gold);border-radius:2px}
+.nav-actions{display:flex;align-items:center;gap:8px}
+.lang-pill{font-family:var(--f);font-size:12.5px;font-weight:700;padding:8px 14px;border-radius:var(--pill);border:1.5px solid var(--sand-2);background:var(--white);cursor:pointer;display:flex;align-items:center;gap:5px;transition:.15s;color:var(--ink)}
+.lang-pill:hover{border-color:var(--gold);background:var(--gold-wash)}
+.burger{display:none}
+@media(max-width:920px){.nav-links{display:none}.burger{display:flex}}
+.mobile-menu{display:none;flex-direction:column;background:var(--white);border-top:1px solid var(--sand)}
+.mobile-menu.open{display:flex;animation:mmIn .18s ease-out}
+.mobile-menu a{padding:15px 24px;font-weight:600;font-size:15px;border-bottom:1px solid var(--cream-2);color:var(--ink)}
+@keyframes mmIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── footer ── */
+.site-footer{background:var(--ink);color:#F1EBDF;margin-top:96px;border-radius:36px 36px 0 0}
+.site-footer .container{padding:56px 24px 26px}
+.foot-grid{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr 1fr;gap:26px}
+.foot-grid h4{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-light);margin:0 0 13px;font-weight:700}
+.foot-grid a,.foot-grid p{color:#BBB2A2;font-size:13.5px;line-height:2.1;margin:0}
+.foot-grid a:hover{color:var(--gold-light)}
+.foot-brand{display:flex;align-items:center;gap:9px;font-weight:800;font-size:16.5px;color:#fff;margin-bottom:10px}
+.foot-brand img{height:32px;width:32px;border-radius:9px}
+.foot-bottom{border-top:1px solid rgba(255,255,255,.08);margin-top:38px;padding-top:18px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:12px;color:#7E7566}
+@media(max-width:900px){.foot-grid{grid-template-columns:1fr 1fr 1fr}}
+@media(max-width:760px){.foot-grid{grid-template-columns:1fr 1fr}}
+
+/* ── buttons ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;font-family:var(--f);font-weight:700;font-size:14px;padding:12px 24px;border-radius:var(--pill);border:none;cursor:pointer;transition:transform .16s ease,box-shadow .16s ease,background .16s;white-space:nowrap;line-height:1.2}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:translateY(0) scale(.99)}
+.btn-primary{background:var(--gold);color:var(--ink);box-shadow:var(--sh-gold)}
+.btn-primary:hover{background:var(--gold-light);box-shadow:0 10px 28px rgba(245,184,32,.4)}
+.btn-secondary{background:var(--white);color:var(--ink);box-shadow:var(--sh-2);border:1.5px solid var(--sand)}
+.btn-secondary:hover{border-color:var(--sand-2);box-shadow:var(--sh-3)}
+.btn-ghost{background:transparent;color:var(--ink-2);border:1.5px solid var(--sand)}
+.btn-ghost:hover{background:var(--cream-2);color:var(--ink)}
+.btn-dark{background:var(--ink);color:var(--gold-light);box-shadow:var(--sh-3)}
+.btn-dark:hover{box-shadow:var(--sh-4)}
+.btn-whatsapp{background:#22C15E;color:#fff;box-shadow:0 8px 20px rgba(34,193,94,.3)}
+.btn-danger{background:var(--err-bg);color:var(--err)}
+.btn-block{width:100%}
+.btn-sm{padding:8px 16px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+
+/* ── surfaces ── */
+.card{background:var(--white);border-radius:var(--r2);padding:26px;box-shadow:var(--sh-2);border:1px solid var(--sand);transition:box-shadow .2s ease,transform .2s ease}
+.card:hover{box-shadow:var(--sh-3)}
+.card.lift:hover{transform:translateY(-3px)}
+
+/* ── forms ── */
+input,select,textarea{width:100%;font-family:var(--f);padding:12px 15px;border:1.5px solid var(--sand);border-radius:var(--r);font-size:14px;background:var(--white);color:var(--ink);transition:border-color .16s,box-shadow .16s;outline:none}
+input::placeholder,textarea::placeholder{color:var(--ink-3)}
+input:focus,select:focus,textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3.5px rgba(245,184,32,.15)}
+label{display:block;font-weight:700;font-size:12.5px;margin-bottom:6px;color:var(--ink-2)}
+.field{margin-bottom:15px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:600px){.row2{grid-template-columns:1fr}}
+
+/* ── badges ── */
+.badge{display:inline-block;padding:4px 12px;border-radius:var(--pill);font-size:11px;font-weight:700;letter-spacing:.02em}
+.badge.gray,.badge.b-gray{background:var(--cream-2);color:var(--ink-2)}
+.badge.orange,.badge.b-orange{background:#FDF1DE;color:#B9781A}
+.badge.blue,.badge.b-blue{background:var(--inf-bg);color:var(--inf)}
+.badge.green,.badge.b-green{background:var(--ok-bg);color:var(--ok)}
+.badge.red,.badge.b-red{background:var(--err-bg);color:var(--err)}
+.badge.yellow,.badge.b-yellow{background:var(--gold-pale);color:#A0770B}
+
+/* ── eyebrow / mono accents ── */
+.eyebrow{font-family:var(--fm);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);display:inline-flex;align-items:center;gap:8px;font-weight:700}
+.eyebrow::before{content:'';width:14px;height:2px;border-radius:2px;background:var(--gold);display:inline-block}
+.mono{font-family:var(--fm)}
+.stamp{display:inline-flex;align-items:center;gap:6px;font-family:var(--f);font-size:12px;font-weight:700;padding:6px 14px;border-radius:var(--pill);background:var(--cream-2);color:var(--ink);white-space:nowrap}
+.stamp.green{background:var(--ok-bg);color:var(--ok)}
+.stamp.yellow{background:var(--gold-pale);color:#A0770B}
+
+/* ── sections ── */
+section{padding:84px 0}
+.section-head{text-align:center;max-width:600px;margin:0 auto 46px}
+.section-head h2{font-size:2rem;margin:13px 0 9px;font-weight:800;line-height:1.22;letter-spacing:-.02em}
+.section-head p{color:var(--ink-2);font-size:.98rem;line-height:1.65}
+.bg-dim{background:var(--cream-2)}
+
+/* ── toast ── */
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--gold-pale);font-weight:700;font-size:13.5px;padding:13px 22px;border-radius:var(--pill);opacity:0;pointer-events:none;transition:all .28s cubic-bezier(.2,.8,.2,1);z-index:300;box-shadow:var(--sh-4);max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── motion ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.animate-in{animation:fadeUp .55s cubic-bezier(.2,.8,.2,1) both}
+::selection{background:var(--gold-pale)}
+.hidden{display:none!important}
+.ltr-keep{direction:ltr}
+
+/* ── cart badge ── */
+.cart-btn{position:relative}
+.cart-badge{position:absolute;top:-7px;inset-inline-end:-7px;background:var(--err);color:#fff;font-family:var(--fm);font-size:10px;font-weight:700;border-radius:var(--pill);min-width:17px;height:17px;display:flex;align-items:center;justify-content:center;padding:0 3px}
+
+/* ── product image frame (shared: mart + admin) ── */
+.prod-img{aspect-ratio:1/1;border-radius:var(--r);overflow:hidden;background:linear-gradient(145deg,var(--gold-wash),var(--cream-2));display:flex;align-items:center;justify-content:center;position:relative}
+.prod-img img{width:100%;height:100%;object-fit:cover}
+.prod-img .ph{font-size:2.6rem;opacity:.75}
+
+/* ── show/hide password toggle ── */
+.pw-wrap{position:relative;display:block}
+.pw-wrap input{width:100%;padding-inline-end:44px}
+.pw-toggle{position:absolute;top:50%;transform:translateY(-50%);inset-inline-end:8px;background:none;border:none;cursor:pointer;font-size:16px;line-height:1;padding:6px;border-radius:8px;opacity:.75;transition:.15s}
+.pw-toggle:hover{opacity:1;background:rgba(0,0,0,.05)}
+
+/* ═══════ NEW ✨ badge on the Mart nav tab (pure CSS — survives any
+   applyI18N text rewrite because pseudo-elements aren't part of textContent) ═══════ */
+.nav-links a[href$="mart.html"]::after,
+.mobile-menu a[href$="mart.html"]::after{
+  content:'NEW';
+  display:inline-block;font-size:8.5px;font-weight:900;letter-spacing:.08em;color:var(--ink);
+  background:linear-gradient(110deg,var(--gold) 0%,#ffe9a8 45%,var(--gold) 90%);background-size:200% 100%;
+  border-radius:6px;padding:2px 6px;margin-inline-start:6px;vertical-align:super;line-height:1;
+  animation:badgeShine 2.2s linear infinite;
+  box-shadow:0 0 0 1px rgba(0,0,0,.06),0 2px 6px rgba(245,184,32,.45)}
+html[lang="ar"] .nav-links a[href$="mart.html"]::after,
+html[lang="ar"] .mobile-menu a[href$="mart.html"]::after{content:'جديد';letter-spacing:0}
+@keyframes badgeShine{to{background-position:-200% 0}}
+
+/* ═══════ payment method chips in the footer (site-wide, injected by app.js) ═══════ */
+.pay-strip{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.pay-chip.img-chip{background:#fff;border:1px solid var(--sand);border-radius:8px;padding:6px 9px;line-height:1;display:inline-flex;align-items:center;justify-content:center;box-shadow:var(--sh-1);height:30px}
+.pay-chip.img-chip img{max-height:16px;max-width:44px;object-fit:contain}
+
+/* ═══════ scroll-reveal animation (site-wide; add class="reveal" to any element) ═══════ */
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .6s ease,transform .6s cubic-bezier(.2,.8,.2,1)}
+.reveal.in{opacity:1;transform:none}
+.reveal-d1{transition-delay:.08s}.reveal-d2{transition-delay:.16s}.reveal-d3{transition-delay:.24s}
+.reveal-d4{transition-delay:.32s}.reveal-d5{transition-delay:.4s}
+@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+
+/* ── footer: facebook / social link ── */
+.foot-social-link{display:inline-flex;align-items:center;color:inherit;transition:.15s}
+.foot-social-link:hover{color:var(--gold-light)}

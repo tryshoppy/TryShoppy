@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Login / Register — Try Shoppy</title>
+<link rel="icon" href="assets/logo.png">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.auth-bg{min-height:calc(100vh - 66px);display:flex;align-items:center;justify-content:center;padding:40px 16px;background:radial-gradient(ellipse 700px 500px at 70% 0%,var(--y0) 0%,transparent 70%)}
+.auth-card{width:100%;max-width:420px;padding:36px;background:var(--card);border-radius:28px;box-shadow:var(--sh3);border:1px solid rgba(232,219,194,.35)}
+.auth-logo{text-align:center;margin-bottom:20px}
+.auth-logo img{height:52px;margin:0 auto 10px}
+.auth-card h1{text-align:center;font-size:1.45rem;margin:4px 0 5px;font-weight:800}
+.auth-sub{text-align:center;color:var(--ink2);font-size:14px;margin-bottom:24px}
+.tabs{display:flex;background:var(--n1);border-radius:var(--rpill);padding:4px;gap:4px;margin-bottom:24px}
+.tabs button{flex:1;padding:10px;border:none;background:transparent;font-family:var(--f);font-weight:700;font-size:14px;border-radius:var(--rpill);cursor:pointer;color:var(--ink2);transition:background .18s,color .18s,box-shadow .18s}
+.tabs button.active{background:var(--card);color:var(--ink);box-shadow:var(--sh1)}
+.err-line{background:var(--err-bg);color:var(--err);padding:11px 14px;border-radius:var(--r);font-size:13.5px;margin-bottom:14px;text-align:center;display:none;border:1px solid rgba(217,91,69,.15)}
+.err-line.show{display:block;animation:fadeUp .25s ease-out}
+.auth-switch{text-align:center;margin-top:16px;font-size:13.5px;color:var(--ink2)}
+.auth-switch a{color:var(--y4);font-weight:700}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="nav-row container">
+    <a href="index.html" class="brand"><img src="assets/logo.png" alt="Try Shoppy"> Try Shoppy</a>
+    <nav class="nav-links">
+      <a href="calculator.html" data-i18n="nav_calc">Get a Price</a>
+      <a href="track.html" data-i18n="nav_track">Track Order</a>
+      <a href="mart.html" data-i18n="nav_mart">Try Shoppy Mart</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="lang-pill">🌐 العربية</button>
+      <button class="burger btn btn-ghost" aria-label="Menu">☰</button>
+    </div>
+  </div>
+  <div class="mobile-menu">
+    <a href="index.html" data-i18n="nav_home">Home</a>
+    <a href="calculator.html" data-i18n="nav_calc">Get a Price</a>
+    <a href="track.html" data-i18n="nav_track">Track Order</a>
+    <a href="mart.html" data-i18n="nav_mart">Try Shoppy Mart</a>
+  </div>
+</header>
+
+<div class="auth-bg">
+  <div class="auth-card animate-in">
+    <div class="auth-logo"><img src="assets/logo.png" alt="Try Shoppy"></div>
+    <span class="eyebrow" style="justify-content:center;display:flex;margin-bottom:8px" data-i18n="auth_eyebrow">MY ACCOUNT</span>
+    <h1 data-i18n="auth_title">Welcome to Try Shoppy</h1>
+    <p class="auth-sub" data-i18n="auth_sub">Log in to track every order in one place.</p>
+
+    <div class="tabs">
+      <button id="tabLoginBtn" class="active" data-i18n="tab_login">Log In</button>
+      <button id="tabRegisterBtn" data-i18n="tab_register">Create Account</button>
+    </div>
+
+    <div id="errLine" class="err-line"></div>
+
+    <form id="loginForm">
+      <div class="field">
+        <label data-i18n="lbl_identifier">Phone or Email</label>
+        <input id="loginIdentifier" type="text" data-i18n-ph="lbl_identifier" required>
+      </div>
+      <div class="field">
+        <label data-i18n="lbl_password">Password</label>
+        <input id="loginPassword" type="password" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="loginSubmitBtn" data-i18n="btn_login">Log In</button>
+      <p class="auth-switch"><a href="#" id="goForgot" data-i18n="auth_forgot_link">Forgot your password?</a></p>
+      <p class="auth-switch"><a href="#" id="goRegister" data-i18n="auth_switch_to_register">New here? Create an account</a></p>
+    </form>
+
+    <!-- FORGOT PASSWORD -->
+    <form id="forgotForm" class="hidden">
+      <h2 style="font-size:1.05rem;font-weight:800;text-align:center;margin:0 0 6px" data-i18n="fp_title">Reset your password</h2>
+      <p class="auth-sub" id="fpSub" data-i18n="fp_step1_sub">Enter your phone, email or username and we'll email you a 6-digit code.</p>
+
+      <div id="fpStep1">
+        <div class="field">
+          <label data-i18n="fp_identifier_lbl">Phone / Email / Username</label>
+          <input id="fpIdentifier" type="text" required>
+        </div>
+        <button type="button" class="btn btn-primary btn-block" id="fpSendBtn" data-i18n="fp_send_code_btn">Send Reset Code</button>
+      </div>
+
+      <div id="fpStep2" class="hidden">
+        <div class="field">
+          <label data-i18n="fp_code_lbl">6-digit code</label>
+          <input id="fpCode" type="text" inputmode="numeric" maxlength="6">
+        </div>
+        <div class="field">
+          <label data-i18n="fp_new_pw_lbl">New Password</label>
+          <input id="fpNewPw" type="password" minlength="6">
+        </div>
+        <div class="field">
+          <label data-i18n="fp_confirm_pw_lbl">Confirm New Password</label>
+          <input id="fpConfirmPw" type="password" minlength="6">
+        </div>
+        <button type="button" class="btn btn-primary btn-block" id="fpResetBtn" data-i18n="fp_reset_btn">Change Password</button>
+        <button type="button" id="fpResendBtn" style="background:none;border:none;color:var(--y4);font-size:12.5px;font-weight:700;cursor:pointer;margin-top:10px;padding:0;display:block;margin-inline:auto" data-i18n="fp_resend">Resend code</button>
+      </div>
+
+      <p class="auth-switch"><a href="#" id="fpBackLogin" data-i18n="fp_back_login">← Back to login</a></p>
+    </form>
+
+    <form id="registerForm" class="hidden">
+      <div class="field">
+        <label data-i18n="lbl_phone">Phone Number</label>
+        <input id="regPhone" type="tel" placeholder="01xxxxxxxxx" required>
+      </div>
+      <div class="field">
+        <label data-i18n="lbl_email_req">Email</label>
+        <input id="regEmail" type="email" required>
+      </div>
+      <div class="field">
+        <label data-i18n="lbl_username">Username</label>
+        <input id="regUsername" type="text" required>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label data-i18n="lbl_password">Password</label>
+          <input id="regPassword" type="password" minlength="6" required>
+        </div>
+        <div class="field">
+          <label data-i18n="lbl_confirm">Confirm</label>
+          <input id="regConfirm" type="password" minlength="6" required>
+        </div>
+      </div>
+      <div id="regOtpStep" class="hidden" style="background:var(--cream-2);border:1px solid var(--sand);border-radius:14px;padding:14px 16px;margin-bottom:14px">
+        <p style="font-size:12.5px;font-weight:700;margin:0 0 10px" data-i18n="reg_code_sent">We sent a 6-digit code to your email. Enter it to confirm your account.</p>
+        <div class="field" style="margin-bottom:10px">
+          <label data-i18n="fp_code_lbl">6-digit code</label>
+          <input id="regOtpCode" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code">
+        </div>
+        <button type="button" id="regOtpResend" style="background:none;border:none;color:var(--y4);font-size:12px;font-weight:700;cursor:pointer;padding:0" data-i18n="fp_resend">Resend code</button>
+        <span style="color:var(--ink-3);font-size:12px"> · </span>
+        <button type="button" id="regOtpChange" style="background:none;border:none;color:var(--y4);font-size:12px;font-weight:700;cursor:pointer;padding:0" data-i18n="reg_change_email">Change email</button>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="registerSubmitBtn" data-i18n="btn_register">Create My Account</button>
+      <p class="auth-switch"><a href="#" id="goLogin" data-i18n="auth_switch_to_login">Already have an account? Log in</a></p>
+    </form>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="foot-grid">
+      <div><div class="foot-brand"><img src="assets/logo.png" alt=""> Try Shoppy</div><p data-i18n="foot_about_d">Try Shoppy buys, consolidates and ships products from US stores straight to your door in Egypt.</p></div>
+      <div><h4 data-i18n="foot_links_t">Quick Links</h4><p><a href="calculator.html" data-i18n="nav_calc">Get a Price</a></p><p><a href="track.html" data-i18n="nav_track">Track Order</a></p><p><a href="mart.html" data-i18n="nav_mart">Try Shoppy Mart</a></p><p><a href="login.html" data-i18n="nav_login">Login / Register</a></p></div>
+      <div><h4 data-i18n="foot_legal_t">Legal</h4><p><a href="privacy.html" data-i18n="foot_privacy">Privacy Policy</a></p><p><a href="terms.html" data-i18n="foot_terms">Terms &amp; Conditions</a></p><p><a href="shipping-policy.html" data-i18n="foot_shipping">Shipping Policy</a></p><p><a href="returns-policy.html" data-i18n="foot_returns">Returns &amp; Refunds</a></p><p><a href="cancellation-policy.html" data-i18n="foot_cancellation">Cancellation Policy</a></p><p><a href="restricted-items.html" data-i18n="foot_restricted">Restricted Items</a></p></div>
+      <div><h4 data-i18n="foot_support_t">Support</h4><p><a href="https://wa.me/201005609642" target="_blank" data-i18n="foot_whatsapp">Chat on WhatsApp</a></p><p><a href="https://www.facebook.com/TryShoppy.eg/" target="_blank" rel="noopener" class="foot-social-link"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="vertical-align:-2.5px;margin-inline-end:5px"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.51 1.49-3.9 3.77-3.9 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.44 2.91h-2.34V22c4.78-.76 8.44-4.92 8.44-9.94z"/></svg><span data-i18n="foot_facebook">Follow us on Facebook</span></a></p></div>
+      <div><h4 data-i18n="foot_payments_t">Payments</h4><p data-i18n="pay_cod">Cash on Delivery</p><p data-i18n="pay_instapay">InstaPay</p><p data-i18n="pay_card">Visa &amp; Mastercard</p><p data-i18n="pay_paypal">PayPal</p><p data-i18n="pay_bank">Bank Transfer</p></div>
+    </div>
+    <div class="foot-bottom"><span data-i18n="foot_rights">© 2026 Try Shoppy. All rights reserved.</span><span>Made for shoppers in Egypt 🇪🇬</span></div>
+  </div>
+</footer>
+<script src="assets/config.js"></script>
+<script src="assets/i18n.js"></script>
+<script src="assets/app.js"></script>
+<script>
+tsInitNav();
+const loginForm=document.getElementById('loginForm');
+const registerForm=document.getElementById('registerForm');
+const forgotForm=document.getElementById('forgotForm');
+const tabLoginBtn=document.getElementById('tabLoginBtn');
+const tabRegisterBtn=document.getElementById('tabRegisterBtn');
+const errLine=document.getElementById('errLine');
+if(tsGetSession()){window.location.href='dashboard.html';}
+tsInitPasswordToggles(); // 👁️ show/hide on every password field
+function showTab(w){
+  errLine.classList.remove('show');
+  loginForm.classList.toggle('hidden',w!=='login');
+  registerForm.classList.toggle('hidden',w!=='register');
+  forgotForm.classList.toggle('hidden',w!=='forgot');
+  tabLoginBtn.classList.toggle('active',w==='login'||w==='forgot');
+  tabRegisterBtn.classList.toggle('active',w==='register');
+}
+tabLoginBtn.addEventListener('click',()=>showTab('login'));
+tabRegisterBtn.addEventListener('click',()=>showTab('register'));
+document.getElementById('goRegister').addEventListener('click',e=>{e.preventDefault();showTab('register');});
+document.getElementById('goLogin').addEventListener('click',e=>{e.preventDefault();showTab('login');});
+document.getElementById('goForgot').addEventListener('click',e=>{e.preventDefault();showTab('forgot');});
+document.getElementById('fpBackLogin').addEventListener('click',e=>{e.preventDefault();showTab('login');});
+function showErr(k){errLine.textContent=tsT(k);errLine.classList.add('show');}
+
+/* ── forgot password flow ── */
+function fpSendCode(btn){
+  errLine.classList.remove('show');
+  const id=document.getElementById('fpIdentifier').value.trim();
+  if(!id){showErr('auth_err_required');return;}
+  btn.disabled=true;
+  tsRequestPasswordReset(id).then(res=>{
+    btn.disabled=false;
+    if(res&&res.success){
+      document.getElementById('fpStep2').classList.remove('hidden');
+      document.getElementById('fpSub').textContent=tsT('fp_code_sent');
+      tsToast(tsT('fp_code_sent'));
+    }else if(res&&res.code==='no_email'){showErr('fp_err_no_email');}
+    else if(res&&res.code==='not_found'){showErr('fp_err_not_found');}
+    else{showErr('auth_err_connection');}
+  }).catch(()=>{btn.disabled=false;showErr('auth_err_connection');});
+}
+document.getElementById('fpSendBtn').addEventListener('click',function(){fpSendCode(this);});
+document.getElementById('fpResendBtn').addEventListener('click',function(){fpSendCode(this);});
+document.getElementById('fpResetBtn').addEventListener('click',function(){
+  errLine.classList.remove('show');
+  const id=document.getElementById('fpIdentifier').value.trim();
+  const code=document.getElementById('fpCode').value.trim();
+  const pw=document.getElementById('fpNewPw').value;
+  const cf=document.getElementById('fpConfirmPw').value;
+  if(!code||!pw||!cf){showErr('auth_err_required');return;}
+  if(pw!==cf){showErr('auth_err_mismatch');return;}
+  const btn=this;btn.disabled=true;
+  tsResetPassword(id,code,pw).then(res=>{
+    btn.disabled=false;
+    if(res&&res.success){
+      tsToast(tsT('fp_success'));
+      document.getElementById('fpStep2').classList.add('hidden');
+      document.getElementById('fpIdentifier').value='';
+      document.getElementById('fpCode').value='';document.getElementById('fpNewPw').value='';document.getElementById('fpConfirmPw').value='';
+      showTab('login');
+    }else if(res&&res.code==='bad_code'){showErr('fp_err_code');}
+    else if(res&&res.code==='not_found'){showErr('fp_err_not_found');}
+    else{showErr('auth_err_connection');}
+  }).catch(()=>{btn.disabled=false;showErr('auth_err_connection');});
+});
+loginForm.addEventListener('submit',function(e){
+  e.preventDefault();errLine.classList.remove('show');
+  const identifier=document.getElementById('loginIdentifier').value.trim();
+  const password=document.getElementById('loginPassword').value;
+  if(!identifier||!password){showErr('auth_err_required');return;}
+  const btn=document.getElementById('loginSubmitBtn');btn.disabled=true;
+  tsLogin({identifier,password}).then(res=>{btn.disabled=false;if(res&&res.success){tsSetSession(res.profile);window.location.href='dashboard.html';}else{showErr('auth_err_invalid');}}).catch(()=>{btn.disabled=false;showErr('auth_err_connection');});
+});
+/* ── register with mandatory email verification ──
+   step 1: validate fields -> send code to email -> show OTP box
+   step 2: verify code -> create the account                     */
+let REG_STATE={otpSent:false,email:''};
+function regShowOtp(show){
+  document.getElementById('regOtpStep').classList.toggle('hidden',!show);
+  ['regPhone','regEmail','regUsername','regPassword','regConfirm'].forEach(id=>{document.getElementById(id).disabled=show;});
+  document.getElementById('registerSubmitBtn').textContent=tsT(show?'reg_verify_btn':'btn_register');
+}
+function regSendOtp(btn){
+  btn.disabled=true;
+  tsSendEmailOtp(REG_STATE.email).then(res=>{
+    btn.disabled=false;
+    if(res&&res.success){REG_STATE.otpSent=true;regShowOtp(true);tsToast(tsT('reg_code_sent'));}
+    else{showErr('auth_err_connection');}
+  }).catch(()=>{btn.disabled=false;showErr('auth_err_connection');});
+}
+document.getElementById('regOtpResend').addEventListener('click',function(){regSendOtp(this);});
+document.getElementById('regOtpChange').addEventListener('click',function(){
+  REG_STATE={otpSent:false,email:''};
+  document.getElementById('regOtpCode').value='';
+  regShowOtp(false);
+});
+registerForm.addEventListener('submit',function(e){
+  e.preventDefault();errLine.classList.remove('show');
+  const phone=document.getElementById('regPhone').value.trim();
+  const email=document.getElementById('regEmail').value.trim();
+  const username=document.getElementById('regUsername').value.trim();
+  const password=document.getElementById('regPassword').value;
+  const confirm=document.getElementById('regConfirm').value;
+  const btn=document.getElementById('registerSubmitBtn');
+
+  /* step 2: user is entering the verification code */
+  if(REG_STATE.otpSent){
+    const code=document.getElementById('regOtpCode').value.trim();
+    if(code.length!==6){showErr('fp_err_code');return;}
+    btn.disabled=true;
+    tsVerifyEmailOtp(REG_STATE.email,code).then(v=>{
+      if(!(v&&v.success)){btn.disabled=false;showErr('fp_err_code');return;}
+      /* email confirmed — create the account now */
+      tsRegister({phone,email:REG_STATE.email,username,password}).then(res=>{
+        if(res&&res.success){tsToast(tsT('auth_success_register'));tsSetSession(res.profile);setTimeout(()=>window.location.href='dashboard.html',700);}
+        else{btn.disabled=false;regShowOtp(false);REG_STATE={otpSent:false,email:''};showErr(res&&res.code==='exists'?'auth_err_exists':'auth_err_required');}
+      }).catch(()=>{btn.disabled=false;showErr('auth_err_connection');});
+    }).catch(()=>{btn.disabled=false;showErr('auth_err_connection');});
+    return;
+  }
+
+  /* step 1: validate everything, then email the code */
+  if(!phone||!email||!username||!password){showErr('reg_err_email_phone');return;}
+  if(!/^\S+@\S+\.\S+$/.test(email)){showErr('reg_err_email_phone');return;}
+  if(password!==confirm){showErr('auth_err_mismatch');return;}
+  if(password.length<6){showErr('auth_err_short');return;}
+  REG_STATE.email=email;
+  regSendOtp(btn);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Try Shoppy — Quick Price Estimate (Internal)</title>
+<link rel="icon" href="assets/logo.png">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.calc-bg{min-height:calc(100vh - 66px);display:flex;align-items:flex-start;justify-content:center;padding:44px 16px 90px;background:radial-gradient(ellipse 600px 400px at 30% 0%,var(--gold-wash) 0%,transparent 65%)}
+.calc-card{width:100%;max-width:600px;padding:36px}
+.op-badge{display:flex;justify-content:center;margin-bottom:14px}
+.op-badge span{font-family:var(--fm);font-size:10.5px;font-weight:700;letter-spacing:.08em;padding:5px 14px;border-radius:var(--pill);background:var(--ink);color:var(--gold-light)}
+.calc-logo{text-align:center;margin-bottom:10px}
+.calc-logo img{height:48px;margin:0 auto 8px}
+.calc-card h2{text-align:center;font-size:1.4rem;font-weight:800;margin:0 0 6px}
+.calc-sub{text-align:center;font-size:12.5px;color:var(--ink-2);margin-bottom:26px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.dims{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:6px}
+.sup-box{background:var(--gold-wash);border:1.5px dashed var(--gold);border-radius:var(--r2);padding:18px;margin-bottom:18px}
+.sup-box .sup-title{font-weight:800;font-size:14px;color:var(--gold-deep);margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.sup-box .field{margin-bottom:0}
+.sup-note{font-size:12.5px;color:var(--ink-2);margin-top:7px;line-height:1.5}
+.sup-note.warn{color:var(--gold-deep);font-weight:700}
+input:read-only{background:var(--gold-wash);color:var(--gold-deep);font-weight:700;border-color:var(--gold)}
+.result-box{background:linear-gradient(135deg,var(--gold-wash) 0%,var(--gold-pale) 100%);border-radius:20px;padding:26px;margin:24px 0;text-align:center;animation:fadeUp .4s ease-out;border:1px solid rgba(245,184,32,.2)}
+.result-price{font-family:var(--fm);font-size:2.6rem;font-weight:700;margin:10px 0;color:var(--ink)}
+.result-note{font-size:13px;color:var(--ok);font-weight:700}
+.weight-basis{font-size:12.5px;color:var(--ink-2);margin-top:6px}
+@media(max-width:560px){.row,.dims{grid-template-columns:1fr}.calc-card{padding:22px}}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="nav-row container">
+    <a href="index.html" class="brand"><img src="assets/logo.png" alt="Try Shoppy"> Try Shoppy</a>
+    <nav class="nav-links">
+      <a href="index.html" data-i18n="nav_home">Home</a>
+      <a href="calculator.html" data-i18n="nav_calc">Get a Price</a>
+      <a href="track.html" data-i18n="nav_track">Track Order</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="lang-pill">🌐 العربية</button>
+      <button class="burger btn btn-ghost" aria-label="Menu">☰</button>
+    </div>
+  </div>
+  <div class="mobile-menu">
+    <a href="index.html" data-i18n="nav_home">Home</a>
+    <a href="calculator.html" data-i18n="nav_calc">Get a Price</a>
+    <a href="track.html" data-i18n="nav_track">Track Order</a>
+  </div>
+</header>
+
+<div class="calc-bg">
+  <div class="card calc-card animate-in">
+    <div class="op-badge"><span data-i18n="calcop_badge">INTERNAL TOOL</span></div>
+    <div class="calc-logo"><img src="assets/logo.png" alt="Try Shoppy"></div>
+    <h2 data-i18n="calcop_title">Quick Price Estimate</h2>
+    <div class="calc-sub" data-i18n="calcop_sub">For staff use — estimates only, no order is created.</div>
+
+    <div class="row">
+      <div class="field"><label data-i18n="calc_price_label">Total Price in USD *</label><input id="price" type="number" placeholder="0.00"></div>
+      <div class="field">
+        <label data-i18n="calc_category_label">Category *</label>
+        <select id="category" onchange="onCategoryChange()">
+          <option value="" data-i18n="calc_category_select">Select category...</option>
+          <option value="Clothes (Regular)" data-i18n="cat_clothes">Clothes (Regular)</option>
+          <option value="Jacket or BALTO" data-i18n="cat_jacket">Jacket or BALTO</option>
+          <option value="Electronics" data-i18n="cat_electronics">Electronics</option>
+          <option value="Shoes (Regular)" data-i18n="cat_shoes_regular">Shoes (Regular)</option>
+          <option value="Shoes (Boot)" data-i18n="cat_shoes_boot">Shoes (Boot)</option>
+          <option value="Watches" data-i18n="cat_watches">Watches</option>
+          <option value="Accessories" data-i18n="cat_accessories">Accessories</option>
+          <option value="Cosmetics" data-i18n="cat_cosmetics">Cosmetics</option>
+          <option value="Sunglasses" data-i18n="cat_sunglasses">Sunglasses</option>
+          <option value="Food" data-i18n="cat_food">Food</option>
+          <option value="CarParts" data-i18n="cat_carparts">Car Parts</option>
+          <option value="Vitamin or Supplements" data-i18n="cat_vitamins">Vitamins &amp; Supplements</option>
+          <option value="Shampoo or Conditioner" data-i18n="cat_shampoo">Shampoo or Conditioner</option>
+          <option value="Small Size Hand bag (women)" data-i18n="cat_bag_small">Small Hand Bag (Women)</option>
+          <option value="Back bag (or Lap bag)" data-i18n="cat_bag_back">Back Bag / Laptop Bag</option>
+          <option value="Large Size Hand bag (women)" data-i18n="cat_bag_large">Large Hand Bag (Women)</option>
+          <option value="Stationary" data-i18n="cat_stationary">Stationary</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="supplementBox" class="sup-box hidden">
+      <div class="sup-title">💊 <span data-i18n="calc_sup_title">Vitamins / Supplements Details</span></div>
+      <div class="row">
+        <div class="field">
+          <label data-i18n="calc_sup_type">Product Type</label>
+          <select id="supplementType" onchange="onSupplementTypeChange()">
+            <option value="capsules" data-i18n="sup_opt_capsules">Capsules</option>
+            <option value="gummies" data-i18n="sup_opt_gummies">Gummies</option>
+            <option value="powder" data-i18n="sup_opt_powder">Powder</option>
+            <option value="liquid" data-i18n="sup_opt_liquid">Liquid</option>
+          </select>
+        </div>
+        <div class="field">
+          <label data-i18n="calc_sup_pieces">Piece Count</label>
+          <select id="supplementRange" onchange="onSupplementRangeChange()"></select>
+          <div id="manualWeightNote" class="sup-note warn hidden"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label data-i18n="calc_weight_label">Weight (g) *</label>
+      <input id="weight" type="number" data-i18n-ph="calc_weight_ph" placeholder="e.g. 500">
+      <div id="weightAutoNote" class="sup-note hidden"></div>
+    </div>
+
+    <label data-i18n="calc_dims_label" style="margin-bottom:8px">Dimensions in CM (optional)</label>
+    <div class="dims">
+      <input id="length" type="number" data-i18n-ph="calc_length_ph" placeholder="Length (L)">
+      <input id="width" type="number" data-i18n-ph="calc_width_ph" placeholder="Width (W)">
+      <input id="height" type="number" data-i18n-ph="calc_height_ph" placeholder="Height (H)">
+    </div>
+
+    <button class="btn btn-primary btn-block" style="margin-top:20px" onclick="calculate()" data-i18n="calc_btn_calculate">Calculate Price</button>
+
+    <div id="resultArea" class="hidden">
+      <div class="result-box">
+        <div style="font-size:13px;color:var(--ink-2)" data-i18n="calc_result_total_label">Total Cost (Shipping &amp; Customs included)</div>
+        <div id="priceDetails" class="result-price">— EGP</div>
+        <div id="weightBasisMsg" class="weight-basis"></div>
+        <div class="result-note" data-i18n="calc_result_cod_note">Cash on Delivery up to 10,000 EGP ✓</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="assets/function_calc.js"></script>
+<script src="assets/config.js"></script>
+<script src="assets/i18n.js"></script>
+<script src="assets/app.js"></script>
+<script>
+tsInitNav();
+
+function isManualWeightType(type){ return type==='powder' || type==='liquid'; }
+
+function onCategoryChange(){
+  const cat=document.getElementById('category').value;
+  const box=document.getElementById('supplementBox');
+  const weightInput=document.getElementById('weight');
+  const note=document.getElementById('weightAutoNote');
+  if(cat==='Vitamin or Supplements'){
+    box.classList.remove('hidden');
+    onSupplementTypeChange();
+  } else {
+    box.classList.add('hidden');
+    weightInput.readOnly=false;
+    weightInput.value='';
+    note.classList.add('hidden');
+  }
+}
+
+function buildSupplementRangeOptions(){
+  const typeSel=document.getElementById('supplementType');
+  if(!typeSel) return;
+  const type=typeSel.value||'capsules';
+  const ranges=tryShoppyGetSupplementRanges(type);
+  const unitKey=type==='gummies' ? 'sup_unit_gummies' : 'sup_unit_tablets';
+  const unit=tsT(unitKey);
+  const sel=document.getElementById('supplementRange');
+  const prevValue=sel.value;
+  sel.innerHTML='';
+  ranges.forEach((r,idx)=>{
+    const o=document.createElement('option');
+    o.value=idx;
+    o.textContent = TS_LANG==='ar' ? `من ${r.min} إلى ${r.max} ${unit}` : `${r.min} - ${r.max} ${unit}`;
+    sel.appendChild(o);
+  });
+  if(prevValue!=='' && ranges[prevValue]) sel.value=prevValue;
+}
+
+function onSupplementTypeChange(){
+  const type=document.getElementById('supplementType').value||'capsules';
+  const rangeSel=document.getElementById('supplementRange');
+  const manualNote=document.getElementById('manualWeightNote');
+  const weightInput=document.getElementById('weight');
+  const autoNote=document.getElementById('weightAutoNote');
+
+  if(isManualWeightType(type)){
+    rangeSel.classList.add('hidden');
+    weightInput.readOnly=false;
+    weightInput.value='';
+    autoNote.classList.add('hidden');
+    manualNote.textContent = type==='powder' ? tsT('calc_sup_note_powder') : tsT('calc_sup_note_liquid');
+    manualNote.classList.remove('hidden');
+  } else {
+    rangeSel.classList.remove('hidden');
+    manualNote.classList.add('hidden');
+    buildSupplementRangeOptions();
+    onSupplementRangeChange();
+  }
+}
+
+function onSupplementRangeChange(){
+  const type=document.getElementById('supplementType').value||'capsules';
+  if(isManualWeightType(type)) return;
+  const ranges=tryShoppyGetSupplementRanges(type);
+  const idx=parseInt(document.getElementById('supplementRange').value)||0;
+  const range=ranges[idx];
+  if(!range) return;
+  const weightInput=document.getElementById('weight');
+  const note=document.getElementById('weightAutoNote');
+  weightInput.value=range.weight;
+  weightInput.readOnly=true;
+  note.textContent = `⚙️ ${tsT('calc_sup_note_auto')} (${range.weight}${TS_LANG==='ar'?' جم':'g'}) ${tsT('calc_sup_note_auto2')}`;
+  note.classList.remove('hidden');
+}
+
+document.addEventListener('ts-lang-changed', ()=>{
+  const box=document.getElementById('supplementBox');
+  if(!box.classList.contains('hidden')){
+    const type=document.getElementById('supplementType').value||'capsules';
+    if(isManualWeightType(type)){
+      const manualNote=document.getElementById('manualWeightNote');
+      if(!manualNote.classList.contains('hidden')){
+        manualNote.textContent = type==='powder' ? tsT('calc_sup_note_powder') : tsT('calc_sup_note_liquid');
+      }
+    } else {
+      buildSupplementRangeOptions();
+      onSupplementRangeChange();
+    }
+  }
+  const result=document.getElementById('resultArea');
+  if(!result.classList.contains('hidden')) renderWeightBasis(lastUsedVolumetric);
+});
+
+/* ============================================
+   الحساب — بدون إنشاء طلب، تقدير فقط
+   يدعم الوزن الحجمي: (L × W × H) / 6000 × 1000
+   ============================================ */
+let lastUsedVolumetric = false;
+
+function renderWeightBasis(usedVolumetric){
+  const el=document.getElementById('weightBasisMsg');
+  el.textContent = usedVolumetric ? tsT('calc_weight_basis_volumetric') : tsT('calc_weight_basis_actual');
+}
+
+function calculate(){
+  const usd=parseFloat(document.getElementById('price').value);
+  const cat=document.getElementById('category').value;
+  const actualWeight=parseFloat(document.getElementById('weight').value);
+
+  const l=parseFloat(document.getElementById('length').value)||0;
+  const w=parseFloat(document.getElementById('width').value)||0;
+  const h=parseFloat(document.getElementById('height').value)||0;
+  const volWeight=(l*w*h/6000)*1000;
+
+  if(!usd||!cat||!actualWeight){ alert(tsT('calcop_alert_missing')); return; }
+
+  const finalWeight=Math.max(actualWeight, volWeight);
+  lastUsedVolumetric = volWeight > actualWeight;
+
+  const {finalPrice}=tryShoppyCalculatePrice({usd,category:cat,weightGrams:finalWeight,quantity:1});
+
+  document.getElementById('priceDetails').innerHTML=finalPrice.toLocaleString()+' EGP';
+  renderWeightBasis(lastUsedVolumetric);
+  document.getElementById('resultArea').classList.remove('hidden');
+  document.getElementById('resultArea').scrollIntoView({behavior:'smooth'});
+}
+</script>
+</body>
+</html>
