@@ -84,6 +84,13 @@ button:hover{ opacity:.9; }
 .order-id{ font-weight:900; color:var(--text); }
 .order-date{ font-size:12px; color:var(--gray); font-weight:700; }
 .order-meta{ display:flex; gap:14px; margin-top:8px; font-size:13px; color:#475569; font-weight:700; flex-wrap:wrap; }
+.order-detail-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:8px; margin-top:10px; padding-top:10px; border-top:1px dashed #e2e8f0; }
+.order-detail-grid .dl{ display:flex; flex-direction:column; gap:2px; }
+.order-detail-grid .dt{ font-size:11px; color:#94a3b8; font-weight:800; }
+.order-detail-grid .dd{ font-size:13.5px; color:var(--text); font-weight:800; }
+.order-detail-grid .dd a{ color:var(--primary); text-decoration:none; }
+.order-detail-grid .dd a:hover{ text-decoration:underline; }
+.order-detail-grid .dd.total{ color:#16a34a; }
 .order-history{ display:none; margin-top:10px; padding-top:10px; border-top:1px dashed #e2e8f0; font-size:12.5px; color:#64748b; }
 .order-history div{ margin-bottom:4px; }
 .badge{ display:inline-block; padding:4px 12px; border-radius:20px; font-size:11px; font-weight:800; }
@@ -330,11 +337,23 @@ function renderCustomer(orders){
     h += '<div class="order-top"><span class="order-id">🔖 ' + (o.order || "—") + '</span><span class="badge ' + statusClass(o.status) + '">' + statusLabel(o.status) + '</span></div>';
     h += '<div class="order-meta">';
     h += '<span>📅 ' + (o.date ? new Date(o.date).toLocaleDateString('ar-EG') : "—") + '</span>';
-    h += '<span>💰 ' + fmt(o.EndPrice !== undefined ? o.EndPrice : o.finalPrice) + ' جنيه</span>';
-    h += '<span>📦 ' + (o.quantity || 1) + ' قطعة</span>';
     if(o.arrivaldate) h += '<span>🚚 وصول متوقع: ' + o.arrivaldate + '</span>';
     h += '</div>';
-    if(o.link) h += '<div class="order-meta"><a href="' + o.link + '" target="_blank" onclick="event.stopPropagation()" style="color:var(--primary);font-weight:700;">🔗 لينك المنتج</a></div>';
+
+    // المنتج (لينك) + الكمية + سعر القطعة + الإجمالي — تفاصيل كاملة لكل صف
+    const qty = parseFloat(o.quantity) || 1;
+    const total = (o.EndPrice !== undefined && o.EndPrice !== null && o.EndPrice !== "")
+      ? parseFloat(o.EndPrice) : parseFloat(o.finalPrice || 0);
+    const unitPrice = qty > 0 ? (total / qty) : total;
+
+    h += '<div class="order-detail-grid">';
+    h += '<div class="dl"><span class="dt">المنتج</span><span class="dd">' +
+         (o.link ? '<a href="' + o.link + '" target="_blank" onclick="event.stopPropagation()">🔗 فتح اللينك</a>' : '—') +
+         '</span></div>';
+    h += '<div class="dl"><span class="dt">الكمية</span><span class="dd">' + qty + ' قطعة</span></div>';
+    h += '<div class="dl"><span class="dt">سعر القطعة</span><span class="dd">' + fmt(unitPrice) + ' جنيه</span></div>';
+    h += '<div class="dl"><span class="dt">الإجمالي</span><span class="dd total">' + fmt(total) + ' جنيه</span></div>';
+    h += '</div>';
     h += '<div class="order-history" id="' + rowId + '">';
     if(o.history && o.history.length){
       o.history.forEach(ev => { h += '<div>• ' + statusLabel(ev.status) + ' — ' + ev.time + (ev.note ? ' (' + ev.note + ')' : '') + '</div>'; });
