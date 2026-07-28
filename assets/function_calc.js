@@ -8,8 +8,8 @@
 
 // جدول: تكلفة أساسية لكل فئة (بالجنيه المصري)
 const TRYSHOPPY_CATEGORY_BASE = {
-  "Clothes (Regular)": 100, "Jacket or BALTO": 350, "Electronics": 400, "Shoes (Regular)": 450,
-  "Food": 200, "Sunglasses": 300, "Shoes (Boot)": 500, "Watches": 150, "Accessories": 200,
+  "Clothes (Regular)": 100, "Jacket or BALTO": 350, "Electronics": 400, "Shoes (Regular)": 200,
+  "Food": 200, "Sunglasses": 300, "Shoes (Boot)": 300, "Watches": 150, "Accessories": 200,
   "Cosmetics": 300, "CarParts": 400, "Vitamin or Supplements": 370, "Shampoo or Conditioner": 300,
   "Small Size Hand bag (women)": 150, "Back bag (or Lap bag)": 400, "Large Size Hand bag (women)": 350, "Stationary": 200
 };
