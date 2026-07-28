@@ -426,6 +426,7 @@ header {
     <input type="number" id="dupUsd" placeholder="السعر بالدولار ($)">
     <input type="number" id="dupEgp" placeholder="السعر بالمصري (EGP)">
     <input type="text" id="dupDimensions" placeholder="المواصفات الخاصة (SPCS)" style="margin-top:10px;">
+    <input type="email" id="dupEmail" placeholder="بريد العميل الإلكتروني (اختياري — لإرسال تأكيد)" style="margin-top:10px;">
     <select id="dupUser" style="margin-top:10px; width:100%; padding:12px 14px; border-radius:12px; border:1.5px solid var(--border); font-family:'Cairo'; font-size:14px; font-weight:700; background:#f8fafc; color:var(--text-dark); cursor:pointer;">
       <option value="">👤 اختر الموظف المسؤول *</option>
     </select>
@@ -998,6 +999,7 @@ function openDuplicateModal(orderId) {
     document.getElementById("dupUsd").value = "";
     document.getElementById("dupEgp").value = "";
     document.getElementById("dupDimensions").value = "";
+    document.getElementById("dupEmail").value = "";
     document.getElementById("dupWhatsappContainer").style.display = "none";
 
     // ✅ بناء قائمة الموظفين من STAFF_DIRECTORY (دليل أسماء بس، بيتحمّل
@@ -1114,6 +1116,7 @@ function submitDuplicate() {
             newUsd: totalUsd,
             newEgp: totalEgp,
             newDimensions: dimensions,
+            newEmail: document.getElementById("dupEmail").value.trim(),
             user: dupUser,
             staffToken: getStaffToken()
         })

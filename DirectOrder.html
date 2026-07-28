@@ -103,7 +103,7 @@
 <div class="card">
 
 <div class="logo">
-  <img src="assets/logo.png" alt="TRY SHOPPY">
+  <img src="logo.png" alt="TRY SHOPPY">
   <div>Your Global Shopping Partner</div>
   <div style="margin-top:10px; display:flex; justify-content:center; align-items:center; gap:10px;">
     <span id="dUserBadge" style="background:#ede9fe; color:#6366f1; padding:5px 14px; border-radius:10px; font-weight:800; font-size:13px; border:1px solid #c4b5fd;"></span>
@@ -201,6 +201,10 @@
 <div class="input-group">
 <label>الاسم بالكامل | Full Name</label>
 <input id="customerName" placeholder="أدخل الاسم">
+</div>
+<div class="input-group">
+<label>البريد الإلكتروني (اختياري) | Email (optional — for order confirmation)</label>
+<input id="customerEmail" type="email" placeholder="name@example.com">
 </div>
 <div class="row">
   <div class="input-group">
@@ -380,6 +384,7 @@ function confirmOrder() {
       order: orderNumber,
       customerName: document.getElementById("customerName").value,
       phone: document.getElementById("phone").value,
+      email: document.getElementById("customerEmail").value.trim(),
       country: document.getElementById("country").value,
       address: document.getElementById("address").value,
       governorate: document.getElementById("governorate").value,

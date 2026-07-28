@@ -105,6 +105,11 @@ button:hover{ opacity:.9; }
 </div>
 
 <div class="input-group">
+  <label>البريد الإلكتروني (اختياري) — لإرسال تأكيد الطلب</label>
+  <input type="email" id="customerEmail" placeholder="name@example.com">
+</div>
+
+<div class="input-group">
   <label>لينك المنتج الجديد</label>
   <input type="text" id="link">
 </div>
@@ -339,6 +344,7 @@ function createOrder() {
       newUsd: totalUsd,
       newEgp: totalEgp,
       newDimensions: dimensions,
+      newEmail: document.getElementById("customerEmail").value.trim(),
       user: getCurrentUser(),   // ✅
       staffToken: getStaffToken()
     })
