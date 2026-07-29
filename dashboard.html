@@ -185,7 +185,7 @@ populateProfile(session);
 document.getElementById('pfEmail').addEventListener('input', renderEmailVerifyBtn);
 document.getElementById('logoutBtn').addEventListener('click',()=>{tsClearSession();window.location.href='index.html';});
 document.querySelectorAll('.dash-tabs button').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.dash-tabs button').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.dash-panel').forEach(p=>p.classList.remove('active'));btn.classList.add('active');document.getElementById('panel-'+btn.dataset.tab).classList.add('active');if(btn.dataset.tab==='orders')loadOrders();});});
-document.getElementById('profileForm').addEventListener('submit',function(e){e.preventDefault();const btn=document.getElementById('profileSaveBtn');btn.disabled=true;const payload={phone:session.phone,token:session.token,email:document.getElementById('pfEmail').value.trim(),name:document.getElementById('pfName').value.trim(),governorate:document.getElementById('pfGov').value,address:document.getElementById('pfAddress').value.trim()};tsUpdateProfile(payload).then(res=>{btn.disabled=false;if(res&&res.success){res.profile.token=session.token;tsSetSession(res.profile);document.getElementById('dashName').textContent=res.profile.name||res.profile.username||res.profile.phone;emailVerified=!!res.profile.emailVerified;savedEmail=res.profile.email||'';document.getElementById('emailOtpBox').classList.add('hidden');renderEmailVerifyBtn();tsToast(tsT('save_success'));}else{tsToast(tsT('auth_err_connection'));}}).catch(()=>{btn.disabled=false;tsToast(tsT('auth_err_connection'));});});
+document.getElementById('profileForm').addEventListener('submit',function(e){e.preventDefault();const btn=document.getElementById('profileSaveBtn');tsSetBtnLoading(btn, tsT('common_saving'));const payload={phone:session.phone,token:session.token,email:document.getElementById('pfEmail').value.trim(),name:document.getElementById('pfName').value.trim(),governorate:document.getElementById('pfGov').value,address:document.getElementById('pfAddress').value.trim()};tsUpdateProfile(payload).then(res=>{tsClearBtnLoading(btn);if(res&&res.success){res.profile.token=session.token;tsSetSession(res.profile);document.getElementById('dashName').textContent=res.profile.name||res.profile.username||res.profile.phone;emailVerified=!!res.profile.emailVerified;savedEmail=res.profile.email||'';document.getElementById('emailOtpBox').classList.add('hidden');renderEmailVerifyBtn();tsToast(tsT('save_success'));}else{tsToast(tsT('auth_err_connection'));}}).catch(()=>{tsClearBtnLoading(btn);tsToast(tsT('auth_err_connection'));});});
 
 /* ---------- email OTP: send / confirm / resend ---------- */
 function sendEmailOtp(){
@@ -194,10 +194,10 @@ function sendEmailOtp(){
   if(email.toLowerCase() !== savedEmail.toLowerCase()){ tsToast(tsT('email_verify_save_first')); return; }
 
   const btn = document.getElementById('emailVerifyBtn');
-  btn.disabled = true;
-  btn.textContent = tsT('email_verify_sending');
+  tsSetBtnLoading(btn, tsT('email_verify_sending'));
 
   tsSendEmailOtp(email).then(res=>{
+    tsClearBtnLoading(btn);   // renderEmailVerifyBtn تحت بتحدد الشكل النهائي أصلًا
     renderEmailVerifyBtn();
     if(res && res.success){
       document.getElementById('emailOtpBox').classList.remove('hidden');
@@ -207,7 +207,7 @@ function sendEmailOtp(){
     } else {
       tsToast(tsT('auth_err_connection'));
     }
-  }).catch(()=>{ renderEmailVerifyBtn(); tsToast(tsT('auth_err_connection')); });
+  }).catch(()=>{ tsClearBtnLoading(btn); renderEmailVerifyBtn(); tsToast(tsT('auth_err_connection')); });
 }
 
 document.getElementById('emailVerifyBtn').addEventListener('click', sendEmailOtp);
@@ -218,9 +218,9 @@ document.getElementById('emailOtpConfirmBtn').addEventListener('click', function
   const code = document.getElementById('emailOtpCode').value.trim();
   if(!code){ return; }
   const btn = this;
-  btn.disabled = true;
+  tsSetBtnLoading(btn, tsT('common_checking'));
   tsVerifyEmailOtp(email, code).then(res=>{
-    btn.disabled = false;
+    tsClearBtnLoading(btn);
     if(res && res.success){
       emailVerified = true;
       savedEmail = email;
@@ -233,7 +233,7 @@ document.getElementById('emailOtpConfirmBtn').addEventListener('click', function
     } else {
       tsToast(tsT('email_verify_wrong'));
     }
-  }).catch(()=>{ btn.disabled=false; tsToast(tsT('auth_err_connection')); });
+  }).catch(()=>{ tsClearBtnLoading(btn); tsToast(tsT('auth_err_connection')); });
 });
 
 const STATUS_MAP={"Pending Review":{en:"Pending Review",ar:"قيد المراجعة",cls:"gray"},"Confirmed Via Try":{en:"Confirmed",ar:"تم التأكيد",cls:"blue"},"Processing":{en:"Processing",ar:"جاري التجهيز",cls:"orange"},"Placed":{en:"Placed",ar:"تم الطلب",cls:"orange"},"Arrived Cairo HUB":{en:"Arrived Cairo HUB",ar:"وصل القاهرة",cls:"blue"},"Shipped To You":{en:"Out for delivery",ar:"في الطريق إليك",cls:"blue"},"Delivered":{en:"Delivered",ar:"تم التسليم",cls:"green"},"Canceled":{en:"Canceled",ar:"ملغي",cls:"red"},"Delayed":{en:"Delayed",ar:"متأخر",cls:"yellow"}};

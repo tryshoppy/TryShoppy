@@ -124,12 +124,12 @@ function bi(k){return tsT(k)+'<br><small style="opacity:.75">'+tsOther(k)+'</sma
 document.addEventListener('ts-lang-changed',()=>{if(lastMode==='order')renderByOrder(lastData);});
 function track(){
   const raw=document.getElementById('orderNo').value.trim();
-  const res=document.getElementById('result'),btn=document.getElementById('trackBtn'),btext=document.getElementById('btnText');
+  const res=document.getElementById('result'),btn=document.getElementById('trackBtn');
   if(!raw){res.innerHTML='<div class="err-box">'+bi('trk_emptyInput')+'</div>';res.style.display='block';return;}
-  btn.disabled=true;btext.textContent=tsT('trk_searching');res.style.display='none';
+  tsSetBtnLoading(btn, tsT('trk_searching'));res.style.display='none';
   /* 🔐 بنبعت رقم الطلب بس للسيرفر، وهو اللي يرجّع الطلب ده + إخوته —
      مش كل قاعدة بيانات الطلبات زي الأول (شوف Orders_Code.gs doGet) */
-  tsFetchOrderByNumber(raw).then(d=>{lastData=d;lastMode='order';lastVal=raw;renderByOrder(d);}).catch(()=>{res.innerHTML='<div class="err-box">'+bi('trk_connError')+'</div>';res.style.display='block';}).finally(()=>{btn.disabled=false;btext.textContent=tsT('trk_trackBtn');});
+  tsFetchOrderByNumber(raw).then(d=>{lastData=d;lastMode='order';lastVal=raw;renderByOrder(d);}).catch(()=>{res.innerHTML='<div class="err-box">'+bi('trk_connError')+'</div>';res.style.display='block';}).finally(()=>{tsClearBtnLoading(btn);});
 }
 function renderByOrder(d){
   const res=document.getElementById('result');

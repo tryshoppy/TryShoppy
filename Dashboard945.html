@@ -449,7 +449,7 @@
                     <option value="Canceled">Canceled</option>
                     <option value="Delayed">Delayed</option>
                 </select>
-                <button class="btn-action" onclick="applyBulkStatus()">تطبيق الحالة</button>
+                <button class="btn-action" id="bulkApplyBtn" onclick="applyBulkStatus()">تطبيق الحالة</button>
             </div>
 
             <div style="display:flex; gap:12px;">
@@ -486,6 +486,7 @@
 </div>
 
 <script src="assets/config.js"></script>
+<script src="assets/app.js"></script>
 <script>
 const scriptURL = TS_CONFIG.ORDERS_SCRIPT_URL;
 let ordersData = [];
@@ -725,8 +726,7 @@ function updateOrder(orderId) {
        const newArrival = document.getElementById(`arrival-${orderId}`).value;
 
     const btn = document.querySelector(`button[onclick="updateOrder('${orderId}')"]`);
-    const originalText = btn.innerHTML;
-    btn.innerHTML = "⏳";
+    tsSetBtnLoading(btn, "جاري التحديث...");
 
     fetch(scriptURL, {
         method: "POST",
@@ -742,7 +742,7 @@ function updateOrder(orderId) {
             staffToken: getStaffToken()
         })
     }).then(res => res.text()).then(text => {
-        btn.innerHTML = originalText;
+        tsClearBtnLoading(btn);
         if (text && text.indexOf("Success") !== -1) {
             alert("تم تحديث الطلب #" + orderId);
             loadData();
@@ -750,7 +750,7 @@ function updateOrder(orderId) {
             alert("❌ حصل خطأ أثناء التحديث: " + (text || "سبب غير معروف") + "\n(الطلب مش اتحدّث)");
         }
     }).catch(err => {
-        btn.innerHTML = originalText;
+        tsClearBtnLoading(btn);
         alert("❌ تعذر الاتصال بالسيرفر — الطلب مش اتحدّث. تأكد من الإنترنت وحاول تاني.\n" + err);
     });
 }
@@ -1284,6 +1284,9 @@ function applyBulkStatus(){
     if(selected.length === 0)
         return alert("مفيش طلبات متعلمة");
 
+    const bulkBtn = document.getElementById("bulkApplyBtn");
+    tsSetBtnLoading(bulkBtn, "جاري التطبيق...");
+
     const requests = selected.map(orderId=>
         fetch(scriptURL,{
             method:"POST",
@@ -1299,6 +1302,7 @@ function applyBulkStatus(){
     );
 
     Promise.all(requests).then(results=>{
+        tsClearBtnLoading(bulkBtn);
         const failed = results.filter(r=>!r.ok);
         if(failed.length===0){
             alert("✅ تم تحديث "+results.length+" طلب بنجاح");
@@ -1350,7 +1354,7 @@ async function doLogin() {
   if (!u || !p) return;
 
   const btn = document.querySelector('button[onclick="doLogin()"]');
-  if (btn) btn.disabled = true;
+  if (btn) tsSetBtnLoading(btn, "جاري التحقق...");
 
   let res;
   try {
@@ -1358,7 +1362,7 @@ async function doLogin() {
   } catch (err) {
     res = { success: false, message: "تعذر الاتصال بالسيرفر — تأكد من الإنترنت وحاول تاني." };
   }
-  if (btn) btn.disabled = false;
+  if (btn) tsClearBtnLoading(btn);
 
   if (res && res.success) {
     localStorage.setItem("currentUser", u.toLowerCase());

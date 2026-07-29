@@ -264,6 +264,7 @@
 
 <script src="staff-auth.js"></script>
 <script src="assets/config.js"></script>
+<script src="assets/app.js"></script>
 <script>
 const SESSION_TIME = 2 * 60 * 60 * 1000;
 const ORDER_SCRIPT_URL = TS_CONFIG.ORDERS_SCRIPT_URL;
@@ -299,7 +300,7 @@ async function doLogin() {
   if (!u || !p) return;
 
   const btn = document.querySelector('button[onclick="doLogin()"]');
-  if (btn) btn.disabled = true;
+  if (btn) tsSetBtnLoading(btn, "جاري التحقق...");
 
   let res;
   try {
@@ -307,7 +308,6 @@ async function doLogin() {
   } catch (err) {
     res = { success: false, message: "تعذر الاتصال بالسيرفر" };
   }
-  if (btn) btn.disabled = false;
 
   if (res && res.success) {
     localStorage.setItem("currentUser", u.toLowerCase());
@@ -316,6 +316,7 @@ async function doLogin() {
     localStorage.setItem("staffToken", res.token || "");
     showMain();
   } else {
+    if (btn) tsClearBtnLoading(btn);
     document.getElementById("loginError").textContent =
       (res && res.code === "locked") ? "⏳ " + res.message : "❌ اسم المستخدم أو كلمة المرور غير صحيحة";
     document.getElementById("loginError").style.display = "block";
@@ -376,7 +377,7 @@ function confirmOrder() {
     " | Notes: " + document.getElementById("notes").value;
 
   const btn = document.getElementById("confirmBtn") || document.querySelector('button[onclick="confirmOrder()"]');
-  if (btn) btn.disabled = true;
+  if (btn) tsSetBtnLoading(btn, "جاري التأكيد...");
 
   fetch(ORDER_SCRIPT_URL, {
     method: "POST",
@@ -398,7 +399,7 @@ function confirmOrder() {
       user: getCurrentUser()   // ✅
     })
   }).then(res => res.text()).then(text => {
-    if (btn) btn.disabled = false;
+    if (btn) tsClearBtnLoading(btn);
     // السكريبت بيرجع "Order Saved" لطلب جديد ناجح
     if (!(text && text.indexOf("Order Saved") !== -1)) {
       alert("❌ حصل خطأ أثناء تسجيل الطلب: " + (text || "سبب غير معروف") + "\n(الطلب مش اتسجّل)");
@@ -408,7 +409,7 @@ function confirmOrder() {
     document.getElementById("whatsappBtn").classList.remove("hidden");
     document.getElementById("customerSummaryBtn").classList.remove("hidden");
   }).catch(() => {
-    if (btn) btn.disabled = false;
+    if (btn) tsClearBtnLoading(btn);
     alert("❌ تعذر الاتصال بالسيرفر — الطلب مش اتسجّل. تأكد من الإنترنت وحاول تاني.");
   });
 }

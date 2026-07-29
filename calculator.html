@@ -337,13 +337,22 @@ function calculatePrice(){
 }
 function renderBadge(){if(!orderNumber)return;document.getElementById('orderNoBadge').innerText=tsT('calc_order_no_label')+': '+orderNumber;}
 document.addEventListener('ts-lang-changed',renderBadge);
-function confirmOrder(){
+async function confirmOrder(){
   const name=document.getElementById('customerName').value;
   if(!name){alert(tsT('calc_alert_name'));return;}
-  tsSubmitOrderRow({order:orderNumber,customerName:name,phone:document.getElementById('phone').value,email:document.getElementById('customerEmail').value.trim(),country:document.getElementById('country').value,address:document.getElementById('address').value,governorate:document.getElementById('governorate').value,link:document.getElementById('productLink').value,quantity:document.getElementById('quantity').value,usd:usdTotal,weight:document.getElementById('weight').value,dimensions:document.getElementById('length').value+'x'+document.getElementById('width').value+'x'+document.getElementById('height').value,category:document.getElementById('category').value,finalPrice:finalPrice});
-  alert(tsT('calc_alert_confirmed'));
-  document.getElementById('whatsappBtn').classList.remove('hidden');
-  document.getElementById('confirmBtn').classList.add('hidden');
+  const btn=document.getElementById('confirmBtn');
+  tsSetBtnLoading(btn, tsT('common_confirming'));
+  try{
+    const res=await tsSubmitOrderRow({order:orderNumber,customerName:name,phone:document.getElementById('phone').value,email:document.getElementById('customerEmail').value.trim(),country:document.getElementById('country').value,address:document.getElementById('address').value,governorate:document.getElementById('governorate').value,link:document.getElementById('productLink').value,quantity:document.getElementById('quantity').value,usd:usdTotal,weight:document.getElementById('weight').value,dimensions:document.getElementById('length').value+'x'+document.getElementById('width').value+'x'+document.getElementById('height').value,category:document.getElementById('category').value,finalPrice:finalPrice});
+    const text=await res.text();
+    if(!res.ok || text.indexOf('Error')!==-1) throw new Error(text);
+    alert(tsT('calc_alert_confirmed'));
+    document.getElementById('whatsappBtn').classList.remove('hidden');
+    btn.classList.add('hidden');
+  }catch(err){
+    tsClearBtnLoading(btn);
+    alert(tsT('common_error_retry'));
+  }
 }
 function sendWhatsApp(){
   const spcs='Size: '+document.getElementById('length').value+' | Color: '+document.getElementById('width').value+' | Notes: '+document.getElementById('height').value;

@@ -446,6 +446,7 @@ header {
 </div>
 
 <script src="assets/config.js"></script>
+<script src="assets/app.js"></script>
 <script>
 // ⚠️ هام: الرابط الموحّد بييجي من assets/config.js (نفس رابط الموقع كله) —
 // عدّله هناك مرة واحدة بس وهيتطبق على كل حاجة
@@ -815,6 +816,9 @@ function updateOrder(orderId){
   const newStatus=document.getElementById("status-"+orderId).value;
   const newArrival=document.getElementById("arrival-"+orderId).value; 
 
+  const btn=document.querySelector(`button[onclick*="updateOrder('${orderId}')"]`);
+  if(btn) tsSetBtnLoading(btn, "جاري التحديث...");
+
   fetch(scriptURL,{
     method:"POST",
     body:JSON.stringify({
@@ -829,6 +833,7 @@ function updateOrder(orderId){
       staffToken:getStaffToken()
     })
   }).then(res=>res.text()).then(text=>{
+    if(btn) tsClearBtnLoading(btn);
     if(text && text.indexOf("Success")!==-1){
       alert("تم تحديث الطلب #"+orderId);
     }else{
@@ -836,6 +841,7 @@ function updateOrder(orderId){
     }
     loadData();
   }).catch(err=>{
+    if(btn) tsClearBtnLoading(btn);
     alert("❌ تعذر الاتصال بالسيرفر — الطلب مش اتحدّث.\n"+err);
   });
 }
@@ -1098,8 +1104,7 @@ function submitDuplicate() {
     if (!originalOrder) return alert("حدث خطأ في جلب بيانات الأوردر الأصلي.");
 
     const btn = document.getElementById("dupSubmitBtn");
-    btn.innerText = "جاري النسخ...";
-    btn.disabled = true;
+    tsSetBtnLoading(btn, "جاري النسخ...");
 
     // ✅ الإجمالي = سعر الوحدة × الكمية
     const totalUsd = (usd * qty).toFixed(2);
@@ -1121,8 +1126,7 @@ function submitDuplicate() {
             staffToken: getStaffToken()
         })
     }).then(res => res.text()).then(text => {
-        btn.innerText = "حفظ الطلب";
-        btn.disabled = false;
+        tsClearBtnLoading(btn);
         if (!(text && text.indexOf("Success") !== -1)) {
             alert("❌ حصل خطأ أثناء تسجيل الطلب: " + (text || "سبب غير معروف"));
             return;
@@ -1143,8 +1147,7 @@ function submitDuplicate() {
         loadData();
     }).catch(e => {
         alert("❌ حدث خطأ في الاتصال بالخادم — الطلب مش اتسجّل. تأكد من الإنترنت وحاول تاني.");
-        btn.innerText = "حفظ الطلب";
-        btn.disabled = false;
+        tsClearBtnLoading(btn);
     });
 }
 
@@ -1183,7 +1186,7 @@ async function doLogin() {
   if (!u || !p) return;
 
   const btn = document.querySelector('button[onclick="doLogin()"]');
-  if (btn) btn.disabled = true;
+  if (btn) tsSetBtnLoading(btn, "جاري التحقق...");
 
   let res;
   try {
@@ -1191,7 +1194,7 @@ async function doLogin() {
   } catch (err) {
     res = { success: false, message: "تعذر الاتصال بالسيرفر" };
   }
-  if (btn) btn.disabled = false;
+  if (btn) tsClearBtnLoading(btn);
 
   if (res && res.success) {
     localStorage.setItem("currentUser", u.toLowerCase());

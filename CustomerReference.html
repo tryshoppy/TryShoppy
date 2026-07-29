@@ -185,8 +185,7 @@ async function doLogin(){
   if(!u || !p) return;
 
   errBox.style.display = "none";
-  btn.disabled = true;
-  btn.innerHTML = "جاري التحقق... <span class=\"spinner\"></span>";
+  tsSetBtnLoading(btn, "جاري التحقق...");
 
   let staffRes, martRes;
   try{
@@ -196,7 +195,7 @@ async function doLogin(){
   }
 
   if(!staffRes || !staffRes.success){
-    btn.disabled = false; btn.textContent = "دخول ←";
+    tsClearBtnLoading(btn);
     errBox.textContent = (staffRes && staffRes.code === "locked") ? "⏳ " + staffRes.message : "❌ اسم المستخدم أو كلمة المرور غير صحيحة";
     errBox.style.display = "block";
     return;
@@ -208,7 +207,7 @@ async function doLogin(){
     martRes = { success:false };
   }
 
-  btn.disabled = false; btn.textContent = "دخول ←";
+  tsClearBtnLoading(btn);
 
   if(!martRes || !martRes.success){
     // اليوزر والباسورد صح، بس مفيش صلاحية وصول للأداة دي تحديدًا
@@ -276,17 +275,17 @@ async function doSearch(){
   if(!raw){ area.innerHTML = '<div class="card empty-hint">اكتب رقم موبايل العميل الأول</div>'; return; }
 
   const target = normPhone(raw);
-  btn.disabled = true; btn.innerHTML = "جاري البحث... <span class=\"spinner\"></span>";
+  tsSetBtnLoading(btn, "جاري البحث...");
   area.innerHTML = '<div class="card empty-hint">جاري تحميل بيانات الطلبات…</div>';
 
   try{
     if(!allOrders) await loadAllOrders();
   }catch(e){
-    btn.disabled = false; btn.textContent = "🔍 بحث";
+    tsClearBtnLoading(btn);
     return; // loadAllOrders already alerted + logged out
   }
 
-  btn.disabled = false; btn.textContent = "🔍 بحث";
+  tsClearBtnLoading(btn);
 
   const matches = allOrders.filter(o => normPhone(o.phone) === target);
   if(matches.length === 0){

@@ -191,9 +191,9 @@ function fpSendCode(btn){
   errLine.classList.remove('show');
   const id=document.getElementById('fpIdentifier').value.trim();
   if(!id){showErr('auth_err_required');return;}
-  btn.disabled=true;
+  tsSetBtnLoading(btn, tsT('common_sending'));
   tsRequestPasswordReset(id).then(res=>{
-    btn.disabled=false;
+    tsClearBtnLoading(btn);
     if(res&&res.success){
       document.getElementById('fpStep2').classList.remove('hidden');
       document.getElementById('fpSub').textContent=tsT('fp_code_sent');
@@ -201,7 +201,7 @@ function fpSendCode(btn){
     }else if(res&&res.code==='no_email'){showErr('fp_err_no_email');}
     else if(res&&res.code==='not_found'){showErr('fp_err_not_found');}
     else{showErr('auth_err_connection');}
-  }).catch(()=>{btn.disabled=false;showErr('auth_err_connection');});
+  }).catch(()=>{tsClearBtnLoading(btn);showErr('auth_err_connection');});
 }
 document.getElementById('fpSendBtn').addEventListener('click',function(){fpSendCode(this);});
 document.getElementById('fpResendBtn').addEventListener('click',function(){fpSendCode(this);});
@@ -213,9 +213,9 @@ document.getElementById('fpResetBtn').addEventListener('click',function(){
   const cf=document.getElementById('fpConfirmPw').value;
   if(!code||!pw||!cf){showErr('auth_err_required');return;}
   if(pw!==cf){showErr('auth_err_mismatch');return;}
-  const btn=this;btn.disabled=true;
+  const btn=this;tsSetBtnLoading(btn, tsT('common_saving'));
   tsResetPassword(id,code,pw).then(res=>{
-    btn.disabled=false;
+    tsClearBtnLoading(btn);
     if(res&&res.success){
       tsToast(tsT('fp_success'));
       document.getElementById('fpStep2').classList.add('hidden');
@@ -225,15 +225,15 @@ document.getElementById('fpResetBtn').addEventListener('click',function(){
     }else if(res&&res.code==='bad_code'){showErr('fp_err_code');}
     else if(res&&res.code==='not_found'){showErr('fp_err_not_found');}
     else{showErr('auth_err_connection');}
-  }).catch(()=>{btn.disabled=false;showErr('auth_err_connection');});
+  }).catch(()=>{tsClearBtnLoading(btn);showErr('auth_err_connection');});
 });
 loginForm.addEventListener('submit',function(e){
   e.preventDefault();errLine.classList.remove('show');
   const identifier=document.getElementById('loginIdentifier').value.trim();
   const password=document.getElementById('loginPassword').value;
   if(!identifier||!password){showErr('auth_err_required');return;}
-  const btn=document.getElementById('loginSubmitBtn');btn.disabled=true;
-  tsLogin({identifier,password}).then(res=>{btn.disabled=false;if(res&&res.success){tsSetSession(res.profile);window.location.href='dashboard.html';}else{showErr('auth_err_invalid');}}).catch(()=>{btn.disabled=false;showErr('auth_err_connection');});
+  const btn=document.getElementById('loginSubmitBtn');tsSetBtnLoading(btn, tsT('common_checking'));
+  tsLogin({identifier,password}).then(res=>{tsClearBtnLoading(btn);if(res&&res.success){tsSetSession(res.profile);window.location.href='dashboard.html';}else{showErr('auth_err_invalid');}}).catch(()=>{tsClearBtnLoading(btn);showErr('auth_err_connection');});
 });
 /* ── register with mandatory email verification ──
    step 1: validate fields -> send code to email -> show OTP box
@@ -245,12 +245,12 @@ function regShowOtp(show){
   document.getElementById('registerSubmitBtn').textContent=tsT(show?'reg_verify_btn':'btn_register');
 }
 function regSendOtp(btn){
-  btn.disabled=true;
+  tsSetBtnLoading(btn, tsT('common_sending'));
   tsSendEmailOtp(REG_STATE.email).then(res=>{
-    btn.disabled=false;
+    tsClearBtnLoading(btn);
     if(res&&res.success){REG_STATE.otpSent=true;regShowOtp(true);tsToast(tsT('reg_code_sent'));}
     else{showErr('auth_err_connection');}
-  }).catch(()=>{btn.disabled=false;showErr('auth_err_connection');});
+  }).catch(()=>{tsClearBtnLoading(btn);showErr('auth_err_connection');});
 }
 document.getElementById('regOtpResend').addEventListener('click',function(){regSendOtp(this);});
 document.getElementById('regOtpChange').addEventListener('click',function(){
@@ -271,15 +271,16 @@ registerForm.addEventListener('submit',function(e){
   if(REG_STATE.otpSent){
     const code=document.getElementById('regOtpCode').value.trim();
     if(code.length!==6){showErr('fp_err_code');return;}
-    btn.disabled=true;
+    tsSetBtnLoading(btn, tsT('common_checking'));
     tsVerifyEmailOtp(REG_STATE.email,code).then(v=>{
-      if(!(v&&v.success)){btn.disabled=false;showErr('fp_err_code');return;}
+      if(!(v&&v.success)){tsClearBtnLoading(btn);showErr('fp_err_code');return;}
       /* email confirmed — create the account now */
+      const txt=btn.querySelector('span:last-child');if(txt)txt.textContent=tsT('common_saving');
       tsRegister({phone,email:REG_STATE.email,username,password}).then(res=>{
         if(res&&res.success){tsToast(tsT('auth_success_register'));tsSetSession(res.profile);setTimeout(()=>window.location.href='dashboard.html',700);}
-        else{btn.disabled=false;regShowOtp(false);REG_STATE={otpSent:false,email:''};showErr(res&&res.code==='exists'?'auth_err_exists':'auth_err_required');}
-      }).catch(()=>{btn.disabled=false;showErr('auth_err_connection');});
-    }).catch(()=>{btn.disabled=false;showErr('auth_err_connection');});
+        else{tsClearBtnLoading(btn);regShowOtp(false);REG_STATE={otpSent:false,email:''};showErr(res&&res.code==='exists'?'auth_err_exists':'auth_err_required');}
+      }).catch(()=>{tsClearBtnLoading(btn);showErr('auth_err_connection');});
+    }).catch(()=>{tsClearBtnLoading(btn);showErr('auth_err_connection');});
     return;
   }
 

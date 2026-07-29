@@ -407,37 +407,56 @@ function chqty(id,qty){tsUpdateCartQty(id,qty);renderCartItems();}
 document.getElementById('cartCheckoutBtn').addEventListener('click',()=>{const s=tsGetSession();if(s){document.getElementById('coName').value=s.name||'';document.getElementById('coPhone').value=s.phone||'';document.getElementById('coEmail').value=s.email||'';document.getElementById('coAddress').value=s.address||'';if(s.governorate){const sel=document.getElementById('coGov');for(const o of sel.options)if(o.value===s.governorate)o.selected=true;}}showStep('checkout');});
 
 let lastSummary=null;
-document.getElementById('placeOrderBtn').addEventListener('click',function(){
+document.getElementById('placeOrderBtn').addEventListener('click',async function(){
   const name=document.getElementById('coName').value.trim(),phone=document.getElementById('coPhone').value.trim(),email=document.getElementById('coEmail').value.trim(),gov=document.getElementById('coGov').value,addr=document.getElementById('coAddress').value.trim(),cart=tsGetCart();
   if(!name||!phone||!cart.length){tsToast(tsT('auth_err_required'));return;}
-  const btn=this;btn.disabled=true;
+  const btn=this;
+  tsSetBtnLoading(btn, tsT('common_confirming'));
   const orders=[];
   /* ملخص كل المنتجات — يتبعت مرة واحدة مع أول صف عشان
      العميل والموظف يستلموا إيميل واحد فيه كل حاجة */
   const emailSummary=cart.map(item=>((item.name&&item.name.en)||'')+' x'+item.qty+' — '+(item.price*item.qty).toLocaleString()+' EGP').join('\n');
-  cart.forEach((item,idx)=>{
-    const o=tsGenerateMartOrderNumber();orders.push({orderNo:o,item});
-    tsSubmitOrderRow({order:o,customerName:name,phone,email,country:"Try Shoppy Mart",address:addr,governorate:gov,link:'',quantity:item.qty,usd:'',weight:'',dimensions:(item.name&&item.name.en)||'',category:'Mart - '+item.cat,finalPrice:item.price*item.qty,status:'Pending Review',
-      suppressEmail:idx>0,                                  // إيميل واحد فقط للطلب كله
-      emailSummary:idx===0?emailSummary+'\nTotal: '+tsCartSubtotal().toLocaleString()+' EGP':''});
-  });
-  lastSummary={name,phone,gov,addr,orders,total:tsCartSubtotal()};
-  document.getElementById('successEmailNote').classList.toggle('hidden',!email);
-  document.getElementById('successOrderNos').textContent=orders.map(o=>o.orderNo).join(' · ');
 
-  /* 📉 تقليل المخزون فعليًا في شيت المارت لكل منتج اتباع —
-     وتحديث الأرقام في الذاكرة فورًا عشان لو العميل ضغط
-     "Continue Shopping" يشوف الكمية الجديدة من غير ما يعمل Refresh */
-  cart.forEach(item=>{
-    tsDecrementMartStock(item.id,item.qty).then(res=>{
-      if(res&&res.success){
-        const p=MART_PRODUCTS.find(x=>String(x.id)===String(item.id));
-        if(p){ p.stock=res.stock; renderMart(curFilter); }   // الشبكة موجودة دايمًا خلف الدرج، فتحديثها آمن أيًّا كانت الخطوة الظاهرة
-      }
-    }).catch(()=>{ /* فشل تحديث المخزون لا يلغي نجاح الطلب نفسه */ });
-  });
+  try{
+    // ⚠️ لازم ننتظر نتيجة كل الطلبات فعليًا قبل ما نعتبر العملية
+    // نجحت — قبل كده كان بيمسح السلة ويوري "نجح" حتى لو الشبكة
+    // فشلت والطلب مترجعش يتسجل خالص
+    const results = await Promise.all(cart.map(item=>{
+      const o=tsGenerateMartOrderNumber();
+      const idx=orders.length;
+      orders.push({orderNo:o,item});
+      return tsSubmitOrderRow({order:o,customerName:name,phone,email,country:"Try Shoppy Mart",address:addr,governorate:gov,link:'',quantity:item.qty,usd:'',weight:'',dimensions:(item.name&&item.name.en)||'',category:'Mart - '+item.cat,finalPrice:item.price*item.qty,status:'Pending Review',
+        suppressEmail:idx>0,                                  // إيميل واحد فقط للطلب كله
+        emailSummary:idx===0?emailSummary:'',
+        cartTotal:idx===0?tsCartSubtotal():undefined})        // ✅ إجمالي السلة الحقيقي، منفصل عن finalPrice بتاع الصف الأول بس
+        .then(res=>res.text());
+    }));
+    if(results.some(t=>t.indexOf('Error')!==-1)) throw new Error('order-save-failed');
 
-  tsClearCart();btn.disabled=false;showStep('success');
+    lastSummary={name,phone,gov,addr,orders,total:tsCartSubtotal()};
+    document.getElementById('successEmailNote').classList.toggle('hidden',!email);
+    document.getElementById('successOrderNos').textContent=orders.map(o=>o.orderNo).join(' · ');
+
+    /* 📉 تقليل المخزون فعليًا في شيت المارت لكل منتج اتباع —
+       وتحديث الأرقام في الذاكرة فورًا عشان لو العميل ضغط
+       "Continue Shopping" يشوف الكمية الجديدة من غير ما يعمل Refresh */
+    cart.forEach(item=>{
+      tsDecrementMartStock(item.id,item.qty).then(res=>{
+        if(res&&res.success){
+          const p=MART_PRODUCTS.find(x=>String(x.id)===String(item.id));
+          if(p){ p.stock=res.stock; renderMart(curFilter); }   // الشبكة موجودة دايمًا خلف الدرج، فتحديثها آمن أيًّا كانت الخطوة الظاهرة
+        }
+      }).catch(()=>{ /* فشل تحديث المخزون لا يلغي نجاح الطلب نفسه */ });
+    });
+
+    tsClearCart();
+    tsClearBtnLoading(btn);
+    showStep('success');
+  }catch(err){
+    // فشل حفظ الطلب — السلة تفضل زي ما هي عشان العميل يقدر يجرب تاني
+    tsClearBtnLoading(btn);
+    tsToast(tsT('common_error_retry'));
+  }
 });
 document.getElementById('cartWhatsAppBtn').addEventListener('click',()=>{
   if(!lastSummary)return;

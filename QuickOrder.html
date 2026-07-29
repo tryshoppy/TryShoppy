@@ -77,7 +77,7 @@ button:hover{ opacity:.9; }
     <label class="login-label">كلمة المرور</label>
     <input id="loginPass" type="password" class="login-input" placeholder="أدخل كلمة المرور" autocomplete="current-password" onkeydown="if(event.key==='Enter') doLogin();">
     <div id="loginError" class="login-error">❌ اسم المستخدم أو كلمة المرور غير صحيحة</div>
-    <button class="btn-login" onclick="doLogin()">دخول ←</button>
+    <button class="btn-login" id="loginBtn" onclick="doLogin()">دخول ←</button>
   </div>
 </div>
 
@@ -149,6 +149,7 @@ button:hover{ opacity:.9; }
 
 <script src="staff-auth.js"></script>
 <script src="assets/config.js"></script>
+<script src="assets/app.js"></script>
 <script>
 const SESSION_TIME = 2 * 60 * 60 * 1000;
 const scriptURL = TS_CONFIG.ORDERS_SCRIPT_URL;
@@ -185,6 +186,8 @@ async function doLogin() {
   const u = document.getElementById("loginUser").value.trim();
   const p = document.getElementById("loginPass").value;
   if (!u || !p) return;
+  const btn = document.getElementById("loginBtn");
+  tsSetBtnLoading(btn, "جاري التحقق...");
 
   let res;
   try {
@@ -201,6 +204,7 @@ async function doLogin() {
     document.getElementById("loginError").style.display = "none";
     showMain();
   } else {
+    tsClearBtnLoading(btn);
     document.getElementById("loginError").textContent =
       (res && res.code === "locked") ? "⏳ " + res.message : "❌ اسم المستخدم أو كلمة المرور غير صحيحة";
     document.getElementById("loginError").style.display = "block";
