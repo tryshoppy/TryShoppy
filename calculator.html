@@ -19,7 +19,6 @@
 .result-box{background:linear-gradient(135deg,var(--y0) 0%,var(--y1) 100%);border-radius:20px;padding:26px;margin:24px 0;text-align:center;animation:fadeUp .4s ease-out;border:1px solid rgba(245,184,32,.2)}
 .result-price{font-family:var(--fm);font-size:2.6rem;font-weight:700;margin:10px 0;color:var(--ink)}
 .result-note{font-size:13px;color:var(--ok);font-weight:700}
-.order-badge-wrap{margin-bottom:10px}
 .shipping-head{font-weight:800;font-size:15px;margin:24px 0 18px;display:flex;align-items:center;gap:8px;color:var(--ink)}
 .sup-box{background:var(--gold-wash);border:1.5px dashed var(--gold);border-radius:var(--r2);padding:18px;margin-bottom:18px}
 .sup-box .sup-title{font-weight:800;font-size:14px;color:var(--gold-deep);margin-bottom:14px;display:flex;align-items:center;gap:7px}
@@ -27,6 +26,18 @@
 .sup-note{font-size:12.5px;color:var(--ink-2);margin-top:7px;line-height:1.5}
 .sup-note.warn{color:var(--gold-deep);font-weight:700}
 input:read-only{background:var(--gold-wash);color:var(--gold-deep);font-weight:700;border-color:var(--gold)}
+.hidden{display:none !important}
+/* ---------- cart flow ---------- */
+.cart-item{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:14px;border:1px solid var(--n2);border-radius:var(--r2);margin-bottom:10px;background:#fff}
+.cart-item-cat{font-weight:800;font-size:13.5px;color:var(--ink)}
+.cart-item-link{font-size:12px;color:var(--ink3);margin-top:3px;word-break:break-all}
+.cart-item-link a{color:var(--ink3)}
+.cart-item-meta{font-size:12px;color:var(--ink2);margin-top:4px}
+.cart-item-right{text-align:right;flex-shrink:0}
+.cart-item-price{font-weight:800;font-size:14.5px;color:var(--ink)}
+.cart-item-remove{margin-top:8px;background:none;border:none;color:var(--err);font-size:12px;font-weight:700;cursor:pointer;padding:0}
+.cart-total-row{display:flex;justify-content:space-between;align-items:center;padding:16px 4px;font-weight:800;font-size:16px;border-top:1.5px dashed var(--n2);margin-top:6px;margin-bottom:18px}
+.cart-total-row span:last-child{color:var(--ok);font-family:var(--fm)}
 @media(max-width:560px){.row,.dims{grid-template-columns:1fr}.calc-card{padding:22px}}
 </style>
 </head>
@@ -61,93 +72,108 @@ input:read-only{background:var(--gold-wash);color:var(--gold-deep);font-weight:7
     </div>
     <h2 data-i18n="calc_title">Calculate &amp; Confirm Order</h2>
 
-    <div class="field"><label data-i18n="calc_link_label">Product Link</label><input id="productLink" type="url" placeholder="https://amazon.com/..."></div>
-    <div class="field"><label data-i18n="calc_qty_label">Quantity</label><input id="quantity" type="number" value="1" min="1"></div>
+    <!-- ================= STEP 1: product entry + calculate ================= -->
+    <div id="stepCalc">
+      <div class="field"><label data-i18n="calc_link_label">Product Link</label><input id="productLink" type="url" placeholder="https://amazon.com/..."></div>
+      <div class="field"><label data-i18n="calc_qty_label">Quantity</label><input id="quantity" type="number" value="1" min="1"></div>
 
-    <div class="row">
-      <div class="field">
-        <label data-i18n="calc_country_label">Country</label>
-        <select id="country" onchange="checkCountry()">
-          <option value="USA" data-i18n="calc_country_usa">USA 🇺🇸</option>
-          <option value="OTHER" data-i18n="calc_country_other">Other Countries</option>
-        </select>
-      </div>
-      <div class="field"><label data-i18n="calc_price_label">Total Price in USD *</label><input id="price" type="number" placeholder="0.00"></div>
-    </div>
-
-    <div id="countryMsg" class="country-msg hidden" data-i18n="calc_country_msg">Sorry, we only serve orders from USA currently.</div>
-
-    <div class="row">
-      <div class="field">
-        <label data-i18n="calc_weight_label">Weight (g) *</label>
-        <input id="weight" type="number" data-i18n-ph="calc_weight_ph" placeholder="e.g. 500">
-        <div id="weightAutoNote" class="sup-note hidden"></div>
-      </div>
-      <div class="field">
-        <label data-i18n="calc_category_label">Category *</label>
-        <select id="category" onchange="onCategoryChange()">
-          <option value="" data-i18n="calc_category_select">Select category...</option>
-          <option value="Clothes (Regular)" data-i18n="cat_clothes">Clothes (Regular)</option>
-          <option value="Jacket or BALTO" data-i18n="cat_jacket">Jacket or BALTO</option>
-          <option value="Electronics" data-i18n="cat_electronics">Electronics</option>
-          <option value="Shoes (Regular)" data-i18n="cat_shoes_regular">Shoes (Regular)</option>
-          <option value="Shoes (Boot)" data-i18n="cat_shoes_boot">Shoes (Boot)</option>
-          <option value="Watches" data-i18n="cat_watches">Watches</option>
-          <option value="Accessories" data-i18n="cat_accessories">Accessories</option>
-          <option value="Cosmetics" data-i18n="cat_cosmetics">Cosmetics</option>
-          <option value="Sunglasses" data-i18n="cat_sunglasses">Sunglasses</option>
-          <option value="Food" data-i18n="cat_food">Food</option>
-          <option value="CarParts" data-i18n="cat_carparts">Car Parts</option>
-          <option value="Vitamin or Supplements" data-i18n="cat_vitamins">Vitamins &amp; Supplements</option>
-          <option value="Shampoo or Conditioner" data-i18n="cat_shampoo">Shampoo or Conditioner</option>
-          <option value="Small Size Hand bag (women)" data-i18n="cat_bag_small">Small Hand Bag (Women)</option>
-          <option value="Back bag (or Lap bag)" data-i18n="cat_bag_back">Back Bag / Laptop Bag</option>
-          <option value="Large Size Hand bag (women)" data-i18n="cat_bag_large">Large Hand Bag (Women)</option>
-          <option value="Stationary" data-i18n="cat_stationary">Stationary</option>
-        </select>
-      </div>
-    </div>
-
-    <div id="supplementBox" class="sup-box hidden">
-      <div class="sup-title">💊 <span data-i18n="calc_sup_title">Vitamins / Supplements Details</span></div>
       <div class="row">
         <div class="field">
-          <label data-i18n="calc_sup_type">Product Type</label>
-          <select id="supplementType" onchange="onSupplementTypeChange()">
-            <option value="capsules" data-i18n="sup_opt_capsules">Capsules</option>
-            <option value="gummies" data-i18n="sup_opt_gummies">Gummies</option>
-            <option value="powder" data-i18n="sup_opt_powder">Powder</option>
-            <option value="liquid" data-i18n="sup_opt_liquid">Liquid</option>
+          <label data-i18n="calc_country_label">Country</label>
+          <select id="country" onchange="checkCountry()">
+            <option value="USA" data-i18n="calc_country_usa">USA 🇺🇸</option>
+            <option value="OTHER" data-i18n="calc_country_other">Other Countries</option>
           </select>
         </div>
+        <div class="field"><label data-i18n="calc_price_label">Total Price in USD *</label><input id="price" type="number" placeholder="0.00"></div>
+      </div>
+
+      <div id="countryMsg" class="country-msg hidden" data-i18n="calc_country_msg">Sorry, we only serve orders from USA currently.</div>
+
+      <div class="row">
         <div class="field">
-          <label data-i18n="calc_sup_pieces">Piece Count</label>
-          <select id="supplementRange" onchange="onSupplementRangeChange()"></select>
-          <div id="manualWeightNote" class="sup-note warn hidden"></div>
+          <label data-i18n="calc_weight_label">Weight (g) *</label>
+          <input id="weight" type="number" data-i18n-ph="calc_weight_ph" placeholder="e.g. 500">
+          <div id="weightAutoNote" class="sup-note hidden"></div>
+        </div>
+        <div class="field">
+          <label data-i18n="calc_category_label">Category *</label>
+          <select id="category" onchange="onCategoryChange()">
+            <option value="" data-i18n="calc_category_select">Select category...</option>
+            <option value="Clothes (Regular)" data-i18n="cat_clothes">Clothes (Regular)</option>
+            <option value="Jacket or BALTO" data-i18n="cat_jacket">Jacket or BALTO</option>
+            <option value="Electronics" data-i18n="cat_electronics">Electronics</option>
+            <option value="Shoes (Regular)" data-i18n="cat_shoes_regular">Shoes (Regular)</option>
+            <option value="Shoes (Boot)" data-i18n="cat_shoes_boot">Shoes (Boot)</option>
+            <option value="Watches" data-i18n="cat_watches">Watches</option>
+            <option value="Accessories" data-i18n="cat_accessories">Accessories</option>
+            <option value="Cosmetics" data-i18n="cat_cosmetics">Cosmetics</option>
+            <option value="Sunglasses" data-i18n="cat_sunglasses">Sunglasses</option>
+            <option value="Food" data-i18n="cat_food">Food</option>
+            <option value="CarParts" data-i18n="cat_carparts">Car Parts</option>
+            <option value="Vitamin or Supplements" data-i18n="cat_vitamins">Vitamins &amp; Supplements</option>
+            <option value="Shampoo or Conditioner" data-i18n="cat_shampoo">Shampoo or Conditioner</option>
+            <option value="Small Size Hand bag (women)" data-i18n="cat_bag_small">Small Hand Bag (Women)</option>
+            <option value="Back bag (or Lap bag)" data-i18n="cat_bag_back">Back Bag / Laptop Bag</option>
+            <option value="Large Size Hand bag (women)" data-i18n="cat_bag_large">Large Hand Bag (Women)</option>
+            <option value="Stationary" data-i18n="cat_stationary">Stationary</option>
+          </select>
         </div>
       </div>
-    </div>
 
-
-    <label data-i18n="calc_desc_label" style="margin-bottom:8px">Additional Description (optional)</label>
-    <div class="dims">
-      <input id="length" type="text" data-i18n-ph="calc_size_ph" placeholder="Size">
-      <input id="width" type="text" data-i18n-ph="calc_color_ph" placeholder="Color">
-      <input id="height" type="text" data-i18n-ph="calc_notes_ph" placeholder="Other Notes">
-    </div>
-
-    <button class="btn btn-primary btn-block" onclick="calculatePrice()" data-i18n="calc_btn_calculate">Calculate Price</button>
-
-    <div id="resultArea" class="hidden">
-      <div class="result-box">
-        <div class="order-badge-wrap"><span class="stamp" id="orderNoBadge"></span></div>
-        <div style="font-size:13px;color:var(--ink2)" data-i18n="calc_result_total_label">Total Cost (Shipping &amp; Customs included)</div>
-        <div id="priceDetails" class="result-price">— EGP</div>
-        <div class="result-note" data-i18n="calc_result_cod_note">Cash on Delivery up to 10,000 EGP ✓</div>
+      <div id="supplementBox" class="sup-box hidden">
+        <div class="sup-title">💊 <span data-i18n="calc_sup_title">Vitamins / Supplements Details</span></div>
+        <div class="row">
+          <div class="field">
+            <label data-i18n="calc_sup_type">Product Type</label>
+            <select id="supplementType" onchange="onSupplementTypeChange()">
+              <option value="capsules" data-i18n="sup_opt_capsules">Capsules</option>
+              <option value="gummies" data-i18n="sup_opt_gummies">Gummies</option>
+              <option value="powder" data-i18n="sup_opt_powder">Powder</option>
+              <option value="liquid" data-i18n="sup_opt_liquid">Liquid</option>
+            </select>
+          </div>
+          <div class="field">
+            <label data-i18n="calc_sup_pieces">Piece Count</label>
+            <select id="supplementRange" onchange="onSupplementRangeChange()"></select>
+            <div id="manualWeightNote" class="sup-note warn hidden"></div>
+          </div>
+        </div>
       </div>
 
-      <hr style="border:0;border-top:1.5px dashed var(--n2);margin:24px 0">
+      <label data-i18n="calc_desc_label" style="margin-bottom:8px">Additional Description (optional)</label>
+      <div class="dims">
+        <input id="length" type="text" data-i18n-ph="calc_size_ph" placeholder="Size">
+        <input id="width" type="text" data-i18n-ph="calc_color_ph" placeholder="Color">
+        <input id="height" type="text" data-i18n-ph="calc_notes_ph" placeholder="Other Notes">
+      </div>
 
+      <button class="btn btn-primary btn-block" onclick="calculatePrice()" data-i18n="calc_btn_calculate">Calculate Price</button>
+
+      <div id="resultArea" class="hidden">
+        <div class="result-box">
+          <div style="font-size:13px;color:var(--ink2)" data-i18n="calc_result_total_label">Total Cost (Shipping &amp; Customs included)</div>
+          <div id="priceDetails" class="result-price">— EGP</div>
+          <div class="result-note" data-i18n="calc_result_cod_note">Cash on Delivery up to 10,000 EGP ✓</div>
+        </div>
+        <button class="btn btn-dark btn-block" onclick="addCurrentToCart()" data-i18n="calc_btn_addcart">➕ Add to Cart</button>
+      </div>
+    </div>
+
+    <!-- ================= STEP 2: cart summary ================= -->
+    <div id="stepCart" class="hidden">
+      <div class="shipping-head">🛒 <span data-i18n="calc_cart_title">Your Cart</span></div>
+      <div id="cartItemsList"></div>
+      <div class="cart-total-row">
+        <span data-i18n="calc_cart_total">Total</span>
+        <span id="cartTotalDisplay">0 EGP</span>
+      </div>
+      <button class="btn btn-ghost btn-block" onclick="backToAddItem()" data-i18n="calc_btn_additem">➕ Add Another Item</button>
+      <button class="btn btn-dark btn-block" style="margin-top:10px" onclick="goToCheckout()" data-i18n="calc_btn_checkout">✅ Checkout</button>
+    </div>
+
+    <!-- ================= STEP 3: checkout (customer info) ================= -->
+    <div id="stepCheckout" class="hidden">
       <div class="shipping-head">📍 <span data-i18n="calc_shipping_title">Shipping Details</span></div>
 
       <div class="field"><label data-i18n="calc_name_label">Full Name</label><input id="customerName" data-i18n-ph="calc_name_ph" placeholder="Enter your full name"></div>
@@ -190,8 +216,17 @@ input:read-only{background:var(--gold-wash);color:var(--gold-deep);font-weight:7
       </div>
       <div class="field"><label data-i18n="calc_address_label">Detailed Address</label><textarea id="address" rows="2" data-i18n-ph="calc_address_ph" placeholder="Building number, street name, apartment..."></textarea></div>
 
-      <button id="confirmBtn" class="btn btn-dark btn-block" onclick="confirmOrder()" data-i18n="calc_btn_confirm">Confirm Order Now</button>
-      <button id="whatsappBtn" class="btn btn-whatsapp btn-block hidden" style="margin-top:12px" onclick="sendWhatsApp()" data-i18n="calc_btn_whatsapp">Send WhatsApp Confirmation</button>
+      <button id="confirmBtn" class="btn btn-dark btn-block" onclick="confirmOrder()" data-i18n="calc_btn_confirm_all">Confirm All Orders</button>
+      <button class="btn btn-ghost btn-block" style="margin-top:10px" onclick="showStep('cart')" data-i18n="calc_btn_back_cart">← Back to Cart</button>
+    </div>
+
+    <!-- ================= STEP 4: success ================= -->
+    <div id="stepSuccess" class="hidden">
+      <div class="result-box">
+        <div style="font-weight:800;font-size:1.2rem" data-i18n="calc_success_title">Orders Confirmed!</div>
+        <div id="successOrderNos" style="margin-top:10px;font-family:var(--fm);font-size:13px"></div>
+      </div>
+      <button id="whatsappBtn" class="btn btn-whatsapp btn-block" onclick="sendWhatsApp()" data-i18n="calc_btn_whatsapp">Send WhatsApp Confirmation</button>
     </div>
 
     <button class="btn btn-ghost btn-block" style="margin-top:20px" onclick="window.location.href='track.html'">🔍 <span data-i18n="calc_btn_track">Track Your Order</span></button>
@@ -216,10 +251,21 @@ input:read-only{background:var(--gold-wash);color:var(--gold-deep);font-weight:7
 <script src="assets/app.js"></script>
 <script>
 tsInitNav();
-let finalPrice=0,orderNumber='',usdTotal=0;
+let finalPrice=0, usdTotal=0, lastOrders=[];
+
+function showStep(step){
+  document.getElementById('stepCalc').classList.toggle('hidden', step!=='calc');
+  document.getElementById('stepCart').classList.toggle('hidden', step!=='cart');
+  document.getElementById('stepCheckout').classList.toggle('hidden', step!=='checkout');
+  document.getElementById('stepSuccess').classList.toggle('hidden', step!=='success');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
 
 /* prefill from logged-in session */
 (function(){const s=tsGetSession();if(s){if(s.name)document.getElementById('customerName').value=s.name;if(s.phone)document.getElementById('phone').value=s.phone;if(s.email)document.getElementById('customerEmail').value=s.email;if(s.address)document.getElementById('address').value=s.address;if(s.governorate){const g=document.getElementById('governorate');for(const o of g.options)if(o.value===s.governorate)o.selected=true;}}})();
+
+/* لو فيه عناصر متسيبة في السلة من زيارة سابقة (قفل المتصفح قبل ما يكمل)، نورّيها على طول */
+(function(){ if(tsGetCalcCart().length){ renderCart(); showStep('cart'); } })();
 
 function generateOrder(){return'TRY-'+Math.floor(100000+Math.random()*900000);}
 function checkCountry(){const v=document.getElementById('country').value;document.getElementById('countryMsg').classList.toggle('hidden',v!=='OTHER');}
@@ -316,6 +362,7 @@ document.addEventListener('ts-lang-changed', ()=>{
     onSupplementRangeChange();
   }
 });
+document.addEventListener('ts-lang-changed', ()=>{ if(!document.getElementById('stepCart').classList.contains('hidden')) renderCart(); });
 
 function calculatePrice(){
   if(document.getElementById('country').value==='OTHER'){alert(tsT('calc_alert_country'));return;}
@@ -323,40 +370,148 @@ function calculatePrice(){
   const weightG=parseFloat(document.getElementById('weight').value);
   const cat=document.getElementById('category').value;
   const qty=parseInt(document.getElementById('quantity').value)||1;
-  usdTotal=usd*qty;
   if(!usd||!cat||!weightG){alert(tsT('calc_alert_missing'));return;}
+  usdTotal=usd*qty;
 
   /* ✅ المعادلة من function_calc.js — عدّل الأسعار هناك فقط */
   const result=tryShoppyCalculatePrice({usd,category:cat,weightGrams:weightG,quantity:qty});
   finalPrice=result.finalPrice;
 
   document.getElementById('priceDetails').innerHTML=finalPrice.toLocaleString()+' EGP';
-  orderNumber=generateOrder();renderBadge();
   document.getElementById('resultArea').classList.remove('hidden');
   document.getElementById('resultArea').scrollIntoView({behavior:'smooth'});
 }
-function renderBadge(){if(!orderNumber)return;document.getElementById('orderNoBadge').innerText=tsT('calc_order_no_label')+': '+orderNumber;}
-document.addEventListener('ts-lang-changed',renderBadge);
+
+/* ============================================
+   السلة — كل منتج بيتحسب لوحده ويتضاف كصف مستقل،
+   زي بالظبط فكرة المارت (Add to Cart / Checkout)
+   ============================================ */
+function addCurrentToCart(){
+  const link=document.getElementById('productLink').value;
+  const qty=parseInt(document.getElementById('quantity').value)||1;
+  const usd=parseFloat(document.getElementById('price').value);
+  const weightG=parseFloat(document.getElementById('weight').value);
+  const cat=document.getElementById('category').value;
+  const size=document.getElementById('length').value;
+  const color=document.getElementById('width').value;
+  const notes=document.getElementById('height').value;
+
+  tsAddToCalcCart({ link, usd, qty, weightGrams:weightG, category:cat, size, color, notes, finalPrice });
+  tsToast(tsT('calc_alert_added'));
+
+  // نضفّي الفورم عشان يبقى جاهز لمنتج تاني من غير أي بيانات قديمة متسيبة
+  document.getElementById('productLink').value='';
+  document.getElementById('quantity').value='1';
+  document.getElementById('price').value='';
+  document.getElementById('weight').value='';
+  document.getElementById('weight').readOnly=false;
+  document.getElementById('category').value='';
+  document.getElementById('length').value='';
+  document.getElementById('width').value='';
+  document.getElementById('height').value='';
+  document.getElementById('supplementBox').classList.add('hidden');
+  document.getElementById('weightAutoNote').classList.add('hidden');
+  document.getElementById('resultArea').classList.add('hidden');
+
+  renderCart();
+  showStep('cart');
+}
+
+function renderCart(){
+  const cart=tsGetCalcCart();
+  const list=document.getElementById('cartItemsList');
+  list.innerHTML = cart.map(item=>{
+    const linkHtml = item.link
+      ? '<a href="'+item.link+'" target="_blank" rel="noopener">'+(item.link.length>42?item.link.slice(0,42)+'…':item.link)+'</a>'
+      : '—';
+    return '<div class="cart-item">'+
+      '<div class="cart-item-info">'+
+        '<div class="cart-item-cat">'+(item.category||'')+'</div>'+
+        '<div class="cart-item-link">'+linkHtml+'</div>'+
+        '<div class="cart-item-meta">'+tsT('calc_cart_item_qty')+': '+item.qty+'</div>'+
+      '</div>'+
+      '<div class="cart-item-right">'+
+        '<div class="cart-item-price">'+item.finalPrice.toLocaleString()+' EGP</div>'+
+        '<button class="cart-item-remove" onclick="removeCartItem(\''+item.tempId+'\')">🗑 '+tsT('calc_cart_remove')+'</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+  document.getElementById('cartTotalDisplay').textContent = tsCalcCartTotal().toLocaleString()+' EGP';
+}
+
+function removeCartItem(tempId){
+  tsRemoveFromCalcCart(tempId);
+  renderCart();
+  if(tsGetCalcCart().length===0) showStep('calc');
+}
+
+function backToAddItem(){
+  showStep('calc');
+}
+
+function goToCheckout(){
+  if(tsGetCalcCart().length===0){ alert(tsT('calc_alert_cart_empty')); return; }
+  showStep('checkout');
+}
+
 async function confirmOrder(){
   const name=document.getElementById('customerName').value;
   if(!name){alert(tsT('calc_alert_name'));return;}
+  const cart=tsGetCalcCart();
+  if(!cart.length){alert(tsT('calc_alert_cart_empty'));showStep('cart');return;}
+
   const btn=document.getElementById('confirmBtn');
   tsSetBtnLoading(btn, tsT('common_confirming'));
+
+  const phone=document.getElementById('phone').value;
+  const email=document.getElementById('customerEmail').value.trim();
+  const country=document.getElementById('country').value;
+  const address=document.getElementById('address').value;
+  const governorate=document.getElementById('governorate').value;
+
+  // ملخص كل المنتجات لإيميل واحد مُجمّع (زي المارت بالظبط)
+  const emailSummary=cart.map(item=>(item.category||item.link||'Item')+' x'+item.qty+' — '+item.finalPrice.toLocaleString()+' EGP').join('\n');
+  const cartTotal=tsCalcCartTotal();
+  const orders=[];
+
   try{
-    const res=await tsSubmitOrderRow({order:orderNumber,customerName:name,phone:document.getElementById('phone').value,email:document.getElementById('customerEmail').value.trim(),country:document.getElementById('country').value,address:document.getElementById('address').value,governorate:document.getElementById('governorate').value,link:document.getElementById('productLink').value,quantity:document.getElementById('quantity').value,usd:usdTotal,weight:document.getElementById('weight').value,dimensions:document.getElementById('length').value+'x'+document.getElementById('width').value+'x'+document.getElementById('height').value,category:document.getElementById('category').value,finalPrice:finalPrice});
-    const text=await res.text();
-    if(!res.ok || text.indexOf('Error')!==-1) throw new Error(text);
-    alert(tsT('calc_alert_confirmed'));
-    document.getElementById('whatsappBtn').classList.remove('hidden');
-    btn.classList.add('hidden');
+    // ⚠️ بننتظر نتيجة كل المنتجات فعليًا قبل ما نعتبر العملية نجحت —
+    // نفس المبدأ اللي طبقناه في mart.html، عشان محدش يفتكر إن طلبه
+    // اتسجل وهو فعليًا فشل يتسجل لأي سبب شبكة
+    const results = await Promise.all(cart.map((item, idx)=>{
+      const o=generateOrder();
+      orders.push({orderNo:o, item});
+      const dimensions='Size: '+(item.size||'-')+' | Color: '+(item.color||'-')+' | Notes: '+(item.notes||'-');
+      return tsSubmitOrderRow({
+        order:o, customerName:name, phone, email, country, address, governorate,
+        link:item.link, quantity:item.qty, usd:(item.usd*item.qty), weight:item.weightGrams,
+        dimensions, category:item.category, finalPrice:item.finalPrice,
+        suppressEmail: idx>0,                         // إيميل واحد بس للطلب كله
+        emailSummary: idx===0 ? emailSummary : '',
+        cartTotal: idx===0 ? cartTotal : undefined      // إجمالي السلة الحقيقي
+      }).then(res=>res.text());
+    }));
+    if(results.some(t=>t.indexOf('Error')!==-1)) throw new Error('order-save-failed');
+
+    lastOrders=orders;
+    document.getElementById('successOrderNos').textContent = orders.map(o=>o.orderNo).join(' · ');
+    tsClearCalcCart();
+    tsClearBtnLoading(btn);
+    showStep('success');
   }catch(err){
+    // فشل الحفظ — نسيب السلة زي ما هي عشان العميل يقدر يجرب تاني
     tsClearBtnLoading(btn);
     alert(tsT('common_error_retry'));
   }
 }
+
 function sendWhatsApp(){
-  const spcs='Size: '+document.getElementById('length').value+' | Color: '+document.getElementById('width').value+' | Notes: '+document.getElementById('height').value;
-  const msg='TRY SHOPPY Order\nOrder No: '+orderNumber+'\nName: '+document.getElementById('customerName').value+'\nPhone: '+document.getElementById('phone').value+'\nGov: '+document.getElementById('governorate').value+'\nAddress: '+document.getElementById('address').value+'\nQty: '+document.getElementById('quantity').value+'\nUnit USD: '+document.getElementById('price').value+' USD\nTotal USD: '+usdTotal+' USD\nTotal EGP: '+finalPrice+'\nProduct: '+document.getElementById('productLink').value+'\nSPCS: '+spcs;
+  const lines = lastOrders.map(o => o.orderNo+' — '+(o.item.category||o.item.link||'')+' x'+o.item.qty+' — '+o.item.finalPrice.toLocaleString()+' EGP').join('\n');
+  const msg='TRY SHOPPY Orders\n'+lines+
+    '\n\nName: '+document.getElementById('customerName').value+
+    '\nPhone: '+document.getElementById('phone').value+
+    '\nGov: '+document.getElementById('governorate').value+
+    '\nAddress: '+document.getElementById('address').value;
   window.open('https://wa.me/'+TS_CONFIG.SUPPORT_PHONE+'?text='+encodeURIComponent(msg));
 }
 </script>

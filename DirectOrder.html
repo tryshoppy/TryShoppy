@@ -34,6 +34,7 @@
         button { width: 100%; padding: 18px; border: none; border-radius: 16px; font-size: 1.1rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .btn-main { background: var(--primary); color: var(--white); box-shadow: 0 4px 12px rgba(37,99,235,0.2); }
         .btn-main:hover { background: var(--primary-hover); transform: translateY(-2px); }
+        .btn-secondary { background: var(--white); color: var(--primary); border: 2px solid var(--primary); }
         .btn-whatsapp { background: var(--success); color: var(--white); margin-top: 15px; box-shadow: 0 4px 12px rgba(34,197,94,0.2); }
         .btn-track { background: transparent; color: var(--text-muted); border: 2px solid var(--border); margin-top: 25px; font-size: 0.95rem; }
         .btn-track:hover { background: var(--warning); color: #000; border-color: var(--warning); }
@@ -79,6 +80,30 @@
 
         /* ── Main Content ── */
         #mainContent { display: none; }
+
+        /* ── Cart ── */
+        .cart-item{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:16px;border:2px solid var(--border);border-radius:14px;margin-bottom:12px;background:var(--white)}
+        .cart-item-cat{font-weight:800;font-size:14px;color:var(--text-main)}
+        .cart-item-link{font-size:12px;color:var(--text-muted);margin-top:3px;word-break:break-all}
+        .cart-item-link a{color:var(--text-muted)}
+        .cart-item-meta{font-size:12.5px;color:var(--text-muted);margin-top:5px}
+        .cart-item-right{text-align:left;flex-shrink:0}
+        .cart-item-price{font-weight:800;font-size:15px;color:var(--primary)}
+        .cart-item-remove{width:auto;padding:0;margin-top:8px;background:none;border:none;color:#ef4444;font-size:12.5px;font-weight:700;cursor:pointer}
+        .cart-total-row{display:flex;justify-content:space-between;align-items:center;padding:18px 4px;font-weight:800;font-size:18px;border-top:2px dashed var(--border);margin-top:6px;margin-bottom:20px}
+        .cart-total-row span:last-child{color:var(--success)}
+
+        /* ── Customer mode / search ── */
+        .mode-toggle{display:flex;gap:12px;margin-bottom:20px}
+        .mode-btn{flex:1;padding:14px;border-radius:14px;border:2px solid var(--border);background:#fff;color:var(--text-main);font-weight:800;cursor:pointer;font-family:'Cairo';font-size:0.95rem}
+        .mode-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+        .search-row{display:flex;gap:10px}
+        .search-row input{flex:1}
+        .search-row button{width:auto;padding:14px 22px;flex-shrink:0}
+        .search-result-item{cursor:pointer}
+        .search-result-item:hover{border-color:var(--primary)}
+        .warning-banner{background:#fff7e6;border:1.5px dashed #f39c12;border-radius:12px;padding:14px 16px;margin-bottom:20px;font-size:13.5px;color:#8a5a00;font-weight:700;line-height:1.6}
+        .picked-banner{background:#f0fdf4;border:1.5px solid #22c55e;border-radius:12px;padding:12px 16px;margin-bottom:14px;font-size:13.5px;color:#166534;font-weight:700}
     </style>
 </head>
 <body>
@@ -103,7 +128,7 @@
 <div class="card">
 
 <div class="logo">
-  <img src="assets/logo.png" alt="TRY SHOPPY">
+  <img src="logo.png" alt="TRY SHOPPY">
   <div>Your Global Shopping Partner</div>
   <div style="margin-top:10px; display:flex; justify-content:center; align-items:center; gap:10px;">
     <span id="dUserBadge" style="background:#ede9fe; color:#6366f1; padding:5px 14px; border-radius:10px; font-weight:800; font-size:13px; border:1px solid #c4b5fd;"></span>
@@ -112,6 +137,9 @@
 </div>
 
 <h2>تسجيل الطلب | Order Registration</h2>
+
+<!-- ================= STEP 1: إضافة منتج ================= -->
+<div id="stepProduct">
 
 <div class="input-group">
 <label>رابط المنتج | Product Link</label>
@@ -193,11 +221,53 @@
 
 <div id="confirmSection" class="hidden">
 <div class="result">
-  <div id="orderNo" class="order"></div>
-  <div style="font-weight:700; color:var(--text-muted);">السعر النهائي:</div>
+  <div style="font-weight:700; color:var(--text-muted);">السعر النهائي للمنتج ده:</div>
   <div class="price" id="finalPriceDisplay"></div>
 </div>
+<button class="btn-main" style="background:var(--success)" onclick="addCurrentToCart()">➕ أضف للسلة | Add to Cart</button>
+</div>
+
+</div><!-- end stepProduct -->
+
+<!-- ================= STEP 2: السلة ================= -->
+<div id="stepCart" class="hidden">
+  <h2 style="font-size:1.3rem">🛒 سلة الطلب | Cart</h2>
+  <div id="cartItemsList"></div>
+  <div class="cart-total-row">
+    <span>الإجمالي | Total</span>
+    <span id="cartTotalDisplay">0 EGP</span>
+  </div>
+  <button class="btn-secondary" onclick="backToAddItem()">➕ أضف منتج تاني | Add Another Item</button>
+  <button class="btn-main" style="margin-top:12px" onclick="goToCheckout()">✅ إتمام الطلب | Checkout</button>
+</div>
+
+<!-- ================= STEP 3: بيانات العميل ================= -->
+<div id="stepCheckout" class="hidden">
 <hr>
+
+<div class="input-group">
+  <label>نوع العميل | Customer Type</label>
+  <div class="mode-toggle">
+    <button type="button" class="mode-btn active" id="btnNewCustomer" onclick="setCustomerMode('new')">🆕 عميل جديد</button>
+    <button type="button" class="mode-btn" id="btnExistingCustomer" onclick="setCustomerMode('existing')">🔎 عميل سابق</button>
+  </div>
+</div>
+
+<div id="existingCustomerSearch" class="hidden">
+  <div class="input-group">
+    <label>ابحث بالاسم أو رقم الموبايل | Search by name or phone</label>
+    <div class="search-row">
+      <input id="customerSearchInput" placeholder="اكتب الاسم أو رقم الموبايل" onkeydown="if(event.key==='Enter'){event.preventDefault();searchExistingCustomer();}">
+      <button type="button" id="customerSearchBtn" onclick="searchExistingCustomer()">🔍 بحث</button>
+    </div>
+  </div>
+  <div id="customerSearchResults"></div>
+</div>
+
+<div id="customerFillWarning" class="warning-banner hidden">
+  ⚠️ ممكن يكون فيه أكتر من عميل بنفس الاسم — اتأكد إن رقم الموبايل والعنوان تحت مطابقين فعليًا لنفس العميل اللي بتكلمه قبل ما تكمل الطلب.
+</div>
+
 <div class="input-group">
 <label>الاسم بالكامل | Full Name</label>
 <input id="customerName" placeholder="أدخل الاسم">
@@ -249,9 +319,18 @@
 <label>العنوان بالتفصيل | Address</label>
 <textarea id="address" rows="2" placeholder="المنطقة، الشارع، رقم العقار..."></textarea>
 </div>
-<button class="btn-main" onclick="confirmOrder()">Confirm Order | تأكيد الطلب الآن</button>
-<button class="btn-whatsapp hidden" id="whatsappBtn" onclick="sendWhatsApp()">إرسال واتساب للتأكيد</button>
-<button class="btn-whatsapp hidden" id="customerSummaryBtn" style="background:#0ea5e9;" onclick="sendCustomerSummary()">📩 إرسال ملخص الطلب للعميل</button>
+<button class="btn-main" id="confirmBtn" onclick="confirmOrder()">Confirm All Orders | تأكيد كل الطلبات</button>
+<button class="btn-secondary" style="margin-top:12px" onclick="showStep('cart')">← رجوع للسلة | Back to Cart</button>
+</div>
+
+<!-- ================= STEP 4: نجاح ================= -->
+<div id="stepSuccess" class="hidden">
+<div class="result">
+  <div style="font-weight:800; font-size:1.2rem;">✅ تم تسجيل الطلبات بنجاح</div>
+  <div id="successOrderNos" style="margin-top:10px; font-size:13px; color:var(--text-muted)"></div>
+</div>
+<button class="btn-whatsapp" id="whatsappBtn" onclick="sendWhatsApp()">إرسال واتساب للتأكيد</button>
+<button class="btn-whatsapp" id="customerSummaryBtn" style="background:#0ea5e9;" onclick="sendCustomerSummary()">📩 إرسال ملخص الطلب للعميل</button>
 </div>
 
 <button class="btn-track" onclick="window.open('track.html','_blank')">🔍 تتبع الطلب | Track Order</button>
@@ -277,6 +356,7 @@ function checkSession() {
   const time = localStorage.getItem("loginTime");
   return !!(key && time && (new Date().getTime() - time < SESSION_TIME));
 }
+function getStaffToken(){ return localStorage.getItem("staffToken") || ""; }
 
 function showLogin() {
   document.getElementById("loginScreen").style.display = "flex";
@@ -292,6 +372,7 @@ function showMain() {
   const label = localStorage.getItem("currentUserLabel") || localStorage.getItem("currentUser") || "";
   const badge = document.getElementById("dUserBadge");
   if (badge) badge.textContent = label ? "👤 " + label : "";
+  if (tsGetDirectCart().length) { renderCart(); showStep('cart'); }
 }
 
 async function doLogin() {
@@ -348,10 +429,24 @@ function initAuth() {
 }
 initAuth();
 
+// ── السلة (منفصلة تمامًا عن سلة الحاسبة العامة وسلة المارت) ──
+function tsGetDirectCart(){ try{ return JSON.parse(localStorage.getItem('ts_direct_cart')) || []; }catch(e){ return []; } }
+function tsSaveDirectCart(c){ localStorage.setItem('ts_direct_cart', JSON.stringify(c)); }
+function tsAddToDirectCart(item){ const c=tsGetDirectCart(); item.tempId=Date.now()+'-'+Math.floor(Math.random()*10000); c.push(item); tsSaveDirectCart(c); return c; }
+function tsRemoveFromDirectCart(id){ const c=tsGetDirectCart().filter(i=>i.tempId!==id); tsSaveDirectCart(c); return c; }
+function tsClearDirectCart(){ tsSaveDirectCart([]); }
+function tsDirectCartTotal(){ return tsGetDirectCart().reduce((s,i)=>s+(parseFloat(i.finalEGP)||0),0); }
+
+function showStep(step){
+  document.getElementById('stepProduct').classList.toggle('hidden', step!=='product');
+  document.getElementById('stepCart').classList.toggle('hidden', step!=='cart');
+  document.getElementById('stepCheckout').classList.toggle('hidden', step!=='checkout');
+  document.getElementById('stepSuccess').classList.toggle('hidden', step!=='success');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
 // ── منطق الأوردر ──
-let orderNumber = "";
-let finalEGP = 0;
-let usdTotal = 0;
+let lastOrders = [];
 
 function generateOrder() {
   return "TRY-2026-" + Math.floor(100000 + Math.random() * 900000);
@@ -362,92 +457,270 @@ function showConfirm() {
   let priceUSD = parseFloat(document.getElementById("priceUSD").value) || 0;
   let qty = parseInt(document.getElementById("quantity").value) || 1;
   if (!priceEGP || !priceUSD) { alert("من فضلك أدخل السعر بالدولار والمصري"); return; }
-  finalEGP = priceEGP * qty;
-  usdTotal = priceUSD * qty;
-  orderNumber = generateOrder();
-  document.getElementById("orderNo").innerText = "Order No: " + orderNumber;
-  document.getElementById("finalPriceDisplay").innerText = finalEGP + " EGP";
+  document.getElementById("finalPriceDisplay").innerText = (priceEGP * qty) + " EGP";
   document.getElementById("confirmSection").classList.remove("hidden");
   document.getElementById("confirmSection").scrollIntoView({ behavior: 'smooth' });
 }
 
-function confirmOrder() {
-  const dimensions = "Size: " + document.getElementById("size").value +
-    " | Color: " + document.getElementById("color").value +
-    " | Notes: " + document.getElementById("notes").value;
+function addCurrentToCart(){
+  const priceEGP = parseFloat(document.getElementById("priceEGP").value) || 0;
+  const priceUSD = parseFloat(document.getElementById("priceUSD").value) || 0;
+  const qty = parseInt(document.getElementById("quantity").value) || 1;
 
-  const btn = document.getElementById("confirmBtn") || document.querySelector('button[onclick="confirmOrder()"]');
-  if (btn) tsSetBtnLoading(btn, "جاري التأكيد...");
+  tsAddToDirectCart({
+    link: document.getElementById("productLink").value,
+    country: document.getElementById("country").value,
+    category: document.getElementById("category").value,
+    priceUSD, priceEGP, qty,
+    weight: document.getElementById("weight").value,
+    size: document.getElementById("size").value,
+    color: document.getElementById("color").value,
+    notes: document.getElementById("notes").value,
+    finalEGP: priceEGP * qty,
+    usdTotal: priceUSD * qty
+  });
+  tsToast("تمت الإضافة للسلة ✓");
 
-  fetch(ORDER_SCRIPT_URL, {
-    method: "POST",
-    body: JSON.stringify({
-      order: orderNumber,
-      customerName: document.getElementById("customerName").value,
-      phone: document.getElementById("phone").value,
-      email: document.getElementById("customerEmail").value.trim(),
-      country: document.getElementById("country").value,
-      address: document.getElementById("address").value,
-      governorate: document.getElementById("governorate").value,
-      link: document.getElementById("productLink").value,
-      quantity: document.getElementById("quantity").value,
-      usd: usdTotal,
-      weight: document.getElementById("weight").value,
-      dimensions: dimensions,
-      category: document.getElementById("category").value,
-      finalPrice: finalEGP,
-      user: getCurrentUser()   // ✅
-    })
-  }).then(res => res.text()).then(text => {
-    if (btn) tsClearBtnLoading(btn);
-    // السكريبت بيرجع "Order Saved" لطلب جديد ناجح
-    if (!(text && text.indexOf("Order Saved") !== -1)) {
-      alert("❌ حصل خطأ أثناء تسجيل الطلب: " + (text || "سبب غير معروف") + "\n(الطلب مش اتسجّل)");
+  // تنضيف الفورم لمنتج جديد
+  document.getElementById("productLink").value = "";
+  document.getElementById("priceUSD").value = "";
+  document.getElementById("priceEGP").value = "";
+  document.getElementById("quantity").value = "1";
+  document.getElementById("weight").value = "";
+  document.getElementById("category").value = "";
+  document.getElementById("size").value = "";
+  document.getElementById("color").value = "";
+  document.getElementById("notes").value = "";
+  document.getElementById("confirmSection").classList.add("hidden");
+
+  renderCart();
+  showStep('cart');
+}
+
+function renderCart(){
+  const cart = tsGetDirectCart();
+  const list = document.getElementById("cartItemsList");
+  list.innerHTML = cart.map(item=>{
+    const linkHtml = item.link ? '<a href="'+item.link+'" target="_blank" rel="noopener">'+(item.link.length>42?item.link.slice(0,42)+'…':item.link)+'</a>' : '—';
+    return '<div class="cart-item">'+
+      '<div><div class="cart-item-cat">'+(item.category||'بدون فئة')+'</div>'+
+      '<div class="cart-item-link">'+linkHtml+'</div>'+
+      '<div class="cart-item-meta">الكمية: '+item.qty+'</div></div>'+
+      '<div class="cart-item-right"><div class="cart-item-price">'+item.finalEGP.toLocaleString()+' EGP</div>'+
+      '<button class="cart-item-remove" onclick="removeCartItem(\''+item.tempId+'\')">🗑 حذف</button></div>'+
+    '</div>';
+  }).join('');
+  document.getElementById("cartTotalDisplay").textContent = tsDirectCartTotal().toLocaleString()+' EGP';
+}
+
+function removeCartItem(tempId){
+  tsRemoveFromDirectCart(tempId);
+  renderCart();
+  if (tsGetDirectCart().length === 0) showStep('product');
+}
+
+function backToAddItem(){ showStep('product'); }
+
+function goToCheckout(){
+  if (tsGetDirectCart().length === 0) { alert("السلة فاضية — أضف منتج واحد على الأقل الأول"); return; }
+  showStep('checkout');
+}
+
+/* ============================================
+   عميل سابق / عميل جديد
+   ============================================ */
+let customerMode = 'new';
+let allCustomersCache = null;   // كاش بسيط لكل الطلبات خلال نفس الجلسة، عشان مانطلبش من السيرفر كل بحث
+let customerMatches = [];
+
+function setCustomerMode(mode){
+  customerMode = mode;
+  document.getElementById('btnNewCustomer').classList.toggle('active', mode==='new');
+  document.getElementById('btnExistingCustomer').classList.toggle('active', mode==='existing');
+  document.getElementById('existingCustomerSearch').classList.toggle('hidden', mode!=='existing');
+  document.getElementById('customerFillWarning').classList.add('hidden');
+  document.getElementById('customerSearchResults').innerHTML = '';
+  document.getElementById('customerSearchInput').value = '';
+
+  if(mode==='new'){
+    document.getElementById('customerName').value='';
+    document.getElementById('customerEmail').value='';
+    document.getElementById('phone').value='';
+    document.getElementById('governorate').value='';
+    document.getElementById('address').value='';
+  }
+}
+
+async function searchExistingCustomer(){
+  const q = document.getElementById('customerSearchInput').value.trim();
+  if(!q){ alert('اكتب اسم أو رقم موبايل للبحث'); return; }
+
+  const btn = document.getElementById('customerSearchBtn');
+  tsSetBtnLoading(btn, 'جاري البحث...');
+
+  if(!allCustomersCache){
+    try{
+      const url = ORDER_SCRIPT_URL + '?staffToken=' + encodeURIComponent(getStaffToken());
+      const res = await fetch(url);
+      const data = await res.json();
+      if(!Array.isArray(data)){
+        tsClearBtnLoading(btn);
+        alert('⚠️ الجلسة انتهت أو مش صالحة — سجّل دخول تاني.');
+        dLogout();
+        return;
+      }
+      allCustomersCache = data;
+    }catch(e){
+      tsClearBtnLoading(btn);
+      alert('تعذر الاتصال بالسيرفر، حاول تاني');
       return;
     }
-    alert("تم تسجيل الطلب بنجاح");
-    document.getElementById("whatsappBtn").classList.remove("hidden");
-    document.getElementById("customerSummaryBtn").classList.remove("hidden");
-  }).catch(() => {
-    if (btn) tsClearBtnLoading(btn);
-    alert("❌ تعذر الاتصال بالسيرفر — الطلب مش اتسجّل. تأكد من الإنترنت وحاول تاني.");
+  }
+  tsClearBtnLoading(btn);
+
+  const qDigits = q.replace(/\D/g,'');
+  const qLower = q.toLowerCase();
+  const isPhoneSearch = qDigits.length >= 6;
+
+  // نجمع عميل واحد فريد لكل رقم موبايل (بأحدث بيانات معروفة له)
+  // بدل ما نعرض كل صف طلب لوحده — العميل المتكرر ممكن يكون ليه
+  // عشرات الطلبات، مش عايزين نكررها في نتائج البحث
+  const byPhone = {};
+  allCustomersCache.forEach(o=>{
+    const phoneDigits = String(o.phone||'').replace(/\D/g,'');
+    if(!phoneDigits) return;
+    const nameMatch = o.customerName && o.customerName.toLowerCase().includes(qLower);
+    const phoneMatch = isPhoneSearch && phoneDigits.includes(qDigits);
+    if(!nameMatch && !phoneMatch) return;
+    if(!byPhone[phoneDigits] || new Date(o.date) > new Date(byPhone[phoneDigits].date)){
+      byPhone[phoneDigits] = o;
+    }
   });
+
+  customerMatches = Object.values(byPhone);
+  renderCustomerSearchResults();
+}
+
+function renderCustomerSearchResults(){
+  const box = document.getElementById('customerSearchResults');
+  if(!customerMatches.length){
+    box.innerHTML = '<div style="padding:14px;color:var(--text-muted);font-size:13.5px;">🚫 مفيش نتائج مطابقة — تقدر تسجّله كعميل جديد بدل كده</div>';
+    return;
+  }
+  box.innerHTML = customerMatches.map((c,i)=>{
+    return '<div class="cart-item search-result-item" onclick="selectExistingCustomer('+i+')">'+
+      '<div><div class="cart-item-cat">'+(c.customerName||'—')+'</div>'+
+      '<div class="cart-item-meta">📞 '+c.phone+' &nbsp;—&nbsp; 📍 '+(c.governorate||'—')+'</div>'+
+      '<div class="cart-item-link">'+(c.address||'')+'</div></div>'+
+      '<div class="cart-item-right"><button type="button" class="btn-secondary" style="width:auto;padding:9px 18px;margin:0;" onclick="event.stopPropagation();selectExistingCustomer('+i+')">اختيار</button></div>'+
+    '</div>';
+  }).join('');
+
+  if(customerMatches.length > 1){
+    box.innerHTML = '<div style="padding:10px 4px;color:#b45309;font-weight:800;font-size:13px;">⚠️ فيه '+customerMatches.length+' نتائج قريبة من بحثك — اختار الصح بناءً على رقم الموبايل والعنوان</div>' + box.innerHTML;
+  }
+}
+
+function selectExistingCustomer(idx){
+  const c = customerMatches[idx];
+  if(!c) return;
+  document.getElementById('customerName').value = c.customerName || '';
+  document.getElementById('phone').value = c.phone || '';
+  document.getElementById('customerEmail').value = c.email || '';
+  document.getElementById('address').value = c.address || '';
+  const govSel = document.getElementById('governorate');
+  for(const o of govSel.options) if(o.value === c.governorate) o.selected = true;
+
+  document.getElementById('customerFillWarning').classList.remove('hidden');
+  document.getElementById('customerSearchResults').innerHTML =
+    '<div class="picked-banner">✅ اتملت بيانات: '+(c.customerName||'')+' — راجعها تحت قبل الإرسال</div>';
+}
+
+async function confirmOrder() {
+  const name = document.getElementById("customerName").value;
+  if (!name) { alert("من فضلك أدخل اسم العميل"); return; }
+  const cart = tsGetDirectCart();
+  if (!cart.length) { alert("السلة فاضية"); showStep('cart'); return; }
+
+  const btn = document.getElementById("confirmBtn");
+  tsSetBtnLoading(btn, "جاري التأكيد...");
+
+  const phone = document.getElementById("phone").value;
+  const email = document.getElementById("customerEmail").value.trim();
+  const country = document.getElementById("country").value;
+  const address = document.getElementById("address").value;
+  const governorate = document.getElementById("governorate").value;
+  const user = getCurrentUser();
+
+  const emailSummary = cart.map(item => (item.category||item.link||'Item')+' x'+item.qty+' — '+item.finalEGP.toLocaleString()+' EGP').join('\n');
+  const cartTotal = tsDirectCartTotal();
+  const orders = [];
+
+  try {
+    const results = await Promise.all(cart.map((item, idx) => {
+      const o = generateOrder();
+      orders.push({ orderNo: o, item });
+      const dimensions = "Size: " + (item.size||'-') + " | Color: " + (item.color||'-') + " | Notes: " + (item.notes||'-');
+      return fetch(ORDER_SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          order: o, customerName: name, phone, email, country, address, governorate,
+          link: item.link, quantity: item.qty, usd: item.usdTotal, weight: item.weight,
+          dimensions, category: item.category, finalPrice: item.finalEGP, user,
+          suppressEmail: idx > 0,
+          emailSummary: idx === 0 ? emailSummary : '',
+          cartTotal: idx === 0 ? cartTotal : undefined
+        })
+      }).then(res => res.text());
+    }));
+
+    tsClearBtnLoading(btn);
+    // السكريبت بيرجع "Order Saved" لكل طلب ناجح
+    if (results.some(t => !(t && t.indexOf("Order Saved") !== -1))) {
+      alert("⚠️ بعض المنتجات فشلت تتسجل. راجع الشيت للتأكد قبل ما تبلغ العميل.\n" + results.join("\n"));
+      return;
+    }
+
+    lastOrders = orders;
+    document.getElementById("successOrderNos").textContent = orders.map(o=>o.orderNo).join(' · ');
+    tsClearDirectCart();
+    showStep('success');
+  } catch (err) {
+    tsClearBtnLoading(btn);
+    alert("❌ تعذر الاتصال بالسيرفر — الطلبات مش اتسجلت. تأكد من الإنترنت وحاول تاني.");
+  }
 }
 
 function sendWhatsApp() {
-  const spcs = "Size: " + document.getElementById("size").value +
-    " | Color: " + document.getElementById("color").value +
-    " | Notes: " + document.getElementById("notes").value;
-  let msg = `TRY SHOPPY Order\nOrder No: ${orderNumber}\nName: ${document.getElementById("customerName").value}\nPhone: ${document.getElementById("phone").value}\nGovernorate: ${document.getElementById("governorate").value}\nAddress: ${document.getElementById("address").value}\nQuantity: ${document.getElementById("quantity").value}\nUnit Price USD: ${document.getElementById("priceUSD").value} USD\nUnit Price EGP: ${document.getElementById("priceEGP").value} EGP\n\nTotal USD: ${usdTotal} USD\nTotal Price: ${finalEGP} EGP\nProduct: ${document.getElementById("productLink").value}\nSPCS: ${spcs}\n\nPlease confirm my order.`;
+  const lines = lastOrders.map(o => o.orderNo+' — '+(o.item.category||o.item.link||'')+' x'+o.item.qty+' — '+o.item.finalEGP.toLocaleString()+' EGP').join('\n');
+  let msg = `TRY SHOPPY Orders\n${lines}\n\nName: ${document.getElementById("customerName").value}\nPhone: ${document.getElementById("phone").value}\nGovernorate: ${document.getElementById("governorate").value}\nAddress: ${document.getElementById("address").value}\n\nPlease confirm my order.`;
   window.open("https://wa.me/201005609642?text=" + encodeURIComponent(msg));
 }
 
 function sendCustomerSummary() {
   const phone = document.getElementById("phone").value.replace(/\D/g, "").replace(/^0/, "");
   const customerName = document.getElementById("customerName").value;
-  const qty = document.getElementById("quantity").value || 1;
-  const piecePrice = parseFloat(document.getElementById("priceEGP").value) || 0;
-  const link = document.getElementById("productLink").value;
 
-  const size = document.getElementById("size").value.trim();
-  const color = document.getElementById("color").value.trim();
-  const notes = document.getElementById("notes").value.trim();
-  const specsParts = [];
-  if (size) specsParts.push("المقاس: " + size);
-  if (color) specsParts.push("اللون: " + color);
-  if (notes) specsParts.push("ملاحظات: " + notes);
-  const specsLine = specsParts.length ? `📝 المواصفات: ${specsParts.join(" | ")}\n` : "";
+  const itemsLines = lastOrders.map(o => {
+    const item = o.item;
+    const specsParts = [];
+    if (item.size) specsParts.push("المقاس: " + item.size);
+    if (item.color) specsParts.push("اللون: " + item.color);
+    if (item.notes) specsParts.push("ملاحظات: " + item.notes);
+    const specsLine = specsParts.length ? ` (${specsParts.join(" | ")})` : "";
+    return `🔖 ${o.orderNo}\n🔗 ${item.link}\n📦 العدد: ${item.qty}${specsLine}\n💰 ${item.finalEGP.toLocaleString()} ج.م`;
+  }).join("\n\n");
+
+  const total = lastOrders.reduce((s,o)=>s+o.item.finalEGP, 0);
 
   const msg = `السلام عليكم ${customerName ? "أ/ " + customerName : "حضرتك"} 👋
 تم تسجيل طلب حضرتك بنجاح في TRY SHOPPY ✅
 
-🔖 رقم الطلب: ${orderNumber}
-🔗 المنتج: ${link}
-📦 العدد: ${qty}
-${specsLine}💵 سعر القطعة: ${piecePrice.toLocaleString()} ج.م
-💰 الإجمالي: ${finalEGP.toLocaleString()} ج.م
+${itemsLines}
 
-🚚 يمكنك تتبع هذا المنتج في أي وقت من هنا برقم الطلب:
+💰 الإجمالي الكلي: ${total.toLocaleString()} ج.م
+
+🚚 يمكنك تتبع كل منتج في أي وقت من هنا برقم الطلب الخاص به:
 🔗 https://tryshoppy.github.io/TryShoppy/track
 
 📞 لأي استفسار، تواصل معنا في أي وقت 🙏`;
