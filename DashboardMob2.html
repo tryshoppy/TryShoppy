@@ -231,6 +231,10 @@ header {
   justify-content: center;
 }
 .link-btn:hover { background: #dbeafe; color: var(--primary-hover); transform: translateY(-1px); }
+/* نسخة فيها كمية كل منتج تحت السعر — سطر إضافي صغير بس، من غير
+   ما نغيّر شكل الزرار الأساسي (المعاينة المفردة لسه زي ما هي) */
+.link-btn.has-qty { flex-direction: column; gap: 2px; }
+.link-btn .qty-tag { font-size: 10.5px; font-weight: 600; opacity: 0.65; }
 
 /* Badges & Spec Row */
 .badge { 
@@ -528,8 +532,9 @@ function renderCards(data, append = false){
     let linksHTML = "";
     if (isGrouped && o.items) {
       linksHTML = o.items.map((item, i) => `
-        <a href="${item.link}" target="_blank" class="link-btn">
-          🔗 منتج ${i + 1} - ${parseFloat(item.price).toLocaleString()} ج.م
+        <a href="${item.link}" target="_blank" class="link-btn has-qty">
+          <span>🔗 منتج ${i + 1} - ${parseFloat(item.price).toLocaleString()} ج.م</span>
+          <span class="qty-tag">الكمية: ${item.qty || 1}</span>
         </a>
       `).join('');
     } else {
