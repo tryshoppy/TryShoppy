@@ -905,39 +905,56 @@ function getLabelStyles() {
         /* bulk: فاصل بين الليبلات عند طباعة الكل */
         .bulk { page-break-after: always; }
 
+        /* ══════════════════════════════════════════════════════
+           ⚠️ ملحوظة مهمة: كل الأقسام تحت متعمّدين نخليها نص أسود
+           على خلفية بيضاء دايمًا (مفيش أي خلفية سودا مع نص أبيض)،
+           والفصل بين الأقسام بحدود سودا غامقة (border) بدل الألوان.
+           السبب: طابعات الـ Thermal غالبًا بتشيل خلفيات الألوان
+           (Background Fill) تمامًا وقت الطباعة — لو النص كان أبيض
+           لأنه "متصمم" يبان فوق خلفية سودا، وقت ما الخلفية تتشال،
+           النص بيختفي تمامًا لأنه بقى أبيض على ورق أبيض. الحل
+           الآمن للطباعة الحرارية: نص أسود صريح + حدود سودا واضحة،
+           مفيش اعتماد على ألوان خلفية أو شفافية (opacity/rgba) خالص.
+           ══════════════════════════════════════════════════════ */
+
         /* ══ HEADER ══ */
         .hd {
-            background: #000;
-            color: #fff;
+            background: #fff;
+            color: #000;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 6px 10px;
+            padding: 8px 10px;
             flex-shrink: 0;
+            border-bottom: 3px solid #000;
         }
         .brand {
             font-size: 17pt;
             font-weight: 900;
             letter-spacing: 1px;
             line-height: 1;
+            color: #000;
         }
         .brand-ar {
             font-size: 8pt;
-            color: rgba(255,255,255,0.65);
+            color: #444;
+            font-weight: 600;
             letter-spacing: 0.5px;
         }
         .aw-title {
             font-size: 9pt;
             font-weight: 800;
             letter-spacing: 2.5px;
-            border: 1px solid rgba(255,255,255,0.55);
+            border: 1.5px solid #000;
             padding: 3px 7px 2px;
             border-radius: 3px;
             text-align: center;
+            color: #000;
         }
         .aw-sub {
             font-size: 6pt;
-            color: rgba(255,255,255,0.55);
+            color: #555;
+            font-weight: 600;
             text-align: center;
             margin-top: 2px;
             letter-spacing: 1px;
@@ -989,38 +1006,43 @@ function getLabelStyles() {
             text-align: right;
         }
 
-        /* ══ METRICS ══ */
+        /* ══ METRICS (الوزن / عدد القطع / رسوم الشحن) ══
+           دي كانت أكتر جزء متأثر — خلفية سودا + نص أبيض كان بيختفي
+           تمامًا على الطابعات الحرارية. دلوقتي نص أسود غامق وواضح،
+           وحدود سودا فوق وتحت بدل خلفية اللون. */
         .metrics {
             display: flex;
             justify-content: space-around;
             align-items: center;
-            padding: 7px 8px;
-            border-bottom: 1.5px solid #000;
-            background: #000;
+            padding: 8px 8px;
+            border-top: 2.5px solid #000;
+            border-bottom: 2.5px solid #000;
+            background: #f4f4f4;
             flex-shrink: 0;
         }
         .metric { text-align: center; flex: 1; }
         .m-val {
-            font-size: 10pt;
+            font-size: 11pt;
             font-weight: 900;
-            color: #fff;
+            color: #000;
             line-height: 1.1;
         }
         .m-u {
-            font-size: 7pt;
-            font-weight: 400;
-            color: rgba(255,255,255,0.75);
-            margin-right: 1px;
+            font-size: 7.5pt;
+            font-weight: 700;
+            color: #000;
+            margin-right: 2px;
         }
         .m-lbl {
-            font-size: 6pt;
-            color: rgba(255,255,255,0.6);
-            margin-top: 1px;
+            font-size: 6.5pt;
+            font-weight: 700;
+            color: #000;
+            margin-top: 2px;
         }
         .m-div {
-            width: 1px;
-            height: 30px;
-            background: rgba(255,255,255,0.25);
+            width: 1.5px;
+            height: 32px;
+            background: #000;
         }
 
         /* ══ ORDER STRIP ══ */
@@ -1035,6 +1057,7 @@ function getLabelStyles() {
         .ord-lbl {
             font-size: 6pt;
             color: #555;
+            font-weight: 600;
         }
         .ord-val {
             font-size: 6pt;
@@ -1059,9 +1082,9 @@ function getLabelStyles() {
         }
         .cod-top-label {
             font-size: 8.5pt;
-            color: #333;
+            color: #000;
             margin-bottom: 4px;
-            font-weight: 600;
+            font-weight: 700;
         }
         .cod-pill {
             border: 1.5px solid #000;
@@ -1126,23 +1149,29 @@ function getLabelStyles() {
             margin: 0 auto;
         }
 
-        /* ══ FOOTER ══ */
+        /* ══ FOOTER (تحذير "مسموح فتح الشحنة" كان هنا وبيختفي) ══
+           نفس السبب بالظبط — خلفية سودا اتشالت وقت الطباعة الحرارية
+           والنص الأبيض فوقها اختفى معاها. دلوقتي نص أسود غامق وحد
+           فاصل سميك بدل الخلفية. */
         .footer {
-            background: #000;
-            color: #fff;
+            background: #f4f4f4;
+            color: #000;
             text-align: center;
-            padding: 6px 8px;
+            padding: 7px 8px;
             flex-shrink: 0;
+            border-top: 3px solid #000;
         }
         .footer-main {
-            font-size: 8pt;
-            font-weight: 700;
+            font-size: 8.5pt;
+            font-weight: 800;
             letter-spacing: 0.3px;
+            color: #000;
         }
         .footer-sub {
-            font-size: 6.5pt;
-            color: rgba(255,255,255,0.65);
-            margin-top: 2px;
+            font-size: 7pt;
+            font-weight: 700;
+            color: #000;
+            margin-top: 3px;
         }
 
         /* ══ PRINT ONLY ══ */

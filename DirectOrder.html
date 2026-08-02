@@ -652,19 +652,24 @@ async function confirmOrder() {
   const governorate = document.getElementById("governorate").value;
   const user = getCurrentUser();
 
-  const emailSummary = cart.map(item => (item.category||item.link||'Item')+' x'+item.qty+' — '+item.finalEGP.toLocaleString()+' EGP').join('\n');
+  // 🔖 بنولّد أرقام الطلبات الأول عشان نقدر نبني ملخص الإيميل بيها —
+  // رقم الطلب نفسه بيبقى هو الرابط (اللينك مختفي وراه)، بدل ما نعرض
+  // رابط المنتج الطويل كامل في الإيميل
+  const cartWithOrders = cart.map(item => ({ item, orderNo: generateOrder() }));
+  const emailSummary = cartWithOrders.map(({item,orderNo}) =>
+    [orderNo, item.link||'', item.category||'Item', item.qty, item.finalEGP].join('::')
+  ).join('\n');
   const cartTotal = tsDirectCartTotal();
   const orders = [];
 
   try {
-    const results = await Promise.all(cart.map((item, idx) => {
-      const o = generateOrder();
-      orders.push({ orderNo: o, item });
+    const results = await Promise.all(cartWithOrders.map(({item,orderNo}, idx) => {
+      orders.push({ orderNo, item });
       const dimensions = "Size: " + (item.size||'-') + " | Color: " + (item.color||'-') + " | Notes: " + (item.notes||'-');
       return fetch(ORDER_SCRIPT_URL, {
         method: "POST",
         body: JSON.stringify({
-          order: o, customerName: name, phone, email, country, address, governorate,
+          order: orderNo, customerName: name, phone, email, country, address, governorate,
           link: item.link, quantity: item.qty, usd: item.usdTotal, weight: item.weight,
           dimensions, category: item.category, finalPrice: item.finalEGP, user,
           suppressEmail: idx > 0,

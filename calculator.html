@@ -51,6 +51,7 @@ input:read-only{background:var(--gold-wash);color:var(--gold-deep);font-weight:7
       <a href="mart.html" data-i18n="nav_mart">Try Shoppy Mart</a>
     </nav>
     <div class="nav-actions">
+      <button class="btn btn-ghost cart-btn" id="calcCartBtn" onclick="openCartFromAnywhere()" aria-label="Cart">🛒<span class="cart-badge hidden" id="calcCartBadge">0</span></button>
       <button class="lang-pill">🌐 العربية</button>
       <span data-auth-slot="pill"></span>
       <button class="burger btn btn-ghost" aria-label="Menu">☰</button>
@@ -265,7 +266,7 @@ function showStep(step){
 (function(){const s=tsGetSession();if(s){if(s.name)document.getElementById('customerName').value=s.name;if(s.phone)document.getElementById('phone').value=s.phone;if(s.email)document.getElementById('customerEmail').value=s.email;if(s.address)document.getElementById('address').value=s.address;if(s.governorate){const g=document.getElementById('governorate');for(const o of g.options)if(o.value===s.governorate)o.selected=true;}}})();
 
 /* لو فيه عناصر متسيبة في السلة من زيارة سابقة (قفل المتصفح قبل ما يكمل)، نورّيها على طول */
-(function(){ if(tsGetCalcCart().length){ renderCart(); showStep('cart'); } })();
+(function(){ renderCalcCartBadge(); if(tsGetCalcCart().length){ renderCart(); showStep('cart'); } })();
 
 function generateOrder(){return'TRY-'+Math.floor(100000+Math.random()*900000);}
 function checkCountry(){const v=document.getElementById('country').value;document.getElementById('countryMsg').classList.toggle('hidden',v!=='OTHER');}
@@ -417,7 +418,22 @@ function addCurrentToCart(){
   showStep('cart');
 }
 
+function renderCalcCartBadge(){
+  const count = tsGetCalcCart().length;
+  const badge = document.getElementById('calcCartBadge');
+  if(!badge) return;
+  badge.textContent = count;
+  badge.classList.toggle('hidden', count === 0);
+}
+
+function openCartFromAnywhere(){
+  if(!tsGetCalcCart().length){ tsToast(tsT('calc_alert_cart_empty')); return; }
+  renderCart();
+  showStep('cart');
+}
+
 function renderCart(){
+  renderCalcCartBadge();
   const cart=tsGetCalcCart();
   const list=document.getElementById('cartItemsList');
   list.innerHTML = cart.map(item=>{
@@ -469,8 +485,13 @@ async function confirmOrder(){
   const address=document.getElementById('address').value;
   const governorate=document.getElementById('governorate').value;
 
-  // ملخص كل المنتجات لإيميل واحد مُجمّع (زي المارت بالظبط)
-  const emailSummary=cart.map(item=>(item.category||item.link||'Item')+' x'+item.qty+' — '+item.finalPrice.toLocaleString()+' EGP').join('\n');
+  // 🔖 بنولّد أرقام الطلبات الأول عشان نقدر نبني ملخص الإيميل بيها —
+  // رقم الطلب نفسه بيبقى هو الرابط (اللينك مختفي وراه)، بدل ما نعرض
+  // رابط المنتج الطويل كامل في الإيميل زي ما كان بيحصل قبل كده
+  const cartWithOrders = cart.map(item => ({ item, orderNo: generateOrder() }));
+  const emailSummary = cartWithOrders.map(({item,orderNo}) =>
+    [orderNo, item.link||'', item.category||'Item', item.qty, item.finalPrice].join('::')
+  ).join('\n');
   const cartTotal=tsCalcCartTotal();
   const orders=[];
 
@@ -478,12 +499,11 @@ async function confirmOrder(){
     // ⚠️ بننتظر نتيجة كل المنتجات فعليًا قبل ما نعتبر العملية نجحت —
     // نفس المبدأ اللي طبقناه في mart.html، عشان محدش يفتكر إن طلبه
     // اتسجل وهو فعليًا فشل يتسجل لأي سبب شبكة
-    const results = await Promise.all(cart.map((item, idx)=>{
-      const o=generateOrder();
-      orders.push({orderNo:o, item});
+    const results = await Promise.all(cartWithOrders.map(({item,orderNo}, idx)=>{
+      orders.push({orderNo, item});
       const dimensions='Size: '+(item.size||'-')+' | Color: '+(item.color||'-')+' | Notes: '+(item.notes||'-');
       return tsSubmitOrderRow({
-        order:o, customerName:name, phone, email, country, address, governorate,
+        order:orderNo, customerName:name, phone, email, country, address, governorate,
         link:item.link, quantity:item.qty, usd:(item.usd*item.qty), weight:item.weightGrams,
         dimensions, category:item.category, finalPrice:item.finalPrice,
         suppressEmail: idx>0,                         // إيميل واحد بس للطلب كله
@@ -496,6 +516,7 @@ async function confirmOrder(){
     lastOrders=orders;
     document.getElementById('successOrderNos').textContent = orders.map(o=>o.orderNo).join(' · ');
     tsClearCalcCart();
+    renderCalcCartBadge();
     tsClearBtnLoading(btn);
     showStep('success');
   }catch(err){
@@ -506,12 +527,34 @@ async function confirmOrder(){
 }
 
 function sendWhatsApp(){
-  const lines = lastOrders.map(o => o.orderNo+' — '+(o.item.category||o.item.link||'')+' x'+o.item.qty+' — '+o.item.finalPrice.toLocaleString()+' EGP').join('\n');
-  const msg='TRY SHOPPY Orders\n'+lines+
-    '\n\nName: '+document.getElementById('customerName').value+
-    '\nPhone: '+document.getElementById('phone').value+
-    '\nGov: '+document.getElementById('governorate').value+
-    '\nAddress: '+document.getElementById('address').value;
+  const name=document.getElementById('customerName').value;
+  const phone=document.getElementById('phone').value;
+  const gov=document.getElementById('governorate').value;
+  const addr=document.getElementById('address').value;
+  const total=lastOrders.reduce((s,o)=>s+o.item.finalPrice,0);
+
+  const itemsLines = lastOrders.map(o=>{
+    const item=o.item;
+    const specs=[];
+    if(item.size) specs.push('Size: '+item.size);
+    if(item.color) specs.push('Color: '+item.color);
+    if(item.notes) specs.push('Notes: '+item.notes);
+    const specsLine = specs.length ? ' ('+specs.join(' | ')+')' : '';
+    const productLine = item.link ? item.link : (item.category||'');
+    return '🔖 '+o.orderNo+'\n🔗 '+productLine+'\n📦 Qty: '+item.qty+specsLine+'\n💰 '+item.finalPrice.toLocaleString()+' EGP';
+  }).join('\n\n');
+
+  const msg =
+    'مرحبًا Try Shoppy 👋\n'+
+    'عايز أأكد الطلب ده:\n\n'+
+    itemsLines+'\n\n'+
+    '💰 الإجمالي: '+total.toLocaleString()+' جنيه\n\n'+
+    '👤 الاسم: '+name+'\n'+
+    '📞 الموبايل: '+phone+'\n'+
+    '📍 المحافظة: '+gov+'\n'+
+    '🏠 العنوان: '+addr+'\n\n'+
+    'مستني تأكيدكم 🙏';
+
   window.open('https://wa.me/'+TS_CONFIG.SUPPORT_PHONE+'?text='+encodeURIComponent(msg));
 }
 </script>
