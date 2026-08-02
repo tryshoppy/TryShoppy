@@ -1,1 +1,472 @@
-const a0_0xcb6814=a0_0x4bb1;(function(_0x427958,_0x4a5837){const _0x4bd368=a0_0x4bb1,_0xba1a05=_0x427958();while(!![]){try{const _0x4e32df=-parseInt(_0x4bd368(0x2eb))/0x1+-parseInt(_0x4bd368(0x168))/0x2+-parseInt(_0x4bd368(0x370))/0x3+parseInt(_0x4bd368(0x2f0))/0x4*(parseInt(_0x4bd368(0x25f))/0x5)+parseInt(_0x4bd368(0x18c))/0x6*(-parseInt(_0x4bd368(0x17d))/0x7)+-parseInt(_0x4bd368(0x337))/0x8+-parseInt(_0x4bd368(0x20d))/0x9*(-parseInt(_0x4bd368(0x28e))/0xa);if(_0x4e32df===_0x4a5837)break;else _0xba1a05['push'](_0xba1a05['shift']());}catch(_0x4f74b6){_0xba1a05['push'](_0xba1a05['shift']());}}}(a0_0x5b63,0xd7603));function a0_0x5b63(){const _0x445530=['vhjHy2TLzcbMCM9TignOzwnRB3v0ihrVihLVDxiGzg9VCG','2yxzHTIQ2kW','2kxyQTMf2kFzHsdyP9Me2lFzHnIO','ww91CIbhBg9IywWGu2HVChbPBMCGugfYDg5LCG','u2HHBxbVBYbVCIbdB25KAxrPB25LCG','re9nq29UDgvUDeXVywrLza','t25LigXVy2fSignVBNrHy3qSigLUC3rLywqGB2yGzML2zsbMB3jLAwDUig9Uzxm','t3jKzxjPBMCGzNjVBsbZzxzLCMfSihnPDgvZpYbxzsbJB25ZB2XPzgf0zsbPDcbMB3iGEw91lG','vxnLihrOzsbMDwXSignHBgn1Bgf0B3iGDg8GChjPy2uGyw5KignVBMzPCM0GEw91CIbUzxH0ig9YzgvYlG','sw1Hz2uGvvjm','2k3yTDMeinIU2lFyO9IminMf2yyG2yhyTTMe2ymG2k3yP9Mi2yqG2kRyP9Mg2yOU','2kRySDIN2yOG2ltzInIO2yOG2yxyP9IX2kO','2kxySDIZ2kFzHcdzInIN2kRyS9IN2kGG2ytzHnIQ2kpzG9Mk2k8','2ytzHnIN2lpyQTIU2k/yP9MfinIN2ytyR9IN2k7zHnMkinMb2ylyTYdIGjqG2kRzGTIV2yRySsdyS9I52leG2kJyR9Mi2yyG2kxzHTI02kFyOsdyT9Me2kGU','qxn5Dxq','rM9Yihn0ywzMihvZzsdIGjqGzxn0Aw1HDgvZig9UBhKSig5Vig9YzgvYigLZignYzwf0zwqU','2lhzGTMfinIN2ytzHDMi2kJyP9Mk2yqG2yJyP9Me2kxzITMf2yRzHcdzInIN2lpzHsdyP9Me2yxyS9IQ2k7yR9MfinMi2ypzHnMf2kKG2kFzHnMf2lhzInIXinMd2ytzH9MfinMf2lFzHnMi2kJzITMglG','u21HBgWGsgfUzcbcywCGkfDVBwvUkq','uMvZzxqGEw91CIbWyxnZD29Yza','v2uGC2vUDcbHidyTzgLNAxqGy29Kzsb0BYb5B3vYigvTywLSlIbfBNrLCIbPDcb0BYbJB25MAxjTihLVDxiGywnJB3vUDc4','ww91CIbJyxj0igLZigvTChr5lG','2lpyRnMeinIN2ytyQTIT2k/zITIR2kFyQG','2kRzHsdyQTIJ2ypzITIVinIN2ytyPDMk2yxzITMeinIO2yByRnIN2k0H','2kFzHnMd2yxzITIPinIO2kFzHnMf2k7ySTMg','rMXLEgLIBguGCgf5BwvUDcWGywXSigLUievNExb0','2kJzITIN2yByP9IQinIN2ytyTnIT2yy','rw1HAwWGkg9WDgLVBMfSiokaLcbMB3iGB3jKzxiGy29UzMLYBwf0Aw9Ukq','2yByTnIQ2lhzIIdzHTMk2kFyQnIPinI52yBzGYdIGjqG2kRyR9Mb2lKG2ytzHTINinMb2yOG2yxyTDIXinIO2kFzHnI32lhzITMc2kKG2kFzHnMe2yOG2kRzHTIN2lpyQnMdlG','ww91ignHBIbZzwfYy2GGyNKGB3jKzxiGBNvTyMvYicHLlMCUifrswteYmYbVCIbuuLKTmtiZkq','q2fSy3vSyxrLie15ifbYAwnL','z2v0sxrLBq','2kpySDIO2lKG2k7yT9Mi2kFyQG','vxnLCM5HBwu','2ypzHnMf2kRyPYdyP9Me2yxySDMi2leG2lRzITIXinMf2kRyT9IN2kJzGTIQ2yRzHI4','q29SB3i','2kpyR9IU2yqG2kFzHnMd2yJyRYdyP9Me2yxzG9Mi2zhzHIdzHDMgidyG2kpySDMc2kFzHq','2kRyS9IS2yRzHcdyP9Me2k7ySDMi2kW','rw50zxiGnI1KAwDPDcbJB2rL','sgvSBg8','q2fSy3vSyxrLzcbIyxnLzcbVBIbHy3r1ywWGD2vPz2H0','2kFzHnMd2yq','q09tvcbdquXdvuXbveve','swyGAxqGC2HPChmGAw5ZAwrLihrOzsbvuYWGD2uGy2fUigjYAw5NigL0ihrVievNExb0lG','t3jKzxiGtM8U','2kFzHnIL2yRzHDMk2yqGknIN2k7yQTMk2kFySDMkiokaLcdzHnIN2lpyQTMe2kFzHsdyQTIJ2ypzITIVinIN2ytyT9Me2kGP','2kxzHnI62kFyOq','2kFyS9IQ2lNyP9IV2kKG2ypzHnMf2kKG2kFzHnMf2lhzInIX','2kRyQTIO2lKG2lFzHnIO2ym','2kFyRDIZ2kGG2kFzHnIZ2lNySsdyP9Me2yBzH9IN2kBzIG','2kFzHnI52yBzInIN2yyG2kJyP9Me2kRzGDI12yRzHa','2ypzGDIXinIN2ytyTnMk2k4','vhjHy2SGtM93','2yxyQTMi2yhySsdzGDMkinMf2lxySq','oxfHzM96uq','2kpyUTIW2yRyQq','tg9Nig91Da','t2XKifbYAwnLicHfr1aP','2kRyQTIO2lKG2ltyRDMg2kRzGW','qsa2lwrPz2L0ignVzguGD2fZihnLBNqGDg8GEw91CIbYzwDPC3rLCMvKigvTywLSlG','rwXLy3rYB25Py3m','q2fUy2vS','v2uNBgWGy29UzMLYBsbIEsbxAgf0C0fWCcbYAwDODcbHzNrLCI4','z2v0qxr0CMLIDxrL','2kFzHnIQ2ypzHnMb2kKG2yxyRDIZ2yJyQnIP','tM8GB3jKzxjZihLLDcdIGjqGEw91CIbMAxjZDcbVBMuGAxmGB25LigXPBMSGyxDHEs4','Aw5Uzxjive1m','tg9NieLU','2kFzHnI62lhyQnMk2kK','rgvSzxrL','2kxySDIZ2kFzHcdzG9Mi2k8G2kFzHnIN2lpyQTI52kFyR9IP','2lhyRnIN2keG2kxyR9IU2kFzHcdzInIY2yyG2kFzHnI52kJzInIPiokaLcdzHDMe2k3zInI42kK6ideG2yxzHnMe2yOGpsaXinIS2lhyP9MfinIQ2ylySDMk2kJzI9IN','vMvYAwz5','2ypzHnMf2kKG2kFzHnMf2lhzInIXinMe2kFySTMfinIQ2ypzInMgidyG2kpyRDIX2yeG2lNzHnMjinIN2ytyO9Mc2yqU','qwXLEgfUzhjPyq','2kJySDIS2kFyOsdyPDIV2k7yP9MeinIN2ytyP9IZ2yu','twLUEwe','tKvx','tMv3ifbHC3n3B3jK','uMvZDhjPy3rLzcbjDgvTCW','2lhzGTMfinIN2ytyT9Me2kGG2lRzITIXinI12k3zITIT','2kRzHDIQinIN2ytyPDI22kFzGDIPinMe2ytyS9Me2kKG4PYt','txKGqwnJB3vUDa','4P6vinIJ2lBzGsdzHDMg2kRyRcdyQTIN2yBzIG','nI1KAwDPDcbJB2rL','2kRzInIN2lxzHcdyUDMe2yKG2yJyP9IQ2lpyP9IO','u3rVy2SGuxvHBNrPDhK','2yxyS9IQ2k3yTTIX2kFyQIdyQTIS2yxzITMe','2yxyQTIJ2ypyRYdzHDMg2yC','zs5NlIa1mda','rw1HAwW','2k/zHDMk2kFyTW','t3bLBIb0AguGq2fSy3vSyxrVCG','2lNzHTIV2ymG2ytzITMg2ypyNYdzITMe2kCG2yByRDIZ2kGG2lpyUDIX2yCU','yMfZzwqGB24GCgLLy2uGy291BNq','ww91CIbKzxrHAwXZ','tM8GywnJB3vUDcbTyxrJAgvZihrOAxmGCgHVBMuVzw1HAwWVDxnLCM5HBwuU','2kFzHnI52yJyR9IPinMe2ytySDIM2yRyS9Mk2kK','4OAqinIX2kZzInI5inMe2ytyS9Me2kK','2kJzInIV2le','DhnFBgfUzW','2kxySDIZ2kFzHcdyQTIJ2ypzITIVinMi2kFyQTIZ2kFyQcaO2kFyRTIQ2yRyP9IX2yOP','v0Hzifrswsbtse9qufK','2lNzHIdyQTIX2kFzIIdyTnMi2kJzIG','4PYfienOzwnRB3v0','q2XVC2u','2kFzHnI02lhzGTMk2kK','2kxyRTMb2kFyOsdzG9Me2yxyQsdyP9Me2yxySDMi2le','u2vUzgLUzY4UlG','u2vUzcbszxnLDcbdB2rL','uhjVzhvJDcbKzwXLDgvKlG','Dg9tDhjPBMC','q3jLyxrLiefJy291BNq','WQKGmJaYnIbuCNKGu2HVChb5lIbbBgWGCMLNAhrZihjLC2vYDMvKlG','rgLTzw5ZAw9UCYbPBIbdtsaOB3b0Aw9UywWP','2kFzHnMf2k3yP9Mb2lJyQq','2kFzHnIO2k3ySsdyP9Me2kpyRDMf2le','2lFzHnIO2kFyQTMk','kcGOlISPkYKRksSK','u3rHDgLVBMfYEq','2kFzHnIZ2lNySsdyTnIN2yxzHcdyTnIT2yyG2kFzHnMf2yJzGTI5icGKksaQ','uefzifLpvviGv0fz','u29TzxrOAw5NihDLBNqGD3jVBMCUifbSzwfZzsb0CNKGywDHAw4U','vgHPCYbHy2nVDw50igHHCYbUBYbLBwfPBcbVBIbMAwXLlIbdB250ywn0ihvZig9UifDOyxrZqxbWihrVihjLC2v0ihLVDxiGCgfZC3DVCMqU','2yxzHnIN2kJySYdyUDIN2k/zITIP','2kxzHTIZ2kRyP9IO2kFzIG','ww91ignHBIbHBhnVignVBMzPCM0GB24Gv2HHDhnbChaGkg9WDgLVBMfSktO','vg90ywWGq29ZDcaOu2HPChbPBMCGjIbdDxn0B21ZigLUy2X1zgvKkq','q2fPCM8','2lFzHnIOinIS2k/zITIV','2k3zGTMk2kJyQsdyUnMh2leGlYdzHnIN2kJyQTMi2kG','2kFzHnMb2kByQsaQ','2kJyQTI32ytyQcdzHDMginIJ2ypyQTIXinMf2yyG2yxzInMc2lNyNYdzH9Mg2kZzHDI52yFzHsdzGDMkinI02k3zHTIPinMi2kFyRDIV2kKU','2kRzHsdyPDIX2lpyP9MeinMd2yJyRYdzHDMgidyG2kpySDMc2kFzHsdyUDMe2yKG2kFzHnIL2yRzHDMk2yqG2kFzHnMf2lpyRnMeinIO2k3yS9IN2kJzGY4','2kRzHsdyQTI62yRzITIXinMd2ytzHDIPinIN2ytzHDIX2yJySseG2kRzGTIV2leG2kRyS9IS2yqG2k/yRTMi2yqG2k/zHnMi2ylyQTMklG','uMv0DxjUCYaMifjLzNvUzhm','nw1RB3zlwa','2lpzInMh2kFyRa','vhjHy2SGww91CIbpCMrLCG','2kFzHnIN2lpzHsaO2lNySDIO2yOP','u2vSzwn0ignHDgvNB3j5lI4U','vgHPCYbVCMrLCIbOyxmGyMvLBIbJyw5JzwXLza','2kZyP9IX2yOG2kFzHnMf2lNyP9Me2kZyQs4UlG','tM90ihzLCMLMAwvK','2yByUnIN2lhyP9IQinI02yxyS9Mk2kK','2kFzHnIL2yRzHDMk2yq','2k/yRTMi2yqG2kFzHnIL2k/yP9IX2kK','uMvKifnLyq','ug9YDcbtywLK','2kFzHnIZ2ytyQsdzGDIN2lBzITIPiokaLcdyO9I22yeG2yxzHTIQ2kWG2yJyP9IT2k8G2lNzHnMjinIN2ytyO9Mc2yqG2kFzHnIJ2yJzHa','2kFzHnIN2lpzHsdyQnIN2ytzG9IN2yxzHa','2kZyP9IX2yOG2kFzHnIO2k3yQY4UlG','ugLLy2uGq291BNq','q2fZAcbVBIbezwXPDMvYEsb1Ccb0BYaXmcWWmdaGruDqlcbUBYbLEhrYysbJAgfYz2uG4PYtihWGrMLUywWGy29UzMLYBwf0Aw9UigfMDgvYihjLDMLLDW','2yxyQTIN2kJyUDIPinMf2yyG2ytyRDI42kKG2kFzHnI02lhyP9IHinMe2kJyP9IOinIN2ytyQnMk2kO','2yhzITIQ2kFzHDMk2yByP9IQinMi2yxzG9Mf2ytyP9IQ','2lNyR9IVinIN2ytyRDIO2kFyQG','sxrLBsWGC2HPChbPBMCGyw5Kign1C3rVBxmGy29TyMLUzwqGAw50BYbVBMuGy2XLyxiGruDqihbYAwnLlG','2lNzHTIV2ymG2k3yS9IN2kJyNYdyS9IS2zhzHcdyR9IU2yJzHnMd','tg9NigLUihrVihrYywnRigv2zxj5ig9YzgvYigLUig9UzsbWBgfJzs4','2kxzG9IZ2lpzInIN2lhyP9IQ','2lhzGTMfinIN2ytzHDMi2kJyP9Mk2yqV2kFzHnIL2yRzHDMk2yqG2kpzIcdzG9Me2yxyQsdyP9Me2yxySDMi2leG2lRzITIXinI12k3zITIT2kKU','2ylyT9I52kK','2ltySDIN2keG2yJyTnIT2yyG2yxzHIdyO9Mf2lhzITMd2kCG2ytzHDI12le','sgLKzsbWyxnZD29Yza','2kFzHnMi2llzHIdyP9IQ2k3yR9IVinIQ2ytzGTIN2kBzITMl2kC','2kFzHnIN2lpzHsaO2kxzHTIS2ytzITIY2yOP','2ytzITMhinIQ2lhyP9MkinI02yJyQnMk','2lhzInIN2kJyTYdyS9IX2yRyUDIP','2lNySDI2icHxkq','q2HHDcb3AxrOihvZig9UifDOyxrZqxbW','ugXLyxnLihnHDMuGEw91CIbLBwfPBcbMAxjZDcWGDgHLBIb2zxjPzNKGAxqU','2ytzIcdyQnMk2kRyTnIT2yyG2kZzInMhinIJ2yxySDMk2ypyP9IminMg2ylyR9IXinMg2yJyTDMe2yFzInMe2ymG2yxyTDIXlG','rgLZy291BNrLzcWGB3v0Bgv0igfUzcbSAwDODgX5lxjLDhvYBMvKigL0zw1ZigfSCMvHzhKGy2XLyxjLzcbHBMqGAw4GC3rVy2SG4Ocuig5Vign1C3rVBxmGD2fPDcWGC2HPChmGAw4Gzgf5CY4','CNrS','qNvPBgrPBMCGBNvTyMvYlcbZDhjLzxqGBMfTzsWGyxbHCNrTzw50lI4U','4P6vinIJ2lBzGsdzHnMe2lpzHnIP','qMfUAYbuCMfUC2zLCG','2k3ySnMbinMh2ldyPYdyP9Me2yxzHTIQ2kZyNYdzHnINinMk2yxzG9MginIN2ytyQTIX2kFyRnI5lG','txKGt3jKzxjZ','2kFzHnMf2yBzInMb2yRyQq','uwfSExvIAwe','2kFzHnIZ2yJzITIZ','mZCZntK3mZbUCuDIv3i','qwrKzwqGDg8Gy2fYDcdINjm','vhj5ifnOB3bWEsbnyxj0','rgfTAwv0Dge','vgvYBxmGjIbdB25KAxrPB25Z','2kpyRDIW2yRyQsdyQnMi2kO','2yxyQTIO2ylzIIdyQnIN2ytzHDIU2llzHG','2kZyP9IX2yOG2kRyRDMf2yRzHcdyP9Me2yxzHTIQ2kZyP9IQ4OcM','2kFzHnIJ2ylyTDIX','2k3zGTMk2kJyQsdzITIVinI12lRzITIX2kK','2k/zGDI5inI52yByRYdyP9Me2kFyS9IQ2ytyP9Mf','uhjVzhvJDcbuExbL','q29ZBwv0AwnZ','ugXHy2uGt3jKzxi','r2v0igeGuhjPy2u','su5urvjoquWGve9pta','ChjVzhvJDhm','2yxzHIdzGDI22ytzGYdyO9I22yeG2kxzITMf2yRzHnMdinMb2yJzGIdyP9Me2kpzInMelG','u2f2zwqU','rwrPDa','vMLZAwjSzsbPBIbnyxj0','2kRyO9Md2yRyRYdyP9Me2ypzInIV','vgHLignVzguGAxmGAw5JB3jYzwn0ig9Yigv4CgLYzwqUifjLCxvLC3qGysbUzxCGB25LlG','2kFzHnI02lhzInI3inMi2kFzHnIJ2k3zG9IN2yu','ywrKrxzLBNrmAxn0zw5LCG','2lNzHTIV2ymG2kFyS9IQ2yhyS9IN2leG2lNzHIdyT9Me2kJzG9IF','2kFyS9MfinIN2ytzHDIZ2kRyRTIV2yu','q2fSy3vSyxrLicyGq29UzMLYBsbpCMrLCG','2yRzInIS2k8G2k3yS9IN2kGG2yxyS9IS2yqG2kJzH9IW2kCG2kFzHnIX2ylzHsdyO9MiinIN2ytyPDMk2yxzITMeinIJ2yGG2kFzHnIN2lpzHs4','2yxzHIdzGDI22ytzGYdyP9IT2yhyUcdyPDMk2yxzITMe2ymG2kFzHnIJ2yJzHnIminMi2kJyUDIV2yRzHIdyO9Md2zhyR9MhlG','8j+mKcbfBMDSAxnO','v2uGy2fSy3vSyxrLigv2zxj5DgHPBMC','qwnJB3vUDcbJCMvHDgvKisbmB2DNAw5NihLVDsbPBUkaPG','2k3zGTMk2kJyQsdzITIVinMd2kJzITIX2kK','AxrLBxm','q2f0zwDVCNKGkG','CgnZ','tvKGqundt1vova','yMLUza','2kFzHnIL2kZzHDIN2ytzIG','ww91CIbdyxj0','2kRyUDIV2yRzHcdzHDMg2kRyRa','qwXS','q29UzMLYBsaMienYzwf0zsbby2nVDw50','q29UzMLYBsbpCMrLCIboB3C','2kRyUDIV2yRzHa','q291BNrYEq','twfYDcbbzg1PBG','t3rOzxiGtM90zxm','sw5JB3jYzwn0ihbOB25Ll2vTywLSig9YihbHC3n3B3jKlG','2ytyS9MhinIS2k/zITIV2j8G2kFyUDMf2yqG2k3yS9IN2kG','2kFzHnIV2lNzHq','u2HPChbPBMCGrgv0ywLSCW','q29UDgfJDcb1CYbVBIbxAgf0C0fWCcdWN5kS','sw5ZDgfqyxK','zg9JDw1LBNrfBgvTzw50','2kxyRnMf2kFzHnMkinIN2ytyQTMd2ytzGDIPinI02kFzHDMe2kKG2kFzHnI02k3zHIdzInIN2ytyRnMf2kFySDMd','CgXHy2vOB2XKzxi','2kJyUDIQ2yByP9Me2ymG2ypzInIVinMf2yyGnIdyO9IX2ylyP9MfinI52ytzIsdyPDMk2yxzITMe2ymUinIN2ypyQTIO2yCG2yFzHTINinMe2kRyO9Md2yRyRYdyRDIZ2kFyQnMdlG','ugXLyxnLigvUDgvYifbYAwnLlcbdyxrLz29YEsaMifDLAwDODa','2kFzHnIZ2lNySsdyP9Me2yBzH9IN2kBzIIdzGTIO2yqG2yxyPYdyQTMi2kFzGDMc','2k/yRTMi2yq','ugXLyxnLigvUDgvYihrOzsbLEgfJDcb3zwLNAhqGAw4Gz3jHBxm','rM9SBg93ihvZig9UiezHy2vIB29R','uxr5','2lpyRnMr2yqG2k/yRTMi2ytzGYdzHnIQ2kRyP9IO2lKG2ypzHcdyT9Me2kJyP9IQ2ymG2yhzIIdzHDMd2kFzHIdzInIN2k3yRY4','2kZyP9IX2yOG2kFzHnIQ2kpzG9Mk2k8UlI4','qwjVDxq','2kxyR9IN2lhyQsdyP9Me2yxyP9IX2kO','2lpzHnIPinI32ytyQnIN2kRzGW','2kRyO9Md2yRyRYdzG9Me2yxyQsdyP9Me2yxySDMi2le','2kpzHDIX2yRzG9INipcFH7RWN4E4','ugfZC3DVCMqGBxvZDcbIzsbHDcbSzwfZDca2ignOyxjHy3rLCNmU','2k3ySnMb','2lhzGTMfinIN2ytzHDMi2kJyP9Mk2yqG2kpzIcdyP9Me2kxzITMf2yRzHa','q2HHBMDLigvTywLS','ww91CIbVDgHLCIbPBI1WCM9NCMvZCYbVCMrLCNm','BgfUzW','2yFzHTIJ2ypyRYdzHDI52ymG2lNzHnMjinMi2kFyQTIZ2kFyQcdzGDMi2lhzI9INlG','vhjHy2SGww91CIbpCMrLCIbtDgf0Dxm','q2fSy3vSyxrLifbYAwnL','txvSDgLWBguGC3rVCMvZlcbVBMuGC2HPCg1LBNq','2kFzHnMb2kByQq','2kRzHDIQinIN2ytyPDI22kFzGDIPinMe2ytyS9Me2kK','tgvNywW','tM9YDgGGu2LUywK','2lpzHnIQ2ymG2yhyP9I22yRyQs4','ww91CIbJyxj0igLZigvTChr5iokaLcbHzgqGyxqGBgvHC3qGB25LigL0zw0GzMLYC3q','2k3yTYdzHnMk2yBzGYdyP9Me2yxzHTIQ2kWG2yJyP9Me2ypzHDMk2kKG2yJyP9Me2yxzGTIN2lmG2kpzIcdyP9Me2ytzInMginMb2yOG2kFzHnIT2kFyS9IO2kKU','vMvYAwzPzwq','qMvOzwLYyq','q2fUy2vSBgf0Aw9UifbVBgLJEq','2yByTnIQ2lhzIIdzHnMdinMf2yy','mta4mtq3ngzrvvPWDW','t3jKzxiGtNvTyMvY','qwXSig9YzgvYCYbSAw5RzwqGDg8GEw91CIbWAg9UzsbUDw1IzxiU','2lpzHnIQ2ym','tgfZDcb1CgrHDgvK','mtK1mJi3nLjytgj0qG','ug93zgvY','v2vSy29Tzsb0BYbuCNKGu2HVChb5','2k3zGDI4inIN2ytyQTI62yRzITIX2kFyQG','sgf2zsbHihf1zxn0Aw9UigfIB3v0ihLVDxiGB3jKzxi/','rw1HAwWGkg9WDgLVBMfSkq','r2HHCMjPyq','2yxzHIdzGDI22ytzGYdyP9Md2yxzHcdzG9MeinIN2ytyRDMc2yJzHcdyP9Me2yxyT9Me2yJyQnIPlG','vhjHy2SGt3jKzxi','BhrY','2ypyQnIZ2yJzHnIN2kO','2kFyRTIQ2leG2kFzHnMf2k3yP9Mb2lJyQs4UlG','2kJyP9MkinIO2kFzHa','2kRyO9Md2yRyRYdzG9Me2yxyQsdyP9Me2yxySDMi2leG2kFzHnIS2k/zITIV2kK','2lFzInMeicHmkq','2kRzHsdyP9Me2k3zGDI4lG','2k7yTDMi2yxyP9IQ','s2fMCIbfBcbtAgvPA2G','2kZzH9IPinMi2kFyRDIV2kKG2kRyQTI52kFzHDMeinMf2lNzH9IN2iWG2kJyR9MeinIU2yxySYdyRnMh2kFyQIdyO9IS2yByQnMk2kK','2lRzITIXinMf2kRyO9Md2k8G2yxzHTMh','2kFzHnMd2yJyRYdyUTMk2leG2lxyRDMk2k0G2kpzIcdzHDMg2kRzH9MkinIN2ytyTDMe2kFyRDMk2kKUinIT2kFzInMeinMf2lhyQsdyO9IU2lhzIs4','2lJyP9Mh2leG2yhzIIdyP9Me2yxyP9IX2kO','t3jKzxjZienVBMzPCM1Lzce','vg90ywW','q2HLy2TPBMCUlI4','rgv0ywLSzwqGqwrKCMvZCW','ugfZC3DVCMqGy2HHBMDLzceGww91ignHBIbSB2CGAw4GBM93lG','2kRyQTIO2lKG2k3yP9Me2kKG2lFzHnIO2ym','uhjVzMLSzq','2lpyRnMeinIN2ytyT9Me2kJyP9IQ','rNvSBcboyw1L','tMv3ie9YzgvY','vML0yw1PBIbVCIbtDxbWBgvTzw50CW','rxHWzwn0zwqGqxjYAxzHBa','2kZyP9IX2yOG2kFzHnIQ2k3zHDMk2yqUlI4','u3vWCg9YDa','2kpzInIQinMe2yRyQG','v2vPz2H0igf1Dg8TC2v0','2yhzITIY2kCG2yJzHDIN2lpyQTIX2ypyP9IX2k8','CxvLCNLtzwXLy3rVCKfSBa','2yxzInI52k8G2kFzHnMi2lxzInMeinIN2ytzHDIQ2yJzGTI5','u2L6zq','2kpyR9Mi2kFyQIdzHDMd2kRyQnMk2kK','2kxySTIN2yOG2kJzHTI02kRyUTMe','2kFzHnMd2yxzITIP','tMv3ifzHBgXLEq','ruDq','2ltyP9Mf2kJzIcdzInIO2ytyS9Mf','2kRyQTIO2lKG2lFzHnIO','2ytyQnIN2kGG2kFzHnIO2yRyQG','zgf0ys1PmtHUlxbO','tg9HzgLUzYbWCM9KDwn0C+kaPG','qwXYzwfKEsbOyxzLigfUigfJy291BNq/ieXVzYbPBG','2kFzHnMi2lxzGsaO2lNySDIO2yOPiokaLcdyP9IU2kRzITIN2lhzIG','uxvLC3rPB25ZigfIB3v0ihrOAxmGCg9SAwn5pW','8j+mKcdyP9Me2lNySDIO2yRyQq','uxvHBNrPDhK','2kRzHsdyPDIX2lpyP9MeinMd2yJyRYdzHDMd2yJzKDMginMf2yyGnIdyO9IX2ylyP9MfinMe2kxzITMf2yRzHnMdlG','uMvTB3zL','2kZzHDMk2li','r290igeGBgLUAZ8Gtgv0j3mGChjPy2uGAxqU','2kFyQnI52kOG2kFzHnMe2yRzHTMdlJXICJ7zInIN2k3zHTINinMg2yJyTDMr2ytzHYdzHnIO2kFyQcdyP9Me2kJzITIQlG','2yxyRTMb2yO','2kRyUDIW2zhySsdyQTIT2yxzITMeinIN2ytzHDMg2kRyRnIN2kOUinIQ2k3zGTMcinMf2yyG2kFzHnIN2kRyTDIN2yqG2yJyRDIV2zhyQYdyP9Me2lxzGDIT2kKU','v0uGu0HpucbguK9n','sxnTywLSAwe','2kxzHTI02kFyOsdyP9Me2k3yS9IN2kG','q29UzMLYBsbozxCGugfZC3DVCMq','2k/zInMe2kKG2kFzHnI02lhyP9IH','2kpyR9IN2kKG2k/yP9IU2ytzITIP','q29TCgXLDguGEw91CIbVCMrLCG','nZC2nZyWzvrrB1vI','WQKGmJaYnIdyQTIX2kFzIIdyTnMi2kJzII4G2kZzHDMk2lKG2kFzHnIT2ylzInMcinMf2k3zGDMi2lJyQs4','2kRzGTIX2yRyQnIN2ySG2kpzIIdzHDIQ2kZySsdyO9Mf2lhzITMd2yO','ugXLyxnLigvUDgvYigfUig9YzgvYig51BwjLCG','2lpyP9I52kFyQG','q3jLyxrLie15iefJy291BNq','2kRzHsdyRDMb2lGG2kFzHnMf2yByQTISlG','v2uGChvYy2HHC2uGAxqGywjYB2fKlcbICMLUzYbPDcb0BYbfz3LWDcWGyw5KigHHBMqGAxqGDg8GEw91iokaLcb0CMfJA2vKihrOzsb3Ag9Szsb3yxKU','ugfZC3DVCMq','ww91CIbVCMrLCIb3yxmGCgXHy2vKihn1y2nLC3nMDwXSEseGqsbJB25MAxjTyxrPB24Gzw1HAwWGD2LSBcbIzsbZzw50ihrVihLVDs4Gu2vUzgLUzYbHifDOyxrZqxbWig1LC3nHz2uGAxmGB3b0Aw9UywWU','ugfZDguGDgHLihbYB2r1y3qGBgLUAYWGCxvHBNrPDhKSihnPEMuGB3iGy29SB3iGAw50BYbVDxiGy2fSy3vSyxrVCI4','2kFzHnIN2lpzHsdzInIN2ytyS9I52leG2yxyT9Me2yJyQnIN2yyU','2k/zInMeinIJ2k7ySDMj','2kFyRDIZ2kGG2kFzHnIZ2lNySq','sxrLBsbWCMLJzsWGvvmGC2HPChbPBMCSig91CIbZAgLWCgLUzYWGyw5Kign1C3rVBxmG4Ocuig9UzsbMAw5HBcbfr1aGBNvTyMvYlG','qwrKlcbLzgL0igfUzcbTyw5Hz2uGvhj5ifnOB3bWEsbnyxj0ihbYB2r1y3rZlG','Aw5KzxHpzG','2lpyUDIXinIN2ytzHDMg2kRyRcaRinIN2ytyTnIT2yyG2kFzHnIV2kFyRTMe2yOGkYdyTnIT2yBzHTINicSG2kFzHnIS2yxyP9IX2ymGpsdySDMc2yuG2yJyP9IT2k8G2yBzH9IN2kBzIIdyQnIN2ytyRnMg2yRzHY4','2kFyRDIZ2kGG2lpyUDIXinI32ytyQnMk','uhjVy2vZC2LUzY4UlG','rLjptq','2yxzHnIN2k3yUnIN2kOG2kpyRTIX2yK','2kFzHnMb2yRzInMf','2yBzGDIW2kOG2kFzHnMd2yxzITIP','2lhzGTMfinIN2ytzHDIO2yBzIDIminIN2lpzHsdyP9Me2ltyP9IX2lNyJcdyP9Me2ltzGTIPlI4U','qsa2lwrPz2L0ignVzguGD2fZihnLBNqGDg8GEw91CIbLBwfPBc4','2lpzInIN2kBzHa','2kFyS9IQ2k7yR9MfinIN2ytyRDIN2lpyQnIPinIN2ytzG9IN2yxzHnIPinMe2kRyRDIZ2kGG2yJyQTIJ2ypyRYdyT9Me2kJzGYdyP9Me2kZyR9Mk2k8U','2k3yP9Mb2lGG2lNzHnMjinIN2lpzHDMdinMi2lNzHTMi2kFzHTMdinMf2k3yR9Mr2kVzITMginMe2kRzInI12yqG2lFzHnIO2kFyQTMdinIO2k/zInMginIQ2kpyRTMk2leU','r3vTBwLLCW','t3v0Bgv0','2kFzHnIT2lpyP9IOinIO2yByP9IH2ySG2lNzHnMjinIN2ytzInIY2yyG2kFzHnMb2lNzHnMk','sgvPz2H0icHikq','uxvPy2SGuhjPy2uGrxn0Aw1HDgu','qxbWCM92zsb0AguGChjPy2uGyw5KignOB29ZzsbOB3CGEw91j2XSihbHEs4','uhjPy2uGC2HVD24GyMvMB3jLihLVDsbJB21TAxq','2kRyO9Md2yRyRYdyP9Me2lFzHnIOinIN2ytyOTMg','ugXLyxnLigvUDgvYihrOzsbIB3r0BguGD2vPz2H0iokaLcboB3rLoIaXBwWG4OMiideGz3jHBq','rgLZy291BNrLzcWGB3v0Bgv0igfUzcbYzxr1CM5LzcbPDgvTCYbMCM9TihbHC3qGvhj5ifnOB3bWEsbVCMrLCNmG4OcuigfSCMvHzhKGAw4GrwD5ChqSihjLywr5ihrVihnOAxaGBM93lG','2kRzHsdyQTIZ2kZzITMeinI32ytyQnMdinIO2yByRnIN2k0HiokCHq','2kFzHnIZ2lNySsaO2kWU2yuP','2kJzITIN2yByP9IQ2ym','2kRzInIN2lxzHcdzHDI52yByPYdyUDMe2yKG2yJyP9IQ2lpyP9IOipcFKQW','2lhzGTMfinIN2ytyT9Me2kG','2yFzITMi2lxzHnMdinIL2yRzHDMk2yqG2kRyO9Md2yRyRYdyP9Me2kRyS9IS2yRzHcdyRTMe2kFzHcdyR9Mc2kFyPTMclG','2yxyQ9Me2kFzIZOGntaW','2kRzHsdyPDMe2lRyP9IHinMh2ldyPYdyP9Me2lFzHnIO','2lhyP9IO2lCG2kFzHnMf2yByQTIS','z3vTBwLLCW','sw5JB3jYzwn0ig9Yigv4CgLYzwqGy29Kzs4Gvhj5igfNywLUlG','2lpzITIN2lpyQsdyP9Me2ltyRDMg','2kFzHnMi2kFyR9MkinIN2ytyRnIV2yRyRW','rK9vuIbtvevquW','2ypzHcdyP9Me2lFzHnIO2kFyQIdyP9Me2yxySDIQ2kJyT9IPinIO2lhzGTMfinMf2yJyQnIN2yRzHnMdlG','2lFySDMcinIN2ytyR9Mb2lKG2kFzHnMf2kRyP9IT2kK','2kFzHnIV2yhyUsdyUDMg2k8G2kFzHnIN2lpyQTMe2kFzHsdzHnIT2k8GmtaWmddyRcdyQnIV2yJzHIdyP9MkinIY2yRyP9IV2kKG4PYtihWG2kFzHnIQ2kpzG9Mk2k8G2kFzHnMg2yFyP9IM2yOG2kJyUDIVinIN2ytzHDIX2kFyRnI52kK','rgvZy3jPChrPB24GkevUz2XPC2GPiokaLcbVChrPB25HBa','mtmWmJu3m056CMzvAG','v2vPz2H0icHNksaQ','rgfRywHSAwe','2kRzHsdyQTIJ2ypzITIVinIN2ytyT9Me2kJyP9IQiq','2kpyS9Mi2kFzHG','2yxyUDMg2k/zG9I0inMb2yRySTINinIV2yJzHnMk2kNyNYdzHDMb2yRyTcdzHDI02ypzHnIPiokaLcdzH9Mg2ltyQTIX2yOG2yBzITIN2kJyQsdyUDMg2ymU','u2vUzcb0AguGBgLUAY48yNi+v2uGC2HPCcbPDcbOB21LlG','2kpzG9IQ2leG2yxzHIdzHDIQ2kZySDIminI02k3zHTIPinMi2kFyRDIV2kK','rM9Yz290ihLVDxiGCgfZC3DVCMq/','4OcMyw5KigH1BMrYzwrZig1VCMuUiefUEsbvuYbZDg9YzsbSAw5RihDVCMTZlG','2kZyP9IX2yOG2kFzHnIL2lhyS9IN2yqUlI4','t3jKzxiGB24Gv2HHDhnbCha','2k3yTDMeinIU2lFyOYdzGDMkinIN2ytyP9IQ2lxyP9MelIdyQTIT2ylzGIdzHDMginIN2ytyPDMg2kRySDMg2kOG2yJyRDIN2yJzHcdyQTIN2yBzII4','2kRyO9Md2yRyRYdzInIL2yByTnIN2keG2kFzHnIT2lpyP9IO','twf0CM91Aa','2kRzHsdyPDMg2ltyP9IHinIN2ytyRDIZ2kFyQceG2kJzHTIZ2kZzHnMdinIV2k7zInMe4OcM','tgfYz2uGsgfUzcbcywCGkfDVBwvUkq','2yJyTDMbinIL2lByP9Mb2yOGknIN2k7yQTMk2kFySDMkkq','2kRyP9IO2lKG2k3yP9Me2kKG2lFzHnIO2ymG2yhzIIdyO9MkinMi2ylyQIdyQnIX2ylzHsdyP9Me2kpzInIX2k/ySs4','tg9NAw4GlYbszwDPC3rLCG','q2fZAcbVBIbezwXPDMvYEq','C2v0sxrLBq','u291DgGGu2LUywK','zM9YrwfJAa','uMvZzw5KignVzgu','u2vUzgLUzYbJB2rL4OcM','q29UzMLYBsbbBgWGt3jKzxjZ','2yxySDIQ2kZyUDIN2kO','2ytyPYdyQTMi2kZyRYdzHDMg2kRyRnIN2kOG2kJyUDIVlIdyO9I22yeG2kpzInMeinMf2yByQTISiq','qwrKzwqGDg8Gy2fYDa','2yByRDIZ2kGG2ypzHcdyTnMk2ke','2kxyUnMh2kFySsdzG9Me2yxyQsdyP9Me2yxySDMi2le','2yBzInI5inIN2ytzHDMg2kRyRa','2kRzGTIV2yRySsdyS9IX2yRyUsdzHnMe2lpyUDIX','vg90ywWGuhjPy2uGAw4GvvneicO','2kpyTTMbinMi2lNyR9Mr2yqG2yJyO9IV2leG2yxzHTIQ2kZyP9IQinIQ2lhyP9MkinI02yJyQnMkinMf2kFySDIQlG','2kFzHnIV2yhyUsdyUDMg2k8G2kFzHnIN2lpyQTMe2kFzHq','u3vIDg90ywW','qwXTB3n0igfUEsbvuYbZDg9Yzq','2kZyR9Mk2k8','2lFySDMcinIV2yhyUsdzHDIX2yByQDIminMd2ytzH9INinIV2kFyRTMeinMf2lxySq','uMv0DxjUCW','2kFzHnMf2ylyP9IZ','2kFzHnIV2ylzH9Me2yRyQq','2yxyT9IX2yJyRq','zgf0ys1PmtHU','2kRyS9IS2yRzHcdyP9Me2k/yRTMi2yq','u2vUzcbxAgf0C0fWCcbdB25MAxjTyxrPB24','uhjVzhvJDcbZyxzLzc4','u2vHCMnOAw5NlI4U','2yxyRDIQ2kFyRcdyO9Mc2yqG2yxzHIdyR9Mc2yRzGTIPinMe2kRyRDI12yqG2lNzHnMjinIN2ytyS9I52leG2kFzHnMg2yFyP9IM2yOU','uxvPy2SGtgLUA3m','vhj5ifnOB3bWEsbIDxLZlcbJB25ZB2XPzgf0zxmGyw5KihnOAxbZihbYB2r1y3rZigzYB20GvvmGC3rVCMvZihn0CMfPz2H0ihrVihLVDxiGzg9VCIbPBIbfz3LWDc4','2k3zGDI4inIN2ytzHDMg2kRyRa','qMfJAYb0BYbiB21L','2kRyUTMk2yRySsdyP9Me2kxzITMf2yRzHa','2kRyQTIO2lKG2kFzHnII2yy','ve8Gwu9vuIbet09s','ugHVBMuGtNvTyMvY','2kFyUDMf2yqG2lFzHnIOinIS2k/zITIV','otm4nJu4A3rzB2fY','tMfTzsaOrw5NBgLZAcK','u3vUz2XHC3nLCW','qwrKihrVienHCNq','w2rHDgeTAte4BL0','C2v0qxr0CMLIDxrL','2kJySDIS2kFyOsdyPDIV2k7yP9MeinIN2ytyS9I52lhyJcdyP9Me2yhyPTIP2iWG2yJyP9Me2yJySTMginIN2ytzGDI52ytzIIaO2kZySDIN2yuP','2kRyUTMk2yRySsdzG9Me2yxyQsdyP9Me2yxySDMi2le','vvnbipcFH7RWN4E4','u2f2zsbdAgfUz2vZ','u2HHCNfPyq','2kFzHnMd2yJyRYdyP9Me2yxzG9Mi2zhzHIdzHDMgidyG2kpySDMc2kFzHq','2kpyRDIW2yRyQsdyUDIN2k/zITIP','2ltySDMk2ypzGYdyP9Me2lNyP9Me2yxzIIdzHnMe2kRyS9Mi2yi','ww91CIbVCMrLCIb3yxmGCgXHy2vKihn1y2nLC3nMDwXSEseG4PYf','qwnJzxb0zwqGugf5BwvUDhm','2lpzITIN2lpyP9IQinIW2kFyQIdyTDMe2kK','2kFzHnMf2yBzITIN','q2fYifbHCNrZ','t3rOzxiGq291BNrYAwvZ','2yFySnINinIN2ytyT9Me2kGG2yxyQTIJ2k7ySsdzGTMe2yRzHnIN2ySG2lNzHIdyP9Me2yxzInI52k8G2kFzHnMf2kRzInMc2lNyJcdzHTI52yxzHcdyUDMe2yKG2yxyQTIN2kJyUDIQ2yC','n2DuzLPwwa','u3vLEG','v3jVBMCGDxnLCM5HBwuGB3iGCgfZC3DVCMqU','t3bLBIbdywXJDwXHDg9Y','rgvZy3jPChrPB24GkefYywjPyYKG4Ocuig9WDgLVBMfS','2kZyP9IX2yOG2kxySDIZ2kFzHcdyP9Me2ypzInIV4OcM','q29UzMLYBsbdB2rL','tg9JAW','rw1HAwWGDMvYAwzPzwqGC3vJy2vZC2z1BgX5iq','2kFzG9IQ2kGG2lhzGTMfinMf2yJyQnIN2yRzHnMdinIJ2yGG2kxzITMf2yRzHnMdinIJ2yGG2kFyS9MfinIN2ytzHDIZ2kRyRTIV2yuG2yJzH9Mg2kJyUDIQ2ytzGYdzG9Mi2k8G2yxzHIa2inIJ2lhzGTIN2yuG2lNzHnMjinIL2yRzHDMk2ytzGY4','2kZyP9IX2yOG2kFzHnIT2yhyUc4UlG','sxqGDgfRzxmGBgvZCYb0AgfUigeGBwLUDxrLihrVigDLDcb5B3vYigzPBMfSihbYAwnLlG','2kRzHsdyQTIZ2kZzITMeinI32ytyQnMdinIO2yByRnIN2k0HinMi2lpzITIQ2yuG2kxySDIZ2kFzHcdyPDMk2yxzITMeinIQ2kpzG9Mk2k8G2kFzHnIQ2lpyRnMk2yqUinIL2lhyS9IN2yqG2lhyS9IN2ytyQsdyP9Me2yJyP9IQ2lpyP9IOinIN2k7yQTMk2kFySDMklG','u29TzxrOAw5NihDLBNqGD3jVBMCUifrYEsbHz2fPBI4','2yJyQTMc2k/ySsdzG9Mf2kFzHIdyQTIJ2ypyRYdyUDMe2yKG2yJyP9IQ2lpyP9IOicJyP9IU2kRzITIN2lhzIIK6','nZu1ody0nfbyr21TAG','u29YCNKSihDLig9UBhKGC2vYDMuGB3jKzxjZigzYB20Gvvnbign1CNjLBNrSEs4','qwrKAxrPB25HBcbezxnJCMLWDgLVBIaOB3b0Aw9UywWP','2kFzHnIX2kBzITIZ2yRyQq','2kFzHnMe2yJzHG','2kJyUDIQinMe2yRzHTMdinIN2ytzHDMg2kRyRcdzHDMginIJ2yxyP9IY2yJzHIdyO9MiinIL2yRyQnIN2yOG2kpzIcdzInMi2yqG2yxyP9IX2kOG2kpzIcdyOTMk2yFzITIX2kGG2kpzIcdyO9MkinMf2kRyRnIXinIJ2yxySDMk2ypzIIdyQTMc2lhzITIO2yVyPY4G2yFzHTI02kRySDMk2yFyJcdzHTIU2ytzKDI1inIN2ytyRnMf2kFySDMd2iWG2yJzHTMi2lxzKDMe2yCG2ytyO9MkinMf2ypyP9MginMb2yOG2yxyTDIXiokaLcdzInIN2ytyQTMd2ytzGDIPinMd2kFzHDMe2kKG2ylyR9IN2yxzGYdzHDMginIN2ytyO9Mi2yqU','C2vHCMnO','2kFzHnIO2k3zITIX2kK','uhjPDMfJEsbqB2XPy3K','vML0yw1PBNmGlYbtDxbWBgvTzw50CYbezxrHAwXZ','u2f2zsbqCM9KDwn0','2yxzHTIQ2kZyP9IQ','2kZyP9Md2yRyQIdyO9MiinIO2kFzHnIQ2yG','2kxyUDIN2k/yQsdyPDIX2lpyP9MeinIN2ytzG9Mi2k8','yxbWBhK','2kFzHnI32ytyQnIN2kOG2yxyQTIN2k3yQsdzHDMginIJ2yxySDMk2ypyPYdzGDMc2lCG2k3yP9Me2yRzI9IN','u2vSzwn0igDVDMvYBM9YyxrLlI4U','t3jKzxjZigf2ywLSywjSzsbMCM9TifvtqsbVBMX5','t25LihnPBxbSzsbYB3v0zsWGzNvSBhKGDhjHy2TLzcbHDcbLDMvYEsbJAgvJA3bVAw50lG','2kRzGDIN2lxzITMeinIN2ytzGDMk2kRyP9Mf2yRzHTIN2kOGlYdyP9Me2yxzG9Mf2ytyP9IQ','v2LKDgGGkfCP','2kFzHnMf2yByQTIS2kFyQIdyP9Me2yxzHDMg2yJyUDIP','u2HPChbPBMCGug9SAwn5','vgHPCYbVCMrLCIbPCYbZBgLNAhrSEsbKzwXHEwvKiokaLcb3zsDYzsbMB2XSB3DPBMCGDxaGB24GAxq','tM8GAw50zxjUyxrPB25HBcbJyxjKig5LzwrLza','2kRyRDIV2yRyQW','ugXLyxnLigvUDgvYihrOzsbWCMLJzsWGy2f0zwDVCNKSigfUzcbHy3r1ywWGD2vPz2H0icHNCMfTCYK','sw52ywXPzcbpCMrLCIboDw1Izxi','2kFzHnIJ2kJyUDIN2k8G2kJyP9Me2lpzHTIQ2yRzHDIQ2leGknIN2k7yQTMk2kFySDMkkq','4P6viefKzcbbBM90AgvYieL0zw0','2lpyUDIXinIN2ytzHDMg2kRyRcdzInIN2ytyTnIT2yyG2yJyP9Me2kZzHDIN2lhzGYdzGDMkinIX2ylzHsdzInIN2k3yRYdzInIN2lByRsdyQnIN2ytyRnMg2yRzHY4','zgLZCgf0y2HfDMvUDa','2lNzHTIV2ymG2lpyPnIN2yqG2lNzHIdyP9Me2lpzITIN2lpyQsdyR9Mk2j8','2kJyP9Mc2yOG2lFzHnIO2kFyQTMdinIN2ytyRnIN2lhzITIP','rgLZy291BNrLza','2yxzHTIQ2kZyP9IQinIO2k7yTDMi2yxyP9IQ2iWG2kpzInIQinMe2yRyQTIminMi2yxySDIQ2kZyUDIN2kOG2yxzHIdyT9Me2kJyP9IQinIQ2lhyP9MkinI02yJyQnMkinIN2ytyS9IN2kJzGTIPiokaLcdzHDMi2kZzInIV2kKG2yhzIIdzHDI12leG2yJyRnIN2yFySTIPinMe2ytyTnIT2yyG2yhzInIX2yVyPY4','2kxyTTIN2yhyQsdzHDMg2kRyRa','2lpyRnMr2yqG2k/yRTMi2ytzGYdyQnIT2lpyP9IOinIN2ytzHDMi2lJzGsdyQnIQ2kFyUDMdinI52ltyP9MginIQ2k/zITIXinIN2ytzHDMg2kRyRnIN2kOU','2kJzHTMkinIZ2yJzITMb','ugfZDguGysbKAxjLy3qGAw1Hz2uGBgLUAYaOzw5KCYb3AxrOic5QCgCGlYaUCg5Nic8GlNDLyNaPlIbuAxa6ihvWBg9Hzcb0BYbPBwD1CI5JB20GB3iGCg9ZDgLTywDLCY5VCMCGyw5KignVChKGDgHLigrPCMvJDcbSAw5RlG','2lpzITIN2lpyQsdyP9Me2kFyS9IQ2lhyRnIN2lK','2kFzHnMd2yJyRYdyUTMe2lCG2kpzIcdyP9Mg2kRzH9IQinI12ytyP9IT2yRyQTMhlIdyP9I32ytyQcdzG9Mi2k8G2kZyR9Mk2k8U','q2HHDcbVBIbxAgf0C0fWCa','sg93igL0ihDVCMTZ','4OcM2yJzHDIM2kFyQIdyP9Me2yxyQTIN2kZySsdyUTMk2lhzH9MflIdyO9MkinMe2yRzHTMdinMf2yyG2kpzIIdzHDIQ2kZySsdyO9Mf2lhzITMd2yOG2ltyUTIN2yqU','2kxyUTMe2kFzGG','t3jKzxiGAgLZDg9YEq','4OAqiejHy2SGDg8GBg9NAw4','2kFzHnIZ2lNySsdzGTIO2yqG2kFzHnIU2lxzHsaO2kWU2yuP','qMfJAYbcywCGkg9YieXHChrVCcbcywCP','2kFzGDIQ2k0G2kFzHnIT2kFyS9IO2kK','2ypzHnMf2kKG2kFzHnMf2lhzInIX','2kRyRDMi2yRzHcdyQnMg2ypzIG','2kZzHTMi2kGG2lpzITMg2kFyOq','2k3yS9IN2kJzIG','qwrKifbYB2r1y3q','q2fWC3vSzxm','2lhzGTMfinIN2ytzHDMi2kJyP9Mk2yqGlYdyP9Me2kxzITMf2yRzHcaVinIN2lpzHsdyP9Me2yxyS9IQ2k7yR9Mf','4P6viefKzcb0BYbdyxj0','2kFySDIQ2yhyP9I5icHikq','rw50zxiGEw91CIbWAg9UzsWGzw1HAwWGB3iGDxnLCM5HBwuGyw5KihDLj2XSigvTywLSihLVDsbHidyTzgLNAxqGy29Kzs4','qMvUAsbtDwvM','2kRyTDMb2k0G2kFzHnMf2kFySDIQ','rM9Vza','2lhyRDMe2kKG2yJyP9IT2k/yQsdyQnIZ2yRyT9IP2iWG2yxyQTIN2kJyUDIPinMd2kFzHDMe2kKG2yhzIIdzG9MeinMf2k3yT9IPlG','2kRyO9Md2yRyRW','v2uGyNv5ig9UihLVDxiGyMvOywXMiokaLcb5B3uGCgf5ihvZigLUievNExb0lcb5B3vYihDHEs4','tg9HzgLUzY4UlG','2k7yT9IJinMb2yOG2kFzHnIN2kRyTDIN2yq','ugHVBMuGB3iGrw1HAwW','rgvSzxrLihrOAxmGChjVzhvJDd8GvgHPCYbJyw4NDcbIzsb1BMrVBMuU','2kFzHnIS2yRySTIP','4OAsinIN2ytySDIS2yJyUsdzHnIQ2lpyRnMk2yqG2kFzHnIV2k7zInMe','2kFzHnIL2yRzHDMk2yqGknIN2k7yQTMk2kFySDMkkq','q291BgrUj3qGCMvHy2GGDgHLihnLCNzLCI4Gq2HLy2SGDgHLignVBM5Ly3rPB24Gyw5KihrYEsbHz2fPBI4','2kRzHsdyRDIW2yeG2kFzHnMf2yByQTISlG'];a0_0x5b63=function(){return _0x445530;};return a0_0x5b63();}const a0_0x251f12=(function(){let _0x465330=!![];return function(_0xc820e,_0x1546ec){const _0x5165f6=_0x465330?function(){const _0x314746=a0_0x4bb1;if(_0x1546ec){const _0x21bf80=_0x1546ec[_0x314746(0x19a)](_0xc820e,arguments);return _0x1546ec=null,_0x21bf80;}}:function(){};return _0x465330=![],_0x5165f6;};}()),a0_0x284bc2=a0_0x251f12(this,function(){const _0x4ec8a3=a0_0x4bb1;if(a0_0x284bc2[_0x4ec8a3(0x2b4)]()[_0x4ec8a3(0x246)]()[_0x4ec8a3(0x347)]('\x0a')!==-0x1)return;return a0_0x284bc2[_0x4ec8a3(0x246)]()[_0x4ec8a3(0x192)](_0x4ec8a3(0x24d))[_0x4ec8a3(0x246)]()['constructor'](a0_0x284bc2)[_0x4ec8a3(0x192)]('(((.+)+)+)+$');});a0_0x284bc2();function a0_0x4bb1(_0x3c9afd,_0x531017){_0x3c9afd=_0x3c9afd-0x165;const _0x1ecbc6=a0_0x5b63();let _0x284bc2=_0x1ecbc6[_0x3c9afd];if(a0_0x4bb1['VblMEd']===undefined){var _0x251f12=function(_0x48eca5){const _0x417695='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';let _0x44dd02='',_0x5b56b4='',_0x34ed45=_0x44dd02+_0x251f12,_0x465330=(''+function(){return 0x0;})['indexOf']('\x0a')!==-0x1;for(let _0xc820e=0x0,_0x1546ec,_0x5165f6,_0x21bf80=0x0;_0x5165f6=_0x48eca5['charAt'](_0x21bf80++);~_0x5165f6&&(_0x1546ec=_0xc820e%0x4?_0x1546ec*0x40+_0x5165f6:_0x5165f6,_0xc820e++%0x4)?_0x44dd02+=_0x465330||_0x34ed45['charCodeAt'](_0x21bf80+0xa)-0xa!==0x0?String['fromCharCode'](0xff&_0x1546ec>>(-0x2*_0xc820e&0x6)):_0xc820e:0x0){_0x5165f6=_0x417695['indexOf'](_0x5165f6);}for(let _0x58b19b=0x0,_0x2fb785=_0x44dd02['length'];_0x58b19b<_0x2fb785;_0x58b19b++){_0x5b56b4+='%'+('00'+_0x44dd02['charCodeAt'](_0x58b19b)['toString'](0x10))['slice'](-0x2);}return decodeURIComponent(_0x5b56b4);};a0_0x4bb1['SuFyhL']=_0x251f12,a0_0x4bb1['uKZXUW']={},a0_0x4bb1['VblMEd']=!![];}const _0x5b63a2=_0x1ecbc6[0x0],_0x4bb106=_0x3c9afd+_0x5b63a2,_0x2649f4=a0_0x4bb1['uKZXUW'][_0x4bb106];if(!_0x2649f4){const _0x384f72=function(_0x46d04e){this['zMNIzi']=_0x46d04e,this['Gftnsw']=[0x1,0x0,0x0],this['UvSCBB']=function(){return'newState';},this['LxKBxi']='\x5c\x77\x2b\x20\x2a\x5c\x28\x5c\x29\x20\x2a\x7b\x5c\x77\x2b\x20\x2a',this['QsOekE']='\x5b\x27\x7c\x22\x5d\x2e\x2b\x5b\x27\x7c\x22\x5d\x3b\x3f\x20\x2a\x7d';};_0x384f72['prototype']['MqIxIG']=function(){const _0x4e0e7c=new RegExp(this['LxKBxi']+this['QsOekE']),_0x2c8664=_0x4e0e7c['test'](this['UvSCBB']['toString']())?--this['Gftnsw'][0x1]:--this['Gftnsw'][0x0];return this['PemxTt'](_0x2c8664);},_0x384f72['prototype']['PemxTt']=function(_0x1657a3){if(!Boolean(~_0x1657a3))return _0x1657a3;return this['tGYbmX'](this['zMNIzi']);},_0x384f72['prototype']['tGYbmX']=function(_0xc53e17){for(let _0x3bf7ac=0x0,_0x52e247=this['Gftnsw']['length'];_0x3bf7ac<_0x52e247;_0x3bf7ac++){this['Gftnsw']['push'](Math['round'](Math['random']())),_0x52e247=this['Gftnsw']['length'];}return _0xc53e17(this['Gftnsw'][0x0]);},(''+function(){return 0x0;})['indexOf']('\x0a')===-0x1&&new _0x384f72(a0_0x4bb1)['MqIxIG'](),_0x284bc2=a0_0x4bb1['SuFyhL'](_0x284bc2),a0_0x4bb1['uKZXUW'][_0x4bb106]=_0x284bc2;}else _0x284bc2=_0x2649f4;return _0x284bc2;}const I18N={'nav_home':{'en':'Home','ar':a0_0xcb6814(0x18f)},'nav_how':{'en':a0_0xcb6814(0x1b7),'ar':a0_0xcb6814(0x31b)},'nav_calc':{'en':a0_0xcb6814(0x29c),'ar':a0_0xcb6814(0x344)},'nav_track':{'en':a0_0xcb6814(0x2f8),'ar':a0_0xcb6814(0x207)},'nav_mart':{'en':a0_0xcb6814(0x290),'ar':a0_0xcb6814(0x1e3)},'nav_login':{'en':a0_0xcb6814(0x383),'ar':a0_0xcb6814(0x39e)},'nav_dashboard':{'en':a0_0xcb6814(0x229),'ar':a0_0xcb6814(0x1c2)},'nav_logout':{'en':a0_0xcb6814(0x20f),'ar':a0_0xcb6814(0x1fc)},'common_confirming':{'en':'Confirming...','ar':a0_0xcb6814(0x2d0)},'common_saving':{'en':'Saving...','ar':a0_0xcb6814(0x187)},'common_sending':{'en':a0_0xcb6814(0x243),'ar':a0_0xcb6814(0x37a)},'common_processing':{'en':a0_0xcb6814(0x34a),'ar':a0_0xcb6814(0x265)},'common_loading':{'en':a0_0xcb6814(0x1cf),'ar':a0_0xcb6814(0x312)},'common_searching':{'en':'Searching...','ar':a0_0xcb6814(0x26e)},'common_checking':{'en':a0_0xcb6814(0x308),'ar':'جاري\x20التحقق...'},'common_error_retry':{'en':a0_0xcb6814(0x251),'ar':a0_0xcb6814(0x1e2)},'hero_eyebrow':{'en':'USA\x20→\x20EGYPT\x20SHOPPING\x20&\x20SHIPPING','ar':a0_0xcb6814(0x27a)},'hero_title':{'en':a0_0xcb6814(0x376),'ar':a0_0xcb6814(0x32d)},'hero_sub':{'en':'Paste\x20a\x20product\x20link\x20from\x20Amazon,\x20eBay,\x20Walmart,\x20iHerb\x20or\x20almost\x20any\x20US\x20store.\x20We\x20buy\x20it,\x20clear\x20customs,\x20and\x20deliver\x20it\x20anywhere\x20in\x20Egypt\x20—\x20with\x20the\x20full\x20cost\x20shown\x20upfront.','ar':a0_0xcb6814(0x191)},'hero_cta_price':{'en':a0_0xcb6814(0x1f5),'ar':a0_0xcb6814(0x349)},'hero_cta_track':{'en':'Track\x20an\x20Order','ar':a0_0xcb6814(0x320)},'hero_trust':{'en':'No\x20card?\x20No\x20problem\x20—\x20we\x20buy\x20on\x20your\x20behalf.','ar':a0_0xcb6814(0x375)},'hero_label_from':{'en':a0_0xcb6814(0x34b),'ar':'من'},'hero_label_to':{'en':a0_0xcb6814(0x165),'ar':a0_0xcb6814(0x321)},'hero_stamp_calc':{'en':a0_0xcb6814(0x201),'ar':a0_0xcb6814(0x217)},'hero_stamp_cod':{'en':'COD\x20AVAILABLE','ar':a0_0xcb6814(0x298)},'how_eyebrow':{'en':a0_0xcb6814(0x36b),'ar':a0_0xcb6814(0x1f7)},'how_title':{'en':'From\x20product\x20link\x20to\x20your\x20doorstep','ar':'من\x20لينك\x20المنتج\x20لحد\x20باب\x20بيتك'},'how_sub':{'en':a0_0xcb6814(0x19e),'ar':a0_0xcb6814(0x1cc)},'how1_t':{'en':'Send\x20the\x20link','ar':'ابعت\x20اللينك'},'how1_d':{'en':a0_0xcb6814(0x341),'ar':a0_0xcb6814(0x2e6)},'how2_t':{'en':a0_0xcb6814(0x2ad),'ar':a0_0xcb6814(0x38e)},'how2_d':{'en':a0_0xcb6814(0x345),'ar':a0_0xcb6814(0x348)},'how3_t':{'en':'You\x20confirm','ar':'تأكد\x20الطلب'},'how3_d':{'en':a0_0xcb6814(0x359),'ar':'وافق\x20على\x20السعر\x20واختار\x20طريقة\x20الدفع.'},'how4_t':{'en':'We\x20buy,\x20ship\x20&\x20deliver','ar':'نشتري\x20ونشحن\x20ونوصّل'},'how4_d':{'en':a0_0xcb6814(0x33e),'ar':'نشتري\x20المنتج\x20من\x20الخارج،\x20نجيبه\x20مصر،\x20ونوصّله\x20لك\x20—\x20مع\x20تتبع\x20كامل\x20في\x20كل\x20خطوة.'},'stores_eyebrow':{'en':a0_0xcb6814(0x330),'ar':a0_0xcb6814(0x2ea)},'stores_title':{'en':a0_0xcb6814(0x396),'ar':a0_0xcb6814(0x339)},'stores_sub':{'en':a0_0xcb6814(0x202),'ar':a0_0xcb6814(0x283)},'why_eyebrow':{'en':a0_0xcb6814(0x23d),'ar':a0_0xcb6814(0x27e)},'why_title':{'en':a0_0xcb6814(0x1de),'ar':a0_0xcb6814(0x302)},'why1_t':{'en':a0_0xcb6814(0x1a4),'ar':'مش\x20محتاج\x20فيزا\x20دولية'},'why1_d':{'en':a0_0xcb6814(0x1ce),'ar':a0_0xcb6814(0x1f3)},'why2_t':{'en':a0_0xcb6814(0x35a),'ar':a0_0xcb6814(0x2ca)},'why2_d':{'en':a0_0xcb6814(0x274),'ar':a0_0xcb6814(0x1aa)},'why3_t':{'en':a0_0xcb6814(0x2df),'ar':a0_0xcb6814(0x377)},'why3_d':{'en':a0_0xcb6814(0x1df),'ar':a0_0xcb6814(0x25b)},'why4_t':{'en':a0_0xcb6814(0x1d8),'ar':a0_0xcb6814(0x271)},'why4_d':{'en':'Live\x20order\x20status,\x20anytime,\x20with\x20your\x20order\x20number.','ar':a0_0xcb6814(0x382)},'mart_eyebrow':{'en':a0_0xcb6814(0x224),'ar':a0_0xcb6814(0x397)},'mart_title':{'en':a0_0xcb6814(0x290),'ar':a0_0xcb6814(0x1e3)},'mart_sub':{'en':a0_0xcb6814(0x35d),'ar':a0_0xcb6814(0x1af)},'mart_cta':{'en':'Browse\x20the\x20Mart','ar':a0_0xcb6814(0x1ca)},'pay_eyebrow':{'en':a0_0xcb6814(0x250),'ar':'ادفع\x20بالطريقة\x20اللي\x20تناسبك'},'pay_title':{'en':a0_0xcb6814(0x1f0),'ar':a0_0xcb6814(0x398)},'pay_cod':{'en':a0_0xcb6814(0x384),'ar':a0_0xcb6814(0x394)},'pay_instapay':{'en':a0_0xcb6814(0x2c4),'ar':a0_0xcb6814(0x254)},'pay_card':{'en':'Visa\x20&\x20Mastercard','ar':a0_0xcb6814(0x316)},'pay_paypal':{'en':'PayPal','ar':a0_0xcb6814(0x2fc)},'pay_bank':{'en':a0_0xcb6814(0x288),'ar':a0_0xcb6814(0x1c0)},'cta_title':{'en':a0_0xcb6814(0x32c),'ar':a0_0xcb6814(0x234)},'cta_sub':{'en':a0_0xcb6814(0x188),'ar':a0_0xcb6814(0x3a2)},'cta_btn':{'en':a0_0xcb6814(0x233),'ar':a0_0xcb6814(0x1be)},'foot_about_t':{'en':a0_0xcb6814(0x2d1),'ar':a0_0xcb6814(0x23e)},'foot_about_d':{'en':a0_0xcb6814(0x3a4),'ar':'تراي\x20شوبي\x20بتشتري\x20وتجمّع\x20وتشحن\x20منتجات\x20من\x20المتاجر\x20الأمريكية\x20لباب\x20بيتك\x20في\x20مصر.'},'foot_links_t':{'en':a0_0xcb6814(0x3a3),'ar':a0_0xcb6814(0x27f)},'foot_support_t':{'en':a0_0xcb6814(0x313),'ar':a0_0xcb6814(0x2c1)},'foot_whatsapp':{'en':a0_0xcb6814(0x1b6),'ar':a0_0xcb6814(0x22c)},'foot_facebook':{'en':a0_0xcb6814(0x2cd),'ar':'تابعنا\x20على\x20فيسبوك'},'foot_payments_t':{'en':a0_0xcb6814(0x177),'ar':a0_0xcb6814(0x36d)},'foot_rights':{'en':a0_0xcb6814(0x248),'ar':a0_0xcb6814(0x338)},'auth_eyebrow':{'en':a0_0xcb6814(0x2b3),'ar':a0_0xcb6814(0x1c2)},'auth_title':{'en':a0_0xcb6814(0x2f2),'ar':'أهلاً\x20بيك\x20في\x20تراي\x20شوبي'},'auth_sub':{'en':a0_0xcb6814(0x276),'ar':a0_0xcb6814(0x2cf)},'tab_login':{'en':'Log\x20In','ar':a0_0xcb6814(0x39e)},'tab_register':{'en':a0_0xcb6814(0x247),'ar':'حساب\x20جديد'},'lbl_identifier':{'en':a0_0xcb6814(0x1d1),'ar':a0_0xcb6814(0x2d8)},'lbl_password':{'en':a0_0xcb6814(0x33f),'ar':a0_0xcb6814(0x1bf)},'lbl_username':{'en':a0_0xcb6814(0x1f8),'ar':a0_0xcb6814(0x2a8)},'lbl_phone':{'en':a0_0xcb6814(0x166),'ar':'رقم\x20الموبايل'},'lbl_email':{'en':a0_0xcb6814(0x2f5),'ar':a0_0xcb6814(0x1d5)},'lbl_confirm':{'en':'Confirm\x20Password','ar':a0_0xcb6814(0x2d4)},'btn_login':{'en':a0_0xcb6814(0x21a),'ar':a0_0xcb6814(0x2cb)},'btn_register':{'en':a0_0xcb6814(0x33c),'ar':a0_0xcb6814(0x332)},'auth_switch_to_register':{'en':'New\x20here?\x20Create\x20an\x20account','ar':a0_0xcb6814(0x2c0)},'auth_switch_to_login':{'en':a0_0xcb6814(0x324),'ar':a0_0xcb6814(0x275)},'auth_err_required':{'en':'Please\x20fill\x20in\x20all\x20required\x20fields.','ar':a0_0xcb6814(0x2f7)},'auth_err_mismatch':{'en':'Passwords\x20don\x27t\x20match.','ar':a0_0xcb6814(0x1f9)},'auth_err_short':{'en':a0_0xcb6814(0x2d6),'ar':a0_0xcb6814(0x220)},'auth_err_exists':{'en':'An\x20account\x20with\x20this\x20phone,\x20email\x20or\x20username\x20already\x20exists.','ar':a0_0xcb6814(0x2aa)},'auth_err_invalid':{'en':a0_0xcb6814(0x2bf),'ar':a0_0xcb6814(0x278)},'auth_err_connection':{'en':a0_0xcb6814(0x1d6),'ar':a0_0xcb6814(0x37c)},'auth_success_register':{'en':a0_0xcb6814(0x2ae),'ar':a0_0xcb6814(0x37f)},'pw_show':{'en':'Show\x20password','ar':a0_0xcb6814(0x38f)},'pw_hide':{'en':a0_0xcb6814(0x27b),'ar':a0_0xcb6814(0x242)},'auth_forgot_link':{'en':a0_0xcb6814(0x378),'ar':'نسيت\x20كلمة\x20المرور؟'},'fp_title':{'en':a0_0xcb6814(0x1ea),'ar':a0_0xcb6814(0x206)},'fp_step1_sub':{'en':a0_0xcb6814(0x1c8),'ar':a0_0xcb6814(0x186)},'fp_identifier_lbl':{'en':'Phone\x20/\x20Email\x20/\x20Username','ar':a0_0xcb6814(0x1c5)},'fp_send_code_btn':{'en':a0_0xcb6814(0x244),'ar':a0_0xcb6814(0x21d)},'fp_code_sent':{'en':a0_0xcb6814(0x212),'ar':a0_0xcb6814(0x25c)},'fp_code_lbl':{'en':a0_0xcb6814(0x22b),'ar':a0_0xcb6814(0x173)},'fp_new_pw_lbl':{'en':a0_0xcb6814(0x225),'ar':'كلمة\x20المرور\x20الجديدة'},'fp_confirm_pw_lbl':{'en':a0_0xcb6814(0x333),'ar':a0_0xcb6814(0x2fd)},'fp_reset_btn':{'en':'Change\x20Password','ar':a0_0xcb6814(0x16f)},'fp_success':{'en':a0_0xcb6814(0x30a),'ar':a0_0xcb6814(0x25d)},'fp_err_not_found':{'en':a0_0xcb6814(0x237),'ar':'مفيش\x20حساب\x20مسجل\x20بالبيانات\x20دي.'},'fp_err_no_email':{'en':a0_0xcb6814(0x252),'ar':'الحساب\x20ده\x20مش\x20مسجل\x20عليه\x20إيميل.\x20كلمنا\x20على\x20واتساب\x20علشان\x20نساعدك\x20تستعيد\x20كلمة\x20المرور.'},'fp_err_code':{'en':a0_0xcb6814(0x2a4),'ar':a0_0xcb6814(0x1b5)},'fp_back_login':{'en':a0_0xcb6814(0x1bb),'ar':a0_0xcb6814(0x1d4)},'fp_resend':{'en':a0_0xcb6814(0x388),'ar':a0_0xcb6814(0x199)},'lbl_email_optional':{'en':a0_0xcb6814(0x1f2),'ar':a0_0xcb6814(0x204)},'order_success_msg':{'en':a0_0xcb6814(0x176),'ar':'تم\x20تسجيل\x20طلبك\x20بنجاح!\x20✅'},'order_email_note':{'en':'A\x20confirmation\x20email\x20is\x20on\x20its\x20way\x20to\x20you.','ar':a0_0xcb6814(0x363)},'order_wa_optional':{'en':a0_0xcb6814(0x255),'ar':a0_0xcb6814(0x18b)},'adm_desc_en':{'en':a0_0xcb6814(0x36f),'ar':'الوصف\x20(إنجليزي)\x20—\x20اختياري'},'adm_desc_ar':{'en':a0_0xcb6814(0x181),'ar':a0_0xcb6814(0x325)},'lbl_email_req':{'en':a0_0xcb6814(0x231),'ar':a0_0xcb6814(0x268)},'reg_code_sent':{'en':a0_0xcb6814(0x1eb),'ar':a0_0xcb6814(0x2c8)},'reg_verify_btn':{'en':a0_0xcb6814(0x2b9),'ar':a0_0xcb6814(0x37d)},'reg_change_email':{'en':a0_0xcb6814(0x2d9),'ar':a0_0xcb6814(0x3a7)},'reg_err_email_phone':{'en':'Phone,\x20email,\x20username\x20and\x20password\x20are\x20all\x20required.','ar':a0_0xcb6814(0x1e8)},'stores_more':{'en':a0_0xcb6814(0x379),'ar':a0_0xcb6814(0x1b8)},'dash_hello':{'en':a0_0xcb6814(0x1fe),'ar':'أهلاً'},'dash_eyebrow':{'en':a0_0xcb6814(0x2b3),'ar':a0_0xcb6814(0x1c2)},'dash_tab_profile':{'en':a0_0xcb6814(0x30c),'ar':'بياناتي'},'dash_tab_orders':{'en':a0_0xcb6814(0x28a),'ar':a0_0xcb6814(0x24c)},'dash_tab_new':{'en':a0_0xcb6814(0x30f),'ar':a0_0xcb6814(0x258)},'dash_profile_t':{'en':a0_0xcb6814(0x236),'ar':a0_0xcb6814(0x360)},'dash_profile_d':{'en':'Keep\x20your\x20name\x20and\x20address\x20up\x20to\x20date\x20so\x20deliveries\x20reach\x20you\x20without\x20delay.','ar':a0_0xcb6814(0x353)},'lbl_name':{'en':a0_0xcb6814(0x30e),'ar':a0_0xcb6814(0x26d)},'lbl_governorate':{'en':'Governorate','ar':a0_0xcb6814(0x24a)},'lbl_address':{'en':'Detailed\x20Address','ar':a0_0xcb6814(0x209)},'btn_save':{'en':a0_0xcb6814(0x171),'ar':a0_0xcb6814(0x2f3)},'save_success':{'en':a0_0xcb6814(0x2a0),'ar':a0_0xcb6814(0x2ff)},'email_verified_badge':{'en':a0_0xcb6814(0x2e7),'ar':a0_0xcb6814(0x22f)},'email_unverified_badge':{'en':a0_0xcb6814(0x266),'ar':a0_0xcb6814(0x303)},'email_verify_btn':{'en':a0_0xcb6814(0x21f),'ar':a0_0xcb6814(0x1cd)},'email_verify_sending':{'en':a0_0xcb6814(0x389),'ar':a0_0xcb6814(0x182)},'email_verify_sent':{'en':a0_0xcb6814(0x350),'ar':a0_0xcb6814(0x329)},'email_verify_code_ph':{'en':a0_0xcb6814(0x1fd),'ar':a0_0xcb6814(0x1fb)},'email_verify_confirm':{'en':a0_0xcb6814(0x183),'ar':a0_0xcb6814(0x2a3)},'email_verify_resend':{'en':a0_0xcb6814(0x388),'ar':'إعادة\x20إرسال\x20الكود'},'email_verify_success':{'en':a0_0xcb6814(0x185),'ar':a0_0xcb6814(0x1ee)},'email_verify_wrong':{'en':a0_0xcb6814(0x368),'ar':a0_0xcb6814(0x304)},'email_verify_need_email':{'en':'Please\x20add\x20an\x20email\x20above\x20first.','ar':a0_0xcb6814(0x29f)},'email_verify_save_first':{'en':a0_0xcb6814(0x282),'ar':a0_0xcb6814(0x2ab)},'dash_orders_t':{'en':a0_0xcb6814(0x1ba),'ar':a0_0xcb6814(0x30d)},'dash_orders_d':{'en':a0_0xcb6814(0x2ed),'ar':a0_0xcb6814(0x36c)},'dash_orders_empty':{'en':a0_0xcb6814(0x218),'ar':'لسه\x20مفيش\x20طلبات\x20—\x20أول\x20طلب\x20على\x20بعد\x20لينك\x20واحد\x20بس.'},'dash_new_t':{'en':'Place\x20a\x20new\x20order','ar':a0_0xcb6814(0x167)},'dash_new_d':{'en':a0_0xcb6814(0x1e0),'ar':a0_0xcb6814(0x352)},'dash_new_cta':{'en':a0_0xcb6814(0x180),'ar':a0_0xcb6814(0x1be)},'mart_page_eyebrow':{'en':'ALREADY\x20IN\x20EGYPT','ar':a0_0xcb6814(0x20c)},'mart_page_title':{'en':'Try\x20Shoppy\x20Mart','ar':'تراي\x20شوبي\x20مارت'},'mart_page_sub':{'en':a0_0xcb6814(0x284),'ar':'منتجات\x20بخصومات\x20وأوت\x20ليت\x20ومرتجعات\x20بحالة\x20جيدة،\x20مخلّصة\x20جمركيًا\x20وجاهزة\x20بالمخزن\x20—\x20بدون\x20انتظار\x20جمارك،\x20تشحن\x20في\x20أيام.'},'mart_filter_all':{'en':a0_0xcb6814(0x2b8),'ar':a0_0xcb6814(0x200)},'mart_filter_discount':{'en':a0_0xcb6814(0x1ae),'ar':a0_0xcb6814(0x300)},'mart_filter_outlet':{'en':a0_0xcb6814(0x355),'ar':a0_0xcb6814(0x314)},'mart_filter_returns':{'en':a0_0xcb6814(0x399),'ar':a0_0xcb6814(0x38b)},'mart_order_btn':{'en':a0_0xcb6814(0x37b),'ar':'اطلب\x20عبر\x20واتساب'},'mart_only_left':{'en':'left\x20in\x20stock','ar':a0_0xcb6814(0x294)},'mart_add_to_cart':{'en':a0_0xcb6814(0x16b),'ar':'أضف\x20للسلة'},'mart_added_toast':{'en':a0_0xcb6814(0x38d),'ar':a0_0xcb6814(0x2e1)},'mart_cart_title':{'en':a0_0xcb6814(0x2b6),'ar':a0_0xcb6814(0x2ee)},'mart_cart_empty':{'en':a0_0xcb6814(0x1ec),'ar':a0_0xcb6814(0x2e4)},'mart_cart_subtotal':{'en':a0_0xcb6814(0x395),'ar':a0_0xcb6814(0x2b5)},'mart_cart_checkout':{'en':'Checkout','ar':a0_0xcb6814(0x1da)},'mart_cart_continue':{'en':'Continue\x20Shopping','ar':'استمر\x20في\x20التسوق'},'mart_cart_remove':{'en':a0_0xcb6814(0x32a),'ar':'إزالة'},'mart_cart_close':{'en':a0_0xcb6814(0x240),'ar':a0_0xcb6814(0x1b9)},'mart_checkout_title':{'en':a0_0xcb6814(0x336),'ar':'كمّل\x20طلبك'},'mart_checkout_sub':{'en':a0_0xcb6814(0x215),'ar':a0_0xcb6814(0x2dc)},'mart_btn_place_order':{'en':a0_0xcb6814(0x29b),'ar':'تأكيد\x20الطلب'},'mart_checkout_success':{'en':a0_0xcb6814(0x176),'ar':a0_0xcb6814(0x35e)},'mart_item_singular':{'en':'item','ar':a0_0xcb6814(0x1d9)},'mart_item_plural':{'en':a0_0xcb6814(0x2b0),'ar':a0_0xcb6814(0x197)},'mart_cart_whatsapp_btn':{'en':'Send\x20WhatsApp\x20Confirmation\x20(optional)','ar':a0_0xcb6814(0x23c)},'mart_loading':{'en':a0_0xcb6814(0x323),'ar':a0_0xcb6814(0x295)},'mart_empty':{'en':'No\x20products\x20available\x20right\x20now\x20—\x20check\x20back\x20soon!','ar':'لا\x20توجد\x20منتجات\x20متاحة\x20حاليًا\x20—\x20عد\x20قريبًا!'},'mart_load_error':{'en':'Couldn\x27t\x20load\x20products.\x20Check\x20your\x20connection\x20and\x20refresh.','ar':a0_0xcb6814(0x32f)},'mart_out_of_stock':{'en':'Out\x20of\x20stock','ar':a0_0xcb6814(0x34e)},'adm_title':{'en':a0_0xcb6814(0x2bd),'ar':a0_0xcb6814(0x2d2)},'adm_sub':{'en':a0_0xcb6814(0x346),'ar':a0_0xcb6814(0x393)},'adm_login_title':{'en':'Admin\x20access','ar':a0_0xcb6814(0x269)},'adm_login_sub':{'en':'Log\x20in\x20with\x20your\x20staff\x20account\x20to\x20manage\x20products.','ar':a0_0xcb6814(0x1b1)},'adm_user_label':{'en':'Username','ar':'اسم\x20المستخدم'},'adm_key_label':{'en':a0_0xcb6814(0x33f),'ar':a0_0xcb6814(0x1bf)},'adm_key_btn':{'en':a0_0xcb6814(0x21a),'ar':a0_0xcb6814(0x2cb)},'adm_key_wrong':{'en':a0_0xcb6814(0x17f),'ar':'اسم\x20المستخدم\x20أو\x20كلمة\x20المرور\x20غلط.'},'adm_add_product':{'en':a0_0xcb6814(0x1c3),'ar':a0_0xcb6814(0x1b0)},'adm_edit_product':{'en':'Edit\x20Product','ar':a0_0xcb6814(0x2b7)},'adm_name_en':{'en':a0_0xcb6814(0x169),'ar':a0_0xcb6814(0x27d)},'adm_name_ar':{'en':'Name\x20(Arabic)','ar':a0_0xcb6814(0x262)},'adm_category':{'en':'Category','ar':a0_0xcb6814(0x2e0)},'adm_price':{'en':'Price\x20(EGP)','ar':a0_0xcb6814(0x35f)},'adm_old_price':{'en':a0_0xcb6814(0x210),'ar':a0_0xcb6814(0x1bc)},'adm_stock':{'en':a0_0xcb6814(0x22d),'ar':a0_0xcb6814(0x1ef)},'adm_image':{'en':a0_0xcb6814(0x1e1),'ar':'رابط\x20الصورة'},'adm_image_hint':{'en':a0_0xcb6814(0x1b3),'ar':'الصق\x20رابط\x20صورة\x20مباشر\x20(ينتهي\x20بـ\x20.jpg\x20/\x20.png\x20/\x20.webp).\x20نصيحة:\x20ارفع\x20الصورة\x20على\x20imgur.com\x20أو\x20postimages.org\x20وانسخ\x20الرابط\x20المباشر.'},'adm_active':{'en':a0_0xcb6814(0x2a2),'ar':a0_0xcb6814(0x305)},'adm_save':{'en':a0_0xcb6814(0x196),'ar':a0_0xcb6814(0x3a5)},'adm_cancel':{'en':a0_0xcb6814(0x214),'ar':a0_0xcb6814(0x205)},'adm_delete':{'en':a0_0xcb6814(0x21c),'ar':a0_0xcb6814(0x2d7)},'adm_edit':{'en':a0_0xcb6814(0x2a1),'ar':a0_0xcb6814(0x2bb)},'adm_confirm_delete':{'en':a0_0xcb6814(0x1d2),'ar':a0_0xcb6814(0x289)},'adm_saved':{'en':a0_0xcb6814(0x3a0),'ar':a0_0xcb6814(0x33d)},'adm_deleted':{'en':a0_0xcb6814(0x245),'ar':a0_0xcb6814(0x1d7)},'adm_error':{'en':a0_0xcb6814(0x18a),'ar':'حدث\x20خطأ.\x20حاول\x20مرة\x20أخرى.'},'adm_required':{'en':'Name\x20and\x20price\x20are\x20required.','ar':a0_0xcb6814(0x342)},'adm_products_count':{'en':a0_0xcb6814(0x29e),'ar':a0_0xcb6814(0x1d9)},'adm_no_products':{'en':'No\x20products\x20yet.\x20Add\x20your\x20first\x20one!','ar':a0_0xcb6814(0x38c)},'adm_hidden_badge':{'en':'Hidden','ar':a0_0xcb6814(0x32e)},'adm_logout':{'en':a0_0xcb6814(0x184),'ar':'قفل'},'adm_refresh':{'en':'Refresh','ar':a0_0xcb6814(0x1a5)},'foot_legal_t':{'en':a0_0xcb6814(0x2e2),'ar':'السياسات'},'foot_privacy':{'en':a0_0xcb6814(0x194),'ar':'سياسة\x20الخصوصية'},'foot_terms':{'en':a0_0xcb6814(0x292),'ar':a0_0xcb6814(0x2a5)},'foot_shipping':{'en':a0_0xcb6814(0x1a2),'ar':a0_0xcb6814(0x369)},'foot_returns':{'en':a0_0xcb6814(0x25e),'ar':a0_0xcb6814(0x1b4)},'foot_cancellation':{'en':a0_0xcb6814(0x2e9),'ar':'سياسة\x20الإلغاء'},'foot_restricted':{'en':a0_0xcb6814(0x226),'ar':a0_0xcb6814(0x1a1)},'policy_updated':{'en':a0_0xcb6814(0x2ef),'ar':'آخر\x20تحديث'},'policy_back_home':{'en':a0_0xcb6814(0x3a6),'ar':a0_0xcb6814(0x238)},'policy_related_t':{'en':'Related\x20policies','ar':a0_0xcb6814(0x178)},'policy_contact_t':{'en':a0_0xcb6814(0x326),'ar':a0_0xcb6814(0x1ac)},'policy_contact_cta':{'en':a0_0xcb6814(0x281),'ar':'تواصل\x20معنا\x20على\x20واتساب'},'brand_slogan':{'en':a0_0xcb6814(0x1db),'ar':a0_0xcb6814(0x175)},'calc_title':{'en':a0_0xcb6814(0x2a9),'ar':'حساب\x20وتأكيد\x20الطلب'},'calc_link_label':{'en':'Product\x20Link','ar':a0_0xcb6814(0x366)},'calc_qty_label':{'en':a0_0xcb6814(0x328),'ar':'الكمية'},'calc_country_label':{'en':a0_0xcb6814(0x2bc),'ar':a0_0xcb6814(0x334)},'calc_country_usa':{'en':a0_0xcb6814(0x170),'ar':a0_0xcb6814(0x2d5)},'calc_country_other':{'en':a0_0xcb6814(0x17b),'ar':a0_0xcb6814(0x343)},'calc_country_msg':{'en':a0_0xcb6814(0x18d),'ar':'نعتذر،\x20حالياً\x20نوفر\x20الطلبات\x20من\x20أمريكا\x20فقط.'},'calc_price_label':{'en':a0_0xcb6814(0x392),'ar':a0_0xcb6814(0x24f)},'calc_weight_label':{'en':a0_0xcb6814(0x371),'ar':'الوزن\x20(جرام)\x20*'},'calc_weight_ph':{'en':a0_0xcb6814(0x230),'ar':a0_0xcb6814(0x364)},'calc_category_label':{'en':a0_0xcb6814(0x2b1),'ar':a0_0xcb6814(0x25a)},'calc_category_select':{'en':a0_0xcb6814(0x263),'ar':'اختر\x20الفئة...'},'calc_desc_label':{'en':a0_0xcb6814(0x18e),'ar':a0_0xcb6814(0x381)},'calc_size_ph':{'en':a0_0xcb6814(0x319),'ar':a0_0xcb6814(0x39a)},'calc_color_ph':{'en':a0_0xcb6814(0x1fa),'ar':a0_0xcb6814(0x190)},'calc_notes_ph':{'en':a0_0xcb6814(0x2be),'ar':a0_0xcb6814(0x34c)},'calc_btn_calculate':{'en':a0_0xcb6814(0x2de),'ar':a0_0xcb6814(0x208)},'calc_result_total_label':{'en':a0_0xcb6814(0x256),'ar':a0_0xcb6814(0x2c6)},'calc_result_cod_note':{'en':a0_0xcb6814(0x270),'ar':a0_0xcb6814(0x36e)},'calc_order_no_label':{'en':'Order\x20No.','ar':a0_0xcb6814(0x362)},'calc_shipping_title':{'en':a0_0xcb6814(0x2c2),'ar':a0_0xcb6814(0x1f1)},'calc_name_label':{'en':a0_0xcb6814(0x30e),'ar':a0_0xcb6814(0x26d)},'calc_name_ph':{'en':'Enter\x20your\x20full\x20name','ar':'أدخل\x20اسمك\x20بالكامل'},'calc_phone_label':{'en':a0_0xcb6814(0x166),'ar':'رقم\x20الهاتف'},'calc_gov_label':{'en':'Governorate','ar':'المحافظة'},'calc_gov_select':{'en':a0_0xcb6814(0x19c),'ar':a0_0xcb6814(0x2fb)},'calc_address_label':{'en':a0_0xcb6814(0x309),'ar':a0_0xcb6814(0x209)},'calc_address_ph':{'en':a0_0xcb6814(0x286),'ar':a0_0xcb6814(0x34f)},'calc_btn_confirm':{'en':a0_0xcb6814(0x2ba),'ar':a0_0xcb6814(0x35b)},'calc_btn_whatsapp':{'en':a0_0xcb6814(0x39f),'ar':a0_0xcb6814(0x1e4)},'calc_btn_track':{'en':a0_0xcb6814(0x261),'ar':a0_0xcb6814(0x211)},'calc_alert_country':{'en':a0_0xcb6814(0x19d),'ar':a0_0xcb6814(0x19b)},'calc_alert_missing':{'en':a0_0xcb6814(0x1a6),'ar':a0_0xcb6814(0x16e)},'calc_alert_name':{'en':'Please\x20enter\x20your\x20name','ar':a0_0xcb6814(0x222)},'calc_alert_confirmed':{'en':a0_0xcb6814(0x340),'ar':a0_0xcb6814(0x189)},'calc_btn_addcart':{'en':a0_0xcb6814(0x1c6),'ar':a0_0xcb6814(0x287)},'calc_cart_title':{'en':a0_0xcb6814(0x2b6),'ar':a0_0xcb6814(0x2d3)},'calc_cart_item_qty':{'en':a0_0xcb6814(0x2ce),'ar':a0_0xcb6814(0x31c)},'calc_cart_remove':{'en':a0_0xcb6814(0x32a),'ar':a0_0xcb6814(0x2d7)},'calc_cart_total':{'en':a0_0xcb6814(0x307),'ar':a0_0xcb6814(0x2b5)},'calc_btn_additem':{'en':a0_0xcb6814(0x1a9),'ar':a0_0xcb6814(0x22a)},'calc_btn_checkout':{'en':a0_0xcb6814(0x23f),'ar':'✅\x20إتمام\x20الطلب'},'calc_btn_back_cart':{'en':'←\x20Back\x20to\x20Cart','ar':a0_0xcb6814(0x239)},'calc_btn_confirm_all':{'en':a0_0xcb6814(0x38a),'ar':'تأكيد\x20كل\x20الطلبات'},'calc_alert_added':{'en':a0_0xcb6814(0x28f),'ar':a0_0xcb6814(0x228)},'calc_alert_cart_empty':{'en':a0_0xcb6814(0x2e5),'ar':a0_0xcb6814(0x26c)},'calc_success_title':{'en':a0_0xcb6814(0x306),'ar':a0_0xcb6814(0x373)},'cat_clothes':{'en':'Clothes\x20(Regular)','ar':a0_0xcb6814(0x253)},'cat_jacket':{'en':'Jacket\x20or\x20BALTO','ar':a0_0xcb6814(0x198)},'cat_electronics':{'en':a0_0xcb6814(0x213),'ar':'إلكترونيات'},'cat_shoes_regular':{'en':'Shoes\x20(Regular)','ar':a0_0xcb6814(0x174)},'cat_shoes_boot':{'en':'Shoes\x20(Boot)','ar':a0_0xcb6814(0x293)},'cat_watches':{'en':'Watches','ar':a0_0xcb6814(0x33b)},'cat_accessories':{'en':'Accessories','ar':a0_0xcb6814(0x277)},'cat_cosmetics':{'en':a0_0xcb6814(0x29a),'ar':a0_0xcb6814(0x22e)},'cat_sunglasses':{'en':a0_0xcb6814(0x16a),'ar':a0_0xcb6814(0x267)},'cat_food':{'en':a0_0xcb6814(0x1cb),'ar':a0_0xcb6814(0x20e)},'cat_carparts':{'en':a0_0xcb6814(0x17a),'ar':'قطع\x20غيار\x20سيارات'},'cat_vitamins':{'en':a0_0xcb6814(0x310),'ar':a0_0xcb6814(0x272)},'cat_shampoo':{'en':a0_0xcb6814(0x1dc),'ar':a0_0xcb6814(0x31f)},'cat_bag_small':{'en':a0_0xcb6814(0x1e9),'ar':a0_0xcb6814(0x297)},'cat_bag_back':{'en':a0_0xcb6814(0x1bd),'ar':a0_0xcb6814(0x259)},'cat_bag_large':{'en':a0_0xcb6814(0x380),'ar':a0_0xcb6814(0x2af)},'cat_stationary':{'en':a0_0xcb6814(0x24e),'ar':a0_0xcb6814(0x31a)},'calc_sup_title':{'en':a0_0xcb6814(0x195),'ar':a0_0xcb6814(0x19f)},'calc_sup_type':{'en':a0_0xcb6814(0x299),'ar':a0_0xcb6814(0x390)},'calc_sup_pieces':{'en':a0_0xcb6814(0x26f),'ar':a0_0xcb6814(0x273)},'sup_opt_capsules':{'en':a0_0xcb6814(0x1c4),'ar':a0_0xcb6814(0x2fa)},'sup_opt_gummies':{'en':a0_0xcb6814(0x354),'ar':a0_0xcb6814(0x32b)},'sup_opt_powder':{'en':a0_0xcb6814(0x2f1),'ar':a0_0xcb6814(0x23a)},'sup_opt_liquid':{'en':'Liquid','ar':a0_0xcb6814(0x351)},'sup_unit_tablets':{'en':'tablets','ar':'كبسولة'},'sup_unit_gummies':{'en':a0_0xcb6814(0x367),'ar':a0_0xcb6814(0x32b)},'calc_sup_note_powder':{'en':a0_0xcb6814(0x2cc),'ar':'رجاء\x20إدخال\x20الوزن\x20بالجرام\x20بدقة'},'calc_sup_note_liquid':{'en':a0_0xcb6814(0x35c),'ar':a0_0xcb6814(0x21e)},'calc_sup_note_auto':{'en':a0_0xcb6814(0x315),'ar':a0_0xcb6814(0x27c)},'calc_sup_note_auto2':{'en':a0_0xcb6814(0x235),'ar':'حسب\x20عدد\x20الحبات'},'calcop_badge':{'en':a0_0xcb6814(0x29d),'ar':a0_0xcb6814(0x335)},'calcop_title':{'en':a0_0xcb6814(0x358),'ar':a0_0xcb6814(0x391)},'calcop_sub':{'en':a0_0xcb6814(0x1e7),'ar':a0_0xcb6814(0x1e5)},'calc_dims_label':{'en':a0_0xcb6814(0x249),'ar':a0_0xcb6814(0x1a8)},'calc_length_ph':{'en':'Length\x20(L)','ar':a0_0xcb6814(0x2fe)},'calc_width_ph':{'en':a0_0xcb6814(0x1a0),'ar':a0_0xcb6814(0x280)},'calc_height_ph':{'en':a0_0xcb6814(0x357),'ar':a0_0xcb6814(0x1c7)},'calcop_alert_missing':{'en':a0_0xcb6814(0x2c9),'ar':'برجاء\x20إدخال\x20السعر\x20والفئة\x20والوزن'},'calc_weight_basis_actual':{'en':a0_0xcb6814(0x1ff),'ar':a0_0xcb6814(0x356)},'calc_weight_basis_volumetric':{'en':'Calculated\x20based\x20on\x20volumetric\x20weight','ar':'الحساب\x20بناءً\x20على\x20الوزن\x20الحجمي'},'gov_cairo':{'en':a0_0xcb6814(0x257),'ar':'القاهرة'},'gov_giza':{'en':'Giza','ar':a0_0xcb6814(0x1d3)},'gov_alex':{'en':a0_0xcb6814(0x221),'ar':'الإسكندرية'},'gov_dakahlia':{'en':a0_0xcb6814(0x372),'ar':a0_0xcb6814(0x39b)},'gov_sharqia':{'en':a0_0xcb6814(0x172),'ar':a0_0xcb6814(0x241)},'gov_gharbia':{'en':a0_0xcb6814(0x2f6),'ar':a0_0xcb6814(0x21b)},'gov_monufia':{'en':'Monufia','ar':a0_0xcb6814(0x28b)},'gov_qalyubia':{'en':a0_0xcb6814(0x28c),'ar':'القليوبية'},'gov_beheira':{'en':a0_0xcb6814(0x2e8),'ar':a0_0xcb6814(0x193)},'gov_kafr_elsheikh':{'en':a0_0xcb6814(0x301),'ar':a0_0xcb6814(0x20a)},'gov_damietta':{'en':a0_0xcb6814(0x291),'ar':a0_0xcb6814(0x232)},'gov_portsaid':{'en':a0_0xcb6814(0x26b),'ar':'بورسعيد'},'gov_ismailia':{'en':a0_0xcb6814(0x331),'ar':'الإسماعيلية'},'gov_suez':{'en':a0_0xcb6814(0x17e),'ar':a0_0xcb6814(0x28d)},'gov_faiyum':{'en':'Faiyum','ar':a0_0xcb6814(0x34d)},'gov_beni_suef':{'en':a0_0xcb6814(0x1c9),'ar':a0_0xcb6814(0x1b2)},'gov_minya':{'en':a0_0xcb6814(0x223),'ar':a0_0xcb6814(0x179)},'gov_asyut':{'en':a0_0xcb6814(0x1e6),'ar':'أسيوط'},'gov_sohag':{'en':'Sohag','ar':a0_0xcb6814(0x260)},'gov_qena':{'en':'Qena','ar':'قنا'},'gov_luxor':{'en':'Luxor','ar':a0_0xcb6814(0x296)},'gov_aswan':{'en':'Aswan','ar':a0_0xcb6814(0x374)},'gov_redsea':{'en':a0_0xcb6814(0x26a),'ar':a0_0xcb6814(0x24b)},'gov_newvalley':{'en':a0_0xcb6814(0x31d),'ar':a0_0xcb6814(0x36a)},'gov_matrouh':{'en':a0_0xcb6814(0x37e),'ar':a0_0xcb6814(0x39c)},'gov_north_sinai':{'en':a0_0xcb6814(0x2e3),'ar':'شمال\x20سيناء'},'gov_south_sinai':{'en':a0_0xcb6814(0x386),'ar':a0_0xcb6814(0x1c1)},'trk_pageTitle':{'en':a0_0xcb6814(0x2dd),'ar':a0_0xcb6814(0x30b)},'trk_inputPlaceholder':{'en':a0_0xcb6814(0x2ec),'ar':a0_0xcb6814(0x362)},'trk_inputHint':{'en':a0_0xcb6814(0x1f4),'ar':'يمكنك\x20البحث\x20برقم\x20الطلب\x20(مثال:\x20TRY123\x20أو\x20TRY-123)'},'trk_trackBtn':{'en':a0_0xcb6814(0x20b),'ar':a0_0xcb6814(0x3a8)},'trk_searching':{'en':a0_0xcb6814(0x3a1),'ar':a0_0xcb6814(0x26e)},'trk_emptyInput':{'en':a0_0xcb6814(0x33a),'ar':'يرجى\x20إدخال\x20رقم\x20الطلب'},'trk_connError':{'en':'Connection\x20Error','ar':a0_0xcb6814(0x1d0)},'trk_invalidOrder':{'en':a0_0xcb6814(0x1a7),'ar':a0_0xcb6814(0x227)},'trk_orderLabel':{'en':a0_0xcb6814(0x203),'ar':a0_0xcb6814(0x362)},'trk_qtyLabel':{'en':a0_0xcb6814(0x328),'ar':a0_0xcb6814(0x31c)},'trk_arrivalLabel':{'en':a0_0xcb6814(0x311),'ar':a0_0xcb6814(0x318)},'trk_canceledMsg':{'en':a0_0xcb6814(0x264),'ar':a0_0xcb6814(0x365)},'trk_delayedMsg':{'en':a0_0xcb6814(0x1a3),'ar':a0_0xcb6814(0x17c)},'trk_historyTitle':{'en':'Update\x20History','ar':a0_0xcb6814(0x1ed)},'trk_siblingsTitle':{'en':a0_0xcb6814(0x2da),'ar':a0_0xcb6814(0x1ad)},'trk_helpQuestion':{'en':a0_0xcb6814(0x2f4),'ar':a0_0xcb6814(0x2a7)},'trk_helpCta':{'en':a0_0xcb6814(0x2c3),'ar':a0_0xcb6814(0x361)},'trk_pieceWord':{'en':a0_0xcb6814(0x2b2),'ar':a0_0xcb6814(0x279)},'trk_currency':{'en':a0_0xcb6814(0x31e),'ar':'ج.م'}};let TS_LANG=localStorage[a0_0xcb6814(0x1f6)](a0_0xcb6814(0x23b))||'en';function tsT(_0x58b19b){const _0x2fb785=I18N[_0x58b19b];if(!_0x2fb785)return _0x58b19b;return _0x2fb785[TS_LANG]||_0x2fb785['en']||_0x58b19b;}function tsOther(_0x384f72){const _0x46d04e=I18N[_0x384f72];if(!_0x46d04e)return _0x384f72;const _0x4e0e7c=TS_LANG==='ar'?'en':'ar';return _0x46d04e[_0x4e0e7c]||_0x46d04e['en']||_0x384f72;}function applyI18N(){const _0x53cf9a=a0_0xcb6814;document[_0x53cf9a(0x2c5)][_0x53cf9a(0x16d)](_0x53cf9a(0x2db),TS_LANG),document[_0x53cf9a(0x2c5)][_0x53cf9a(0x16d)]('dir',TS_LANG==='ar'?_0x53cf9a(0x285):_0x53cf9a(0x2f9)),document[_0x53cf9a(0x317)](_0x53cf9a(0x16c))[_0x53cf9a(0x387)](_0x2c8664=>{const _0x57b861=_0x53cf9a,_0x1657a3=_0x2c8664[_0x57b861(0x216)](_0x57b861(0x39d));_0x2c8664[_0x57b861(0x219)]=tsT(_0x1657a3);}),document[_0x53cf9a(0x317)]('[data-i18n-ph]')[_0x53cf9a(0x387)](_0xc53e17=>{const _0x586cd0=_0x53cf9a;_0xc53e17[_0x586cd0(0x16d)](_0x586cd0(0x2c7),tsT(_0xc53e17['getAttribute'](_0x586cd0(0x322))));}),document['querySelectorAll']('.lang-pill')[_0x53cf9a(0x387)](_0x3bf7ac=>{const _0x43ab80=_0x53cf9a;_0x3bf7ac[_0x43ab80(0x219)]=TS_LANG==='ar'?_0x43ab80(0x2ac):_0x43ab80(0x327);});}function toggleLang(){const _0x57c487=a0_0xcb6814;TS_LANG=TS_LANG==='ar'?'en':'ar',localStorage[_0x57c487(0x385)]('ts_lang',TS_LANG),applyI18N(),document[_0x57c487(0x1ab)](new CustomEvent('ts-lang-changed',{'detail':{'lang':TS_LANG}}));}document[a0_0xcb6814(0x2a6)](a0_0xcb6814(0x1dd),applyI18N);
+/* =========================================================
+   TRY SHOPPY — i18n dictionary (English default, Arabic toggle)
+   ========================================================= */
+const I18N = {
+  // ---------- nav ----------
+  nav_home:        { en: "Home", ar: "الرئيسية" },
+  nav_how:         { en: "How it works", ar: "إزاي بنشتغل" },
+  nav_calc:        { en: "Get a Price", ar: "احسب السعر" },
+  nav_track:       { en: "Track Order", ar: "تتبع طلبك" },
+  nav_mart:        { en: "Try Shoppy Mart", ar: "تراي شوبي مارت" },
+  nav_login:       { en: "Login / Register", ar: "تسجيل الدخول" },
+  nav_dashboard:   { en: "My Account", ar: "حسابي" },
+  nav_logout:      { en: "Log out", ar: "تسجيل الخروج" },
+
+  // ---------- common (loading states — reused across pages) ----------
+  common_confirming: { en: "Confirming...", ar: "جاري التأكيد..." },
+  common_saving:      { en: "Saving...", ar: "جاري الحفظ..." },
+  common_sending:      { en: "Sending...", ar: "جاري الإرسال..." },
+  common_processing:      { en: "Processing...", ar: "جاري المعالجة..." },
+  common_loading:      { en: "Loading...", ar: "جاري التحميل..." },
+  common_searching:      { en: "Searching...", ar: "جاري البحث..." },
+  common_checking:      { en: "Checking...", ar: "جاري التحقق..." },
+  common_error_retry:      { en: "Something went wrong. Please try again.", ar: "حصل خطأ، من فضلك حاول تاني." },
+
+  // ---------- hero ----------
+  hero_eyebrow:    { en: "USA → EGYPT SHOPPING & SHIPPING", ar: "شراء وشحن من أمريكا لمصر" },
+  hero_title:      { en: "Send the link.<br>We ship it home.", ar: "ابعت اللينك.<br>واحنا نوصّله لباب البيت." },
+  hero_sub:        { en: "Paste a product link from Amazon, eBay, Walmart, iHerb or almost any US store. We buy it, clear customs, and deliver it anywhere in Egypt — with the full cost shown upfront.", ar: "بعت لينك المنتج من أمازون أو إيباي أو وول مارت أو آيهيرب أو أي متجر أمريكي تقريبًا. هنشتريه، نخلّص الجمارك، ونوصّله لأي مكان في مصر — والتكلفة كاملة قدامك من الأول." },
+  hero_cta_price:  { en: "Calculate My Price", ar: "احسب سعر طلبي" },
+  hero_cta_track:  { en: "Track an Order", ar: "تتبع طلب" },
+  hero_trust:      { en: "No card? No problem — we buy on your behalf.", ar: "معندكش فيزا دولية؟ مفيش مشكلة — هنشتري نيابة عنك." },
+  hero_label_from: { en: "FROM", ar: "من" },
+  hero_label_to:   { en: "TO YOUR DOOR", ar: "لباب البيت" },
+  hero_stamp_calc: { en: "COST CALCULATED", ar: "التكلفة محسوبة" },
+  hero_stamp_cod:  { en: "COD AVAILABLE", ar: "دفع عند الاستلام" },
+
+  // ---------- how it works ----------
+  how_eyebrow:     { en: "FOUR STEPS", ar: "أربع خطوات" },
+  how_title:       { en: "From product link to your doorstep", ar: "من لينك المنتج لحد باب بيتك" },
+  how_sub:         { en: "One simple route, fully tracked at every checkpoint.", ar: "رحلة واحدة بسيطة، متابعة كاملة في كل محطة." },
+  how1_t:          { en: "Send the link", ar: "ابعت اللينك" },
+  how1_d:          { en: "Paste the product link, quantity, size or color into our calculator.", ar: "حط لينك المنتج والكمية والمقاس أو اللون في الحاسبة." },
+  how2_t:          { en: "We calculate everything", ar: "نحسب كل شيء" },
+  how2_d:          { en: "Item price, US shipping, our shipping, and customs — one final EGP number.", ar: "سعر المنتج + الشحن الداخلي + شحننا + الجمارك = رقم واحد نهائي بالجنيه." },
+  how3_t:          { en: "You confirm", ar: "تأكد الطلب" },
+  how3_d:          { en: "Approve the price and choose how you'll pay.", ar: "وافق على السعر واختار طريقة الدفع." },
+  how4_t:          { en: "We buy, ship & deliver", ar: "نشتري ونشحن ونوصّل" },
+  how4_d:          { en: "We purchase it abroad, bring it to Egypt, and hand it to you — tracked the whole way.", ar: "نشتري المنتج من الخارج، نجيبه مصر، ونوصّله لك — مع تتبع كامل في كل خطوة." },
+
+  // ---------- stores ----------
+  stores_eyebrow:  { en: "WE SHOP FROM", ar: "نشتري لك من" },
+  stores_title:    { en: "Almost any US store", ar: "تقريباً أي متجر أمريكي" },
+  stores_sub:      { en: "If it ships inside the US, we can bring it to Egypt.", ar: "لو بيتشحن جوه أمريكا، نقدر نوصلهولك مصر." },
+
+  // ---------- why ----------
+  why_eyebrow:     { en: "WHY TRY SHOPPY", ar: "ليه تراي شوبي" },
+  why_title:       { en: "One local contact, instead of five foreign ones", ar: "جهة واحدة تتعامل معها، بدل خمس جهات أجنبية" },
+  why1_t:          { en: "No international card needed", ar: "مش محتاج فيزا دولية" },
+  why1_d:          { en: "We buy on your behalf — you pay us in Egypt, your way.", ar: "نشتري نيابة عنك — تدفع لنا في مصر بالطريقة اللي تناسبك." },
+  why2_t:          { en: "Price shown before you commit", ar: "السعر النهائي قبل ما توافق" },
+  why2_d:          { en: "Item, shipping and customs combined into one clear EGP price.", ar: "سعر المنتج والشحن والجمارك في رقم واحد واضح بالجنيه." },
+  why3_t:          { en: "Multiple stores, one shipment", ar: "أكتر من متجر، شحنة واحدة" },
+  why3_d:          { en: "Ordering from several sites? We consolidate it for you.", ar: "بتطلب من أكتر من موقع؟ هنجمعهم في شحنة واحدة." },
+  why4_t:          { en: "Tracked from checkout to your door", ar: "متابعة من لحظة الشراء لباب البيت" },
+  why4_d:          { en: "Live order status, anytime, with your order number.", ar: "تابع حالة طلبك في أي وقت برقم الأوردر." },
+
+  // ---------- mart teaser ----------
+  mart_eyebrow:    { en: "NEW", ar: "جديد" },
+  mart_title:      { en: "Try Shoppy Mart", ar: "تراي شوبي مارت" },
+  mart_sub:        { en: "Discounted, outlet and returned items from past Try Shoppy orders — already in Egypt, ready to ship now.", ar: "منتجات بخصومات، أوت ليت، ومرتجعات من طلبات تراي شوبي السابقة — موجودة في مصر وجاهزة للشحن فورًا." },
+  mart_cta:        { en: "Browse the Mart", ar: "تصفح المارت" },
+
+  // ---------- payments ----------
+  pay_eyebrow:     { en: "PAY YOUR WAY", ar: "ادفع بالطريقة اللي تناسبك" },
+  pay_title:       { en: "Flexible payment, all in Egypt", ar: "طرق دفع مرنة، كلها داخل مصر" },
+  pay_cod:         { en: "Cash on Delivery", ar: "الدفع عند الاستلام" },
+  pay_instapay:    { en: "InstaPay", ar: "إنستاباي" },
+  pay_card:        { en: "Visa & Mastercard", ar: "فيزا وماستركارد" },
+  pay_paypal:      { en: "PayPal", ar: "باي بال" },
+  pay_bank:        { en: "Bank Transfer", ar: "تحويل بنكي" },
+
+  // ---------- final CTA ----------
+  cta_title:       { en: "Got a link? Let's price it.", ar: "عندك لينك؟ يلا نحسب سعره." },
+  cta_sub:         { en: "It takes less than a minute to get your final price.", ar: "محتاج أقل من دقيقة لتحصل على السعر النهائي." },
+  cta_btn:         { en: "Open the Calculator", ar: "افتح الحاسبة" },
+
+  // ---------- footer ----------
+  foot_about_t:    { en: "About", ar: "عن تراي شوبي" },
+  foot_about_d:    { en: "Try Shoppy buys, consolidates and ships products from US stores straight to your door in Egypt.", ar: "تراي شوبي بتشتري وتجمّع وتشحن منتجات من المتاجر الأمريكية لباب بيتك في مصر." },
+  foot_links_t:    { en: "Quick Links", ar: "روابط سريعة" },
+  foot_support_t:  { en: "Support", ar: "الدعم" },
+  foot_whatsapp:   { en: "Chat on WhatsApp", ar: "تواصل على واتساب" },
+  foot_facebook:   { en: "Follow us on Facebook", ar: "تابعنا على فيسبوك" },
+  foot_payments_t: { en: "Accepted Payments", ar: "طرق الدفع المتاحة" },
+  foot_rights:     { en: "© 2026 Try Shoppy. All rights reserved.", ar: "© 2026 تراي شوبي. جميع الحقوق محفوظة." },
+
+  // ---------- login / register ----------
+  auth_eyebrow:    { en: "MY ACCOUNT", ar: "حسابي" },
+  auth_title:      { en: "Welcome to Try Shoppy", ar: "أهلاً بيك في تراي شوبي" },
+  auth_sub:        { en: "Log in to track every order in one place.", ar: "سجّل دخولك لتتابع كل طلباتك في مكان واحد." },
+  tab_login:       { en: "Log In", ar: "تسجيل الدخول" },
+  tab_register:    { en: "Create Account", ar: "حساب جديد" },
+  lbl_identifier:  { en: "Phone or Email", ar: "رقم الموبايل أو الإيميل" },
+  lbl_password:    { en: "Password", ar: "كلمة المرور" },
+  lbl_username:    { en: "Username", ar: "اسم المستخدم" },
+  lbl_phone:       { en: "Phone Number", ar: "رقم الموبايل" },
+  lbl_email:       { en: "Email (optional)", ar: "الإيميل (اختياري)" },
+  lbl_confirm:     { en: "Confirm Password", ar: "تأكيد كلمة المرور" },
+  btn_login:       { en: "Log In", ar: "دخول" },
+  btn_register:    { en: "Create My Account", ar: "إنشاء الحساب" },
+  auth_switch_to_register: { en: "New here? Create an account", ar: "لسه جديد؟ اعمل حساب" },
+  auth_switch_to_login:    { en: "Already have an account? Log in", ar: "عندك حساب؟ سجّل دخولك" },
+  auth_err_required:  { en: "Please fill in all required fields.", ar: "من فضلك اكمل كل الحقول المطلوبة." },
+  auth_err_mismatch:  { en: "Passwords don't match.", ar: "كلمتا المرور غير متطابقتين." },
+  auth_err_short:     { en: "Password must be at least 6 characters.", ar: "كلمة المرور لازم تكون 6 أحرف على الأقل." },
+  auth_err_exists:    { en: "An account with this phone, email or username already exists.", ar: "يوجد حساب مسجل بهذا الرقم أو الإيميل أو الاسم." },
+  auth_err_invalid:   { en: "Incorrect phone/email or password.", ar: "رقم الموبايل/الإيميل أو كلمة المرور غير صحيحة." },
+  auth_err_connection: { en: "Couldn't reach the server. Check the connection and try again.", ar: "حصل خطأ في الاتصال. تحقق من الإنترنت وحاول تاني." },
+  auth_success_register: { en: "Account created! Logging you in…", ar: "تم إنشاء الحساب! بنسجلك دخول…" },
+
+  /* ── show/hide password + forgot password ── */
+  pw_show:            { en: "Show password", ar: "إظهار كلمة المرور" },
+  pw_hide:            { en: "Hide password", ar: "إخفاء كلمة المرور" },
+  auth_forgot_link:   { en: "Forgot your password?", ar: "نسيت كلمة المرور؟" },
+  fp_title:           { en: "Reset your password", ar: "استعادة كلمة المرور" },
+  fp_step1_sub:       { en: "Enter your phone, email or username and we'll email you a 6-digit code.", ar: "اكتب رقم موبايلك أو إيميلك أو اسم المستخدم وهنبعتلك كود من 6 أرقام على إيميلك." },
+  fp_identifier_lbl:  { en: "Phone / Email / Username", ar: "رقم الموبايل / الإيميل / اسم المستخدم" },
+  fp_send_code_btn:   { en: "Send Reset Code", ar: "إرسال كود الاستعادة" },
+  fp_code_sent:       { en: "A 6-digit code was sent to your registered email.", ar: "تم إرسال كود من 6 أرقام على الإيميل المسجل بحسابك." },
+  fp_code_lbl:        { en: "6-digit code", ar: "الكود المكوّن من 6 أرقام" },
+  fp_new_pw_lbl:      { en: "New Password", ar: "كلمة المرور الجديدة" },
+  fp_confirm_pw_lbl:  { en: "Confirm New Password", ar: "تأكيد كلمة المرور الجديدة" },
+  fp_reset_btn:       { en: "Change Password", ar: "تغيير كلمة المرور" },
+  fp_success:         { en: "Password changed! You can log in now.", ar: "تم تغيير كلمة المرور! تقدر تسجل دخول دلوقتي." },
+  fp_err_not_found:   { en: "No account matches this phone/email/username.", ar: "مفيش حساب مسجل بالبيانات دي." },
+  fp_err_no_email:    { en: "This account has no email on file. Contact us on WhatsApp to reset your password.", ar: "الحساب ده مش مسجل عليه إيميل. كلمنا على واتساب علشان نساعدك تستعيد كلمة المرور." },
+  fp_err_code:        { en: "The code is incorrect or expired. Request a new one.", ar: "الكود غلط أو انتهت صلاحيته. اطلب كود جديد." },
+  fp_back_login:      { en: "← Back to login", ar: "→ الرجوع لتسجيل الدخول" },
+  fp_resend:          { en: "Resend code", ar: "إعادة إرسال الكود" },
+
+  /* ── order confirmation email ── */
+  lbl_email_optional: { en: "Email (optional — for order confirmation)", ar: "الإيميل (اختياري — لاستلام تأكيد الطلب)" },
+  order_success_msg:  { en: "Your order was placed successfully! ✅", ar: "تم تسجيل طلبك بنجاح! ✅" },
+  order_email_note:   { en: "A confirmation email is on its way to you.", ar: "هيوصلك إيميل تأكيد التسجيل خلال دقائق." },
+  order_wa_optional:  { en: "You can also confirm on WhatsApp (optional):", ar: "وتقدر كمان تأكد على واتساب (اختياري):" },
+
+  /* ── product description (mart admin) ── */
+  adm_desc_en:        { en: "Description (English) — optional", ar: "الوصف (إنجليزي) — اختياري" },
+  adm_desc_ar:        { en: "Description (Arabic) — optional", ar: "الوصف (عربي) — اختياري" },
+
+  /* ── mandatory email verification on register ── */
+  lbl_email_req:      { en: "Email", ar: "الإيميل" },
+  reg_code_sent:      { en: "We sent a 6-digit code to your email. Enter it to confirm your account.", ar: "بعتنالك كود من 6 أرقام على إيميلك. اكتبه هنا لتأكيد حسابك." },
+  reg_verify_btn:     { en: "Confirm & Create Account", ar: "تأكيد وإنشاء الحساب" },
+  reg_change_email:   { en: "Change email", ar: "تغيير الإيميل" },
+  reg_err_email_phone:{ en: "Phone, email, username and password are all required.", ar: "رقم الموبايل والإيميل واسم المستخدم وكلمة المرور كلهم مطلوبين." },
+
+  /* ── homepage brands section ── */
+  stores_more:        { en: "…and hundreds more. Any US store link works.", ar: "…ومئات المتاجر غيرهم. أي لينك من أي متجر أمريكي شغال." },
+
+  // ---------- dashboard ----------
+  dash_hello:      { en: "Hello", ar: "أهلاً" },
+  dash_eyebrow:    { en: "MY ACCOUNT", ar: "حسابي" },
+  dash_tab_profile:{ en: "Profile", ar: "بياناتي" },
+  dash_tab_orders: { en: "My Orders", ar: "طلباتي" },
+  dash_tab_new:    { en: "New Order", ar: "طلب جديد" },
+  dash_profile_t:  { en: "Your details", ar: "بياناتك" },
+  dash_profile_d:  { en: "Keep your name and address up to date so deliveries reach you without delay.", ar: "حافظ على اسمك وعنوانك محدّثين لتوصل طلباتك بدون تأخير." },
+  lbl_name:        { en: "Full Name", ar: "الاسم بالكامل" },
+  lbl_governorate: { en: "Governorate", ar: "المحافظة" },
+  lbl_address:     { en: "Detailed Address", ar: "العنوان بالتفصيل" },
+  btn_save:        { en: "Save Changes", ar: "حفظ التغييرات" },
+  save_success:    { en: "Saved.", ar: "تم الحفظ." },
+
+  // ---------- email verification ----------
+  email_verified_badge:   { en: "Verified", ar: "متأكد منه" },
+  email_unverified_badge: { en: "Not verified", ar: "غير متأكد منه" },
+  email_verify_btn:       { en: "Verify", ar: "تأكيد" },
+  email_verify_sending:   { en: "Sending code…", ar: "جاري إرسال الكود…" },
+  email_verify_sent:      { en: "A 6-digit code was sent to your email.", ar: "تم إرسال كود مكوّن من 6 أرقام لإيميلك." },
+  email_verify_code_ph:   { en: "Enter 6-digit code", ar: "أدخل الكود المكوّن من 6 أرقام" },
+  email_verify_confirm:   { en: "Confirm Code", ar: "تأكيد الكود" },
+  email_verify_resend:    { en: "Resend code", ar: "إعادة إرسال الكود" },
+  email_verify_success:   { en: "Email verified successfully!", ar: "تم تأكيد الإيميل بنجاح!" },
+  email_verify_wrong:     { en: "Incorrect or expired code. Try again.", ar: "الكود غير صحيح أو منتهي الصلاحية. حاول مرة أخرى." },
+  email_verify_need_email:{ en: "Please add an email above first.", ar: "من فضلك أضف إيميلك فوق الأول." },
+  email_verify_save_first:{ en: "Please save your email first, then verify it.", ar: "من فضلك احفظ إيميلك الأول، وبعدين أكّده." },
+  dash_orders_t:   { en: "Order history", ar: "سجل الطلبات" },
+  dash_orders_d:   { en: "All orders linked to your phone number.", ar: "كل الطلبات المرتبطة برقم موبايلك." },
+  dash_orders_empty:{ en: "No orders yet — your first one is one link away.", ar: "لسه مفيش طلبات — أول طلب على بعد لينك واحد بس." },
+  dash_new_t:      { en: "Place a new order", ar: "اعمل طلب جديد" },
+  dash_new_d:      { en: "Use the full calculator to price and confirm your next order.", ar: "استخدم الحاسبة الكاملة لتحسب وتأكد طلبك الجديد." },
+  dash_new_cta:    { en: "Open Calculator", ar: "افتح الحاسبة" },
+
+  // ---------- mart page ----------
+  mart_page_eyebrow:{ en: "ALREADY IN EGYPT", ar: "متوفر في مصر" },
+  mart_page_title: { en: "Try Shoppy Mart", ar: "تراي شوبي مارت" },
+  mart_page_sub:   { en: "Discounted, outlet and lightly-returned items already cleared and in stock — no customs wait, ships in days.", ar: "منتجات بخصومات وأوت ليت ومرتجعات بحالة جيدة، مخلّصة جمركيًا وجاهزة بالمخزن — بدون انتظار جمارك، تشحن في أيام." },
+  mart_filter_all: { en: "All", ar: "الكل" },
+  mart_filter_discount: { en: "Discounted", ar: "خصومات" },
+  mart_filter_outlet:   { en: "Outlet", ar: "أوت ليت" },
+  mart_filter_returns:  { en: "Returns", ar: "مرتجعات" },
+  mart_order_btn:  { en: "Order on WhatsApp", ar: "اطلب عبر واتساب" },
+  mart_only_left:  { en: "left in stock", ar: "متبقي بالمخزن" },
+
+  // ---------- mart cart ----------
+  mart_add_to_cart:    { en: "Add to Cart", ar: "أضف للسلة" },
+  mart_added_toast:    { en: "Added to cart", ar: "تمت الإضافة للسلة" },
+  mart_cart_title:     { en: "Your Cart", ar: "سلتك" },
+  mart_cart_empty:     { en: "Your cart is empty.", ar: "سلتك فاضية." },
+  mart_cart_subtotal:  { en: "Subtotal", ar: "الإجمالي" },
+  mart_cart_checkout:  { en: "Checkout", ar: "إتمام الطلب" },
+  mart_cart_continue:  { en: "Continue Shopping", ar: "استمر في التسوق" },
+  mart_cart_remove:    { en: "Remove", ar: "إزالة" },
+  mart_cart_close:     { en: "Close", ar: "إغلاق" },
+  mart_checkout_title: { en: "Complete your order", ar: "كمّل طلبك" },
+  mart_checkout_sub:   { en: "We'll confirm by WhatsApp right after.", ar: "هنأكد معك على واتساب فورًا." },
+  mart_btn_place_order:{ en: "Place Order", ar: "تأكيد الطلب" },
+  mart_checkout_success:{ en: "Your order was placed successfully! ✅", ar: "تم تسجيل طلبك بنجاح! ✅" },
+  mart_item_singular:  { en: "item", ar: "منتج" },
+  mart_item_plural:    { en: "items", ar: "منتجات" },
+  mart_cart_whatsapp_btn:{ en: "Send WhatsApp Confirmation (optional)", ar: "إرسال تأكيد واتساب (اختياري)" },
+  mart_loading:        { en: "Loading products…", ar: "جاري تحميل المنتجات…" },
+  mart_empty:          { en: "No products available right now — check back soon!", ar: "لا توجد منتجات متاحة حاليًا — عد قريبًا!" },
+  mart_load_error:     { en: "Couldn't load products. Check your connection and refresh.", ar: "تعذّر تحميل المنتجات. تحقق من الاتصال وحدّث الصفحة." },
+  mart_out_of_stock:   { en: "Out of stock", ar: "نفذت الكمية" },
+
+  // ---------- mart admin ----------
+  adm_title:           { en: "Mart Admin", ar: "إدارة المارت" },
+  adm_sub:             { en: "Add, edit and manage Try Shoppy Mart products.", ar: "أضف وعدّل وأدر منتجات تراي شوبي مارت." },
+  adm_login_title:     { en: "Admin access", ar: "دخول الإدارة" },
+  adm_login_sub:       { en: "Log in with your staff account to manage products.", ar: "سجّل دخولك بحساب الموظف بتاعك عشان تدير المنتجات." },
+  adm_user_label:      { en: "Username", ar: "اسم المستخدم" },
+  adm_key_label:       { en: "Password", ar: "كلمة المرور" },
+  adm_key_btn:         { en: "Log In", ar: "دخول" },
+  adm_key_wrong:       { en: "Wrong username or password.", ar: "اسم المستخدم أو كلمة المرور غلط." },
+  adm_add_product:     { en: "Add Product", ar: "إضافة منتج" },
+  adm_edit_product:    { en: "Edit Product", ar: "تعديل منتج" },
+  adm_name_en:         { en: "Name (English)", ar: "الاسم (إنجليزي)" },
+  adm_name_ar:         { en: "Name (Arabic)", ar: "الاسم (عربي)" },
+  adm_category:        { en: "Category", ar: "الفئة" },
+  adm_price:           { en: "Price (EGP)", ar: "السعر (ج.م)" },
+  adm_old_price:       { en: "Old Price (EGP)", ar: "السعر قبل الخصم (ج.م)" },
+  adm_stock:           { en: "Stock Quantity", ar: "الكمية بالمخزن" },
+  adm_image:           { en: "Image URL", ar: "رابط الصورة" },
+  adm_image_hint:      { en: "Paste a direct image link (ends with .jpg / .png / .webp). Tip: upload to imgur.com or postimages.org and copy the direct link.", ar: "الصق رابط صورة مباشر (ينتهي بـ .jpg / .png / .webp). نصيحة: ارفع الصورة على imgur.com أو postimages.org وانسخ الرابط المباشر." },
+  adm_active:          { en: "Visible in Mart", ar: "ظاهر في المارت" },
+  adm_save:            { en: "Save Product", ar: "حفظ المنتج" },
+  adm_cancel:          { en: "Cancel", ar: "إلغاء" },
+  adm_delete:          { en: "Delete", ar: "حذف" },
+  adm_edit:            { en: "Edit", ar: "تعديل" },
+  adm_confirm_delete:  { en: "Delete this product? This can't be undone.", ar: "حذف هذا المنتج؟ لا يمكن التراجع." },
+  adm_saved:           { en: "Product saved.", ar: "تم حفظ المنتج." },
+  adm_deleted:         { en: "Product deleted.", ar: "تم حذف المنتج." },
+  adm_error:           { en: "Something went wrong. Try again.", ar: "حدث خطأ. حاول مرة أخرى." },
+  adm_required:        { en: "Name and price are required.", ar: "الاسم والسعر مطلوبان." },
+  adm_products_count:  { en: "products", ar: "منتج" },
+  adm_no_products:     { en: "No products yet. Add your first one!", ar: "لا توجد منتجات بعد. أضف أول منتج!" },
+  adm_hidden_badge:    { en: "Hidden", ar: "مخفي" },
+  adm_logout:          { en: "Lock", ar: "قفل" },
+  adm_refresh:         { en: "Refresh", ar: "تحديث" },
+
+  // ---------- footer legal column ----------
+  foot_legal_t:        { en: "Legal", ar: "السياسات" },
+  foot_privacy:        { en: "Privacy Policy", ar: "سياسة الخصوصية" },
+  foot_terms:          { en: "Terms & Conditions", ar: "الشروط والأحكام" },
+  foot_shipping:       { en: "Shipping Policy", ar: "سياسة الشحن" },
+  foot_returns:        { en: "Returns & Refunds", ar: "سياسة الاسترجاع" },
+  foot_cancellation:   { en: "Cancellation Policy", ar: "سياسة الإلغاء" },
+  foot_restricted:     { en: "Restricted Items", ar: "المنتجات الممنوعة" },
+
+  // ---------- policy pages (shared chrome) ----------
+  policy_updated:      { en: "Last updated", ar: "آخر تحديث" },
+  policy_back_home:    { en: "Back to Home", ar: "العودة للرئيسية" },
+  policy_related_t:    { en: "Related policies", ar: "سياسات ذات صلة" },
+  policy_contact_t:    { en: "Questions about this policy?", ar: "عندك سؤال عن السياسة دي؟" },
+  policy_contact_cta:  { en: "Chat with us on WhatsApp", ar: "تواصل معنا على واتساب" },
+
+  // ---------- calculator page ----------
+  brand_slogan:        { en: "Your Global Shopping Partner", ar: "شريكك العالمي للتسوق" },
+  calc_title:          { en: "Calculate & Confirm Order", ar: "حساب وتأكيد الطلب" },
+  calc_link_label:     { en: "Product Link", ar: "رابط المنتج" },
+  calc_qty_label:      { en: "Quantity", ar: "الكمية" },
+  calc_country_label:  { en: "Country", ar: "دولة الشراء" },
+  calc_country_usa:    { en: "USA 🇺🇸", ar: "أمريكا 🇺🇸" },
+  calc_country_other:  { en: "Other Countries", ar: "دول أخرى" },
+  calc_country_msg:    { en: "Sorry, we only serve orders from USA currently.", ar: "نعتذر، حالياً نوفر الطلبات من أمريكا فقط." },
+  calc_price_label:    { en: "Total Price in USD *", ar: "السعر شامل شحن الموقع ($) *" },
+  calc_weight_label:   { en: "Weight (g) *", ar: "الوزن (جرام) *" },
+  calc_weight_ph:      { en: "e.g. 500", ar: "مثلاً: 500" },
+  calc_category_label: { en: "Category *", ar: "الفئة *" },
+  calc_category_select:{ en: "Select category...", ar: "اختر الفئة..." },
+  calc_desc_label:     { en: "Additional Description (optional)", ar: "وصف إضافي (اختياري)" },
+  calc_size_ph:        { en: "Size", ar: "المقاس" },
+  calc_color_ph:       { en: "Color", ar: "اللون" },
+  calc_notes_ph:       { en: "Other Notes", ar: "ملاحظات أخرى" },
+  calc_btn_calculate:  { en: "Calculate Price", ar: "احسب السعر النهائي" },
+  calc_result_total_label:{ en: "Total Cost (Shipping & Customs included)", ar: "إجمالي التكلفة شاملة الشحن والجمارك" },
+  calc_result_cod_note:{ en: "Cash on Delivery up to 10,000 EGP, no extra charge ✓ | Final confirmation after review", ar: "الدفع عند الاستلام لحد 10000ج بدون اي زيادة ✓ | التأكيد النهائي بعد المراجعة" },
+  calc_order_no_label: { en: "Order No.", ar: "رقم الطلب" },
+  calc_shipping_title: { en: "Shipping Details", ar: "بيانات الشحن" },
+  calc_name_label:     { en: "Full Name", ar: "الاسم بالكامل" },
+  calc_name_ph:        { en: "Enter your full name", ar: "أدخل اسمك بالكامل" },
+  calc_phone_label:    { en: "Phone Number", ar: "رقم الهاتف" },
+  calc_gov_label:      { en: "Governorate", ar: "المحافظة" },
+  calc_gov_select:     { en: "Select governorate...", ar: "اختر المحافظة..." },
+  calc_address_label:  { en: "Detailed Address", ar: "العنوان بالتفصيل" },
+  calc_address_ph:     { en: "Building number, street name, apartment...", ar: "رقم المبنى، اسم الشارع، الشقة..." },
+  calc_btn_confirm:    { en: "Confirm Order Now", ar: "تأكيد الطلب الآن" },
+  calc_btn_whatsapp:   { en: "Send WhatsApp Confirmation", ar: "إرسال واتساب للتأكيد" },
+  calc_btn_track:      { en: "Track Your Order", ar: "تتبع شحنتك" },
+  calc_alert_country:  { en: "Orders available from USA only", ar: "الطلبات متاحة من أمريكا فقط حاليًا" },
+  calc_alert_missing:  { en: "Please enter the price, category, and actual weight (grams)", ar: "برجاء إدخال السعر، الفئة، والوزن الفعلي (جرام)" },
+  calc_alert_name:     { en: "Please enter your name", ar: "برجاء إدخال الاسم" },
+  calc_alert_confirmed:{ en: "Your order was placed successfully! A confirmation email will be sent to you. Sending a WhatsApp message is optional.", ar: "تم تسجيل طلبك بنجاح! وسيتم إرسال إيميل تأكيد التسجيل. إرسال رسالة الواتساب اختياري." },
+
+  // ---------- cart flow (multi-item calculator) ----------
+  calc_btn_addcart:    { en: "➕ Add to Cart", ar: "➕ أضف للسلة" },
+  calc_cart_title:     { en: "Your Cart", ar: "سلة طلباتك" },
+  calc_cart_item_qty:  { en: "Qty", ar: "الكمية" },
+  calc_cart_remove:    { en: "Remove", ar: "حذف" },
+  calc_cart_total:     { en: "Total", ar: "الإجمالي" },
+  calc_btn_additem:    { en: "➕ Add Another Item", ar: "➕ أضف منتج تاني" },
+  calc_btn_checkout:   { en: "✅ Checkout", ar: "✅ إتمام الطلب" },
+  calc_btn_back_cart:  { en: "← Back to Cart", ar: "← رجوع للسلة" },
+  calc_btn_confirm_all: { en: "Confirm All Orders", ar: "تأكيد كل الطلبات" },
+  calc_alert_added:    { en: "Added to cart ✓", ar: "تمت الإضافة للسلة ✓" },
+  calc_alert_cart_empty: { en: "Your cart is empty — add at least one item first", ar: "السلة فاضية — أضف منتج واحد على الأقل الأول" },
+  calc_success_title:  { en: "Orders Confirmed!", ar: "تم تأكيد الطلبات!" },
+
+  // ---------- category options (value stays fixed English; only the label shown changes) ----------
+  cat_clothes:      { en: "Clothes (Regular)", ar: "ملابس عادية" },
+  cat_jacket:       { en: "Jacket or BALTO", ar: "جاكيت أو بالتو" },
+  cat_electronics:  { en: "Electronics", ar: "إلكترونيات" },
+  cat_shoes_regular:{ en: "Shoes (Regular)", ar: "أحذية عادية" },
+  cat_shoes_boot:   { en: "Shoes (Boot)", ar: "أحذية بوت" },
+  cat_watches:      { en: "Watches", ar: "ساعات" },
+  cat_accessories:  { en: "Accessories", ar: "إكسسوارات" },
+  cat_cosmetics:    { en: "Cosmetics", ar: "مستحضرات تجميل" },
+  cat_sunglasses:   { en: "Sunglasses", ar: "نظارات شمسية" },
+  cat_food:         { en: "Food", ar: "أغذية" },
+  cat_carparts:     { en: "Car Parts", ar: "قطع غيار سيارات" },
+  cat_vitamins:     { en: "Vitamin or Supplements", ar: "فيتامينات ومكملات" },
+  cat_shampoo:      { en: "Shampoo or Conditioner", ar: "شامبو وبلسم" },
+  cat_bag_small:    { en: "Small Hand Bag (Women)", ar: "حقيبة يد صغيرة" },
+  cat_bag_back:     { en: "Back Bag (or Laptop Bag)", ar: "حقيبة ظهر / لابتوب" },
+  cat_bag_large:    { en: "Large Hand Bag (Women)", ar: "حقيبة يد كبيرة" },
+  cat_stationary:   { en: "Stationary", ar: "أدوات مكتبية" },
+
+  // ---------- supplement sub-form (calculator) ----------
+  calc_sup_title:      { en: "Vitamins / Supplements Details", ar: "تفاصيل الفيتامينات / المكملات" },
+  calc_sup_type:       { en: "Product Type", ar: "نوع المنتج" },
+  calc_sup_pieces:     { en: "Piece Count", ar: "عدد الحبات" },
+  sup_opt_capsules:    { en: "Capsules", ar: "كبسولات" },
+  sup_opt_gummies:     { en: "Gummies", ar: "جميز" },
+  sup_opt_powder:      { en: "Powder", ar: "بودر" },
+  sup_opt_liquid:      { en: "Liquid", ar: "سوائل" },
+  sup_unit_tablets:    { en: "tablets", ar: "كبسولة" },
+  sup_unit_gummies:    { en: "gummies", ar: "جميز" },
+  calc_sup_note_powder:{ en: "Please enter the exact weight in grams", ar: "رجاء إدخال الوزن بالجرام بدقة" },
+  calc_sup_note_liquid:{ en: "Please enter the bottle weight — Note: 1ml ≈ 1 gram", ar: "رجاء إدخال وزن العبوة — ملحوظة: 1 مللي = 1 جرام تقريبًا" },
+  calc_sup_note_auto:  { en: "Weight auto-set", ar: "الوزن اتحدد تلقائيًا" },
+  calc_sup_note_auto2: { en: "based on piece count", ar: "حسب عدد الحبات" },
+
+  // ---------- ops calculator (calculatorOP.html — internal tool) ----------
+  calcop_badge:        { en: "INTERNAL TOOL", ar: "أداة داخلية" },
+  calcop_title:        { en: "Quick Price Estimate", ar: "تقدير سريع للسعر" },
+  calcop_sub:          { en: "For staff use — estimates only, no order is created.", ar: "للاستخدام الداخلي فقط — تقدير سعر بدون إنشاء طلب." },
+  calc_dims_label:     { en: "Dimensions in CM (optional)", ar: "الأبعاد بالسنتيمتر (اختياري)" },
+  calc_length_ph:      { en: "Length (L)", ar: "طول (L)" },
+  calc_width_ph:       { en: "Width (W)", ar: "عرض (W)" },
+  calc_height_ph:      { en: "Height (H)", ar: "ارتفاع (H)" },
+  calcop_alert_missing:{ en: "Please enter Price, Category & Weight", ar: "برجاء إدخال السعر والفئة والوزن" },
+  calc_weight_basis_actual:     { en: "Calculated based on actual weight", ar: "الحساب بناءً على الوزن الفعلي" },
+  calc_weight_basis_volumetric: { en: "Calculated based on volumetric weight", ar: "الحساب بناءً على الوزن الحجمي" },
+
+  // ---------- governorate options (value stays the Arabic name; only the label shown changes) ----------
+  gov_cairo:        { en: "Cairo", ar: "القاهرة" },
+  gov_giza:         { en: "Giza", ar: "الجيزة" },
+  gov_alex:         { en: "Alexandria", ar: "الإسكندرية" },
+  gov_dakahlia:     { en: "Dakahlia", ar: "الدقهلية" },
+  gov_sharqia:      { en: "Sharqia", ar: "الشرقية" },
+  gov_gharbia:      { en: "Gharbia", ar: "الغربية" },
+  gov_monufia:      { en: "Monufia", ar: "المنوفية" },
+  gov_qalyubia:     { en: "Qalyubia", ar: "القليوبية" },
+  gov_beheira:      { en: "Beheira", ar: "البحيرة" },
+  gov_kafr_elsheikh:{ en: "Kafr El Sheikh", ar: "كفر الشيخ" },
+  gov_damietta:     { en: "Damietta", ar: "دمياط" },
+  gov_portsaid:     { en: "Port Said", ar: "بورسعيد" },
+  gov_ismailia:     { en: "Ismailia", ar: "الإسماعيلية" },
+  gov_suez:         { en: "Suez", ar: "السويس" },
+  gov_faiyum:       { en: "Faiyum", ar: "الفيوم" },
+  gov_beni_suef:    { en: "Beni Suef", ar: "بني سويف" },
+  gov_minya:        { en: "Minya", ar: "المنيا" },
+  gov_asyut:        { en: "Asyut", ar: "أسيوط" },
+  gov_sohag:        { en: "Sohag", ar: "سوهاج" },
+  gov_qena:         { en: "Qena", ar: "قنا" },
+  gov_luxor:        { en: "Luxor", ar: "الأقصر" },
+  gov_aswan:        { en: "Aswan", ar: "أسوان" },
+  gov_redsea:       { en: "Red Sea", ar: "البحر الأحمر" },
+  gov_newvalley:    { en: "New Valley", ar: "الوادي الجديد" },
+  gov_matrouh:      { en: "Matrouh", ar: "مطروح" },
+  gov_north_sinai:  { en: "North Sinai", ar: "شمال سيناء" },
+  gov_south_sinai:  { en: "South Sinai", ar: "جنوب سيناء" },
+
+  // ---------- track page ----------
+  trk_pageTitle:        { en: "Track Your Order Status", ar: "تتبع حالة طلبك" },
+  trk_inputPlaceholder: { en: "Order Number", ar: "رقم الطلب" },
+  trk_inputHint:        { en: "You can search by order number (e.g. TRY123 or TRY-123)", ar: "يمكنك البحث برقم الطلب (مثال: TRY123 أو TRY-123)" },
+  trk_trackBtn:         { en: "Track Now", ar: "تتبع الآن" },
+  trk_searching:        { en: "Searching...", ar: "جاري البحث..." },
+  trk_emptyInput:       { en: "Please enter an order number", ar: "يرجى إدخال رقم الطلب" },
+  trk_connError:        { en: "Connection Error", ar: "خطأ في الاتصال" },
+  trk_invalidOrder:     { en: "Invalid Order Number", ar: "رقم الطلب غير صحيح" },
+  trk_orderLabel:       { en: "Order No.", ar: "رقم الطلب" },
+  trk_qtyLabel:         { en: "Quantity", ar: "الكمية" },
+  trk_arrivalLabel:     { en: "Expected Arrival", ar: "موعد الوصول المتوقع" },
+  trk_canceledMsg:      { en: "This order has been canceled", ar: "تم إلغاء هذا الطلب" },
+  trk_delayedMsg:       { en: "This order is slightly delayed — we're following up on it", ar: "هذا الطلب متأخر قليلاً عن الموعد المتوقع، نعمل على متابعته" },
+  trk_historyTitle:     { en: "Update History", ar: "سجل التحديثات" },
+  trk_siblingsTitle:    { en: "Your other in-progress orders", ar: "باقي طلباتك الجارية" },
+  trk_helpQuestion:     { en: "Have a question about your order?", ar: "عندك استفسار عن طلبك؟" },
+  trk_helpCta:          { en: "Contact us on WhatsApp 💬", ar: "تواصل معنا على واتساب 💬" },
+  trk_pieceWord:        { en: "pcs", ar: "قطعة" },
+  trk_currency:         { en: "EGP", ar: "ج.م" }
+};
+
+let TS_LANG = localStorage.getItem('ts_lang') || 'en';
+
+function tsT(key){
+  const row = I18N[key];
+  if(!row) return key;
+  return row[TS_LANG] || row.en || key;
+}
+
+/* returns the OTHER language's text for a key — used for small bilingual hints */
+function tsOther(key){
+  const row = I18N[key];
+  if(!row) return key;
+  const other = TS_LANG === 'ar' ? 'en' : 'ar';
+  return row[other] || row.en || key;
+}
+
+function applyI18N(){
+  document.documentElement.setAttribute('lang', TS_LANG);
+  document.documentElement.setAttribute('dir', TS_LANG === 'ar' ? 'rtl' : 'ltr');
+
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key = el.getAttribute('data-i18n');
+    el.innerHTML = tsT(key);
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{
+    el.setAttribute('placeholder', tsT(el.getAttribute('data-i18n-ph')));
+  });
+  document.querySelectorAll('.lang-pill').forEach(btn=>{
+    btn.innerHTML = TS_LANG === 'ar' ? '🌐 English' : '🌐 العربية';
+  });
+  /* ⚠️ FIX: applyI18N used to dispatch 'ts-lang-changed' on EVERY call.
+     Pages like mart.html listen to that event and re-render, and their
+     render functions call applyI18N() again → infinite loop → the whole
+     page froze. The event is now fired ONLY from toggleLang() below,
+     i.e. only when the user actually switches the language. */
+}
+
+function toggleLang(){
+  TS_LANG = TS_LANG === 'ar' ? 'en' : 'ar';
+  localStorage.setItem('ts_lang', TS_LANG);
+  applyI18N();
+  document.dispatchEvent(new CustomEvent('ts-lang-changed', { detail: { lang: TS_LANG } }));
+}
+
+document.addEventListener('DOMContentLoaded', applyI18N);

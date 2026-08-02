@@ -1,1 +1,362 @@
-(function(_0x326fc8,_0x5726ca){const _0x16f7e2=a0_0x4fce,_0xea595d=_0x326fc8();while(!![]){try{const _0x12a15e=parseInt(_0x16f7e2(0x152))/0x1+parseInt(_0x16f7e2(0x154))/0x2+parseInt(_0x16f7e2(0x130))/0x3*(parseInt(_0x16f7e2(0x141))/0x4)+parseInt(_0x16f7e2(0x134))/0x5+parseInt(_0x16f7e2(0x167))/0x6*(-parseInt(_0x16f7e2(0x15f))/0x7)+parseInt(_0x16f7e2(0x121))/0x8*(parseInt(_0x16f7e2(0x133))/0x9)+parseInt(_0x16f7e2(0x137))/0xa*(-parseInt(_0x16f7e2(0x191))/0xb);if(_0x12a15e===_0x5726ca)break;else _0xea595d['push'](_0xea595d['shift']());}catch(_0x20e52e){_0xea595d['push'](_0xea595d['shift']());}}}(a0_0x31ed,0x65233));function tsSetBtnLoading(_0x255c5a,_0x394025){const _0x1d973b=a0_0x4fce;if(!_0x255c5a||_0x255c5a['dataset']['tsLoading']==='1')return;_0x255c5a[_0x1d973b(0x12e)]['tsLoading']='1',_0x255c5a[_0x1d973b(0x12e)][_0x1d973b(0x182)]=_0x255c5a[_0x1d973b(0x11d)];if(_0x255c5a['offsetWidth'])_0x255c5a['style'][_0x1d973b(0x13c)]=_0x255c5a[_0x1d973b(0x163)]+'px';_0x255c5a['disabled']=!![],_0x255c5a['setAttribute'](_0x1d973b(0x11c),_0x1d973b(0x18e)),_0x255c5a[_0x1d973b(0x11d)]=_0x1d973b(0x10d)+(_0x394025||_0x1d973b(0x14a))+_0x1d973b(0x11a);}function tsClearBtnLoading(_0x379a32){const _0x339221=a0_0x4fce;if(!_0x379a32||_0x379a32[_0x339221(0x12e)][_0x339221(0x15c)]!=='1')return;_0x379a32[_0x339221(0x186)]=![],_0x379a32[_0x339221(0x147)](_0x339221(0x11c)),_0x379a32['innerHTML']=_0x379a32[_0x339221(0x12e)]['tsOriginalHtml']||_0x379a32[_0x339221(0x11d)],_0x379a32[_0x339221(0x158)][_0x339221(0x13c)]='',delete _0x379a32['dataset'][_0x339221(0x15c)],delete _0x379a32[_0x339221(0x12e)][_0x339221(0x182)];}(function tsInjectSpinnerCss(){const _0x3a4c5b=a0_0x4fce,_0x18fe79=(function(){let _0x42c7d4=!![];return function(_0x49711e,_0x270cb1){const _0x5c0ee3=_0x42c7d4?function(){const _0x4d860e=a0_0x4fce;if(_0x270cb1){const _0x382508=_0x270cb1[_0x4d860e(0x125)](_0x49711e,arguments);return _0x270cb1=null,_0x382508;}}:function(){};return _0x42c7d4=![],_0x5c0ee3;};}()),_0x4478dc=_0x18fe79(this,function(){const _0x59d13f=a0_0x4fce;if(_0x4478dc[_0x59d13f(0x177)]()[_0x59d13f(0x118)]()[_0x59d13f(0x14e)]('\x0a')!==-0x1)return;return _0x4478dc[_0x59d13f(0x118)]()[_0x59d13f(0x131)](_0x59d13f(0x142))[_0x59d13f(0x118)]()[_0x59d13f(0x145)](_0x4478dc)[_0x59d13f(0x131)](_0x59d13f(0x142));});_0x4478dc();if(document[_0x3a4c5b(0x16e)]('ts-spinner-css'))return;const _0x3984cf=document[_0x3a4c5b(0x112)]('style');_0x3984cf['id']=_0x3a4c5b(0x116),_0x3984cf[_0x3a4c5b(0x12b)]=_0x3a4c5b(0x155)+_0x3a4c5b(0x12d)+_0x3a4c5b(0x161)+_0x3a4c5b(0x10e)+_0x3a4c5b(0x17c),document[_0x3a4c5b(0x16d)][_0x3a4c5b(0x153)](_0x3984cf);}());function tsToast(_0x55e700){const _0xbb09a8=a0_0x4fce;let _0x56e090=document[_0xbb09a8(0x16e)](_0xbb09a8(0x10f));!_0x56e090&&(_0x56e090=document[_0xbb09a8(0x112)](_0xbb09a8(0x11e)),_0x56e090['id']=_0xbb09a8(0x10f),_0x56e090[_0xbb09a8(0x14b)]=_0xbb09a8(0x172),document[_0xbb09a8(0x11f)]['appendChild'](_0x56e090)),_0x56e090[_0xbb09a8(0x12b)]=_0x55e700,_0x56e090[_0xbb09a8(0x148)][_0xbb09a8(0x143)](_0xbb09a8(0x127)),clearTimeout(window[_0xbb09a8(0x187)]),window[_0xbb09a8(0x187)]=setTimeout(()=>_0x56e090[_0xbb09a8(0x148)][_0xbb09a8(0x192)](_0xbb09a8(0x127)),0xc80);}function tsInitNav(){const _0x37188a=a0_0x4fce,_0x77bfd1=document[_0x37188a(0x164)]('.burger'),_0x3a41ec=document[_0x37188a(0x164)](_0x37188a(0x15e));_0x77bfd1&&_0x3a41ec&&_0x77bfd1['addEventListener']('click',()=>_0x3a41ec[_0x37188a(0x148)][_0x37188a(0x113)](_0x37188a(0x185))),typeof toggleLang===_0x37188a(0x13a)&&document[_0x37188a(0x17d)](_0x37188a(0x129))[_0x37188a(0x14c)](_0x265ea4=>{const _0x43842f=_0x37188a;_0x265ea4[_0x43842f(0x13e)](_0x43842f(0x117),toggleLang);}),tsRenderAuthNav(),tsRenderCartBadge(),document[_0x37188a(0x13e)](_0x37188a(0x18f),tsRenderCartBadge),tsInjectPayStrip(),tsInitReveal(),setTimeout(tsInitReveal,0x32);}function tsInjectPayStrip(){const _0x2ac856=a0_0x4fce,_0x2e6b99=document[_0x2ac856(0x164)](_0x2ac856(0x122));if(!_0x2e6b99||_0x2e6b99[_0x2ac856(0x132)][_0x2ac856(0x164)]('.pay-strip'))return;const _0x279460=document[_0x2ac856(0x112)](_0x2ac856(0x11e));_0x279460['className']='pay-strip',_0x279460['innerHTML']=_0x2ac856(0x165)+_0x2ac856(0x196)+_0x2ac856(0x179)+_0x2ac856(0x170)+_0x2ac856(0x17f),_0x2e6b99['parentElement'][_0x2ac856(0x153)](_0x279460);}function tsInitReveal(){const _0x571cee=a0_0x4fce,_0x2d5f67=document[_0x571cee(0x17d)](_0x571cee(0x194));if(!_0x2d5f67[_0x571cee(0x144)])return;if(!(_0x571cee(0x14f)in window)){_0x2d5f67[_0x571cee(0x14c)](_0x31df00=>_0x31df00[_0x571cee(0x148)][_0x571cee(0x143)]('in'));return;}const _0x28753b=new IntersectionObserver(_0x1f6dc1=>{_0x1f6dc1['forEach'](_0x1c7421=>{const _0x51ad1d=a0_0x4fce;_0x1c7421[_0x51ad1d(0x109)]&&(_0x1c7421['target'][_0x51ad1d(0x148)][_0x51ad1d(0x143)]('in'),_0x28753b[_0x51ad1d(0x193)](_0x1c7421[_0x51ad1d(0x13b)]));});},{'threshold':0.12,'rootMargin':'0px\x200px\x20-40px\x200px'});_0x2d5f67['forEach'](_0x2c859b=>_0x28753b[_0x571cee(0x162)](_0x2c859b));}function tsRenderCartBadge(){const _0x43e503=a0_0x4fce,_0x233bee=tsCartCount();document[_0x43e503(0x17d)](_0x43e503(0x18b))[_0x43e503(0x14c)](_0x3c345c=>{const _0x9e9adf=_0x43e503;_0x3c345c[_0x9e9adf(0x12b)]=_0x233bee,_0x3c345c[_0x9e9adf(0x148)][_0x9e9adf(0x113)](_0x9e9adf(0x173),_0x233bee===0x0);});}function tsRenderAuthNav(){const _0x502225=a0_0x4fce,_0x2ec0ac=tsGetSession(),_0x24457d=typeof tsT===_0x502225(0x13a);document[_0x502225(0x17d)](_0x502225(0x190))[_0x502225(0x14c)](_0x575dec=>{const _0x30d605=_0x502225;_0x575dec[_0x30d605(0x11d)]='';const _0x4a171d=document[_0x30d605(0x112)]('a');if(_0x2ec0ac){_0x4a171d[_0x30d605(0x107)]=_0x30d605(0x10a),_0x4a171d[_0x30d605(0x12b)]=_0x24457d?tsT(_0x30d605(0x13d)):_0x30d605(0x126);if(_0x24457d)_0x4a171d[_0x30d605(0x15a)]('data-i18n','nav_dashboard');}else{_0x4a171d['href']=_0x30d605(0x160),_0x4a171d[_0x30d605(0x12b)]=_0x24457d?tsT(_0x30d605(0x119)):'دخول\x20|\x20Login';if(_0x24457d)_0x4a171d['setAttribute'](_0x30d605(0x128),_0x30d605(0x119));}if(_0x575dec[_0x30d605(0x12e)]['authSlot']==='pill')_0x4a171d['className']=_0x30d605(0x176);_0x575dec[_0x30d605(0x153)](_0x4a171d);});}function tsGetSession(){const _0xe88c41=a0_0x4fce;try{return JSON['parse'](localStorage[_0xe88c41(0x168)](_0xe88c41(0x18a)));}catch(_0x4c80b0){return null;}}function tsSetSession(_0x5462a4){const _0x503087=a0_0x4fce;localStorage[_0x503087(0x11b)](_0x503087(0x18a),JSON[_0x503087(0x15b)](_0x5462a4));}function tsClearSession(){const _0x564e7a=a0_0x4fce;localStorage[_0x564e7a(0x184)](_0x564e7a(0x18a));}function tsRequireAuth(){const _0x559d41=a0_0x4fce,_0x558c62=tsGetSession();return!_0x558c62&&(window[_0x559d41(0x156)][_0x559d41(0x107)]=_0x559d41(0x160)),_0x558c62;}function tsNormalizePhone(_0x18af68){const _0x412eb3=a0_0x4fce;return String(_0x18af68||'')[_0x412eb3(0x181)](/\D/g,'')['replace'](/^2/,'')['replace'](/^0/,'');}function a0_0x31ed(){const _0x39bfec=['Dg9Nz2XL','p29YzgvYpq','sgLKzsbWyxnZD29Yza','DhmTC3bPBM5LCI1JC3m','y2XPy2S','Dg9tDhjPBMC','BMf2x2XVz2LU','pc9ZCgfUpG','C2v0sxrLBq','yxjPys1IDxn5','Aw5Uzxjive1m','zgL2','yM9KEq','zgLZCgf0y2HfDMvUDa','mtaXnLDuBNziuG','lNnPDguTzM9VDgvYifTKyxrHlwKXog49iMzVB3rFCgf5BwvUDhnFDcjD','DMvYAwz5rw1HAwXpDha','ChjPy2u','yxbWBhK','2k3yS9IN2kJzIIb8ie15iefJy291BNq','C2HVDW','zgf0ys1PmtHU','lMXHBMCTCgLSBa','ChDFC2HVDW','Dgv4DenVBNrLBNq','ChDFAgLKzq','yM9YzgvYlxrVCc1JB2XVCJP0CMfUC3bHCMvUDdTIB3jKzxiTCMfKAxvZoJuWjtTVCgfJAxr5oI44ntTHBMLTyxrPB246DhmTC3bPBIaUn3mGBgLUzwfYigLUzMLUAxrLoW','zgf0yxnLDa','u2HVDYbWyxnZD29Yza','mZbfterjBw0','C2vHCMnO','CgfYzw50rwXLBwvUDa','mtKZodzrDMTpuhy','mta5nJi1mfHnq2DHAq','CMfUzg9T','CMvZzxrqyxnZD29Yza','nJm5mdmXmeLOrhjPDW','ChvZAa','zMXVB3i','zNvUy3rPB24','DgfYz2v0','BwLUv2LKDgG','BMf2x2rHC2HIB2fYza','ywrKrxzLBNrmAxn0zw5LCG','Bg9NAw5nyxj0qwrTAw4','DgvTCeLK','mJG5mJi4rffVBhfZ','kcGOlISPkYKRksSK','ywrK','BgvUz3rO','y29UC3rYDwn0B3i','Aw5Zzxj0qMvMB3jL','CMvTB3zLqxr0CMLIDxrL','y2XHC3nmAxn0','zgvJCMvTzw50u3rVy2S','2kZyP9IX2yOG2kFzHnMf2lNyP9Me2kZyQs4UlG','y2XHC3noyw1L','zM9YrwfJAa','Aw5WDxrBDhLWzt0ICgfZC3DVCMqIxq','Aw5KzxHpzG','sw50zxjZzwn0Aw9Ut2jZzxj2zxi','C2vUzevTywLSt3rW','CgfYzw50tM9Kzq','ndu1odq1wgzss1zl','yxbWzw5Kq2HPBgq','otC1otzZCvjyuNy','lNrZlxnWAw5Uzxj7zgLZCgXHEtPPBMXPBMuTyMXVy2S7D2LKDgG6mtnWEdTOzwLNAhq6mtnWEdTIB3jKzxi6mI41ChGGC29SAwqGy3vYCMvUDenVBg9YoW','Bg9JyxrPB24','DhLWzq','C3r5Bgu','zMLUywXqCMLJzq','C2v0qxr0CMLIDxrL','C3rYAw5NAwz5','DhnmB2fKAw5N','CMvNAxn0zxi','lM1VyMLSzs1Tzw51','odiYnxPqr0nSyq','Bg9NAw4UAhrTBa','DMvYDgLJywWTywXPz246BwLKzgXLo21HCMDPBI1Szwz0oJDWEdTTyxjNAw4TCMLNAhq6mNb4o30','B2jZzxj2zq','B2zMC2v0v2LKDgG','CxvLCNLtzwXLy3rVCG','phnWyw4Gy2XHC3m9iNbHEs1JAgLWigLTzY1JAgLWiJ48Aw1NihnYyZ0IyxnZzxrZl3bHEw1LBNrZl3zPC2eUCg5NiIbHBhq9iLzPC2eIpJWVC3bHBJ4','y2f0','mtq0sLftvxvy','z2v0sxrLBq','t1jervjtx1nduKLqvf9vuKW','p3bOB25Lpq','CgHVBMu','yNv0Dg9U','AgvHza','z2v0rwXLBwvUDej5swq','ue9tva','phnWyw4Gy2XHC3m9iNbHEs1JAgLWigLTzY1JAgLWiJ48Aw1NihnYyZ0IyxnZzxrZl3bHEw1LBNrZl3bHExbHBc5WBMCIigfSDd0Iugf5ugfSiJ48l3nWyw4+','BM93','Dg9HC3q','AgLKzgvU','tufsvf9quK9evunuu19tq1jjufrFvvjm','AxnbCNjHEq','yNrUigj0BI1ZzwnVBMrHCNK','yMLUza','vfjzlu1buLq','phnWyw4Gy2XHC3m9iNbHEs1JAgLWigLTzY1JAgLWiJ48Aw1NihnYyZ0IyxnZzxrZl3bHEw1LBNrZl2LUC3rHCgf5lNbUzYiGywX0psjjBNn0yvbHEsi+pc9ZCgfUpG','CMvKDwnL','zMLUza','yNv0Dg9UoMrPC2fIBgvKlc5IDg46zgLZywjSzwr7y3vYC29YoM5VDc1HBgXVD2vKo29WywnPDhK6lJG1o30','CxvLCNLtzwXLy3rVCKfSBa','DgHLBG','phnWyw4Gy2XHC3m9iNbHEs1JAgLWigLTzY1JAgLWiJ48Aw1NihnYyZ0IyxnZzxrZl3bHEw1LBNrZl2nVzc5WBMCIigfSDd0Iq2fZAcbVBIbezwXPDMvYEsi+pc9ZCgfUpG','zgvSzxrLtwfYDfbYB2r1y3q','CMvWBgfJzq','DhnpCMLNAw5HBeH0BwW','DhnFy2fSy19Jyxj0','CMvTB3zLsxrLBq','B3bLBG','zgLZywjSzwq','x3rZvg9HC3ruAw1LCG','CgfYC2u','BMfTzq','DhnFC2vZC2LVBG','w2rHDgeTy2fYDc1JB3vUDf0','Cxr5','ANnVBG','Dhj1zq','DhmTy2fYDc1JAgfUz2vK','w2rHDgeTyxv0Ac1ZBg90xq','mJjcAgXXwg8','CMvTB3zL','Dw5VyNnLCNzL','lNjLDMvHBa','8j+rGE+4JW','phnWyw4Gy2XHC3m9iNbHEs1JAgLWigLTzY1JAgLWiJ48Aw1NihnYyZ0IyxnZzxrZl3bHEw1LBNrZl21HC3rLCMnHCMqUCg5NiIbHBhq9iK1HC3rLCMnHCMqIpJWVC3bHBJ4','AhjLzG','Dgv4Da','AxnjBNrLCNnLy3rPBMC','zgfZAgjVyxjKlMH0BwW','DhnFy2fYDa','CgfZC3DVCMq','phnWyw4Gy2XHC3m9iNrZlxnWAw5UzxiIpJWVC3bHBJ48C3bHBJ4','qgTLEwzYyw1LCYb0CY1ZCgLUE3rVE3rYyw5ZzM9YBtPYB3rHDguOmZyWzgvNktT9Fq','DhmTDg9HC3q','zMLSDgvY','ChCTDg9Nz2XL','y3jLyxrLrwXLBwvUDa'];a0_0x31ed=function(){return _0x39bfec;};return a0_0x31ed();}function tsUsersApi(_0x1d3c07){const _0x5317fc=a0_0x4fce;return fetch(TS_CONFIG['USERS_API_URL'],{'method':_0x5317fc(0x16f),'body':JSON['stringify'](_0x1d3c07)})[_0x5317fc(0x17e)](_0x7d570d=>_0x7d570d[_0x5317fc(0x18d)]());}function tsRegister({phone:_0x402407,email:_0x4a88ab,username:_0x5c13ad,password:_0x1ee37b,name:_0xb1bcb4,address:_0x4d83dc,governorate:_0x1a195b}){const _0x1ba9a1=a0_0x4fce;return tsUsersApi({'action':_0x1ba9a1(0x15d),'phone':_0x402407,'email':_0x4a88ab,'username':_0x5c13ad,'password':_0x1ee37b,'name':_0xb1bcb4,'address':_0x4d83dc,'governorate':_0x1a195b});}function tsLogin({identifier:_0x3f5a65,password:_0xf9bdbe}){return tsUsersApi({'action':'login','identifier':_0x3f5a65,'password':_0xf9bdbe});}function tsUpdateProfile({phone:_0x7a4447,name:_0x30a04c,address:_0x2ccd41,governorate:_0x2c980a,email:_0xf5dfd3,token:_0x1ba3b6}){return tsUsersApi({'action':'updateProfile','phone':_0x7a4447,'name':_0x30a04c,'address':_0x2ccd41,'governorate':_0x2c980a,'email':_0xf5dfd3,'token':_0x1ba3b6});}function tsSendEmailOtp(_0xa56d0a){const _0x5e256a=a0_0x4fce;return tsUsersApi({'action':_0x5e256a(0x150),'email':_0xa56d0a});}function tsVerifyEmailOtp(_0x5bf25e,_0x4e66eb){const _0xa097cd=a0_0x4fce;return tsUsersApi({'action':_0xa097cd(0x123),'email':_0x5bf25e,'code':_0x4e66eb});}function tsRequestPasswordReset(_0x2c022a){return tsUsersApi({'action':'requestPasswordReset','identifier':_0x2c022a});}function tsResetPassword(_0x159365,_0x158437,_0x1f27d8){const _0x112e7f=a0_0x4fce;return tsUsersApi({'action':_0x112e7f(0x136),'identifier':_0x159365,'code':_0x158437,'newPassword':_0x1f27d8});}function tsInitPasswordToggles(){const _0x5563ce=a0_0x4fce;document[_0x5563ce(0x17d)](_0x5563ce(0x14d))[_0x5563ce(0x14c)](_0x445e99=>{const _0x1d3a65=_0x5563ce;if(_0x445e99['closest']('.pw-wrap'))return;const _0x157dc4=document[_0x1d3a65(0x112)](_0x1d3a65(0x11e));_0x157dc4[_0x1d3a65(0x14b)]='pw-wrap',_0x445e99[_0x1d3a65(0x151)][_0x1d3a65(0x146)](_0x157dc4,_0x445e99),_0x157dc4['appendChild'](_0x445e99);const _0x2f6b8f=document[_0x1d3a65(0x112)](_0x1d3a65(0x16c));_0x2f6b8f[_0x1d3a65(0x157)]=_0x1d3a65(0x16c),_0x2f6b8f[_0x1d3a65(0x14b)]=_0x1d3a65(0x111),_0x2f6b8f[_0x1d3a65(0x11d)]=_0x1d3a65(0x195),_0x2f6b8f[_0x1d3a65(0x15a)]('aria-label',typeof tsT==='function'?tsT(_0x1d3a65(0x12a)):_0x1d3a65(0x12f)),_0x2f6b8f['addEventListener'](_0x1d3a65(0x117),()=>{const _0x385f9e=_0x1d3a65,_0x5d896e=_0x445e99['type']===_0x385f9e(0x10c);_0x445e99[_0x385f9e(0x157)]=_0x5d896e?_0x385f9e(0x108):_0x385f9e(0x10c),_0x2f6b8f['innerHTML']=_0x5d896e?'🙈':_0x385f9e(0x195),_0x2f6b8f[_0x385f9e(0x15a)]('aria-label',typeof tsT===_0x385f9e(0x13a)?tsT(_0x5d896e?_0x385f9e(0x12c):_0x385f9e(0x12a)):_0x5d896e?_0x385f9e(0x115):_0x385f9e(0x12f)),_0x445e99['focus']();}),_0x157dc4[_0x1d3a65(0x153)](_0x2f6b8f);});}function tsFetchMyOrders(_0x2d0c6d,_0x46e3da){const _0x39a5a0=a0_0x4fce,_0x1a65cd=tsNormalizePhone(_0x2d0c6d),_0x3e6cf2=TS_CONFIG[_0x39a5a0(0x169)]+_0x39a5a0(0x16a)+encodeURIComponent(_0x2d0c6d||'')+'&token='+encodeURIComponent(_0x46e3da||'');return fetch(_0x3e6cf2)[_0x39a5a0(0x17e)](_0x292138=>_0x292138[_0x39a5a0(0x18d)]())[_0x39a5a0(0x17e)](_0x12d03c=>Array[_0x39a5a0(0x175)](_0x12d03c)?_0x12d03c[_0x39a5a0(0x110)](_0x32d8a4=>tsNormalizePhone(_0x32d8a4[_0x39a5a0(0x16b)])===_0x1a65cd):[]);}function tsFetchOrderByNumber(_0x721f7){const _0x97ec45=a0_0x4fce,_0x1835c3=TS_CONFIG[_0x97ec45(0x169)]+_0x97ec45(0x114)+encodeURIComponent(_0x721f7||'');return fetch(_0x1835c3)[_0x97ec45(0x17e)](_0x2a9f03=>_0x2a9f03[_0x97ec45(0x18d)]());}function tsSubmitOrderRow(_0x33bc17){const _0x4647b8=a0_0x4fce;return fetch(TS_CONFIG['ORDERS_SCRIPT_URL'],{'method':'POST','body':JSON[_0x4647b8(0x15b)](_0x33bc17)});}function tsGenerateMartOrderNumber(){const _0x3861d0=a0_0x4fce;return _0x3861d0(0x178)+Math[_0x3861d0(0x139)](0x186a0+Math[_0x3861d0(0x135)]()*0xdbba0);}function tsFetchMartProducts(){const _0x4e3c59=a0_0x4fce;return fetch(TS_CONFIG[_0x4e3c59(0x174)])[_0x4e3c59(0x17e)](_0x235479=>_0x235479[_0x4e3c59(0x18d)]());}function tsMartAdminLogin(_0x53e2ba,_0x24df56){const _0xab781=a0_0x4fce;return fetch(TS_CONFIG['MART_PRODUCTS_SCRIPT_URL'],{'method':_0xab781(0x16f),'body':JSON[_0xab781(0x15b)]({'action':_0xab781(0x13f),'username':_0x53e2ba,'password':_0x24df56})})[_0xab781(0x17e)](_0x5e3aba=>_0x5e3aba[_0xab781(0x18d)]());}function tsSaveMartProduct(_0x26a084,_0x317e69,_0x504ed8){const _0x4c6d08=a0_0x4fce;return fetch(TS_CONFIG[_0x4c6d08(0x174)],{'method':_0x4c6d08(0x16f),'body':JSON[_0x4c6d08(0x15b)]({'action':'saveMartProduct','username':_0x317e69,'password':_0x504ed8,'product':_0x26a084})})['then'](_0x3bec9d=>_0x3bec9d[_0x4c6d08(0x18d)]());}function tsDeleteMartProduct(_0xc4d184,_0x154a66,_0x2d131f){const _0x7c7d36=a0_0x4fce;return fetch(TS_CONFIG[_0x7c7d36(0x174)],{'method':_0x7c7d36(0x16f),'body':JSON[_0x7c7d36(0x15b)]({'action':_0x7c7d36(0x180),'username':_0x154a66,'password':_0x2d131f,'id':_0xc4d184})})[_0x7c7d36(0x17e)](_0x451d03=>_0x451d03[_0x7c7d36(0x18d)]());}function tsDecrementMartStock(_0x4a10c5,_0x10f2f3){const _0x154a1a=a0_0x4fce;return fetch(TS_CONFIG[_0x154a1a(0x174)],{'method':'POST','body':JSON[_0x154a1a(0x15b)]({'action':_0x154a1a(0x149),'id':_0x4a10c5,'qty':_0x10f2f3})})[_0x154a1a(0x17e)](_0x1396f7=>_0x1396f7[_0x154a1a(0x18d)]());}function tsGetCart(){const _0x425d08=a0_0x4fce;try{return JSON[_0x425d08(0x188)](localStorage['getItem'](_0x425d08(0x10b)))||[];}catch(_0x27ba40){return[];}}function tsSaveCart(_0x5fc6d8){const _0x141ac8=a0_0x4fce;localStorage[_0x141ac8(0x11b)](_0x141ac8(0x10b),JSON['stringify'](_0x5fc6d8)),document[_0x141ac8(0x120)](new CustomEvent(_0x141ac8(0x18f),{'detail':{'cart':_0x5fc6d8}}));}function tsAddToCart(_0x23a27f){const _0x8f5aad=a0_0x4fce,_0x53ef6f=tsGetCart(),_0x31a853=_0x53ef6f[_0x8f5aad(0x17b)](_0x224595=>_0x224595['id']===_0x23a27f['id']);return _0x31a853?_0x31a853['qty']+=0x1:_0x53ef6f['push']({'id':_0x23a27f['id'],'name':_0x23a27f[_0x8f5aad(0x189)],'price':_0x23a27f[_0x8f5aad(0x124)],'cat':_0x23a27f[_0x8f5aad(0x166)],'qty':0x1}),tsSaveCart(_0x53ef6f),_0x53ef6f;}function tsUpdateCartQty(_0x58ec55,_0x573956){const _0x1ff4e7=a0_0x4fce;let _0x58b02d=tsGetCart();if(_0x573956<=0x0)_0x58b02d=_0x58b02d[_0x1ff4e7(0x110)](_0x1ecbe0=>_0x1ecbe0['id']!==_0x58ec55);else{const _0x39db11=_0x58b02d[_0x1ff4e7(0x17b)](_0x4e829c=>_0x4e829c['id']===_0x58ec55);if(_0x39db11)_0x39db11[_0x1ff4e7(0x18c)]=_0x573956;}return tsSaveCart(_0x58b02d),_0x58b02d;}function tsRemoveFromCart(_0x5975f3){const _0x20fbc5=a0_0x4fce,_0x5c54e2=tsGetCart()[_0x20fbc5(0x110)](_0x43f667=>_0x43f667['id']!==_0x5975f3);return tsSaveCart(_0x5c54e2),_0x5c54e2;}function tsClearCart(){tsSaveCart([]);}function tsCartCount(){const _0x57d851=a0_0x4fce;return tsGetCart()[_0x57d851(0x17a)]((_0x5a7162,_0x2c6e4f)=>_0x5a7162+_0x2c6e4f[_0x57d851(0x18c)],0x0);}function tsCartSubtotal(){const _0x1936cd=a0_0x4fce;return tsGetCart()[_0x1936cd(0x17a)]((_0x2ac8e4,_0x1f0e59)=>_0x2ac8e4+_0x1f0e59[_0x1936cd(0x18c)]*_0x1f0e59['price'],0x0);}function tsGetCalcCart(){const _0x199101=a0_0x4fce;try{return JSON[_0x199101(0x188)](localStorage[_0x199101(0x168)](_0x199101(0x183)))||[];}catch(_0x378ced){return[];}}function tsSaveCalcCart(_0xbb7dfe){const _0x1d2311=a0_0x4fce;localStorage['setItem'](_0x1d2311(0x183),JSON['stringify'](_0xbb7dfe));}function tsAddToCalcCart(_0x33c7fd){const _0x4aed79=a0_0x4fce,_0x30451b=tsGetCalcCart();return _0x33c7fd[_0x4aed79(0x140)]=Date[_0x4aed79(0x171)]()+'-'+Math[_0x4aed79(0x139)](Math[_0x4aed79(0x135)]()*0x2710),_0x30451b[_0x4aed79(0x138)](_0x33c7fd),tsSaveCalcCart(_0x30451b),_0x30451b;}function tsRemoveFromCalcCart(_0x2018a8){const _0x3db2ea=a0_0x4fce,_0x4f1dc3=tsGetCalcCart()['filter'](_0x104951=>_0x104951[_0x3db2ea(0x140)]!==_0x2018a8);return tsSaveCalcCart(_0x4f1dc3),_0x4f1dc3;}function tsClearCalcCart(){tsSaveCalcCart([]);}function a0_0x4fce(_0x3d061f,_0x544343){_0x3d061f=_0x3d061f-0x107;const _0x21258d=a0_0x31ed();let _0x3745e5=_0x21258d[_0x3d061f];if(a0_0x4fce['ysTWqp']===undefined){var _0x38a01e=function(_0x3bf7fe){const _0x2b760e='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';let _0x35d0f5='',_0x3a2d66='',_0x519528=_0x35d0f5+_0x38a01e,_0x255c5a=(''+function(){return 0x0;})['indexOf']('\x0a')!==-0x1;for(let _0x394025=0x0,_0x379a32,_0x18fe79,_0x4478dc=0x0;_0x18fe79=_0x3bf7fe['charAt'](_0x4478dc++);~_0x18fe79&&(_0x379a32=_0x394025%0x4?_0x379a32*0x40+_0x18fe79:_0x18fe79,_0x394025++%0x4)?_0x35d0f5+=_0x255c5a||_0x519528['charCodeAt'](_0x4478dc+0xa)-0xa!==0x0?String['fromCharCode'](0xff&_0x379a32>>(-0x2*_0x394025&0x6)):_0x394025:0x0){_0x18fe79=_0x2b760e['indexOf'](_0x18fe79);}for(let _0x3984cf=0x0,_0x42c7d4=_0x35d0f5['length'];_0x3984cf<_0x42c7d4;_0x3984cf++){_0x3a2d66+='%'+('00'+_0x35d0f5['charCodeAt'](_0x3984cf)['toString'](0x10))['slice'](-0x2);}return decodeURIComponent(_0x3a2d66);};a0_0x4fce['QVLdBz']=_0x38a01e,a0_0x4fce['KjaakO']={},a0_0x4fce['ysTWqp']=!![];}const _0x31eda8=_0x21258d[0x0],_0x4fceac=_0x3d061f+_0x31eda8,_0x197c20=a0_0x4fce['KjaakO'][_0x4fceac];if(!_0x197c20){const _0x49711e=function(_0x270cb1){this['yUIlRI']=_0x270cb1,this['EtrWpy']=[0x1,0x0,0x0],this['UYrsUo']=function(){return'newState';},this['JgqpgO']='\x5c\x77\x2b\x20\x2a\x5c\x28\x5c\x29\x20\x2a\x7b\x5c\x77\x2b\x20\x2a',this['gQHpIl']='\x5b\x27\x7c\x22\x5d\x2e\x2b\x5b\x27\x7c\x22\x5d\x3b\x3f\x20\x2a\x7d';};_0x49711e['prototype']['ZcCozg']=function(){const _0x5c0ee3=new RegExp(this['JgqpgO']+this['gQHpIl']),_0x382508=_0x5c0ee3['test'](this['UYrsUo']['toString']())?--this['EtrWpy'][0x1]:--this['EtrWpy'][0x0];return this['qfECpx'](_0x382508);},_0x49711e['prototype']['qfECpx']=function(_0x55e700){if(!Boolean(~_0x55e700))return _0x55e700;return this['AzrBry'](this['yUIlRI']);},_0x49711e['prototype']['AzrBry']=function(_0x56e090){for(let _0x77bfd1=0x0,_0x3a41ec=this['EtrWpy']['length'];_0x77bfd1<_0x3a41ec;_0x77bfd1++){this['EtrWpy']['push'](Math['round'](Math['random']())),_0x3a41ec=this['EtrWpy']['length'];}return _0x56e090(this['EtrWpy'][0x0]);},(''+function(){return 0x0;})['indexOf']('\x0a')===-0x1&&new _0x49711e(a0_0x4fce)['ZcCozg'](),_0x3745e5=a0_0x4fce['QVLdBz'](_0x3745e5),a0_0x4fce['KjaakO'][_0x4fceac]=_0x3745e5;}else _0x3745e5=_0x197c20;return _0x3745e5;}function tsCalcCartTotal(){const _0xd32cd6=a0_0x4fce;return tsGetCalcCart()[_0xd32cd6(0x17a)]((_0x36ebcf,_0x22a23a)=>_0x36ebcf+(parseFloat(_0x22a23a[_0xd32cd6(0x159)])||0x0),0x0);}
+/* =========================================================
+   TRY SHOPPY — shared app logic
+   ========================================================= */
+
+/* ---------- 🔒 حماية الأزرار من الضغط المزدوج ----------
+   أي زرار بينتظر رد من السيرفر (Place Order, تسجيل دخول,
+   تحديث حالة, حفظ, حذف...) لازم يستخدم الزوج ده:
+     tsSetBtnLoading(btn, 'جاري التأكيد...')   ← أول ما تبدأ العملية
+     tsClearBtnLoading(btn)                     ← في finally بعد ما تخلص
+   بيقفل الزرار فعليًا (disabled) عشان مستحيل يتضغط تاني، وبيورّي
+   دايرة بتلف + نص مناسب للموقف، ويرجّع شكله الأصلي تلقائيًا. */
+function tsSetBtnLoading(btn, loadingText){
+  if(!btn || btn.dataset.tsLoading === '1') return;
+  btn.dataset.tsLoading = '1';
+  btn.dataset.tsOriginalHtml = btn.innerHTML;
+  if(btn.offsetWidth) btn.style.minWidth = btn.offsetWidth + 'px'; // يمنع تقلّص عرض الزرار وقفزه
+  btn.disabled = true;
+  btn.setAttribute('aria-busy', 'true');
+  btn.innerHTML = '<span class="ts-spinner"></span><span>' + (loadingText || 'جاري المعالجة...') + '</span>';
+}
+function tsClearBtnLoading(btn){
+  if(!btn || btn.dataset.tsLoading !== '1') return;
+  btn.disabled = false;
+  btn.removeAttribute('aria-busy');
+  btn.innerHTML = btn.dataset.tsOriginalHtml || btn.innerHTML;
+  btn.style.minWidth = '';
+  delete btn.dataset.tsLoading;
+  delete btn.dataset.tsOriginalHtml;
+}
+/* حقن CSS الدايرة الدوّارة مرة واحدة بس — بيشتغل في أي صفحة بغض
+   النظر عن الـ stylesheet بتاعها، ولونه بياخد currentColor عشان
+   يتماشى تلقائيًا مع أي زرار (خلفية غامقة أو فاتحة). */
+(function tsInjectSpinnerCss(){
+  if(document.getElementById('ts-spinner-css')) return;
+  const s = document.createElement('style');
+  s.id = 'ts-spinner-css';
+  s.textContent =
+    '.ts-spinner{display:inline-block;width:13px;height:13px;border:2.5px solid currentColor;' +
+    'border-top-color:transparent;border-radius:50%;opacity:.85;animation:ts-spin .7s linear infinite;' +
+    'vertical-align:middle;margin-left:7px;margin-right:2px;}' +
+    '@keyframes ts-spin{to{transform:rotate(360deg);}}' +
+    'button:disabled,.btn:disabled{cursor:not-allowed;opacity:.85;}';
+  document.head.appendChild(s);
+})();
+
+/* ---------- toast ---------- */
+function tsToast(msg){
+  let el = document.getElementById('ts-toast');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'ts-toast';
+    el.className = 'toast';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(window._tsToastTimer);
+  window._tsToastTimer = setTimeout(()=> el.classList.remove('show'), 3200);
+}
+
+/* ---------- mobile menu + nav wiring (call on every page) ---------- */
+function tsInitNav(){
+  const burger = document.querySelector('.burger');
+  const menu = document.querySelector('.mobile-menu');
+  if(burger && menu){
+    burger.addEventListener('click', ()=> menu.classList.toggle('open'));
+  }
+  if(typeof toggleLang === 'function'){
+    document.querySelectorAll('.lang-pill').forEach(btn=>{
+      btn.addEventListener('click', toggleLang);
+    });
+  }
+  tsRenderAuthNav();
+  tsRenderCartBadge();
+  document.addEventListener('ts-cart-changed', tsRenderCartBadge);
+  /* the NEW badge on the Mart tab is pure CSS (::after in style.css),
+     so nothing here — it can never be wiped by applyI18N re-renders. */
+  tsInjectPayStrip();
+  tsInitReveal();
+  setTimeout(tsInitReveal, 50);
+}
+
+/* 💳 payment chips under the footer "Payments" column (all pages)
+   real brand logos — no Vodafone Cash (not an accepted method here) */
+function tsInjectPayStrip(){
+  const h=document.querySelector('.site-footer [data-i18n="foot_payments_t"]');
+  if(!h||h.parentElement.querySelector('.pay-strip')) return;
+  const d=document.createElement('div');
+  d.className='pay-strip';
+  d.innerHTML=
+    '<span class="pay-chip img-chip"><img src="assets/payments/visa.png" alt="Visa"></span>'+
+    '<span class="pay-chip img-chip"><img src="assets/payments/mastercard.png" alt="Mastercard"></span>'+
+    '<span class="pay-chip img-chip"><img src="assets/payments/instapay.png" alt="InstaPay"></span>'+
+    '<span class="pay-chip img-chip"><img src="assets/payments/paypal.png" alt="PayPal"></span>'+
+    '<span class="pay-chip img-chip"><img src="assets/payments/cod.png" alt="Cash on Delivery"></span>';
+  h.parentElement.appendChild(d);
+}
+
+/* 🎞️ scroll-reveal: any element with class="reveal" fades up when it enters view */
+function tsInitReveal(){
+  const els=document.querySelectorAll('.reveal');
+  if(!els.length) return;
+  if(!('IntersectionObserver' in window)){els.forEach(el=>el.classList.add('in'));return;}
+  const io=new IntersectionObserver(entries=>{
+    entries.forEach(en=>{if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target);}});
+  },{threshold:.12,rootMargin:'0px 0px -40px 0px'});
+  els.forEach(el=>io.observe(el));
+}
+
+/* updates every [data-cart-count] element with the current item count.
+   Only meaningful on pages with a cart icon (mart.html), harmless no-op elsewhere. */
+function tsRenderCartBadge(){
+  const count = tsCartCount();
+  document.querySelectorAll('[data-cart-count]').forEach(el=>{
+    el.textContent = count;
+    el.classList.toggle('hidden', count === 0);
+  });
+}
+
+/* swap "Login" nav link for "My Account" once a session exists.
+   Note: this only touches the auth slot itself — it never calls
+   applyI18N() on its own, so it's safe to use even on a page that
+   hasn't loaded i18n.js at all (falls back to a plain bilingual label). */
+function tsRenderAuthNav(){
+  const session = tsGetSession();
+  const hasI18n = typeof tsT === 'function';
+  document.querySelectorAll('[data-auth-slot]').forEach(slot=>{
+    slot.innerHTML = '';
+    const a = document.createElement('a');
+    if(session){
+      a.href = 'dashboard.html';
+      a.textContent = hasI18n ? tsT('nav_dashboard') : 'حسابي | My Account';
+      if(hasI18n) a.setAttribute('data-i18n', 'nav_dashboard');
+    } else {
+      a.href = 'login.html';
+      a.textContent = hasI18n ? tsT('nav_login') : 'دخول | Login';
+      if(hasI18n) a.setAttribute('data-i18n', 'nav_login');
+    }
+    if(slot.dataset.authSlot === 'pill') a.className = 'btn btn-secondary';
+    slot.appendChild(a);
+  });
+}
+
+/* ---------- session (client-side, keyed by phone) ---------- */
+function tsGetSession(){
+  try{ return JSON.parse(localStorage.getItem('ts_session')); }catch(e){ return null; }
+}
+function tsSetSession(profile){
+  localStorage.setItem('ts_session', JSON.stringify(profile));
+}
+function tsClearSession(){
+  localStorage.removeItem('ts_session');
+}
+function tsRequireAuth(){
+  const s = tsGetSession();
+  if(!s){ window.location.href = 'login.html'; }
+  return s;
+}
+function tsNormalizePhone(phone){
+  return String(phone || '').replace(/\D/g, '').replace(/^2/, '').replace(/^0/, '');
+}
+
+/* ---------- Users API (Google Apps Script) ---------- */
+function tsUsersApi(payload){
+  return fetch(TS_CONFIG.USERS_API_URL, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }).then(res => res.json());
+}
+
+function tsRegister({ phone, email, username, password, name, address, governorate }){
+  return tsUsersApi({ action: 'register', phone, email, username, password, name, address, governorate });
+}
+function tsLogin({ identifier, password }){
+  return tsUsersApi({ action: 'login', identifier, password });
+}
+function tsUpdateProfile({ phone, name, address, governorate, email, token }){
+  return tsUsersApi({ action: 'updateProfile', phone, name, address, governorate, email, token });
+}
+function tsSendEmailOtp(email){
+  return tsUsersApi({ action: 'sendEmailOtp', email });
+}
+function tsVerifyEmailOtp(email, code){
+  return tsUsersApi({ action: 'verifyEmailOtp', email, code });
+}
+
+/* ---------- forgot password (code sent to the account's email) ---------- */
+function tsRequestPasswordReset(identifier){
+  return tsUsersApi({ action: 'requestPasswordReset', identifier });
+}
+function tsResetPassword(identifier, code, newPassword){
+  return tsUsersApi({ action: 'resetPassword', identifier, code, newPassword });
+}
+
+/* ---------- show/hide password toggle ----------
+   Call tsInitPasswordToggles() once per page. It wraps every
+   <input type="password"> in a .pw-wrap and adds an eye button
+   that flips the field between password/text. */
+function tsInitPasswordToggles(){
+  document.querySelectorAll('input[type="password"]').forEach(input=>{
+    if(input.closest('.pw-wrap')) return;              // already wired
+    const wrap = document.createElement('div');
+    wrap.className = 'pw-wrap';
+    input.parentNode.insertBefore(wrap, input);
+    wrap.appendChild(input);
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'pw-toggle';
+    btn.innerHTML = '👁️';
+    btn.setAttribute('aria-label', (typeof tsT==='function') ? tsT('pw_show') : 'Show password');
+    btn.addEventListener('click', ()=>{
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      btn.innerHTML = show ? '🙈' : '👁️';
+      btn.setAttribute('aria-label', (typeof tsT==='function') ? tsT(show?'pw_hide':'pw_show') : (show?'Hide password':'Show password'));
+      input.focus();
+    });
+    wrap.appendChild(btn);
+  });
+}
+
+/* ---------- Orders API — رابط واحد للقراءة والكتابة ----------
+   GET  → يرجّع بيانات محدودة حسب هوية الطالب (شوف Orders_Code.gs):
+          - عميل مسجّل دخول (phone+token) → طلباته هو بس
+          - رقم طلب معيّن (order=) → الطلب ده + إخوته بس (تتبع عام)
+          - موظف مسجّل دخول (staffToken) → كل الطلبات (الداشبوردات الداخلية)
+   POST → يضيف طلب جديد أو يحدّث حالة (للحاسبة والمارت والداشبورد) */
+function tsFetchMyOrders(phone, token){
+  const target = tsNormalizePhone(phone);
+  const url = TS_CONFIG.ORDERS_SCRIPT_URL
+    + '?phone=' + encodeURIComponent(phone || '')
+    + '&token=' + encodeURIComponent(token || '');
+  return fetch(url)
+    .then(res => res.json())
+    .then(rows => Array.isArray(rows) ? rows.filter(o => tsNormalizePhone(o.phone) === target) : []);
+}
+
+/* تتبع عام برقم الطلب — من غير تسجيل دخول، بس برقم الطلب بالظبط.
+   السيرفر بيرجّع { success, order, siblings } بدل الشيت كامل. */
+function tsFetchOrderByNumber(orderNumber){
+  const url = TS_CONFIG.ORDERS_SCRIPT_URL + '?order=' + encodeURIComponent(orderNumber || '');
+  return fetch(url).then(res => res.json());
+}
+
+/* يُستخدم من الحاسبة والمارت — نفس الرابط، فقط يختلف رقم الطلب
+   (TRY-xxxxxx للحاسبة العادية، TRY-MARTxxxxxx للمارت) */
+function tsSubmitOrderRow(payload){
+  return fetch(TS_CONFIG.ORDERS_SCRIPT_URL, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+function tsGenerateMartOrderNumber(){
+  return "TRY-MART" + Math.floor(100000 + Math.random() * 900000);
+}
+
+/* ---------- Mart products — شيت وسكريبت منفصلين تمامًا عن الطلبات ----------
+   GET  → قائمة كل منتجات المارت (من الشيت المستقل)
+   POST action:saveMartProduct/deleteMartProduct → عمليات إدارية (تحتاج adminKey) */
+function tsFetchMartProducts(){
+  return fetch(TS_CONFIG.MART_PRODUCTS_SCRIPT_URL)
+    .then(res => res.json());
+}
+/* 🔐 دخول موظف لوحة إدارة المارت — نفس حساب الموظف المستخدم في
+   أدوات التشغيل بالظبط، بيتحقق منه في السيرفر مقابل شيت الموظفين
+   (مفيش أي مفتاح أو باسورد مكتوب في كود الموقع). */
+function tsMartAdminLogin(username, password){
+  return fetch(TS_CONFIG.MART_PRODUCTS_SCRIPT_URL, {
+    method: 'POST',
+    body: JSON.stringify({ action: 'loginMartAdmin', username, password })
+  }).then(res => res.json());
+}
+function tsSaveMartProduct(product, username, password){
+  return fetch(TS_CONFIG.MART_PRODUCTS_SCRIPT_URL, {
+    method: 'POST',
+    body: JSON.stringify({ action: 'saveMartProduct', username, password, product })
+  }).then(res => res.json());
+}
+function tsDeleteMartProduct(id, username, password){
+  return fetch(TS_CONFIG.MART_PRODUCTS_SCRIPT_URL, {
+    method: 'POST',
+    body: JSON.stringify({ action: 'deleteMartProduct', username, password, id })
+  }).then(res => res.json());
+}
+/* بعد شراء منتج فعليًا من المارت، بننقص الكمية في الشيت مباشرة —
+   من غير adminKey لأنه فعل عميل عادي. السيرفر بيتأكد إن الرقم
+   ميقلش عن صفر، ولو فشل النداء لأي سبب الطلب برضه بيكون اتسجل
+   بنجاح في شيت الطلبات (النقصان في المخزون مش شرط لنجاح الطلب). */
+function tsDecrementMartStock(id, qty){
+  return fetch(TS_CONFIG.MART_PRODUCTS_SCRIPT_URL, {
+    method: 'POST',
+    body: JSON.stringify({ action: 'decrementStock', id, qty })
+  }).then(res => res.json());
+}
+
+/* ---------- Try Shoppy Mart cart (localStorage, keyed per browser) ----------
+   Cart item shape: { id, name:{en,ar}, price, qty, cat } */
+function tsGetCart(){
+  try{ return JSON.parse(localStorage.getItem('ts_cart')) || []; }catch(e){ return []; }
+}
+function tsSaveCart(cart){
+  localStorage.setItem('ts_cart', JSON.stringify(cart));
+  document.dispatchEvent(new CustomEvent('ts-cart-changed', { detail: { cart } }));
+}
+function tsAddToCart(product){
+  const cart = tsGetCart();
+  const existing = cart.find(i => i.id === product.id);
+  if(existing){ existing.qty += 1; }
+  else { cart.push({ id: product.id, name: product.name, price: product.price, cat: product.cat, qty: 1 }); }
+  tsSaveCart(cart);
+  return cart;
+}
+function tsUpdateCartQty(id, qty){
+  let cart = tsGetCart();
+  if(qty <= 0){ cart = cart.filter(i => i.id !== id); }
+  else { const item = cart.find(i => i.id === id); if(item) item.qty = qty; }
+  tsSaveCart(cart);
+  return cart;
+}
+function tsRemoveFromCart(id){
+  const cart = tsGetCart().filter(i => i.id !== id);
+  tsSaveCart(cart);
+  return cart;
+}
+function tsClearCart(){
+  tsSaveCart([]);
+}
+function tsCartCount(){
+  return tsGetCart().reduce((sum, i) => sum + i.qty, 0);
+}
+function tsCartSubtotal(){
+  return tsGetCart().reduce((sum, i) => sum + i.qty * i.price, 0);
+}
+
+/* ---------- Calculator cart (localStorage, separate from the Mart cart) ----------
+   Item shape: { tempId, link, usd (unit price), qty, weightGrams, category,
+                 size, color, notes, finalPrice (already ×qty) } */
+function tsGetCalcCart(){
+  try{ return JSON.parse(localStorage.getItem('ts_calc_cart')) || []; }catch(e){ return []; }
+}
+function tsSaveCalcCart(cart){
+  localStorage.setItem('ts_calc_cart', JSON.stringify(cart));
+}
+function tsAddToCalcCart(item){
+  const cart = tsGetCalcCart();
+  item.tempId = Date.now() + '-' + Math.floor(Math.random()*10000);
+  cart.push(item);
+  tsSaveCalcCart(cart);
+  return cart;
+}
+function tsRemoveFromCalcCart(tempId){
+  const cart = tsGetCalcCart().filter(i => i.tempId !== tempId);
+  tsSaveCalcCart(cart);
+  return cart;
+}
+function tsClearCalcCart(){
+  tsSaveCalcCart([]);
+}
+function tsCalcCartTotal(){
+  return tsGetCalcCart().reduce((sum, i) => sum + (parseFloat(i.finalPrice)||0), 0);
+}
