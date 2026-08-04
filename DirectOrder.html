@@ -578,7 +578,17 @@ async function searchExistingCustomer(){
   }
   tsClearBtnLoading(btn);
 
-  const qDigits = q.replace(/\D/g,'');
+  // ⚠️ التطبيع هنا لازم يكون بالظبط زي normalizePhone في
+  // QuickOrder.html — بيشيل أي حروف مش أرقام، وبعدين "2" وحيدة في
+  // الأول (كود مصر لو العميل كتبه)، وبعدين "0" في الأول (لو موجود).
+  // قبل كده كنا بنقارن الأرقام الخام زي ما هي من غير أي تطبيع —
+  // فلو رقم العميل متسجّل في الشيت من غير الصفر الأول ("1008876992")
+  // والموظف بحث بيه **مع** الصفر ("01008876992")، المقارنة كانت
+  // بتفشل لأن النص المطلوب أطول من رقم العميل ومختلف من الأول.
+  // التطبيع على الجانبين هنا بيخلي الشكلين يتساووا دايمًا.
+  function normSearchPhone(v){ return String(v||'').replace(/\D/g,'').replace(/^2/,'').replace(/^0/,''); }
+
+  const qDigits = normSearchPhone(q);
   const qLower = q.toLowerCase();
   const isPhoneSearch = qDigits.length >= 6;
 
@@ -587,7 +597,7 @@ async function searchExistingCustomer(){
   // عشرات الطلبات، مش عايزين نكررها في نتائج البحث
   const byPhone = {};
   allCustomersCache.forEach(o=>{
-    const phoneDigits = String(o.phone||'').replace(/\D/g,'');
+    const phoneDigits = normSearchPhone(o.phone);
     if(!phoneDigits) return;
     const nameMatch = o.customerName && o.customerName.toLowerCase().includes(qLower);
     const phoneMatch = isPhoneSearch && phoneDigits.includes(qDigits);
