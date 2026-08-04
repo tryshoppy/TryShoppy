@@ -229,7 +229,6 @@ function doLogout(){
   localStorage.removeItem("crefUserLabel");
   localStorage.removeItem("crefLoginTime");
   localStorage.removeItem("crefStaffToken");
-  allOrders = null;
   document.getElementById("resultArea").innerHTML = "";
   document.getElementById("phoneInput").value = "";
   showLogin();
@@ -241,11 +240,14 @@ function initAuth(){
 }
 initAuth();
 
-/* ---------- تحميل الطلبات (مرة واحدة في الجلسة، وبتوكن موظف) ---------- */
-let allOrders = null;
-
-async function loadAllOrders(){
-  const url = scriptURL + "?staffToken=" + encodeURIComponent(getStaffToken());
+/* ---------- تحميل طلبات عميل واحد بس (بحث سيرفر-سايد) ----------
+   ⚠️ قبل كده الصفحة كانت بتحمّل *كل* طلبات الشركة أول ما تدوّر
+   على أي عميل، وتفلترهم في المتصفح — ده كان بيبقى أبطأ وأبطأ كل ما
+   عدد الطلبات يكبر (تحميل آلاف الطلبات + تاريخها عشان تلاقي عميل
+   واحد بس). دلوقتي السيرفر نفسه بيفلتر برقم الموبايل ويرجّع طلبات
+   العميل ده بس — حجم البيانات المنقولة صغير وثابت تقريبًا. */
+async function fetchCustomerOrders(phone){
+  const url = scriptURL + "?staffToken=" + encodeURIComponent(getStaffToken()) + "&customerPhone=" + encodeURIComponent(phone);
   const res = await fetch(url);
   const data = await res.json();
   if(!Array.isArray(data)){
@@ -253,7 +255,6 @@ async function loadAllOrders(){
     doLogout();
     throw new Error("Unauthorized");
   }
-  allOrders = data;
   return data;
 }
 
@@ -278,16 +279,16 @@ async function doSearch(){
   tsSetBtnLoading(btn, "جاري البحث...");
   area.innerHTML = '<div class="card empty-hint">جاري تحميل بيانات الطلبات…</div>';
 
+  let matches;
   try{
-    if(!allOrders) await loadAllOrders();
+    matches = await fetchCustomerOrders(target);
   }catch(e){
     tsClearBtnLoading(btn);
-    return; // loadAllOrders already alerted + logged out
+    return; // fetchCustomerOrders already alerted + logged out
   }
 
   tsClearBtnLoading(btn);
 
-  const matches = allOrders.filter(o => normPhone(o.phone) === target);
   if(matches.length === 0){
     area.innerHTML = '<div class="card empty-hint">🚫 مفيش أي طلبات مسجّلة بالرقم ده</div>';
     return;

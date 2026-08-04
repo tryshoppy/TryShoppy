@@ -697,8 +697,29 @@ async function confirmOrder() {
 }
 
 function sendWhatsApp() {
-  const lines = lastOrders.map(o => o.orderNo+' — '+(o.item.category||o.item.link||'')+' x'+o.item.qty+' — '+o.item.finalEGP.toLocaleString()+' EGP').join('\n');
-  let msg = `TRY SHOPPY Orders\n${lines}\n\nName: ${document.getElementById("customerName").value}\nPhone: ${document.getElementById("phone").value}\nGovernorate: ${document.getElementById("governorate").value}\nAddress: ${document.getElementById("address").value}\n\nPlease confirm my order.`;
+  const total = lastOrders.reduce((s,o)=>s+o.item.finalEGP, 0);
+  const itemsLines = lastOrders.map(o => {
+    const item = o.item;
+    const specs = [];
+    if (item.size) specs.push("Size: " + item.size);
+    if (item.color) specs.push("Color: " + item.color);
+    if (item.notes) specs.push("Notes: " + item.notes);
+    const specsLine = specs.length ? " (" + specs.join(" | ") + ")" : "";
+    const productLine = item.link ? item.link : (item.category || "");
+    return "🔖 " + o.orderNo + "\n🔗 " + productLine + "\n📦 Qty: " + item.qty + specsLine + "\n💰 " + item.finalEGP.toLocaleString() + " EGP";
+  }).join("\n\n");
+
+  const msg =
+    "مرحبًا Try Shoppy 👋\n" +
+    "عايز أأكد الطلب ده:\n\n" +
+    itemsLines + "\n\n" +
+    "💰 الإجمالي: " + total.toLocaleString() + " جنيه\n\n" +
+    "👤 الاسم: " + document.getElementById("customerName").value + "\n" +
+    "📞 الموبايل: " + document.getElementById("phone").value + "\n" +
+    "📍 المحافظة: " + document.getElementById("governorate").value + "\n" +
+    "🏠 العنوان: " + document.getElementById("address").value + "\n\n" +
+    "مستني تأكيدكم 🙏";
+
   window.open("https://wa.me/201005609642?text=" + encodeURIComponent(msg));
 }
 

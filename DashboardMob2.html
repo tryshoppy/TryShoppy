@@ -793,11 +793,17 @@ function applyFilters(){
 
   if(renderTimer) clearTimeout(renderTimer);
 
-  renderCards(finalData.slice(0, 30), false);
+  // 🙈 "opex" اسم عميل داخلي خاص — مش المفروض يظهر في القائمة المرئية
+  // خالص في الملف ده تحديدًا، لكن لازم يفضل موجود ومحسوب زي أي طلب
+  // عادي في كل حاجة تانية (totalBox تحت، التجميع، currentViewData) —
+  // فبنستبعده هنا بس، لحظة العرض النهائي على الكروت، مش قبل كده.
+  const displayData = finalData.filter(o => (o.customerName || "").trim().toLowerCase() !== "opex");
 
-  if(finalData.length > 30) {
+  renderCards(displayData.slice(0, 30), false);
+
+  if(displayData.length > 30) {
     renderTimer = setTimeout(() => {
-        renderCards(finalData.slice(30), true); 
+        renderCards(displayData.slice(30), true); 
     }, 500); 
   }
 
@@ -852,7 +858,7 @@ function updateOrder(orderId){
 }
 
 function checkPendingReview() {
-  const pendingOrders = ordersData.filter(o => o.status === "Pending Review");
+  const pendingOrders = ordersData.filter(o => o.status === "Pending Review" && (o.customerName || "").trim().toLowerCase() !== "opex");
   if (pendingOrders.length > 0) {
     let message = `⚠️ عندك ${pendingOrders.length} أوردر Pending Review\n\n`;
     pendingOrders.slice(0,5).forEach(o => { message += `#${o.order} - ${o.customerName}\n`; });
