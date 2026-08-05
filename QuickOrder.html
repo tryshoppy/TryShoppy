@@ -295,8 +295,10 @@ function sendWhatsApp() {
     "🔖 " + d.newOrder + "\n" +
     "🔗 " + d.newLink + "\n" +
     "📦 Qty: " + qty + specsLine + "\n" +
-    "💵 سعر القطعة: " + parseFloat(d.unitEgp || 0).toLocaleString() + " EGP (" + d.unitUsd + " USD)\n" +
-    "💰 الإجمالي: " + finalEGP + " EGP (" + d.newUsd + " USD)\n\n" +
+    "💵 سعر القطعة (EGP): " + parseFloat(d.unitEgp || 0).toLocaleString() + " ج.م\n" +
+    "💵 سعر القطعة (USD): " + d.unitUsd + " $\n" +
+    "💰 الإجمالي (EGP): " + finalEGP + " ج.م\n" +
+    "💰 الإجمالي (USD): " + d.newUsd + " $\n\n" +
     "👤 الاسم: " + d.customerName + "\n" +
     "📞 الموبايل: " + d.phone + "\n" +
     "📍 المحافظة: " + (d.governorate || "") + "\n" +
