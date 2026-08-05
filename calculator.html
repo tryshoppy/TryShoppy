@@ -19,12 +19,14 @@
 .result-box{background:linear-gradient(135deg,var(--y0) 0%,var(--y1) 100%);border-radius:20px;padding:26px;margin:24px 0;text-align:center;animation:fadeUp .4s ease-out;border:1px solid rgba(245,184,32,.2)}
 .result-price{font-family:var(--fm);font-size:2.6rem;font-weight:700;margin:10px 0;color:var(--ink)}
 .result-note{font-size:13px;color:var(--ok);font-weight:700}
+.weight-basis{font-size:12.5px;color:var(--ink-2);margin-top:6px}
 .shipping-head{font-weight:800;font-size:15px;margin:24px 0 18px;display:flex;align-items:center;gap:8px;color:var(--ink)}
 .sup-box{background:var(--gold-wash);border:1.5px dashed var(--gold);border-radius:var(--r2);padding:18px;margin-bottom:18px}
 .sup-box .sup-title{font-weight:800;font-size:14px;color:var(--gold-deep);margin-bottom:14px;display:flex;align-items:center;gap:7px}
 .sup-box .field{margin-bottom:0}
 .sup-note{font-size:12.5px;color:var(--ink-2);margin-top:7px;line-height:1.5}
 .sup-note.warn{color:var(--gold-deep);font-weight:700}
+.shoe-note{font-size:12px;line-height:1.55;color:var(--gold-deep);background:var(--gold-wash);border:1px solid rgba(245,184,32,.28);border-radius:10px;padding:9px 11px;margin-top:8px}
 input:read-only{background:var(--gold-wash);color:var(--gold-deep);font-weight:700;border-color:var(--gold)}
 .hidden{display:none !important}
 /* ---------- cart flow ---------- */
@@ -119,7 +121,15 @@ input:read-only{background:var(--gold-wash);color:var(--gold-deep);font-weight:7
             <option value="Large Size Hand bag (women)" data-i18n="cat_bag_large">Large Hand Bag (Women)</option>
             <option value="Stationary" data-i18n="cat_stationary">Stationary</option>
           </select>
+          <div id="shoeBoxNote" class="shoe-note hidden"></div>
         </div>
+      </div>
+
+      <label data-i18n="calc_dims_label" style="margin-bottom:8px">Dimensions in CM (optional)</label>
+      <div class="dims">
+        <input id="dimLength" type="number" min="0" step="any" data-i18n-ph="calc_length_ph" placeholder="Length (L)">
+        <input id="dimWidth" type="number" min="0" step="any" data-i18n-ph="calc_width_ph" placeholder="Width (W)">
+        <input id="dimHeight" type="number" min="0" step="any" data-i18n-ph="calc_height_ph" placeholder="Height (H)">
       </div>
 
       <div id="supplementBox" class="sup-box hidden">
@@ -155,6 +165,7 @@ input:read-only{background:var(--gold-wash);color:var(--gold-deep);font-weight:7
         <div class="result-box">
           <div style="font-size:13px;color:var(--ink2)" data-i18n="calc_result_total_label">Total Cost (Shipping &amp; Customs included)</div>
           <div id="priceDetails" class="result-price">— EGP</div>
+          <div id="weightBasisMsg" class="weight-basis"></div>
           <div class="result-note" data-i18n="calc_result_cod_note">Cash on Delivery up to 10,000 EGP ✓</div>
         </div>
         <button class="btn btn-dark btn-block" onclick="addCurrentToCart()" data-i18n="calc_btn_addcart">➕ Add to Cart</button>
@@ -255,7 +266,7 @@ input:read-only{background:var(--gold-wash);color:var(--gold-deep);font-weight:7
 <script src="assets/app.js"></script>
 <script>
 tsInitNav();
-let finalPrice=0, usdTotal=0, lastOrders=[];
+let finalPrice=0, usdTotal=0, lastOrders=[], lastChargeableWeight=0, lastUsedVolumetric=false;
 
 function showStep(step){
   document.getElementById('stepCalc').classList.toggle('hidden', step!=='calc');
@@ -279,11 +290,23 @@ function checkCountry(){const v=document.getElementById('country').value;documen
    ============================================ */
 function isManualWeightType(type){ return type==='powder' || type==='liquid'; }
 
+function renderShoeBoxNote(){
+  const cat=document.getElementById('category').value;
+  const shoeNote=document.getElementById('shoeBoxNote');
+  const isShoes=cat==='Shoes (Regular)' || cat==='Shoes (Boot)';
+  if(!shoeNote) return;
+  shoeNote.textContent = TS_LANG==='ar'
+    ? '📦 يتم إزالة بوكس الحذاء لتقليل تكلفة الشحن. في حال رغبتك في استلام الحذاء بالبوكس بتكلفة إضافية، يُرجى طلب ذلك في خانة الملاحظات.'
+    : '📦 The shoe box is removed to reduce shipping costs. If you would like the shoes delivered with the box for an additional charge, please request it in the notes.';
+  shoeNote.classList.toggle('hidden', !isShoes);
+}
+
 function onCategoryChange(){
   const cat=document.getElementById('category').value;
   const box=document.getElementById('supplementBox');
   const weightInput=document.getElementById('weight');
   const note=document.getElementById('weightAutoNote');
+  renderShoeBoxNote();
   if(cat==='Vitamin or Supplements'){
     box.classList.remove('hidden');
     onSupplementTypeChange();
@@ -353,6 +376,7 @@ function onSupplementRangeChange(){
 
 /* re-render dynamic supplement text when the site language flips */
 document.addEventListener('ts-lang-changed', ()=>{
+  renderShoeBoxNote();
   const box=document.getElementById('supplementBox');
   if(box.classList.contains('hidden')) return;
   const type=document.getElementById('supplementType').value||'capsules';
@@ -368,20 +392,43 @@ document.addEventListener('ts-lang-changed', ()=>{
 });
 document.addEventListener('ts-lang-changed', ()=>{ if(!document.getElementById('stepCart').classList.contains('hidden')) renderCart(); });
 
+function renderWeightBasis(usedVolumetric){
+  const el=document.getElementById('weightBasisMsg');
+  if(!el) return;
+  el.textContent = usedVolumetric ? tsT('calc_weight_basis_volumetric') : tsT('calc_weight_basis_actual');
+}
+
+document.addEventListener('ts-lang-changed', ()=>{
+  const result=document.getElementById('resultArea');
+  if(result && !result.classList.contains('hidden')) renderWeightBasis(lastUsedVolumetric);
+});
+
 function calculatePrice(){
   if(document.getElementById('country').value==='OTHER'){alert(tsT('calc_alert_country'));return;}
   const usd=parseFloat(document.getElementById('price').value);
-  const weightG=parseFloat(document.getElementById('weight').value);
+  const actualWeight=parseFloat(document.getElementById('weight').value);
   const cat=document.getElementById('category').value;
   const qty=parseInt(document.getElementById('quantity').value)||1;
-  if(!usd||!cat||!weightG){alert(tsT('calc_alert_missing'));return;}
+
+  const l=parseFloat(document.getElementById('dimLength').value)||0;
+  const w=parseFloat(document.getElementById('dimWidth').value)||0;
+  const h=parseFloat(document.getElementById('dimHeight').value)||0;
+  const volumetricWeight=(l*w*h/6000)*1000;
+
+  if(!usd||!cat||!actualWeight){alert(tsT('calc_alert_missing'));return;}
   usdTotal=usd*qty;
 
+  // نفس منطق CalculatorOP: نستخدم الأكبر بين الوزن الفعلي والوزن الحجمي.
+  // منطق التسعير نفسه يظل داخل function_calc.js بدون أي تغيير.
+  lastChargeableWeight=Math.max(actualWeight,volumetricWeight);
+  lastUsedVolumetric=volumetricWeight>actualWeight;
+
   /* ✅ المعادلة من function_calc.js — عدّل الأسعار هناك فقط */
-  const result=tryShoppyCalculatePrice({usd,category:cat,weightGrams:weightG,quantity:qty});
+  const result=tryShoppyCalculatePrice({usd,category:cat,weightGrams:lastChargeableWeight,quantity:qty});
   finalPrice=result.finalPrice;
 
   document.getElementById('priceDetails').innerHTML=finalPrice.toLocaleString()+' EGP';
+  renderWeightBasis(lastUsedVolumetric);
   document.getElementById('resultArea').classList.remove('hidden');
   document.getElementById('resultArea').scrollIntoView({behavior:'smooth'});
 }
@@ -394,13 +441,21 @@ function addCurrentToCart(){
   const link=document.getElementById('productLink').value;
   const qty=parseInt(document.getElementById('quantity').value)||1;
   const usd=parseFloat(document.getElementById('price').value);
-  const weightG=parseFloat(document.getElementById('weight').value);
+  const actualWeight=parseFloat(document.getElementById('weight').value);
   const cat=document.getElementById('category').value;
+  const dimLength=parseFloat(document.getElementById('dimLength').value)||0;
+  const dimWidth=parseFloat(document.getElementById('dimWidth').value)||0;
+  const dimHeight=parseFloat(document.getElementById('dimHeight').value)||0;
+  const volumetricWeight=(dimLength*dimWidth*dimHeight/6000)*1000;
+  const chargeableWeight=Math.max(actualWeight,volumetricWeight);
   const size=document.getElementById('length').value;
   const color=document.getElementById('width').value;
   const notes=document.getElementById('height').value;
 
-  tsAddToCalcCart({ link, usd, qty, weightGrams:weightG, category:cat, size, color, notes, finalPrice });
+  tsAddToCalcCart({
+    link, usd, qty, weightGrams:chargeableWeight, actualWeightGrams:actualWeight,
+    dimLength, dimWidth, dimHeight, category:cat, size, color, notes, finalPrice
+  });
   tsToast(tsT('calc_alert_added'));
 
   // نضفّي الفورم عشان يبقى جاهز لمنتج تاني من غير أي بيانات قديمة متسيبة
@@ -410,9 +465,15 @@ function addCurrentToCart(){
   document.getElementById('weight').value='';
   document.getElementById('weight').readOnly=false;
   document.getElementById('category').value='';
+  renderShoeBoxNote();
   document.getElementById('length').value='';
   document.getElementById('width').value='';
   document.getElementById('height').value='';
+  document.getElementById('dimLength').value='';
+  document.getElementById('dimWidth').value='';
+  document.getElementById('dimHeight').value='';
+  lastChargeableWeight=0;
+  lastUsedVolumetric=false;
   document.getElementById('supplementBox').classList.add('hidden');
   document.getElementById('weightAutoNote').classList.add('hidden');
   document.getElementById('resultArea').classList.add('hidden');
@@ -504,7 +565,10 @@ async function confirmOrder(){
     // اتسجل وهو فعليًا فشل يتسجل لأي سبب شبكة
     const results = await Promise.all(cartWithOrders.map(({item,orderNo}, idx)=>{
       orders.push({orderNo, item});
-      const dimensions='Size: '+(item.size||'-')+' | Color: '+(item.color||'-')+' | Notes: '+(item.notes||'-');
+      const packageDims = item.dimLength && item.dimWidth && item.dimHeight
+        ? item.dimLength+' × '+item.dimWidth+' × '+item.dimHeight+' cm'
+        : '-';
+      const dimensions='Package: '+packageDims+' | Size: '+(item.size||'-')+' | Color: '+(item.color||'-')+' | Notes: '+(item.notes||'-');
       return tsSubmitOrderRow({
         order:orderNo, customerName:name, phone, email, country, address, governorate,
         link:item.link, quantity:item.qty, usd:(item.usd*item.qty), weight:item.weightGrams,
@@ -543,6 +607,9 @@ function sendWhatsApp(){
     if(item.size) specs.push('Size: '+item.size);
     if(item.color) specs.push('Color: '+item.color);
     if(item.notes) specs.push('Notes: '+item.notes);
+    if(item.dimLength && item.dimWidth && item.dimHeight){
+      specs.push('Dimensions: '+item.dimLength+' × '+item.dimWidth+' × '+item.dimHeight+' cm');
+    }
     const specsLine = specs.length ? ' ('+specs.join(' | ')+')' : '';
     const productLine = item.link ? item.link : (item.category||'');
     return '🔖 '+o.orderNo+'\n🔗 '+productLine+'\n📦 Qty: '+item.qty+specsLine+'\n💰 '+item.finalPrice.toLocaleString()+' EGP';
