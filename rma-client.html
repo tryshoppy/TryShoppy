@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TRY SHOPPY — RMA Vitamins</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#2563eb; --bg:#f4f7fe; --white:#fff; --text:#1e293b; --border:#cbd5e1;
+  --success:#16a34a; --warning:#d97706; --danger:#dc2626; --gray:#64748b;
+}
+*{box-sizing:border-box;}
+body{font-family:'Cairo',sans-serif;background:var(--bg);margin:0;padding:20px;color:var(--text);}
+.container{max-width:640px;margin:auto;}
+.card{background:#fff;border-radius:20px;padding:24px;box-shadow:0 5px 20px rgba(0,0,0,.06);margin-bottom:16px;}
+h2{margin:0 0 20px;text-align:center;color:var(--primary);font-weight:900;}
+.input-group{margin-bottom:14px;}
+.input-group label{display:block;margin-bottom:6px;font-weight:700;color:#475569;font-size:13.5px;}
+input,select{width:100%;padding:13px;border:1px solid var(--border);border-radius:12px;font-family:'Cairo';box-sizing:border-box;font-size:14.5px;}
+button{padding:13px 20px;border:none;border-radius:12px;background:var(--primary);color:#fff;font-family:'Cairo';font-size:14.5px;font-weight:800;cursor:pointer;}
+button:hover{opacity:.9;}
+.btn-block{width:100%;}
+.btn-ghost{background:#f1f5f9;color:var(--text);}
+.btn-success{background:var(--success);}
+.btn-warning{background:var(--warning);}
+.hidden{display:none !important;}
+.row{display:flex;gap:10px;}
+.row>*{flex:1;}
+
+/* login */
+#loginScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;}
+.login-box{background:#fff;border-radius:22px;padding:32px;width:100%;max-width:360px;box-shadow:0 10px 40px rgba(0,0,0,.08);text-align:center;}
+
+/* product cards */
+.product-card{border:1.5px solid var(--border);border-radius:16px;padding:16px;margin-bottom:14px;display:flex;gap:14px;}
+.product-img{width:72px;height:72px;border-radius:12px;object-fit:cover;background:#f1f5f9;flex-shrink:0;}
+.product-body{flex:1;min-width:0;}
+.product-name{font-weight:800;font-size:14.5px;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.product-link{font-size:12px;color:var(--gray);text-decoration:none;display:block;margin-bottom:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:800;margin-bottom:8px;}
+.b-gray{background:#f1f5f9;color:#475569;}
+.b-blue{background:#eff6ff;color:#2563eb;}
+.b-orange{background:#fff7ed;color:#c2410c;}
+.b-green{background:#f0fdf4;color:#16a34a;}
+.b-red{background:#fef2f2;color:#dc2626;}
+.price-tag{font-weight:900;font-size:16px;color:var(--primary);margin:6px 0;}
+.mini-input{padding:9px 10px;font-size:13px;border-radius:9px;}
+.mini-btn{padding:9px 14px;font-size:13px;border-radius:9px;}
+.meta-line{font-size:12.5px;color:var(--gray);margin-top:4px;}
+.empty-hint{text-align:center;color:#94a3b8;font-weight:700;padding:24px 0;}
+.topbar{display:flex;justify-content:flex-end;margin-bottom:4px;}
+.notif-badge{background:#fef2f2;color:var(--danger);border:1px solid #fecaca;padding:6px 14px;border-radius:20px;font-weight:800;font-size:13px;}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px;}
+.stat-box{background:#fff;border-radius:14px;padding:13px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.04);}
+.stat-box .num{font-size:1.2rem;font-weight:900;color:var(--primary);}
+.stat-box .lbl{font-size:11px;color:var(--gray);font-weight:700;margin-top:3px;}
+.cart-item{display:flex;align-items:center;gap:12px;border:1.5px solid var(--border);border-radius:14px;padding:10px 12px;margin-bottom:10px;}
+.cart-item img{width:44px;height:44px;border-radius:10px;object-fit:cover;background:#f1f5f9;flex-shrink:0;}
+.cart-item .info{flex:1;min-width:0;}
+.cart-item .name{font-weight:700;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cart-item .link{font-size:11px;color:var(--gray);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;}
+.cart-item .remove-btn{background:none;color:var(--danger);font-size:12px;font-weight:700;padding:6px 10px;flex-shrink:0;}
+.spinner{display:inline-block;width:14px;height:14px;border:2.5px solid currentColor;border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-left:6px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="login-box">
+    <div style="font-size:1.6rem;font-weight:900;color:var(--primary);margin-bottom:6px;">TRY SHOPPY</div>
+    <div style="font-size:13px;color:#94a3b8;font-weight:700;margin-bottom:24px;">بوابة RMA — الفيتامينات والمكملات</div>
+    <input id="passcodeInput" type="password" placeholder="كلمة المرور" style="margin-bottom:14px;" onkeydown="if(event.key==='Enter')doLogin()">
+    <div id="loginError" class="hidden" style="color:var(--danger);font-size:13px;font-weight:700;margin-bottom:12px;">❌ كلمة المرور غلط</div>
+    <button class="btn-block" onclick="doLogin()">دخول ←</button>
+  </div>
+</div>
+
+<div id="mainContent" class="hidden">
+<div class="container">
+
+  <div class="card">
+    <h2>➕ إضافة منتج جديد</h2>
+    <div class="input-group">
+      <label>رابط المنتج</label>
+      <div class="row">
+        <input id="newLink" placeholder="https://amazon.com/...">
+        <button id="fetchBtn" onclick="fetchProduct()" style="flex:0 0 auto;">🔍 Fetch Product</button>
+      </div>
+    </div>
+    <div id="fetchPreview" class="hidden" style="display:flex;gap:12px;align-items:center;background:#f8fafc;border-radius:12px;padding:12px;margin-bottom:14px;">
+      <img id="previewImg" class="product-img" style="width:52px;height:52px;">
+      <div id="previewName" style="font-weight:700;font-size:13.5px;"></div>
+    </div>
+    <div class="input-group">
+      <label>اسم المنتج (يدوي لو الجلب التلقائي متعذّرش)</label>
+      <input id="manualName" placeholder="اسم المنتج">
+    </div>
+    <button class="btn-block" id="addToCartBtn" onclick="addToCart()">➕ أضف للسلة</button>
+  </div>
+
+  <div id="cartCard" class="card hidden">
+    <h2 style="font-size:1.1rem;">🛒 منتجات جاهزة للإرسال</h2>
+    <div id="cartList"></div>
+    <button class="btn-block btn-success" id="sendAllBtn" onclick="sendAllCart()">✅ إرسال كل المنتجات للفريق</button>
+  </div>
+
+  <div class="topbar">
+    <div id="notifBadge" class="notif-badge hidden" style="cursor:pointer;" onclick="jumpToNeedsReview()" title="اضغط للانتقال للمنتجات المحتاجة ردك"></div>
+  </div>
+
+  <div class="stats-grid" id="statsGrid"></div>
+
+  <div class="card">
+    <div class="row">
+      <input id="searchInput" placeholder="🔍 دوّر باسم المنتج أو اللينك..." oninput="renderList()">
+    </div>
+    <div class="row" style="margin-top:10px;">
+      <select id="filterStatus" onchange="renderList()">
+        <option value="">كل الحالات</option>
+        <option value="PendingPrice">بانتظار السعر</option>
+        <option value="PendingApproval">بانتظار موافقتك</option>
+        <option value="PendingReview">عرضك قيد المراجعة</option>
+        <option value="Confirmed">تم التأكيد</option>
+        <option value="Placed">تم الشراء</option>
+        <option value="Delayed">متأخر</option>
+        <option value="Delivered">تم التسليم</option>
+      </select>
+      <input type="date" id="filterArrival" onchange="renderList()">
+      <button class="btn-ghost" style="flex:0 0 auto;" onclick="document.getElementById('searchInput').value='';document.getElementById('filterStatus').value='';document.getElementById('filterArrival').value='';renderList();">مسح</button>
+    </div>
+  </div>
+
+  <div id="productsList"></div>
+
+</div>
+</div>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzaahSAXgwN2sCBhQeGBr5CtAf5eNLC-Od8jzvZtV6tNkb1Bmih2COgCxAaxS29Q0eagA/exec"; // ⚠️ حط هنا رابط RMA_Vitamins_Code.gs بعد النشر
+
+function getPasscode(){ return sessionStorage.getItem("rmaPasscode") || ""; }
+
+function doLogin(){
+  const p = document.getElementById("passcodeInput").value.trim();
+  if(!p) return;
+  sessionStorage.setItem("rmaPasscode", p);
+  document.getElementById("loginScreen").classList.add("hidden");
+  document.getElementById("mainContent").classList.remove("hidden");
+  renderCart();
+  loadProducts();
+}
+if(getPasscode()){
+  document.getElementById("loginScreen").classList.add("hidden");
+  document.getElementById("mainContent").classList.remove("hidden");
+  renderCart();
+  loadProducts();
+}
+
+function setBtnLoading(btn, text){
+  if(!btn || btn.dataset.loading==='1') return;
+  btn.dataset.loading='1'; btn.dataset.orig=btn.innerHTML;
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span> '+text;
+}
+function clearBtnLoading(btn){
+  if(!btn || btn.dataset.loading!=='1') return;
+  btn.disabled=false; btn.innerHTML=btn.dataset.orig;
+  delete btn.dataset.loading; delete btn.dataset.orig;
+}
+
+let fetchedInfo = null;
+
+async function fetchProduct(){
+  const link = document.getElementById("newLink").value.trim();
+  if(!link){ alert("الصق رابط المنتج الأول"); return; }
+  const btn = document.getElementById("fetchBtn");
+  setBtnLoading(btn, "جاري الجلب...");
+  try{
+    const res = await fetch(SCRIPT_URL, { method:"POST", body: JSON.stringify({ action:"fetchProductInfo", link }) });
+    const data = await res.json();
+    clearBtnLoading(btn);
+    if(data.success){
+      fetchedInfo = { productName: data.productName, imageUrl: data.imageUrl };
+      document.getElementById("previewImg").src = data.imageUrl || "";
+      document.getElementById("previewName").textContent = data.productName || "(بدون اسم — اكتبه يدويًا)";
+      document.getElementById("fetchPreview").classList.remove("hidden");
+      if(data.productName) document.getElementById("manualName").value = data.productName;
+    } else {
+      alert(data.message || "تعذر الجلب — اكتب بيانات المنتج يدويًا");
+    }
+  }catch(e){
+    clearBtnLoading(btn);
+    alert("تعذر الاتصال بالسيرفر");
+  }
+}
+
+/* ---------- السلة (منتجات جاهزة تتبعت مرة واحدة) ---------- */
+function getCart(){ try{ return JSON.parse(localStorage.getItem("rmaCart")) || []; }catch(e){ return []; } }
+function saveCart(c){ localStorage.setItem("rmaCart", JSON.stringify(c)); }
+
+function addToCart(){
+  const link = document.getElementById("newLink").value.trim();
+  const name = document.getElementById("manualName").value.trim();
+  if(!link){ alert("الصق رابط المنتج"); return; }
+
+  const cart = getCart();
+  cart.push({
+    tempId: Date.now() + "-" + Math.floor(Math.random()*10000),
+    link,
+    productName: name || (fetchedInfo && fetchedInfo.productName) || "",
+    imageUrl: (fetchedInfo && fetchedInfo.imageUrl) || ""
+  });
+  saveCart(cart);
+
+  document.getElementById("newLink").value = "";
+  document.getElementById("manualName").value = "";
+  document.getElementById("fetchPreview").classList.add("hidden");
+  fetchedInfo = null;
+
+  renderCart();
+}
+
+function renderCart(){
+  const cart = getCart();
+  const card = document.getElementById("cartCard");
+  if(!cart.length){ card.classList.add("hidden"); return; }
+  card.classList.remove("hidden");
+  document.getElementById("cartList").innerHTML = cart.map(item => `
+    <div class="cart-item">
+      ${item.imageUrl ? `<img src="${item.imageUrl}">` : `<img>`}
+      <div class="info">
+        <div class="name">${item.productName || "منتج بدون اسم"}</div>
+        <span class="link">${item.link}</span>
+      </div>
+      <button class="remove-btn" onclick="removeFromCart('${item.tempId}')">🗑 حذف</button>
+    </div>
+  `).join("");
+}
+
+function removeFromCart(tempId){
+  saveCart(getCart().filter(i => i.tempId !== tempId));
+  renderCart();
+}
+
+async function sendAllCart(){
+  const cart = getCart();
+  if(!cart.length) return;
+  const btn = document.getElementById("sendAllBtn");
+  setBtnLoading(btn, "جاري إرسال " + cart.length + " منتج...");
+
+  try{
+    const results = await Promise.all(cart.map(item =>
+      fetch(SCRIPT_URL, { method:"POST", body: JSON.stringify({
+        action:"addLink", passcode:getPasscode(), link:item.link,
+        productName:item.productName, imageUrl:item.imageUrl
+      })}).then(r=>r.json())
+    ));
+    clearBtnLoading(btn);
+    if(results.some(r => !r.success)){
+      alert("⚠️ بعض المنتجات فشلت تتبعت — راجع القائمة وحاول تاني للي فشل");
+    } else {
+      alert("✅ اتبعتت كل المنتجات للفريق!");
+    }
+    saveCart([]);
+    renderCart();
+    loadProducts();
+  }catch(e){
+    clearBtnLoading(btn);
+    alert("تعذر الاتصال بالسيرفر — السلة لسه محفوظة، حاول تاني");
+  }
+}
+
+const STATUS_META = {
+  PendingPrice:   { label:"بانتظار السعر من الفريق", cls:"b-gray" },
+  PendingApproval:{ label:"بانتظار موافقتك", cls:"b-blue" },
+  PendingReview:  { label:"عرضك قيد مراجعة الفريق", cls:"b-orange" },
+  Confirmed:      { label:"تم التأكيد ✅", cls:"b-green" },
+  Placed:         { label:"تم الشراء 📦", cls:"b-blue" },
+  Delayed:        { label:"متأخر ⏳", cls:"b-orange" },
+  Delivered:      { label:"تم التسليم 🎉", cls:"b-green" },
+  Rejected:       { label:"مرفوض", cls:"b-red" }
+};
+
+let allProducts = [];
+
+async function loadProducts(){
+  const res = await fetch(SCRIPT_URL + "?scope=client");
+  const data = await res.json();
+  if(!Array.isArray(data)) return;
+  allProducts = data;
+  renderNotifBadge(); // ⚠️ دايمًا بيعكس كل المنتجات، بغض النظر عن الفلتر — عشان محدش يفوّته رد لازم يبعته
+  renderList();
+}
+
+function renderNotifBadge(){
+  const needsAction = allProducts.filter(p => p.status === "PendingApproval").length;
+  const badge = document.getElementById("notifBadge");
+  if(needsAction > 0){ badge.textContent = "🔔 " + needsAction + " منتج محتاج ردك"; badge.classList.remove("hidden"); }
+  else badge.classList.add("hidden");
+}
+
+// ✅ بتاخد "items" (بعد الفلترة/البحث) بدل allProducts كله — الأرقام
+// فوق بتتبع بالظبط اللي شايفه في القائمة تحتها
+function renderStats(items){
+  const confirmedLike = items.filter(p => ["Confirmed","Placed","Delayed","Delivered"].includes(p.status));
+  const totalFinal = confirmedLike.reduce((s,p)=> s + (parseFloat(p.finalEgp)||0), 0);
+  const totalRemaining = confirmedLike.reduce((s,p)=> s + (parseFloat(p.remaining)||0), 0);
+  const deliveredCount = items.filter(p=>p.status==="Delivered").length;
+
+  document.getElementById("statsGrid").innerHTML = `
+    <div class="stat-box"><div class="num">${items.length}</div><div class="lbl">إجمالي المنتجات${items.length!==allProducts.length ? ' (مفلترة)' : ''}</div></div>
+    <div class="stat-box"><div class="num">${confirmedLike.length}</div><div class="lbl">مؤكدة</div></div>
+    <div class="stat-box"><div class="num">${deliveredCount}</div><div class="lbl">تم التسليم</div></div>
+    <div class="stat-box"><div class="num">${totalFinal.toLocaleString()}</div><div class="lbl">إجمالي القيمة (EGP)</div></div>
+    <div class="stat-box"><div class="num" style="color:var(--danger)">${totalRemaining.toLocaleString()}</div><div class="lbl">المتبقي عليك (EGP)</div></div>
+  `;
+}
+
+function jumpToNeedsReview(){
+  document.getElementById("searchInput").value = "";
+  document.getElementById("filterArrival").value = "";
+  document.getElementById("filterStatus").value = "PendingApproval";
+  renderList();
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function renderList(){
+  const q = (document.getElementById("searchInput").value || "").trim().toLowerCase();
+  const statusF = document.getElementById("filterStatus").value;
+  const arrivalF = document.getElementById("filterArrival").value;
+
+  let items = allProducts.slice().reverse();
+  if(q) items = items.filter(p => (p.productName||"").toLowerCase().includes(q) || (p.link||"").toLowerCase().includes(q));
+  if(statusF) items = items.filter(p => p.status === statusF);
+  if(arrivalF) items = items.filter(p => (p.arrivalDate||"").indexOf(arrivalF) !== -1);
+
+  renderStats(items); // ← نفس المجموعة المفلترة اللي هتتعرض تحت
+  renderProducts(items);
+}
+
+function renderProducts(items){
+  const box = document.getElementById("productsList");
+  if(!items.length){ box.innerHTML = '<div class="card empty-hint">مفيش منتجات مضافة لسه</div>'; return; }
+
+  box.innerHTML = items.map(p => {
+    const meta = STATUS_META[p.status] || { label:p.status, cls:"b-gray" };
+    let actionsHtml = "";
+
+    if(p.status === "PendingApproval"){
+      actionsHtml = `
+        <div class="price-tag">${Number(p.staffEgp).toLocaleString()} EGP <span style="font-size:11px;color:#94a3b8;font-weight:700;">/ للقطعة</span></div>
+        <div class="row" style="margin-top:8px;">
+          <input type="number" class="mini-input" id="qty-${p.id}" placeholder="الكمية" value="1" min="1">
+        </div>
+        <div class="row" style="margin-top:8px;">
+          <button class="mini-btn btn-success" onclick="confirmProduct('${p.id}')">✅ موافق</button>
+          <button class="mini-btn btn-ghost" onclick="toggleCounter('${p.id}')">💬 اقترح سعر تاني</button>
+        </div>
+        <div id="counterBox-${p.id}" class="hidden" style="margin-top:8px;">
+          <div class="row">
+            <input type="number" class="mini-input" id="counter-${p.id}" placeholder="سعرك المقترح (EGP للقطعة)">
+            <button class="mini-btn btn-warning" onclick="sendCounter('${p.id}')">إرسال العرض</button>
+          </div>
+        </div>`;
+    } else if(p.status === "PendingReview"){
+      actionsHtml = `<div class="meta-line">عرضك: ${Number(p.clientCounterEgp).toLocaleString()} EGP للقطعة × ${p.quantity} — مستني رد الفريق</div>`;
+    } else if(["Confirmed","Placed","Delayed","Delivered"].includes(p.status)){
+      actionsHtml = `
+        <div class="price-tag">${Number(p.finalEgp||0).toLocaleString()} EGP</div>
+        <div class="meta-line">📅 موعد الوصول: ${p.arrivalDate || "—"}</div>
+        <div class="meta-line">💰 العربون: ${Number(p.deposit||0).toLocaleString()} EGP — المتبقي: ${Number(p.remaining||0).toLocaleString()} EGP</div>`;
+    }
+
+    return `<div class="card">
+      <div class="product-card">
+        ${p.imageUrl ? `<img class="product-img" src="${p.imageUrl}">` : `<div class="product-img"></div>`}
+        <div class="product-body">
+          <span class="badge ${meta.cls}">${meta.label}</span>
+          <div class="product-name">${p.productName || "منتج بدون اسم"}</div>
+          <a class="product-link" href="${p.link}" target="_blank">${p.link}</a>
+          ${actionsHtml}
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function toggleCounter(id){
+  document.getElementById("counterBox-"+id).classList.toggle("hidden");
+}
+
+async function confirmProduct(id){
+  const qty = parseInt(document.getElementById("qty-"+id).value) || 1;
+  const btn = document.querySelector(`button[onclick="confirmProduct('${id}')"]`);
+  setBtnLoading(btn, "جاري التأكيد...");
+  try{
+    const res = await fetch(SCRIPT_URL, { method:"POST", body: JSON.stringify({ action:"clientConfirm", passcode:getPasscode(), id, quantity:qty }) });
+    const data = await res.json();
+    if(data.success){ alert("✅ تم تأكيد الطلب!"); loadProducts(); }
+    else { clearBtnLoading(btn); alert(data.message || "حصل خطأ"); }
+  }catch(e){
+    clearBtnLoading(btn);
+    alert("تعذر الاتصال بالسيرفر");
+  }
+}
+
+async function sendCounter(id){
+  const qty = parseInt(document.getElementById("qty-"+id).value) || 1;
+  const counterEgp = parseFloat(document.getElementById("counter-"+id).value);
+  if(!counterEgp){ alert("اكتب السعر المقترح"); return; }
+  const btn = document.querySelector(`button[onclick="sendCounter('${id}')"]`);
+  setBtnLoading(btn, "جاري الإرسال...");
+  try{
+    const res = await fetch(SCRIPT_URL, { method:"POST", body: JSON.stringify({ action:"clientCounter", passcode:getPasscode(), id, quantity:qty, counterEgp }) });
+    const data = await res.json();
+    if(data.success){ alert("✅ اتبعت عرضك، هيراجعه الفريق قريب"); loadProducts(); }
+    else { clearBtnLoading(btn); alert(data.message || "حصل خطأ"); }
+  }catch(e){
+    clearBtnLoading(btn);
+    alert("تعذر الاتصال بالسيرفر");
+  }
+}
+</script>
+</body>
+</html>
