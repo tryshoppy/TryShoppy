@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TRY SHOPPY — RMA Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#2563eb; --bg:#f4f7fe; --white:#fff; --text:#1e293b; --border:#cbd5e1;
+  --success:#16a34a; --warning:#d97706; --danger:#dc2626; --gray:#64748b;
+}
+*{box-sizing:border-box;}
+body{font-family:'Cairo',sans-serif;background:var(--bg);margin:0;padding:20px;color:var(--text);}
+.container{max-width:900px;margin:auto;}
+.card{background:#fff;border-radius:20px;padding:22px;box-shadow:0 5px 20px rgba(0,0,0,.06);margin-bottom:16px;}
+h2{margin:0 0 18px;text-align:center;color:var(--primary);font-weight:900;}
+.input-group{margin-bottom:14px;}
+.input-group label{display:block;margin-bottom:6px;font-weight:700;color:#475569;font-size:13.5px;}
+input,select,textarea{width:100%;padding:12px;border:1px solid var(--border);border-radius:11px;font-family:'Cairo';box-sizing:border-box;font-size:14px;}
+button{padding:12px 18px;border:none;border-radius:11px;background:var(--primary);color:#fff;font-family:'Cairo';font-size:13.5px;font-weight:800;cursor:pointer;}
+button:hover{opacity:.9;}
+.btn-block{width:100%;}
+.btn-ghost{background:#f1f5f9;color:var(--text);}
+.btn-success{background:var(--success);}
+.btn-danger{background:var(--danger);}
+.hidden{display:none !important;}
+.row{display:flex;gap:10px;flex-wrap:wrap;}
+.row>*{flex:1;min-width:120px;}
+
+#loginScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;}
+.login-box{background:#fff;border-radius:22px;padding:32px;width:100%;max-width:360px;box-shadow:0 10px 40px rgba(0,0,0,.08);text-align:center;}
+
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
+.notif-badge{background:#fef2f2;color:var(--danger);border:1px solid #fecaca;padding:6px 14px;border-radius:20px;font-weight:800;font-size:13px;}
+
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:16px;}
+.stat-box{background:#fff;border-radius:14px;padding:14px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.04);}
+.stat-box .num{font-size:1.3rem;font-weight:900;color:var(--primary);}
+.stat-box .lbl{font-size:11.5px;color:var(--gray);font-weight:700;margin-top:3px;}
+
+.product-card{border:1.5px solid var(--border);border-radius:16px;padding:16px;margin-bottom:14px;display:flex;gap:14px;}
+.product-img{width:64px;height:64px;border-radius:12px;object-fit:cover;background:#f1f5f9;flex-shrink:0;}
+.product-body{flex:1;min-width:0;}
+.product-name{font-weight:800;font-size:14.5px;margin-bottom:4px;}
+.product-link{font-size:11.5px;color:var(--gray);text-decoration:none;display:block;margin-bottom:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:800;margin-bottom:8px;}
+.b-gray{background:#f1f5f9;color:#475569;} .b-blue{background:#eff6ff;color:#2563eb;}
+.b-orange{background:#fff7ed;color:#c2410c;} .b-green{background:#f0fdf4;color:#16a34a;} .b-red{background:#fef2f2;color:#dc2626;}
+.meta-line{font-size:12.5px;color:var(--gray);margin-top:4px;}
+.empty-hint{text-align:center;color:#94a3b8;font-weight:700;padding:24px 0;}
+.spinner{display:inline-block;width:14px;height:14px;border:2.5px solid currentColor;border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-left:6px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="login-box">
+    <div style="font-size:1.6rem;font-weight:900;color:var(--primary);margin-bottom:6px;">TRY SHOPPY</div>
+    <div style="font-size:13px;color:#94a3b8;font-weight:700;margin-bottom:24px;">RMA Vitamins — لوحة الموظف</div>
+    <input id="loginUser" type="text" placeholder="اسم المستخدم" style="margin-bottom:12px;" autocomplete="username">
+    <input id="loginPass" type="password" placeholder="كلمة المرور" style="margin-bottom:14px;" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    <div id="loginError" class="hidden" style="color:var(--danger);font-size:13px;font-weight:700;margin-bottom:12px;"></div>
+    <button class="btn-block" id="loginBtn" onclick="doLogin()">دخول ←</button>
+  </div>
+</div>
+
+<div id="mainContent" class="hidden">
+<div class="container">
+
+  <div class="topbar">
+    <h2 style="margin:0;">📇 RMA — إدارة الفيتامينات</h2>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span id="notifBadge" class="notif-badge hidden" style="cursor:pointer;" onclick="jumpToNeedsReview()" title="اضغط للانتقال للمنتجات المحتاجة مراجعة"></span>
+      <button class="btn-ghost" onclick="doLogout()" style="padding:8px 16px;">خروج</button>
+    </div>
+  </div>
+
+  <div class="stats-grid" id="statsGrid"></div>
+
+  <div class="card">
+    <div class="row">
+      <input id="searchInput" placeholder="🔍 دوّر باسم المنتج أو اللينك..." oninput="renderList()">
+    </div>
+    <div class="row" style="margin-top:10px;">
+      <select id="filterStatus" onchange="renderList()">
+        <option value="">كل الحالات</option>
+        <option value="NeedsAction">🔔 يحتاج إجراء مني</option>
+        <option value="PendingPrice">بانتظار السعر</option>
+        <option value="PendingApproval">بانتظار العميل</option>
+        <option value="PendingReview">🔔 يحتاج مراجعتك</option>
+        <option value="Confirmed">Confirmed</option>
+        <option value="Placed">Placed</option>
+        <option value="Delayed">Delayed</option>
+        <option value="Delivered">Delivered</option>
+      </select>
+      <input type="date" id="filterArrival" onchange="renderList()">
+      <button class="btn-ghost" onclick="document.getElementById('searchInput').value='';document.getElementById('filterStatus').value='';document.getElementById('filterArrival').value='';renderList();">مسح الفلاتر</button>
+    </div>
+  </div>
+
+  <div id="productsList"></div>
+
+</div>
+</div>
+
+<script src="assets/function_calc.js"></script>
+<script src="staff-auth.js"></script>
+<script src="assets/config.js"></script>
+<script>
+const RMA_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzaahSAXgwN2sCBhQeGBr5CtAf5eNLC-Od8jzvZtV6tNkb1Bmih2COgCxAaxS29Q0eagA/exec"; // ⚠️ نفس رابط RMA_Vitamins_Code.gs من صفحة العميل
+const SESSION_TIME = 8 * 60 * 60 * 1000;
+let allProducts = [];
+
+function getStaffToken(){ return localStorage.getItem("rmaStaffToken") || ""; }
+
+function setBtnLoading(btn, text){
+  if(!btn || btn.dataset.loading==='1') return;
+  btn.dataset.loading='1'; btn.dataset.orig=btn.innerHTML;
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span> '+text;
+}
+function clearBtnLoading(btn){
+  if(!btn || btn.dataset.loading!=='1') return;
+  btn.disabled=false; btn.innerHTML=btn.dataset.orig;
+  delete btn.dataset.loading; delete btn.dataset.orig;
+}
+
+function checkSession(){
+  const t = localStorage.getItem("rmaLoginTime");
+  return !!(t && (Date.now()-t < SESSION_TIME) && getStaffToken());
+}
+function showLogin(){ document.getElementById("loginScreen").classList.remove("hidden"); document.getElementById("mainContent").classList.add("hidden"); }
+function showMain(){ document.getElementById("loginScreen").classList.add("hidden"); document.getElementById("mainContent").classList.remove("hidden"); loadProducts(); }
+
+async function doLogin(){
+  const u = document.getElementById("loginUser").value.trim();
+  const p = document.getElementById("loginPass").value;
+  if(!u||!p) return;
+  const btn = document.getElementById("loginBtn");
+  setBtnLoading(btn, "جاري التحقق...");
+  let res;
+  try{ res = await tsStaffLogin(u,p); }catch(e){ res={success:false,message:"تعذر الاتصال"}; }
+  clearBtnLoading(btn);
+  if(res && res.success){
+    localStorage.setItem("rmaLoginTime", Date.now());
+    localStorage.setItem("rmaStaffToken", res.token || "");
+    showMain();
+  } else {
+    document.getElementById("loginError").textContent = (res&&res.code==='locked') ? res.message : "❌ اسم المستخدم أو كلمة المرور غلط";
+    document.getElementById("loginError").classList.remove("hidden");
+  }
+}
+function doLogout(){
+  localStorage.removeItem("rmaLoginTime"); localStorage.removeItem("rmaStaffToken");
+  showLogin();
+}
+if(checkSession()) showMain(); else showLogin();
+
+async function loadProducts(){
+  const res = await fetch(RMA_SCRIPT_URL + "?scope=staff&staffToken=" + encodeURIComponent(getStaffToken()));
+  const data = await res.json();
+  if(!Array.isArray(data)){ alert("⚠️ الجلسة انتهت — سجّل دخول تاني"); doLogout(); return; }
+  allProducts = data;
+  renderNotifBadge(); // ⚠️ التنبيه دايمًا بيعكس *كل* البيانات، بغض النظر عن الفلتر الحالي — عشان محدش ينسى منتج محتاج مراجعة لمجرد إنه فلتر على حاجة تانية
+  renderList();
+}
+
+function renderNotifBadge(){
+  const needsAction = allProducts.filter(p => p.status==="PendingPrice" || p.status==="PendingReview").length;
+  const badge = document.getElementById("notifBadge");
+  if(needsAction>0){ badge.textContent = "🔔 " + needsAction + " يحتاج مراجعة"; badge.classList.remove("hidden"); }
+  else badge.classList.add("hidden");
+}
+
+// ✅ الكروت دلوقتي بتاخد "items" (المجموعة بعد الفلترة/البحث) بدل
+// allProducts كله — يعني لو فلترت بحالة معيّنة أو بحثت عن حاجة،
+// الأرقام فوق بتتغيّر تتبع بالظبط اللي شايفه في القائمة تحتها
+function renderStats(items){
+  const totalFinal = items.reduce((s,p)=> s + (parseFloat(p.finalEgp)||0), 0);
+  const totalRemaining = items.reduce((s,p)=> s + (parseFloat(p.remaining)||0), 0);
+  const confirmedCount = items.filter(p=>["Confirmed","Placed","Delayed","Delivered"].includes(p.status)).length;
+  const deliveredCount = items.filter(p=>p.status==="Delivered").length;
+
+  document.getElementById("statsGrid").innerHTML = `
+    <div class="stat-box"><div class="num">${items.length}</div><div class="lbl">إجمالي المنتجات${items.length!==allProducts.length ? ' (مفلترة)' : ''}</div></div>
+    <div class="stat-box"><div class="num">${confirmedCount}</div><div class="lbl">مؤكدة</div></div>
+    <div class="stat-box"><div class="num">${deliveredCount}</div><div class="lbl">تم التسليم</div></div>
+    <div class="stat-box"><div class="num">${totalFinal.toLocaleString()}</div><div class="lbl">إجمالي القيمة (EGP)</div></div>
+    <div class="stat-box"><div class="num" style="color:var(--danger)">${totalRemaining.toLocaleString()}</div><div class="lbl">المتبقي تحصيله (EGP)</div></div>
+  `;
+}
+
+const STATUS_META = {
+  PendingPrice:{label:"بانتظار السعر",cls:"b-gray"}, PendingApproval:{label:"بانتظار العميل",cls:"b-blue"},
+  PendingReview:{label:"🔔 يحتاج مراجعتك",cls:"b-orange"}, Confirmed:{label:"Confirmed ✅",cls:"b-green"},
+  Placed:{label:"Placed 📦",cls:"b-blue"}, Delayed:{label:"Delayed ⏳",cls:"b-orange"},
+  Delivered:{label:"Delivered 🎉",cls:"b-green"}, Rejected:{label:"Rejected",cls:"b-red"}
+};
+
+function jumpToNeedsReview(){
+  document.getElementById("searchInput").value = "";
+  document.getElementById("filterArrival").value = "";
+  document.getElementById("filterStatus").value = "NeedsAction";
+  renderList();
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function renderList(){
+  const q = (document.getElementById("searchInput").value || "").trim().toLowerCase();
+  const statusF = document.getElementById("filterStatus").value;
+  const arrivalF = document.getElementById("filterArrival").value;
+  let items = allProducts.slice().reverse();
+  if(q) items = items.filter(p => (p.productName||"").toLowerCase().includes(q) || (p.link||"").toLowerCase().includes(q));
+  if(statusF === "NeedsAction") items = items.filter(p => p.status==="PendingPrice" || p.status==="PendingReview");
+  else if(statusF) items = items.filter(p=>p.status===statusF);
+  if(arrivalF) items = items.filter(p=> (p.arrivalDate||"").indexOf(arrivalF) !== -1);
+
+  renderStats(items); // ← نفس المجموعة المفلترة اللي هتتعرض تحت
+
+  const box = document.getElementById("productsList");
+  if(!items.length){ box.innerHTML = '<div class="card empty-hint">مفيش نتائج مطابقة</div>'; return; }
+
+  box.innerHTML = items.map(p=>{
+    const meta = STATUS_META[p.status] || {label:p.status,cls:"b-gray"};
+    let actionsHtml = "";
+
+    if(p.status === "PendingPrice"){
+      actionsHtml = `
+        <div class="row" style="margin-top:8px;">
+          <select id="type-${p.id}" onchange="onTypeChange('${p.id}')">
+            <option value="capsules">كبسولات</option>
+            <option value="gummies">جميز</option>
+            <option value="powder">بودر</option>
+            <option value="liquid">سائل</option>
+          </select>
+        </div>
+        <div class="row" id="pieceRow-${p.id}" style="margin-top:8px;">
+          <select id="range-${p.id}"></select>
+        </div>
+        <div class="row hidden" id="weightRow-${p.id}" style="margin-top:8px;">
+          <input type="number" id="manualWeight-${p.id}" placeholder="الوزن الفعلي (جرام)">
+        </div>
+        <div class="row" style="margin-top:8px;">
+          <input type="number" id="usd-${p.id}" placeholder="السعر بالدولار" oninput="calcPreview('${p.id}')">
+          <div id="preview-${p.id}" style="align-self:center;font-weight:800;color:var(--success);"></div>
+        </div>
+        <button class="btn-block btn-success" style="margin-top:8px;" onclick="submitPrice('${p.id}')">إرسال السعر للعميل</button>`;
+    } else if(p.status === "PendingApproval"){
+      actionsHtml = `<div class="price-tag" style="font-weight:900;color:var(--primary);">${Number(p.staffEgp).toLocaleString()} EGP / قطعة</div><div class="meta-line">مستني رد العميل...</div>`;
+    } else if(p.status === "PendingReview"){
+      actionsHtml = `
+        <div class="meta-line" style="font-size:13.5px;">سعرك: <b>${Number(p.staffEgp).toLocaleString()}</b> EGP — عرض العميل: <b style="color:var(--warning)">${Number(p.clientCounterEgp).toLocaleString()}</b> EGP × ${p.quantity}</div>
+        <div class="row" style="margin-top:8px;">
+          <button class="btn-success" onclick="resolveCounter('${p.id}', true, this)">✅ موافقة على عرض العميل</button>
+          <button class="btn-danger" onclick="resolveCounter('${p.id}', false, this)">↩️ رفض والرجوع لسعري</button>
+        </div>`;
+    } else {
+      actionsHtml = `
+        <div class="price-tag" style="font-weight:900;color:var(--primary);">${Number(p.finalEgp||0).toLocaleString()} EGP</div>
+        <div class="row" style="margin-top:8px;">
+          <select id="status-${p.id}">
+            <option value="Confirmed" ${p.status==='Confirmed'?'selected':''}>Confirmed</option>
+            <option value="Placed" ${p.status==='Placed'?'selected':''}>Placed</option>
+            <option value="Delayed" ${p.status==='Delayed'?'selected':''}>Delayed</option>
+            <option value="Delivered" ${p.status==='Delivered'?'selected':''}>Delivered</option>
+          </select>
+          <input type="text" id="arrival-${p.id}" placeholder="موعد الوصول" value="${p.arrivalDate||''}">
+        </div>
+        <div class="row" style="margin-top:8px;">
+          <input type="number" id="deposit-${p.id}" placeholder="العربون" value="${p.deposit||''}">
+          <div style="align-self:center;font-size:12.5px;color:var(--gray);">المتبقي: ${Number(p.remaining||0).toLocaleString()} EGP</div>
+        </div>
+        <button class="btn-block" style="margin-top:8px;" onclick="saveStatus('${p.id}')">💾 حفظ</button>`;
+    }
+
+    return `<div class="card">
+      <div class="product-card">
+        ${p.imageUrl ? `<img class="product-img" src="${p.imageUrl}">` : `<div class="product-img"></div>`}
+        <div class="product-body">
+          <span class="badge ${meta.cls}">${meta.label}</span>
+          <div class="product-name">${p.productName || "منتج بدون اسم"}</div>
+          <a class="product-link" href="${p.link}" target="_blank">${p.link}</a>
+          ${actionsHtml}
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+
+  // نبني قوائم الكبسولات/الجميز لأي منتج PendingPrice ظاهر دلوقتي
+  items.filter(p=>p.status==="PendingPrice").forEach(p => onTypeChange(p.id));
+}
+
+function onTypeChange(id){
+  const type = document.getElementById("type-"+id).value;
+  const pieceRow = document.getElementById("pieceRow-"+id);
+  const weightRow = document.getElementById("weightRow-"+id);
+  if(type==="powder" || type==="liquid"){
+    pieceRow.classList.add("hidden"); weightRow.classList.remove("hidden");
+  } else {
+    weightRow.classList.add("hidden"); pieceRow.classList.remove("hidden");
+    const ranges = tryShoppyGetSupplementRanges(type);
+    const sel = document.getElementById("range-"+id);
+    sel.innerHTML = ranges.map((r,i)=>`<option value="${i}">من ${r.min} إلى ${r.max} حبة</option>`).join("");
+  }
+  calcPreview(id);
+}
+
+function resolveWeight(id){
+  const type = document.getElementById("type-"+id).value;
+  if(type==="powder" || type==="liquid"){
+    return parseFloat(document.getElementById("manualWeight-"+id).value) || 0;
+  }
+  const ranges = tryShoppyGetSupplementRanges(type);
+  const idx = parseInt(document.getElementById("range-"+id).value) || 0;
+  return (ranges[idx] && ranges[idx].weight) || 0;
+}
+
+function calcPreview(id){
+  const usd = parseFloat(document.getElementById("usd-"+id).value);
+  const weight = resolveWeight(id);
+  const preview = document.getElementById("preview-"+id);
+  if(!usd || !weight){ preview.textContent = ""; return; }
+  const { finalPrice } = tryShoppyCalculatePrice({ usd, category:"Vitamin or Supplements", weightGrams:weight, quantity:1 });
+  preview.textContent = "≈ " + finalPrice.toLocaleString() + " EGP";
+}
+
+async function submitPrice(id){
+  const usd = parseFloat(document.getElementById("usd-"+id).value);
+  const weight = resolveWeight(id);
+  if(!usd || !weight){ alert("أدخل السعر بالدولار ونوع/وزن المنتج"); return; }
+  const type = document.getElementById("type-"+id).value;
+  const { finalPrice } = tryShoppyCalculatePrice({ usd, category:"Vitamin or Supplements", weightGrams:weight, quantity:1 });
+  const pieceOrWeight = (type==="powder"||type==="liquid") ? (weight+" جم") : document.getElementById("range-"+id).selectedOptions[0].textContent;
+
+  const btn = document.querySelector(`button[onclick="submitPrice('${id}')"]`);
+  setBtnLoading(btn, "جاري الإرسال...");
+  try{
+    const res = await fetch(RMA_SCRIPT_URL, { method:"POST", body: JSON.stringify({
+      action:"setStaffPrice", staffToken:getStaffToken(), id,
+      supplementType:type, pieceOrWeight, staffUsd:usd, staffEgp:finalPrice
+    })});
+    const data = await res.json();
+    if(data.success){ loadProducts(); }
+    else { clearBtnLoading(btn); alert(data.message||"حصل خطأ"); }
+  }catch(e){
+    clearBtnLoading(btn);
+    alert("تعذر الاتصال بالسيرفر");
+  }
+}
+
+async function resolveCounter(id, approve, btn){
+  setBtnLoading(btn, approve ? "جاري الموافقة..." : "جاري الرفض...");
+  try{
+    const res = await fetch(RMA_SCRIPT_URL, { method:"POST", body: JSON.stringify({ action:"staffResolveCounter", staffToken:getStaffToken(), id, approve }) });
+    const data = await res.json();
+    if(data.success){ loadProducts(); }
+    else { clearBtnLoading(btn); alert(data.message||"حصل خطأ"); }
+  }catch(e){
+    clearBtnLoading(btn);
+    alert("تعذر الاتصال بالسيرفر");
+  }
+}
+
+async function saveStatus(id){
+  const status = document.getElementById("status-"+id).value;
+  const arrivalDate = document.getElementById("arrival-"+id).value;
+  const deposit = document.getElementById("deposit-"+id).value;
+  const btn = document.querySelector(`button[onclick="saveStatus('${id}')"]`);
+  setBtnLoading(btn, "جاري الحفظ...");
+  try{
+    const res = await fetch(RMA_SCRIPT_URL, { method:"POST", body: JSON.stringify({ action:"updateStatus", staffToken:getStaffToken(), id, status, arrivalDate, deposit }) });
+    const data = await res.json();
+    if(data.success){ loadProducts(); }
+    else { clearBtnLoading(btn); alert(data.message||"حصل خطأ"); }
+  }catch(e){
+    clearBtnLoading(btn);
+    alert("تعذر الاتصال بالسيرفر");
+  }
+}
+</script>
+</body>
+</html>
