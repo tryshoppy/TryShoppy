@@ -283,6 +283,15 @@ function tsDeleteMartProduct(id, username, password){
     body: JSON.stringify({ action: 'deleteMartProduct', username, password, id })
   }).then(res => res.json());
 }
+/* جلب اسم/وصف/صورة منتج تلقائيًا من رابط خارجي (نظام طبقات متعدد
+   في MartProducts_Code.gs). محمي بنفس حساب الموظف عشان محدش
+   يستخدم السيرفر كأداة جلب/بروكسي مجانية لأي حد. */
+function tsFetchMartProductInfo(link, username, password){
+  return fetch(TS_CONFIG.MART_PRODUCTS_SCRIPT_URL, {
+    method: 'POST',
+    body: JSON.stringify({ action: 'fetchMartProductInfo', link, username, password })
+  }).then(res => res.json());
+}
 /* بعد شراء منتج فعليًا من المارت، بننقص الكمية في الشيت مباشرة —
    من غير adminKey لأنه فعل عميل عادي. السيرفر بيتأكد إن الرقم
    ميقلش عن صفر، ولو فشل النداء لأي سبب الطلب برضه بيكون اتسجل

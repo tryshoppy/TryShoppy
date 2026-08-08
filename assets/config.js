@@ -17,7 +17,7 @@ const TS_CONFIG = {
   /* ── رابط سكريبت منتجات المارت (شيت منفصل تمامًا) ──
      انشر backend/MartProducts_Code.gs على شيت جديد
      مستقل، واحط الرابط هنا                          */
-  MART_PRODUCTS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbxAWNgaG1NfX5IllmDXjZ0Bsa7AzPYk4RizpqRotb4Y2YnJ81B9zdjjCytQOP4rfFOJOA/exec",
+  MART_PRODUCTS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbwjzkl8dGic9vNH0wpcPA3xDQaDCxaBoQVt9PejCvS1M29KGE_imbPz6e4qs73nXhW1-w/exec",
 
   SUPPORT_PHONE: "201005609642"
 };
