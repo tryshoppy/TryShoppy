@@ -125,6 +125,14 @@
   <div class="card modal" onclick="event.stopPropagation()">
     <h2 id="modalTitle" data-i18n="adm_add_product">Add Product</h2>
     <input type="hidden" id="fId">
+    <div class="field">
+      <label data-i18n="adm_link_label">Product link (optional — auto-fill from a store page)</label>
+      <div style="display:flex;gap:8px">
+        <input id="fLink" type="url" placeholder="https://..." style="flex:1">
+        <button type="button" class="btn btn-secondary btn-sm" id="fetchLinkBtn" style="flex-shrink:0">🔎 <span data-i18n="adm_fetch_btn">Fetch</span></button>
+      </div>
+      <div class="hint" id="fetchLinkHint" data-i18n="adm_link_hint">Paste a product page link and we'll try to pull the name, description and image automatically. Always double-check before saving.</div>
+    </div>
     <div class="row2">
       <div class="field"><label data-i18n="adm_name_en">Name (English)</label><input id="fNameEn"></div>
       <div class="field"><label data-i18n="adm_name_ar">Name (Arabic)</label><input id="fNameAr" dir="rtl"></div>
@@ -320,8 +328,49 @@ function previewImg(){
   else wrap.classList.remove('show');
 }
 
+// اسم/وصف/صورة المنتج ممكن يكونوا جايين من موقع خارجي، فبنتأكد إن
+// أي حاجة بترجع كصورة فعلاً بروتوكول http/https عادي (منع
+// javascript:/data: لو حد حط لينك خبيث بدل رابط منتج)
+function safeUrl(u){
+  const s=String(u||'').trim();
+  return /^https?:\/\//i.test(s)?s:'';
+}
+
+document.getElementById('fetchLinkBtn').addEventListener('click', function(){
+  const link=document.getElementById('fLink').value.trim();
+  const hint=document.getElementById('fetchLinkHint');
+  if(!link){hint.textContent=tsT('adm_link_hint');return;}
+  if(!ADMIN_USER||!ADMIN_PASS){hint.textContent=tsT('adm_key_wrong');return;}
+
+  const btn=this;
+  tsSetBtnLoading(btn, tsT('common_checking'));
+  hint.textContent=(TS_LANG==='ar')?'بنحاول نجيب بيانات المنتج…':'Fetching product info…';
+
+  tsFetchMartProductInfo(link,ADMIN_USER,ADMIN_PASS).then(data=>{
+    tsClearBtnLoading(btn);
+    if(data&&data.success){
+      if(data.productName) document.getElementById('fNameEn').value=data.productName;
+      if(data.description) document.getElementById('fDescEn').value=data.description;
+      const img=safeUrl(data.imageUrl);
+      if(img){document.getElementById('fImage').value=img;previewImg();}
+      hint.textContent=(data.nameSource==='url')
+        ? ((TS_LANG==='ar')?'⚠️ الاسم اتحزر من الرابط نفسه — راجعه واتأكد منه قبل الحفظ. حرّر الاسم العربي والوصف يدويًا.':'⚠️ Name guessed from the link itself — please review it before saving. Arabic name/description need manual translation.')
+        : ((TS_LANG==='ar')?'✅ اتجابت بيانات من الصفحة — راجعها واكمل الاسم العربي يدويًا.':'✅ Pulled from the page — please review, and fill in the Arabic name/description manually.');
+    }else if(data&&(data.message==='Unauthorized'||data.code==='unauthorized')){
+      handleUnauthorized();
+    }else{
+      hint.textContent=(data&&data.message)?data.message:tsT('adm_error');
+    }
+  }).catch(()=>{
+    tsClearBtnLoading(btn);
+    hint.textContent=tsT('auth_err_connection');
+  });
+});
+
 document.getElementById('addBtn').addEventListener('click',()=>{
   document.getElementById('fId').value='';
+  document.getElementById('fLink').value='';
+  document.getElementById('fetchLinkHint').textContent=tsT('adm_link_hint');
   document.getElementById('fNameEn').value='';
   document.getElementById('fNameAr').value='';
   document.getElementById('fCategory').value='outlet';
@@ -339,6 +388,8 @@ document.getElementById('addBtn').addEventListener('click',()=>{
 function editProduct(id){
   const p=PRODUCTS.find(x=>String(x.id)===String(id));if(!p)return;
   document.getElementById('fId').value=p.id;
+  document.getElementById('fLink').value='';
+  document.getElementById('fetchLinkHint').textContent=tsT('adm_link_hint');
   document.getElementById('fNameEn').value=p.nameEn||'';
   document.getElementById('fNameAr').value=p.nameAr||'';
   document.getElementById('fCategory').value=p.category||'outlet';
