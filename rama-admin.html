@@ -113,7 +113,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 
   <div class="card">
     <div class="row">
-      <input id="searchInput" placeholder="🔍 دوّر باسم المنتج أو اللينك..." oninput="renderList()">
+      <input id="searchInput" placeholder="🔍 دوّر باسم المنتج أو اللينك أو موعد الوصول..." oninput="renderList()">
     </div>
     <div class="row" style="margin-top:10px;">
       <select id="filterStatus" onchange="renderList()">
@@ -132,6 +132,20 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
     </div>
   </div>
 
+  <div id="bulkBar" class="card hidden" style="position:sticky;top:8px;z-index:5;background:#eff6ff;border:1.5px solid #93c5fd;padding:12px 16px;">
+    <div class="row" style="align-items:center;">
+      <div style="font-weight:800;color:var(--primary);flex:0 0 auto;"><span id="bulkCount">0</span> منتج محدد</div>
+      <select id="bulkStatus">
+        <option value="Confirmed">✅ Confirmed</option>
+        <option value="Placed">📦 Placed</option>
+        <option value="Delayed">⏱️ Delayed</option>
+        <option value="Delivered">🎉 Delivered</option>
+      </select>
+      <button class="btn-success" style="flex:0 0 auto;" onclick="applyBulkStatus()">✅ تطبيق على المحدد</button>
+      <button class="btn-ghost" style="flex:0 0 auto;" onclick="clearSelection()">✖️ إلغاء التحديد</button>
+    </div>
+  </div>
+
   <div id="productsList"></div>
 
 </div>
@@ -144,6 +158,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 const RMA_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyz2XgdEyZb3HkZGFk9wN9fKoMD9I2Nin-YXwl1Dy3rtd5u3qPRokcpa0T9UKJyDdf6jg/exec"; // ⚠️ نفس رابط RMA_Vitamins_Code.gs من صفحة العميل
 const SESSION_TIME = 8 * 60 * 60 * 1000;
 let allProducts = [];
+let selectedIds = new Set(); // ✅ تحديد متعدد لتغيير الحالة دفعة واحدة
 
 /* اسم/صورة المنتج ممكن يكونوا جايين من موقع خارجي (جلب تلقائي
    بـ og:title/JSON-LD..) مش تحت سيطرتنا، فلازم ننضفهم قبل ما
@@ -232,6 +247,7 @@ function renderNotifBadge(){
 function renderStats(items){
   const totalFinal = items.reduce((s,p)=> s + (parseFloat(p.finalEgp)||0), 0);
   const totalRemaining = items.reduce((s,p)=> s + (parseFloat(p.remaining)||0), 0);
+  const totalPaid = items.reduce((s,p)=> s + (parseFloat(p.deposit)||0), 0);
   // إجمالي الدولار: سعر الدولار للقطعة × الكمية (لو الكمية لسه ماتحددتش
   // لأن العميل لسه ماأكدش، بنفترض قطعة واحدة كحد أدنى بدل ما نصفّرها)
   const totalUsd = items.reduce((s,p)=> s + ((parseFloat(p.staffUsd)||0) * (parseInt(p.quantity)||1)), 0);
@@ -244,6 +260,7 @@ function renderStats(items){
     <div class="stat-box"><div class="num">${deliveredCount}</div><div class="lbl">🎉 تم التسليم</div></div>
     <div class="stat-box"><div class="num">${totalFinal.toLocaleString()}</div><div class="lbl">💰 إجمالي القيمة (EGP)</div></div>
     <div class="stat-box"><div class="num">$${totalUsd.toLocaleString()}</div><div class="lbl">💵 إجمالي الدولار (USD)</div></div>
+    <div class="stat-box"><div class="num" style="color:var(--success)">${totalPaid.toLocaleString()}</div><div class="lbl">🧾 إجمالي المدفوع (EGP)</div></div>
     <div class="stat-box"><div class="num" style="color:var(--danger)">${totalRemaining.toLocaleString()}</div><div class="lbl">⏳ المتبقي تحصيله (EGP)</div></div>
   `;
 }
@@ -268,7 +285,7 @@ function renderList(){
   const statusF = document.getElementById("filterStatus").value;
   const arrivalF = document.getElementById("filterArrival").value;
   let items = allProducts.slice().reverse();
-  if(q) items = items.filter(p => (p.productName||"").toLowerCase().includes(q) || (p.link||"").toLowerCase().includes(q));
+  if(q) items = items.filter(p => (p.productName||"").toLowerCase().includes(q) || (p.link||"").toLowerCase().includes(q) || (p.arrivalDate||"").toLowerCase().includes(q));
   if(statusF === "NeedsAction") items = items.filter(p => p.status==="PendingPrice" || p.status==="PendingReview");
   else if(statusF) items = items.filter(p=>p.status===statusF);
   if(arrivalF) items = items.filter(p=> (p.arrivalDate||"").indexOf(arrivalF) !== -1);
@@ -341,6 +358,7 @@ function renderList(){
     const link = safeUrl(p.link);
     return `<div class="card">
       <div class="product-card">
+        <input type="checkbox" class="bulk-check" data-id="${p.id}" ${selectedIds.has(p.id)?'checked':''} onchange="toggleSelect('${p.id}', this.checked)" style="width:20px;height:20px;flex-shrink:0;margin-top:2px;cursor:pointer;">
         ${img ? `<img class="product-img" src="${escapeHtml(img)}">` : `<div class="product-img"></div>`}
         <div class="product-body">
           <span class="badge ${meta.cls}">${meta.label}</span>
@@ -354,6 +372,51 @@ function renderList(){
 
   // نبني قوائم الكبسولات/الجميز لأي منتج PendingPrice ظاهر دلوقتي
   items.filter(p=>p.status==="PendingPrice").forEach(p => onTypeChange(p.id));
+  updateBulkBar();
+}
+
+// ✅ تحديد متعدد — بنحدّث الـ Set + شريط التحديد بس من غير ما نعمل
+// renderList() كاملة تاني، عشان مانمسحش أي بيانات متكتوبة لسه في
+// حقول التسعير/العربون بتاعة منتجات تانية على الشاشة
+function toggleSelect(id, checked){
+  if(checked) selectedIds.add(id); else selectedIds.delete(id);
+  updateBulkBar();
+}
+
+function updateBulkBar(){
+  const bar = document.getElementById("bulkBar");
+  document.getElementById("bulkCount").textContent = selectedIds.size;
+  bar.classList.toggle("hidden", selectedIds.size === 0);
+}
+
+function clearSelection(){
+  selectedIds.clear();
+  document.querySelectorAll(".bulk-check").forEach(cb => cb.checked = false);
+  updateBulkBar();
+}
+
+async function applyBulkStatus(){
+  if(!selectedIds.size) return;
+  const status = document.getElementById("bulkStatus").value;
+  if(!confirm(`تأكيد تغيير حالة ${selectedIds.size} منتج لـ "${status}"؟`)) return;
+
+  const btn = document.querySelector('#bulkBar button.btn-success');
+  setBtnLoading(btn, "جاري التحديث...");
+  try{
+    const ids = Array.from(selectedIds);
+    const results = await Promise.all(ids.map(id =>
+      fetch(RMA_SCRIPT_URL, { method:"POST", body: JSON.stringify({ action:"updateStatus", staffToken:getStaffToken(), id, status }) })
+        .then(r => r.json())
+    ));
+    clearBtnLoading(btn);
+    const failed = results.filter(r => !r.success).length;
+    selectedIds.clear();
+    if(failed) alert(`تم التحديث، لكن ${failed} منتج فشل — راجعهم يدويًا`);
+    loadProducts();
+  }catch(e){
+    clearBtnLoading(btn);
+    alert("تعذر الاتصال بالسيرفر");
+  }
 }
 
 function onTypeChange(id){

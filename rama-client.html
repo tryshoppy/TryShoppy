@@ -146,7 +146,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{
 
   <div class="card">
     <div class="row">
-      <input id="searchInput" placeholder="🔍 دوّر باسم المنتج أو اللينك..." oninput="renderList()">
+      <input id="searchInput" placeholder="🔍 دوّر باسم المنتج أو اللينك أو موعد الوصول..." oninput="renderList()">
     </div>
     <div class="row" style="margin-top:10px;">
       <select id="filterStatus" onchange="renderList()">
@@ -449,6 +449,7 @@ function renderStats(items){
   const confirmedLike = items.filter(p => ["Confirmed","Placed","Delayed","Delivered"].includes(p.status));
   const totalFinal = confirmedLike.reduce((s,p)=> s + (parseFloat(p.finalEgp)||0), 0);
   const totalRemaining = confirmedLike.reduce((s,p)=> s + (parseFloat(p.remaining)||0), 0);
+  const totalPaid = confirmedLike.reduce((s,p)=> s + (parseFloat(p.deposit)||0), 0);
   const deliveredCount = items.filter(p=>p.status==="Delivered").length;
 
   document.getElementById("statsGrid").innerHTML = `
@@ -456,6 +457,7 @@ function renderStats(items){
     <div class="stat-box"><div class="num">${confirmedLike.length}</div><div class="lbl">✅ مؤكدة</div></div>
     <div class="stat-box"><div class="num">${deliveredCount}</div><div class="lbl">🎉 تم التسليم</div></div>
     <div class="stat-box"><div class="num">${totalFinal.toLocaleString()}</div><div class="lbl">💰 إجمالي القيمة (EGP)</div></div>
+    <div class="stat-box"><div class="num" style="color:var(--success)">${totalPaid.toLocaleString()}</div><div class="lbl">🧾 إجمالي المدفوع (EGP)</div></div>
     <div class="stat-box"><div class="num" style="color:var(--danger)">${totalRemaining.toLocaleString()}</div><div class="lbl">⏳ المتبقي عليك (EGP)</div></div>
   `;
 }
@@ -474,7 +476,7 @@ function renderList(){
   const arrivalF = document.getElementById("filterArrival").value;
 
   let items = allProducts.slice().reverse();
-  if(q) items = items.filter(p => (p.productName||"").toLowerCase().includes(q) || (p.link||"").toLowerCase().includes(q));
+  if(q) items = items.filter(p => (p.productName||"").toLowerCase().includes(q) || (p.link||"").toLowerCase().includes(q) || (p.arrivalDate||"").toLowerCase().includes(q));
   if(statusF) items = items.filter(p => p.status === statusF);
   if(arrivalF) items = items.filter(p => (p.arrivalDate||"").indexOf(arrivalF) !== -1);
 
