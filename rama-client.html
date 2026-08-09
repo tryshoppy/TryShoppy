@@ -516,7 +516,9 @@ function renderProducts(items){
       actionsHtml = `<div class="meta-line" style="color:var(--danger);">🚫 ${escapeHtml(p.notes || "المنتج غير متاح حاليًا")}</div>`;
     } else if(["Confirmed","Placed","Delayed","Delivered"].includes(p.status)){
       actionsHtml = `
-        <div class="price-tag">${Number(p.finalEgp||0).toLocaleString()} EGP</div>
+        <div class="meta-line">💰 سعر القطعة: ${Number(p.staffEgp||0).toLocaleString()} EGP</div>
+        <div class="meta-line">🔢 العدد: ${p.quantity||1}</div>
+        <div class="price-tag">💵 الإجمالي: ${Number(p.finalEgp||0).toLocaleString()} EGP</div>
         <div class="meta-line">📅 موعد الوصول: ${p.arrivalDate || "—"}</div>
         <div class="meta-line">💰 العربون: ${Number(p.deposit||0).toLocaleString()} EGP — المتبقي: ${Number(p.remaining||0).toLocaleString()} EGP</div>
         <button class="mini-btn btn-ghost" style="margin-top:8px;" onclick="reorderProduct('${p.id}', this)">🔁 إعادة طلب نفس المنتج</button>`;

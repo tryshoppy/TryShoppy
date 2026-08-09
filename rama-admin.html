@@ -321,6 +321,10 @@ function renderList(){
           <input type="number" id="usd-${p.id}" placeholder="💵 السعر بالدولار" oninput="calcPreview('${p.id}')">
           <div id="preview-${p.id}" style="align-self:center;font-weight:800;color:var(--success);"></div>
         </div>
+        <div class="row" style="margin-top:8px;align-items:center;">
+          <input type="number" id="customPrice-${p.id}" placeholder="✏️ سعر مخصص (اختياري — يتجاوز الحاسبة)" oninput="calcPreview('${p.id}')">
+          <div style="font-size:11px;color:var(--gray);flex:0 0 auto;">لو اتكتب، هيستخدم بدل حساب الحاسبة</div>
+        </div>
         <button class="btn-block btn-success" style="margin-top:8px;" onclick="submitPrice('${p.id}')">📤 إرسال السعر للعميل</button>
         <button class="btn-block btn-ghost" style="margin-top:8px;color:var(--danger);" onclick="markUnavailable('${p.id}', this)">🚫 المنتج غير متاح</button>
       </div>`;
@@ -335,7 +339,9 @@ function renderList(){
         </div>`;
     } else {
       actionsHtml = `
-        <div class="price-tag" style="font-weight:900;color:var(--primary);">${Number(p.finalEgp||0).toLocaleString()} EGP</div>
+        <div class="meta-line">💰 سعر القطعة: ${Number(p.staffEgp||0).toLocaleString()} EGP</div>
+        <div class="meta-line">🔢 العدد: ${p.quantity||1}</div>
+        <div class="price-tag" style="font-weight:900;color:var(--primary);">💵 الإجمالي: ${Number(p.finalEgp||0).toLocaleString()} EGP</div>
         <div class="action-box">
           <div class="row">
             <select id="status-${p.id}">
@@ -445,20 +451,36 @@ function resolveWeight(id){
 }
 
 function calcPreview(id){
+  const preview = document.getElementById("preview-"+id);
+  const customEl = document.getElementById("customPrice-"+id);
+  const custom = customEl ? parseFloat(customEl.value) : NaN;
+  if(custom){ preview.textContent = "✏️ سعر مخصص: " + custom.toLocaleString() + " EGP / قطعة"; return; }
   const usd = parseFloat(document.getElementById("usd-"+id).value);
   const weight = resolveWeight(id);
-  const preview = document.getElementById("preview-"+id);
   if(!usd || !weight){ preview.textContent = ""; return; }
   const { finalPrice } = tryShoppyCalculatePrice({ usd, category:"Vitamin or Supplements", weightGrams:weight, quantity:1 });
   preview.textContent = "≈ " + finalPrice.toLocaleString() + " EGP";
 }
 
 async function submitPrice(id){
+  const customEl = document.getElementById("customPrice-"+id);
+  const custom = customEl ? parseFloat(customEl.value) : NaN;
   const usd = parseFloat(document.getElementById("usd-"+id).value);
   const weight = resolveWeight(id);
-  if(!usd || !weight){ alert("أدخل السعر بالدولار ونوع/وزن المنتج"); return; }
   const type = document.getElementById("type-"+id).value;
-  const { finalPrice } = tryShoppyCalculatePrice({ usd, category:"Vitamin or Supplements", weightGrams:weight, quantity:1 });
+
+  if(!weight){ alert("اختار نوع ووزن/كمية المنتج الأول"); return; }
+  if(!custom && !usd){ alert("أدخل السعر بالدولار، أو اكتب سعر مخصص بالجنيه"); return; }
+
+  // ✏️ لو الموظف كتب سعر مخصص، بناخده زي ما هو ونتجاوز حساب
+  // الحاسبة تمامًا — مفيد لأي حالة السعر الرسمي مش دقيق فيها
+  // (خصم خاص، تكلفة إضافية معروفة، إلخ)
+  let finalPrice;
+  if(custom){
+    finalPrice = custom;
+  } else {
+    ({ finalPrice } = tryShoppyCalculatePrice({ usd, category:"Vitamin or Supplements", weightGrams:weight, quantity:1 }));
+  }
   const pieceOrWeight = (type==="powder"||type==="liquid") ? (weight+" جم") : document.getElementById("range-"+id).selectedOptions[0].textContent;
 
   const btn = document.querySelector(`button[onclick="submitPrice('${id}')"]`);
@@ -466,7 +488,7 @@ async function submitPrice(id){
   try{
     const res = await fetch(RMA_SCRIPT_URL, { method:"POST", body: JSON.stringify({
       action:"setStaffPrice", staffToken:getStaffToken(), id,
-      supplementType:type, pieceOrWeight, staffUsd:usd, staffEgp:finalPrice
+      supplementType:type, pieceOrWeight, staffUsd:usd||0, staffEgp:finalPrice
     })});
     const data = await res.json();
     if(data.success){ loadProducts(); }
