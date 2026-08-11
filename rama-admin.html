@@ -111,7 +111,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
       <span id="lastRefreshLbl" style="font-size:11px;color:var(--gray);"></span>
       <button id="refreshBtn" class="btn-ghost" onclick="manualRefresh(this)" title="تحديث القائمة" style="padding:8px 12px;">🔄</button>
       <button class="btn-ghost" onclick="showActivityLog()" title="سجل نشاطي" style="padding:8px 12px;">📜</button>
-      <button class="btn-ghost" onclick="exportCSV()" title="تصدير المنتجات الظاهرة كـ CSV" style="padding:8px 12px;">📊</button>
+      <button id="exportCsvBtn" class="btn-ghost" onclick="exportCSV()" title="تصدير المنتجات الظاهرة كـ CSV" style="padding:8px 12px;">📊</button>
       <span id="notifBadge" class="notif-badge hidden" style="cursor:pointer;" onclick="jumpToNeedsReview()" title="اضغط للانتقال للمنتجات المحتاجة مراجعة"></span>
       <button class="btn-ghost" onclick="doLogout()" style="padding:8px 16px;">🚪 خروج</button>
     </div>
@@ -137,6 +137,12 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
       </select>
       <input type="date" id="filterArrival" onchange="renderList()">
       <button class="btn-ghost" onclick="document.getElementById('searchInput').value='';document.getElementById('filterStatus').value='';document.getElementById('filterArrival').value='';renderList();">🧹 مسح الفلاتر</button>
+    </div>
+    <div class="row" style="margin-top:10px;align-items:center;">
+      <label style="display:flex;align-items:center;gap:6px;flex:0 0 auto;cursor:pointer;font-size:13px;font-weight:800;color:var(--primary);">
+        <input type="checkbox" id="selectAllCheck" onchange="toggleSelectAll(this.checked)" style="width:18px;height:18px;cursor:pointer;">
+        ☑️ تحديد الكل (المفلتر)
+      </label>
     </div>
   </div>
 
@@ -204,10 +210,30 @@ function clearBtnLoading(btn){
 
 function checkSession(){
   const t = localStorage.getItem("rmaLoginTime");
-  return !!(t && (Date.now()-t < SESSION_TIME) && getStaffToken());
+  // ⚠️ لازم rmaStaffUser يكون موجود كمان — أي جلسة قديمة اتسجلت
+  // قبل ما نضيف تمييز المستخدم (isHaitham) مش هيبقى فيها اسم
+  // مستخدم محفوظ، وده كان بيخلي isHaitham() يرجع false حتى لهيثم
+  // نفسه لحد ما يعمل logout/login يدوي. دلوقتي جلسة من غير اسم
+  // مستخدم بتتعتبر منتهية تلقائي وبترجعه لشاشة الدخول عشان تتسجل
+  // صح من الأول
+  return !!(t && (Date.now()-t < SESSION_TIME) && getStaffToken() && localStorage.getItem("rmaStaffUser"));
 }
 function showLogin(){ document.getElementById("loginScreen").classList.remove("hidden"); document.getElementById("mainContent").classList.add("hidden"); }
-function showMain(){ document.getElementById("loginScreen").classList.add("hidden"); document.getElementById("mainContent").classList.remove("hidden"); loadProducts(); }
+function showMain(){ document.getElementById("loginScreen").classList.add("hidden"); document.getElementById("mainContent").classList.remove("hidden"); applyRoleVisibility(); loadProducts(); }
+
+// 👤 هيثم بس هو اللي شايف كل حاجة (الهيدر بالأرقام/الحسابات،
+// تصدير CSV، والطلبات اللي خلصت إجراءها). أي حد تاني بيشوف بس
+// الطلبات المحتاجة تدخل فعلي منه، وبتختفي أول ما تتأكد
+function isHaitham(){
+  return (localStorage.getItem("rmaStaffUser") || "").toLowerCase() === "haitham";
+}
+function applyRoleVisibility(){
+  const allowed = isHaitham();
+  const stats = document.getElementById("statsGrid");
+  if(stats) stats.style.display = allowed ? "" : "none";
+  const exportBtn = document.getElementById("exportCsvBtn");
+  if(exportBtn) exportBtn.style.display = allowed ? "" : "none";
+}
 
 async function doLogin(){
   const u = document.getElementById("loginUser").value.trim();
@@ -221,6 +247,7 @@ async function doLogin(){
   if(res && res.success){
     localStorage.setItem("rmaLoginTime", Date.now());
     localStorage.setItem("rmaStaffToken", res.token || "");
+    localStorage.setItem("rmaStaffUser", u.toLowerCase());
     showMain();
   } else {
     document.getElementById("loginError").textContent = (res&&res.code==='locked') ? res.message : "❌ اسم المستخدم أو كلمة المرور غلط";
@@ -228,7 +255,7 @@ async function doLogin(){
   }
 }
 function doLogout(){
-  localStorage.removeItem("rmaLoginTime"); localStorage.removeItem("rmaStaffToken");
+  localStorage.removeItem("rmaLoginTime"); localStorage.removeItem("rmaStaffToken"); localStorage.removeItem("rmaStaffUser");
   showLogin();
 }
 
@@ -367,15 +394,18 @@ function renderList(){
   const statusF = document.getElementById("filterStatus").value;
   const arrivalF = document.getElementById("filterArrival").value;
   let items = allProducts.slice().reverse(); // الأحدث الأول كأساس
+
+  // 👤 أي حد غير هيثم بيشوف بس الطلبات المحتاجة تدخل فعلي —
+  // أول ما الطلب يتأكد/يتشترى/يتأخر/يتسلم بيختفي من عنده تمامًا
+  if(!isHaitham()){
+    items = items.filter(p => !["Confirmed","Placed","Delayed","Delivered"].includes(p.status));
+  }
+
   if(q) items = items.filter(p => (p.productName||"").toLowerCase().includes(q) || (p.link||"").toLowerCase().includes(q) || (p.arrivalDate||"").toLowerCase().includes(q));
   if(statusF === "NeedsAction") items = items.filter(p => p.status==="PendingPrice" || p.status==="PendingReview");
   else if(statusF) items = items.filter(p=>p.status===statusF);
   if(arrivalF) items = items.filter(p=> (p.arrivalDate||"").indexOf(arrivalF) !== -1);
 
-  // 🔝 اللي محتاج مني إجراء (تسعير أو مراجعة عرض عميل) دايمًا فوق،
-  // والأحدث فوق جوه نفس المجموعة — بما إن الـsort في الجافاسكريبت
-  // مستقر (stable)، ترتيب الأحدث اللي عملناه فوق بيتحافظ عليه جوه
-  // كل مجموعة من غير أي كود إضافي
   // 🔝 اللي محتاج مني إجراء دايمًا فوق (الأحدث إضافة فوق جواها).
   // اللي خلص إجراءه (مؤكد/تم الشراء/إلخ) بيترتب حسب وقت آخر تحديث
   // فعلي (بيتحدّث تلقائي وقت ما العميل يأكد الطلب) — آخر حاجة
@@ -487,10 +517,29 @@ function toggleSelect(id, checked){
   updateBulkBar();
 }
 
+// ☑️ تحديد/إلغاء تحديد كل المنتجات الظاهرة دلوقتي (بعد أي فلترة/بحث)
+// دفعة واحدة، بدل ما تدوس كل Checkbox لوحده
+function toggleSelectAll(checked){
+  lastRenderedItems.forEach(p => { if(checked) selectedIds.add(p.id); else selectedIds.delete(p.id); });
+  document.querySelectorAll(".bulk-check").forEach(cb => { cb.checked = selectedIds.has(cb.dataset.id); });
+  updateBulkBar();
+}
+
 function updateBulkBar(){
   const bar = document.getElementById("bulkBar");
   document.getElementById("bulkCount").textContent = selectedIds.size;
   bar.classList.toggle("hidden", selectedIds.size === 0);
+  // نزامن حالة "تحديد الكل" مع الاختيار الفعلي — متعلّمة (indeterminate)
+  // لو جزء بس متحدد، متعلّمة تمامًا لو الكل متحدد
+  const selectAllCheck = document.getElementById("selectAllCheck");
+  if(selectAllCheck && lastRenderedItems.length){
+    const selectedVisible = lastRenderedItems.filter(p => selectedIds.has(p.id)).length;
+    selectAllCheck.checked = selectedVisible === lastRenderedItems.length;
+    selectAllCheck.indeterminate = selectedVisible > 0 && selectedVisible < lastRenderedItems.length;
+  } else if(selectAllCheck){
+    selectAllCheck.checked = false;
+    selectAllCheck.indeterminate = false;
+  }
 }
 
 function clearSelection(){
