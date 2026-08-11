@@ -76,6 +76,9 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{
 .cart-item .remove-btn{background:none;color:var(--danger);font-size:12px;font-weight:700;padding:6px 10px;flex-shrink:0;min-height:auto;}
 .spinner{display:inline-block;width:14px;height:14px;border:2.5px solid currentColor;border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-left:6px;}
 @keyframes spin{to{transform:rotate(360deg);}}
+#refreshBtn.spinning{animation:spin .8s linear infinite;}
+.notif-badge:not(.hidden){animation:pulseBadge 2s ease-in-out infinite;}
+@keyframes pulseBadge{0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,.35);} 50%{box-shadow:0 0 0 6px rgba(220,38,38,0);}}
 
 /* موبايل: مساحات أضيق ومريحة أكتر بدل ما تتزنق */
 @media(max-width:480px){
@@ -94,6 +97,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{
    السبينر (بيفضل يلف عشان لسه بيدل على إن حاجة شغالة) */
 @media(prefers-reduced-motion:reduce){
   button,.product-link-btn,.product-card{transition:none;}
+  .notif-badge:not(.hidden){animation:none;}
 }
 </style>
 </head>
@@ -138,7 +142,12 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{
     <button class="btn-block btn-success" id="sendAllBtn" onclick="sendAllCart()">✅ إرسال كل المنتجات للفريق</button>
   </div>
 
-  <div class="topbar">
+  <div class="topbar" style="justify-content:space-between;">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span id="lastRefreshLbl" style="font-size:11px;color:var(--gray);"></span>
+      <button id="refreshBtn" class="btn-ghost" onclick="manualRefresh(this)" title="تحديث القائمة" style="padding:8px 12px;">🔄</button>
+      <button class="btn-ghost" onclick="exportCSV()" title="تصدير طلباتي كـ CSV" style="padding:8px 12px;">📊</button>
+    </div>
     <div id="notifBadge" class="notif-badge hidden" style="cursor:pointer;" onclick="jumpToNeedsReview()" title="اضغط للانتقال للمنتجات المحتاجة ردك"></div>
   </div>
 
@@ -171,6 +180,10 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{
 
 <script>
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyz2XgdEyZb3HkZGFk9wN9fKoMD9I2Nin-YXwl1Dy3rtd5u3qPRokcpa0T9UKJyDdf6jg/exec"; // ⚠️ حط هنا رابط RMA_Vitamins_Code.gs بعد النشر
+
+// رقم واتساب الأدمن — نفس رقم TS_CONFIG.SUPPORT_PHONE بتاع الموقع
+// الرئيسي (بصيغة دولية من غير + أو صفر). غيّره هنا لو الرقم اتغيّر
+const ADMIN_WHATSAPP = "201005609642";
 
 /* اسم/صورة المنتج ممكن يكونوا جايين من موقع خارجي (جلب تلقائي
    بـ og:title/JSON-LD..) مش تحت سيطرتنا، فلازم ننضفهم قبل ما
@@ -386,14 +399,14 @@ async function sendAllCart(){
       })}).then(r=>r.json())
     ));
     clearBtnLoading(btn);
+    const successCount = results.filter(r => r.success).length;
     if(results.some(r => !r.success)){
-      alert("⚠️ بعض المنتجات فشلت تتبعت — راجع القائمة وحاول تاني للي فشل");
-    } else {
-      alert("✅ اتبعتت كل المنتجات للفريق!");
+      alert(`⚠️ ${successCount} من ${cart.length} اتبعتوا، والباقي فشل — راجع القائمة وحاول تاني للي فشل`);
     }
     saveCart([]);
     renderCart();
     loadProducts();
+    if(successCount > 0) showOrderSentModal(successCount);
   }catch(e){
     clearBtnLoading(btn);
     alert("تعذر الاتصال بالسيرفر — السلة لسه محفوظة، حاول تاني");
@@ -412,6 +425,7 @@ const STATUS_META = {
 };
 
 let allProducts = [];
+let lastRenderedItems = []; // آخر مجموعة اتعرضت فعليًا (بعد البحث/الفلترة) — يستخدمها تصدير CSV
 
 async function loadProducts(){
   try{
@@ -427,6 +441,7 @@ async function loadProducts(){
     allProducts = data;
     renderNotifBadge(); // ⚠️ دايمًا بيعكس كل المنتجات، بغض النظر عن الفلتر — عشان محدش يفوّته رد لازم يبعته
     renderList();
+    updateLastRefreshLabel();
     return "ok";
   }catch(e){
     console.error("loadProducts failed:", e);
@@ -434,6 +449,23 @@ async function loadProducts(){
     if(box) box.innerHTML = '<div class="card empty-hint">تعذر تحميل المنتجات — تأكد من الاتصال بالإنترنت وحاول تاني</div>';
     return "network";
   }
+}
+
+// 🔄 تحديث يدوي — من غير ما يأثر على شكل الصفحة، بس أيقونة الزرار
+// بتلف وهي بتحمّل عشان تحس إنها فعلاً بتحصل
+function updateLastRefreshLabel(){
+  const lbl = document.getElementById("lastRefreshLbl");
+  if(!lbl) return;
+  const now = new Date();
+  lbl.textContent = "آخر تحديث: " + now.toLocaleTimeString("ar-EG", {hour:"2-digit", minute:"2-digit"});
+}
+
+async function manualRefresh(btn){
+  btn.classList.add("spinning");
+  btn.disabled = true;
+  await loadProducts();
+  btn.classList.remove("spinning");
+  btn.disabled = false;
 }
 
 function renderNotifBadge(){
@@ -450,10 +482,12 @@ function renderStats(items){
   const totalFinal = confirmedLike.reduce((s,p)=> s + (parseFloat(p.finalEgp)||0), 0);
   const totalRemaining = confirmedLike.reduce((s,p)=> s + (parseFloat(p.remaining)||0), 0);
   const totalPaid = confirmedLike.reduce((s,p)=> s + (parseFloat(p.deposit)||0), 0);
+  const totalQty = items.reduce((s,p)=> s + (parseInt(p.quantity)||1), 0);
   const deliveredCount = items.filter(p=>p.status==="Delivered").length;
 
   document.getElementById("statsGrid").innerHTML = `
     <div class="stat-box"><div class="num">${items.length}</div><div class="lbl">📦 إجمالي المنتجات${items.length!==allProducts.length ? ' (مفلترة)' : ''}</div></div>
+    <div class="stat-box"><div class="num">${totalQty.toLocaleString()}</div><div class="lbl">🔢 إجمالي الكمية (قطعة)</div></div>
     <div class="stat-box"><div class="num">${confirmedLike.length}</div><div class="lbl">✅ مؤكدة</div></div>
     <div class="stat-box"><div class="num">${deliveredCount}</div><div class="lbl">🎉 تم التسليم</div></div>
     <div class="stat-box"><div class="num">${totalFinal.toLocaleString()}</div><div class="lbl">💰 إجمالي القيمة (EGP)</div></div>
@@ -475,13 +509,32 @@ function renderList(){
   const statusF = document.getElementById("filterStatus").value;
   const arrivalF = document.getElementById("filterArrival").value;
 
-  let items = allProducts.slice().reverse();
+  let items = allProducts.slice().reverse(); // الأحدث الأول كأساس
   if(q) items = items.filter(p => (p.productName||"").toLowerCase().includes(q) || (p.link||"").toLowerCase().includes(q) || (p.arrivalDate||"").toLowerCase().includes(q));
   if(statusF) items = items.filter(p => p.status === statusF);
   if(arrivalF) items = items.filter(p => (p.arrivalDate||"").indexOf(arrivalF) !== -1);
 
+  // 🔝 اللي محتاج ردك (بانتظار موافقتك) دايمًا فوق، والأحدث فوق جوه
+  // نفس المجموعة (الـsort مستقر، فترتيب "الأحدث فوق" اللي عملناه
+  // فوق بيتحافظ عليه جوه كل مجموعة من غير كود إضافي)
+  // 🔝 اللي محتاج ردك دايمًا فوق (الأحدث إضافة فوق جواها). اللي
+  // اتأكد بالفعل بيترتب حسب وقت آخر تحديث فعلي (بيتحدّث تلقائي
+  // وقت ما تأكد الطلب) — آخر حاجة أكّدتها هي اللي تظهر فوق
+  items.sort((a, b) => {
+    const rankDiff = needsActionRank(a) - needsActionRank(b);
+    if(rankDiff !== 0) return rankDiff;
+    if(needsActionRank(a) === 1) return new Date(b.lastUpdated || 0) - new Date(a.lastUpdated || 0);
+    return 0;
+  });
+  lastRenderedItems = items;
+
   renderStats(items); // ← نفس المجموعة المفلترة اللي هتتعرض تحت
   renderProducts(items);
+}
+
+// 0 = محتاج ردك دلوقتي (بانتظار موافقتك)، 1 = الباقي
+function needsActionRank(p){
+  return p.status === "PendingApproval" ? 0 : 1;
 }
 
 function renderProducts(items){
@@ -497,8 +550,9 @@ function renderProducts(items){
         <div class="price-tag">${Number(p.staffEgp).toLocaleString()} EGP <span style="font-size:11px;color:#94a3b8;font-weight:700;">/ للقطعة</span></div>
         <div class="action-box">
           <div class="row">
-            <input type="number" class="mini-input" id="qty-${p.id}" placeholder="🔢 الكمية" value="1" min="1">
+            <input type="number" class="mini-input" id="qty-${p.id}" placeholder="🔢 الكمية" value="1" min="1" oninput="updateQtyPreview('${p.id}', ${p.staffEgp})">
           </div>
+          <div class="meta-line" id="qtyPreview-${p.id}" style="font-weight:800;color:var(--primary);margin-top:4px;"></div>
           <div class="row" style="margin-top:8px;">
             <button class="mini-btn btn-success" onclick="confirmProduct('${p.id}')">✅ موافق</button>
             <button class="mini-btn btn-ghost" onclick="toggleCounter('${p.id}')">💬 اقترح سعر تاني</button>
@@ -538,10 +592,25 @@ function renderProducts(items){
       </div>
     </div>`;
   }).join("");
+
+  // نملى معاينة "الكمية × السعر = الإجمالي" أول ما تتعرض الكروت،
+  // مش بس بعد ما تكتب — عشان تشوفها من غير ما تلمس حاجة
+  items.filter(p=>p.status==="PendingApproval").forEach(p => updateQtyPreview(p.id, p.staffEgp));
 }
 
 function toggleCounter(id){
   document.getElementById("counterBox-"+id).classList.toggle("hidden");
+}
+
+// 🔢 معاينة حية للإجمالي وإنت بتغيّر الكمية — بتوريك "الكمية ×
+// سعر القطعة = الإجمالي" أول بأول قبل ما توافق أو تقترح سعر
+function updateQtyPreview(id, unitPrice){
+  const qtyEl = document.getElementById("qty-"+id);
+  const previewEl = document.getElementById("qtyPreview-"+id);
+  if(!qtyEl || !previewEl) return;
+  const qty = parseInt(qtyEl.value) || 1;
+  const total = qty * (parseFloat(unitPrice) || 0);
+  previewEl.textContent = `= ${qty} × ${Number(unitPrice).toLocaleString()} = ${total.toLocaleString()} EGP إجمالي`;
 }
 
 async function confirmProduct(id){
@@ -601,6 +670,63 @@ async function reorderProduct(id, btn){
     alert("تعذر الاتصال بالسيرفر — حاول تاني");
   }
 }
-</script>
+/* ---------------------------------------------------------
+   🪟 نافذة منبثقة عامة (Modal)
+   --------------------------------------------------------- */
+function showModal(html){
+  document.getElementById("appModalContent").innerHTML = html;
+  document.getElementById("appModal").classList.remove("hidden");
+}
+function closeModal(){
+  document.getElementById("appModal").classList.add("hidden");
+}
+
+/* ---------------------------------------------------------
+   📱 بوب أب بعد إرسال طلبات التسعير — رابط واتساب جاهز برسالة
+   لتأكيد وصول الطلب للأدمن (رقم ثابت، مش بيتغيّر لكل عميل)
+   --------------------------------------------------------- */
+function showOrderSentModal(count){
+  const msg = encodeURIComponent(`مرحبًا 👋، بعت طلب تسعير جديد لـ ${count} منتج على RAMA، برجاء المراجعة 🙏`);
+  const waLink = `https://wa.me/${ADMIN_WHATSAPP}?text=${msg}`;
+  showModal(`
+    <div style="font-size:2.2rem;margin-bottom:8px;">✅</div>
+    <h3 style="margin-bottom:8px;">اتبعت ${count} منتج للفريق!</h3>
+    <p style="color:var(--gray);font-size:13.5px;margin-bottom:16px;">تحب تأكد وصول طلبك عن طريق واتساب؟</p>
+    <a href="${waLink}" target="_blank" rel="noopener noreferrer" class="btn-block btn-success" style="display:block;text-decoration:none;margin-bottom:8px;box-sizing:border-box;">📱 تأكيد عن طريق واتساب</a>
+    <button class="btn-ghost btn-block" onclick="closeModal()">إغلاق</button>
+  `);
+}
+
+/* ---------------------------------------------------------
+   📊 تصدير CSV — بيصدّر بالظبط نفس المنتجات اللي شايفها دلوقتي
+   (بعد أي بحث/فلترة). كله بيحصل في المتصفح، من غير أي طلب للسيرفر
+   --------------------------------------------------------- */
+function csvEscape(v){
+  const s = String(v == null ? "" : v);
+  return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+
+function exportCSV(){
+  if(!lastRenderedItems.length){ alert("مفيش منتجات ظاهرة دلوقتي عشان تتصدّر"); return; }
+  const headers = ["اسم المنتج","الرابط","الحالة","سعر القطعة EGP","الكمية","الإجمالي EGP","العربون EGP","المتبقي EGP","تاريخ الوصول"];
+  const rows = lastRenderedItems.map(p => [
+    p.productName, p.link, STATUS_META[p.status]?.label || p.status,
+    p.staffEgp, p.quantity, p.finalEgp, p.deposit, p.remaining, p.arrivalDate
+  ].map(csvEscape).join(","));
+  const csv = "\uFEFF" + headers.map(csvEscape).join(",") + "\n" + rows.join("\n"); // BOM عشان إكسل يفتح العربي صح
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "rama-my-orders-" + new Date().toISOString().slice(0,10) + ".csv";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+</script><div id="appModal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:50;display:flex;align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)closeModal()">
+  <div class="card" style="max-width:380px;width:100%;text-align:center;" id="appModalContent"></div>
+</div>
+
 </body>
 </html>
