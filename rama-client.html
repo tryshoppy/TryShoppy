@@ -155,7 +155,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{
 
   <div class="card">
     <div class="row">
-      <input id="searchInput" placeholder="🔍 دوّر باسم المنتج أو اللينك أو موعد الوصول..." oninput="renderList()">
+      <input id="searchInput" placeholder="🔍 دوّر باسم المنتج أو اللينك أو موعد الوصول..." oninput="debouncedRenderList()">
     </div>
     <div class="row" style="margin-top:10px;">
       <select id="filterStatus" onchange="renderList()">
@@ -184,6 +184,11 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyz2XgdEyZb3HkZGFk9w
 // رقم واتساب الأدمن — نفس رقم TS_CONFIG.SUPPORT_PHONE بتاع الموقع
 // الرئيسي (بصيغة دولية من غير + أو صفر). غيّره هنا لو الرقم اتغيّر
 const ADMIN_WHATSAPP = "201005609642";
+
+// ⚠️ لازم يتعرّف قبل initSession() تحت — أول مرة اتحطت في آخر
+// الملف بالغلط وده كسر التحميل كله (TDZ error لأنها متعرّفة بـlet
+// مش hoisted زي الدوال)
+let loadingInProgress = null;
 
 /* اسم/صورة المنتج ممكن يكونوا جايين من موقع خارجي (جلب تلقائي
    بـ og:title/JSON-LD..) مش تحت سيطرتنا، فلازم ننضفهم قبل ما
@@ -426,10 +431,24 @@ const STATUS_META = {
 
 let allProducts = [];
 let lastRenderedItems = []; // آخر مجموعة اتعرضت فعليًا (بعد البحث/الفلترة) — يستخدمها تصدير CSV
+let confirmedThisSessionCount = 0; // لعداد "أكّدت X منتج" وقت ما طابور الموافقة يفضى
 
+// منع طلبين متزامنين (مثلاً لو دوس تحديث وهو لسه بيحمّل من نفسه)
+// — بيرجّع نفس الـpromise الشغالة بدل ما يبدأ طلب جديد فوقه
 async function loadProducts(){
+  if(loadingInProgress) return loadingInProgress;
+  loadingInProgress = loadProductsInner();
+  const result = await loadingInProgress;
+  loadingInProgress = null;
+  return result;
+}
+
+async function loadProductsInner(retrying){
   try{
-    const res = await fetch(SCRIPT_URL + "?scope=client&passcode=" + encodeURIComponent(getPasscode()));
+    const ctrl = new AbortController();
+    const timeout = setTimeout(() => ctrl.abort(), 15000); // سقف 15 ثانية بدل ما يفضل معلّق للأبد
+    const res = await fetch(SCRIPT_URL + "?scope=client&passcode=" + encodeURIComponent(getPasscode()), { signal: ctrl.signal });
+    clearTimeout(timeout);
     const data = await res.json(); // لو السيرفر رجع HTML/نص مش JSON، هيقع هنا وننزل على catch تحت
     if(!Array.isArray(data)){
       // السيرفر دلوقتي بيرفض من غير باسورد صحيح ({success:false,...})
@@ -445,8 +464,13 @@ async function loadProducts(){
     return "ok";
   }catch(e){
     console.error("loadProducts failed:", e);
+    // 🔁 أول فشل شبكة، بنجرب تاني تلقائي بصمت مرة واحدة قبل ما
+    // نزعجك برسالة — كتير من الحالات بتكون تهنيجة شبكة لحظية
+    // بتتصلح لوحدها من غير أي إجراء منك
+    if(!retrying) return loadProductsInner(true);
     const box = document.getElementById("productsList");
-    if(box) box.innerHTML = '<div class="card empty-hint">تعذر تحميل المنتجات — تأكد من الاتصال بالإنترنت وحاول تاني</div>';
+    if(box && !allProducts.length) box.innerHTML = '<div class="card empty-hint">تعذر تحميل المنتجات — تأكد من الاتصال بالإنترنت وحاول تاني</div>';
+    else showToast("⚠️ تعذر تحديث البيانات — هنجرب تاني", "error");
     return "network";
   }
 }
@@ -503,6 +527,17 @@ function jumpToNeedsReview(){
   renderList();
   window.scrollTo({top:0, behavior:"smooth"});
 }
+
+// ⏱️ تأخير بسيط (250ms) قبل ما البحث يشتغل فعليًا وإنت لسه بتكتب
+// — بيقلل إعادة بناء القائمة كاملة مع كل حرف
+function debounce(fn, delay){
+  let timer;
+  return function(...args){
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+const debouncedRenderList = debounce(renderList, 250);
 
 function renderList(){
   const q = (document.getElementById("searchInput").value || "").trim().toLowerCase();
@@ -620,7 +655,14 @@ async function confirmProduct(id){
   try{
     const res = await fetch(SCRIPT_URL, { method:"POST", body: JSON.stringify({ action:"clientConfirm", passcode:getPasscode(), id, quantity:qty }) });
     const data = await res.json();
-    if(data.success){ alert("✅ تم تأكيد الطلب!"); loadProducts(); }
+    if(data.success){
+      confirmedThisSessionCount++;
+      await loadProducts();
+      // 🎉 لو مفيش منتج تاني لسه بانتظار موافقتك، يبقى خلصت "دفعة"
+      // تأكيدات كاملة — نعرض بوب أب فيه اقتراح إرسال واتساب للأدمن
+      const stillPending = allProducts.filter(p=>p.status==="PendingApproval").length;
+      if(stillPending === 0 && confirmedThisSessionCount > 0) showConfirmDoneModal();
+    }
     else { clearBtnLoading(btn); alert(data.message || "حصل خطأ"); }
   }catch(e){
     clearBtnLoading(btn);
@@ -697,6 +739,22 @@ function showOrderSentModal(count){
   `);
 }
 
+// 📱 بوب أب بعد ما تخلص توافق على كل المنتجات المعروضة عليك —
+// رابط واتساب جاهز يخبّر الأدمن إنك أكّدت
+function showConfirmDoneModal(){
+  const count = confirmedThisSessionCount;
+  const msg = encodeURIComponent(`مرحبًا 👋، أكّدت ${count} منتج على RAMA، تمام كده؟ 🙏`);
+  const waLink = `https://wa.me/${ADMIN_WHATSAPP}?text=${msg}`;
+  showModal(`
+    <div style="font-size:2.2rem;margin-bottom:8px;">🎉</div>
+    <h3 style="margin-bottom:8px;">أكّدت ${count} منتج!</h3>
+    <p style="color:var(--gray);font-size:13.5px;margin-bottom:16px;">تحب تبلّغ الأدمن عن طريق واتساب؟</p>
+    <a href="${waLink}" target="_blank" rel="noopener noreferrer" class="btn-block btn-success" style="display:block;text-decoration:none;margin-bottom:8px;box-sizing:border-box;">📱 إرسال واتساب للأدمن</a>
+    <button class="btn-ghost btn-block" onclick="closeModal()">إغلاق</button>
+  `);
+  confirmedThisSessionCount = 0; // نصفّر العداد بعد ما وريناه — الدفعة الجاية تتحسب من جديد
+}
+
 /* ---------------------------------------------------------
    📊 تصدير CSV — بيصدّر بالظبط نفس المنتجات اللي شايفها دلوقتي
    (بعد أي بحث/فلترة). كله بيحصل في المتصفح، من غير أي طلب للسيرفر
@@ -724,9 +782,26 @@ function exportCSV(){
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
+/* ---------------------------------------------------------
+   🍞 تنبيه خفيف غير معطّل (Toast) — بديل عن alert() المزعج لأي
+   خطأ اتصال/شبكة عابر، بيختفي لوحده من غير ما يحتاج منك تدوس
+   "موافق". alert() لسه مستخدم بس للأخطاء اللي محتاجة منك تتصرف
+   فيها فعليًا (بيانات ناقصة، إلخ)
+   --------------------------------------------------------- */
+function showToast(msg, type){
+  const box = document.getElementById("toastBox");
+  if(!box) return;
+  const el = document.createElement("div");
+  el.textContent = msg;
+  const isError = type === "error";
+  el.style.cssText = `background:${isError?'#fef2f2':'#f0fdf4'};color:${isError?'var(--danger)':'var(--success)'};border:1px solid ${isError?'#fecaca':'#bbf7d0'};padding:10px 18px;border-radius:12px;font-weight:800;font-size:13px;box-shadow:0 4px 16px rgba(0,0,0,.12);max-width:90vw;transition:opacity .3s;`;
+  box.appendChild(el);
+  setTimeout(() => { el.style.opacity = "0"; setTimeout(() => el.remove(), 300); }, 3500);
+}
 </script><div id="appModal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:50;display:flex;align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)closeModal()">
   <div class="card" style="max-width:380px;width:100%;text-align:center;" id="appModalContent"></div>
 </div>
+<div id="toastBox" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:60;display:flex;flex-direction:column;gap:8px;align-items:center;"></div>
 
 </body>
 </html>

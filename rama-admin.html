@@ -121,7 +121,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 
   <div class="card">
     <div class="row">
-      <input id="searchInput" placeholder="🔍 دوّر باسم المنتج أو اللينك أو موعد الوصول..." oninput="renderList()">
+      <input id="searchInput" placeholder="🔍 دوّر باسم المنتج أو اللينك أو موعد الوصول..." oninput="debouncedRenderList()">
     </div>
     <div class="row" style="margin-top:10px;">
       <select id="filterStatus" onchange="renderList()">
@@ -231,16 +231,39 @@ function doLogout(){
   localStorage.removeItem("rmaLoginTime"); localStorage.removeItem("rmaStaffToken");
   showLogin();
 }
+
+// ⚠️ لازم يتعرّف قبل أي حاجة ممكن تنده على loadProducts() —
+// أول مرة اتحطت بعد checkSession() بالغلط وده كسر التحميل كله
+// (TDZ error لأنها متعرّفة بـlet مش hoisted زي الدوال)
+let loadingInProgress = null;
+
 if(checkSession()) showMain(); else showLogin();
 
+// منع طلبين متزامنين (مثلاً لو دوس تحديث وهو لسه بيحمّل من نفسه)
+// — بيرجّع نفس الـpromise الشغالة بدل ما يبدأ طلب جديد فوقه
 async function loadProducts(){
+  if(loadingInProgress) return loadingInProgress;
+  loadingInProgress = loadProductsInner();
+  const result = await loadingInProgress;
+  loadingInProgress = null;
+  return result;
+}
+
+async function loadProductsInner(retrying){
   let res, data;
   try{
-    res = await fetch(RMA_SCRIPT_URL + "?scope=staff&staffToken=" + encodeURIComponent(getStaffToken()));
+    const ctrl = new AbortController();
+    const timeout = setTimeout(() => ctrl.abort(), 15000); // سقف 15 ثانية بدل ما يفضل معلّق للأبد
+    res = await fetch(RMA_SCRIPT_URL + "?scope=staff&staffToken=" + encodeURIComponent(getStaffToken()), { signal: ctrl.signal });
+    clearTimeout(timeout);
     data = await res.json(); // لو السيرفر رجع HTML/نص مش JSON (مشكلة نشر مثلًا)، هيقع هنا
   }catch(e){
     console.error("loadProducts failed:", e);
-    alert("⚠️ تعذر الاتصال بالسيرفر — تأكد من الإنترنت وحاول تاني");
+    // 🔁 أول فشل شبكة، بنجرب تاني تلقائي بصمت مرة واحدة قبل ما
+    // نزعجك برسالة — كتير من الحالات بتكون تهنيجة شبكة لحظية
+    // بتتصلح لوحدها من غير أي إجراء منك
+    if(!retrying) return loadProductsInner(true);
+    showToast("⚠️ تعذر الاتصال بالسيرفر — تأكد من الإنترنت", "error");
     return;
   }
   if(!Array.isArray(data)){ alert("⚠️ الجلسة انتهت — سجّل دخول تاني"); doLogout(); return; }
@@ -326,6 +349,18 @@ function jumpToNeedsReview(){
   renderList();
   window.scrollTo({top:0, behavior:"smooth"});
 }
+
+// ⏱️ تأخير بسيط (250ms) قبل ما البحث يشتغل فعليًا وإنت لسه بتكتب
+// — بيقلل إعادة بناء القائمة كاملة مع كل حرف، وده اللي كان بيبطّئ
+// الكتابة على قوائم فيها منتجات كتير
+function debounce(fn, delay){
+  let timer;
+  return function(...args){
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+const debouncedRenderList = debounce(renderList, 250);
 
 function renderList(){
   const q = (document.getElementById("searchInput").value || "").trim().toLowerCase();
@@ -726,9 +761,26 @@ function exportCSV(){
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
+/* ---------------------------------------------------------
+   🍞 تنبيه خفيف غير معطّل (Toast) — بديل عن alert() المزعج لأي
+   خطأ اتصال/شبكة عابر، بيختفي لوحده من غير ما يحتاج منك تدوس
+   "موافق". alert() لسه مستخدم بس للأخطاء اللي محتاجة منك تتصرف
+   فيها فعليًا (باسورد غلط، بيانات ناقصة، إلخ)
+   --------------------------------------------------------- */
+function showToast(msg, type){
+  const box = document.getElementById("toastBox");
+  if(!box) return;
+  const el = document.createElement("div");
+  el.textContent = msg;
+  const isError = type === "error";
+  el.style.cssText = `background:${isError?'#fef2f2':'#f0fdf4'};color:${isError?'var(--danger)':'var(--success)'};border:1px solid ${isError?'#fecaca':'#bbf7d0'};padding:10px 18px;border-radius:12px;font-weight:800;font-size:13px;box-shadow:0 4px 16px rgba(0,0,0,.12);max-width:90vw;transition:opacity .3s;`;
+  box.appendChild(el);
+  setTimeout(() => { el.style.opacity = "0"; setTimeout(() => el.remove(), 300); }, 3500);
+}
 </script><div id="appModal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:50;display:flex;align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)closeModal()">
   <div class="card" style="max-width:380px;width:100%;text-align:center;" id="appModalContent"></div>
 </div>
+<div id="toastBox" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:60;display:flex;flex-direction:column;gap:8px;align-items:center;"></div>
 
 </body>
 </html>
