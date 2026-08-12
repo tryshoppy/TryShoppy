@@ -63,9 +63,28 @@ button:hover{ opacity:.9; }
 
 /* ── Main Content ── */
 #mainContent{ display:none; }
+
+/* ── Cart ── */
+.cart-item{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:14px 16px;border:1.5px solid var(--border);border-radius:14px;margin-bottom:10px;background:var(--white)}
+.cart-item-link{font-size:12px;color:#64748b;margin-top:3px;word-break:break-all}
+.cart-item-link a{color:#64748b}
+.cart-item-meta{font-size:12.5px;color:#64748b;margin-top:5px}
+.cart-item-right{text-align:left;flex-shrink:0}
+.cart-item-price{font-weight:800;font-size:15px;color:var(--primary)}
+.cart-item-remove{width:auto;padding:0;margin-top:8px;background:none;border:none;color:#ef4444;font-size:12.5px;font-weight:700;cursor:pointer}
+.cart-total-row{display:flex;justify-content:space-between;align-items:center;padding:16px 4px;font-weight:800;font-size:17px;border-top:2px dashed var(--border);margin-top:4px;margin-bottom:16px}
+.cart-total-row span:last-child{color:#16a34a}
+.btn-secondary{background:#fff;color:var(--primary);border:2px solid var(--primary);}
+.btn-secondary:hover{opacity:.85;}
+.hidden{display:none !important;}
 </style>
 </head>
 <body>
+
+<!-- ====== شكل السلة العائم (يظهر بس لو فيه منتجات، ويوديك للسلة على طول) ====== -->
+<div id="cartFab" class="hidden" onclick="showStep('cart')" title="ارجع للسلة" style="position:fixed;top:16px;left:16px;background:var(--primary);color:#fff;border-radius:50px;padding:10px 18px;font-weight:900;font-size:14px;box-shadow:0 6px 18px rgba(37,99,235,.35);cursor:pointer;z-index:40;display:flex;align-items:center;gap:8px;">
+  🛒 <span id="cartFabCount">0</span> منتج
+</div>
 
 <!-- ====== شاشة الدخول ====== -->
 <div id="loginScreen" style="display:flex;">
@@ -109,6 +128,10 @@ button:hover{ opacity:.9; }
   <input type="email" id="customerEmail" placeholder="name@example.com">
 </div>
 
+<!-- ================= STEP 1: إضافة منتج ================= -->
+<div id="stepProduct">
+<hr style="border:0;border-top:1.5px dashed var(--border);margin:20px 0;">
+
 <div class="input-group">
   <label>لينك المنتج الجديد</label>
   <input type="text" id="link">
@@ -133,13 +156,30 @@ button:hover{ opacity:.9; }
   <label>المواصفات الخاصة (SPCS)</label>
   <input type="text" id="dimensions" placeholder="مثال: Size: L | Color: Red | Notes: ...">
 </div>
-    
-<button id="createBtn" onclick="createOrder()">إنشاء الأوردر</button>
 
-<div id="waContainer" style="display:none; margin-top:14px;">
+<button id="createBtn" onclick="addCurrentToCart()">➕ أضف للسلة</button>
+</div><!-- end stepProduct -->
+
+<!-- ================= STEP 2: السلة ================= -->
+<div id="stepCart" class="hidden">
+  <h2 style="font-size:1.2rem;margin-top:20px;">🛒 سلة الطلب</h2>
+  <div id="cartItemsList"></div>
+  <div class="cart-total-row">
+    <span>الإجمالي</span>
+    <span id="cartTotalDisplay">0 EGP</span>
+  </div>
+  <button class="btn-secondary" onclick="backToAddItem()">➕ أضف منتج تاني</button>
+  <button id="checkoutBtn" style="margin-top:12px" onclick="checkoutAll()">✅ إتمام كل الطلبات</button>
+</div><!-- end stepCart -->
+
+<!-- ================= STEP 3: نجاح ================= -->
+<div id="stepSuccess" class="hidden">
+<div id="waContainer" style="margin-top:14px;">
   <button onclick="sendWhatsApp()" style="background:#25D366;">💬 تأكيد الأوردر عبر واتساب</button>
   <button onclick="sendCustomerSummary()" style="background:#0ea5e9; margin-top:10px;">📩 إرسال ملخص الطلب للعميل</button>
+  <button class="btn-secondary" style="margin-top:12px" onclick="startNewCart()">➕ أوردر جديد لعميل تاني</button>
 </div>
+</div><!-- end stepSuccess -->
 
 </div>
 </div>
@@ -169,6 +209,7 @@ function checkSession() {
 function showLogin() {
   document.getElementById("loginScreen").style.display = "flex";
   document.getElementById("mainContent").style.display = "none";
+  document.getElementById("cartFab").classList.add("hidden");
 }
 
 function showMain() {
@@ -180,6 +221,8 @@ function showMain() {
   if (badge) badge.textContent = label ? "👤 " + label : "";
 
   loadData();
+  // لو فيه سلة محفوظة من قبل (مثلاً قفلت المتصفح قبل ما تخلّص)، ارجعله عليها
+  if (tsGetQuickCart().length) { renderCart(); showStep('cart'); }
 }
 
 async function doLogin() {
@@ -266,13 +309,24 @@ function searchCustomer() {
   const phone = normalizePhone(document.getElementById("phone").value);
   if (!phone) return alert("ادخل رقم التليفون");
 
-  selectedCustomer = ordersData.find(o => normalizePhone(o.phone) === phone);
+  // ⚠️ لو السلة فيها منتجات لعميل تاني، لازم تأكيد قبل ما نغيّر
+  // العميل الحالي — عشان مايحصلش خلط بين طلبات عميلين في نفس السلة
+  if (tsGetQuickCart().length && selectedCustomer && normalizePhone(selectedCustomer.phone) !== phone) {
+    if (!confirm("السلة فيها منتجات لعميل تاني. لو غيّرت العميل دلوقتي، السلة هتتصفّر. تكمل؟")) return;
+    tsClearQuickCart();
+    renderCart();
+    showStep('product');
+  }
 
-  if (!selectedCustomer) {
+  const found = ordersData.find(o => normalizePhone(o.phone) === phone);
+
+  if (!found) {
     document.getElementById("customerBox").style.display = "none";
+    selectedCustomer = null;
     return alert("العميل غير موجود");
   }
 
+  selectedCustomer = found;
   document.getElementById("customerBox").style.display = "block";
   document.getElementById("customerName").innerText = "👤 " + (selectedCustomer.customerName || "-");
   document.getElementById("customerAddress").innerText = "📍 " + (selectedCustomer.address || "-");
@@ -282,57 +336,41 @@ function generateTryOrderId() {
   return "TRY" + Math.floor(100000 + Math.random() * 900000);
 }
 
-let lastOrderData = {};
+// ── السلة (منفصلة تمامًا عن سلة الحاسبة العامة وسلة الديركت أوردر) ──
+function tsGetQuickCart(){ try{ return JSON.parse(localStorage.getItem('ts_quick_cart')) || []; }catch(e){ return []; } }
+function tsSaveQuickCart(c){ localStorage.setItem('ts_quick_cart', JSON.stringify(c)); }
+function tsAddToQuickCart(item){ const c=tsGetQuickCart(); item.tempId=Date.now()+'-'+Math.floor(Math.random()*10000); c.push(item); tsSaveQuickCart(c); return c; }
+function tsRemoveFromQuickCart(id){ const c=tsGetQuickCart().filter(i=>i.tempId!==id); tsSaveQuickCart(c); return c; }
+function tsClearQuickCart(){ tsSaveQuickCart([]); }
+function tsQuickCartTotal(){ return tsGetQuickCart().reduce((s,i)=>s+(parseFloat(i.totalEgp)||0),0); }
 
-function sendWhatsApp() {
-  const d = lastOrderData;
-  const qty = parseInt(d.quantity || 1);
-  const finalEGP = parseFloat(d.newEgp || 0).toLocaleString();
-  const specsLine = d.dimensions && d.dimensions.trim() ? "\n📝 SPCS: " + d.dimensions.trim() : "";
-  const msg =
-    "مرحبًا Try Shoppy 👋\n" +
-    "عايز أأكد الطلب ده:\n\n" +
-    "🔖 " + d.newOrder + "\n" +
-    "🔗 " + d.newLink + "\n" +
-    "📦 Qty: " + qty + specsLine + "\n" +
-    "💵 سعر القطعة (EGP): " + parseFloat(d.unitEgp || 0).toLocaleString() + " ج.م\n" +
-    "💵 سعر القطعة (USD): " + d.unitUsd + " $\n" +
-    "💰 الإجمالي (EGP): " + finalEGP + " ج.م\n" +
-    "💰 الإجمالي (USD): " + d.newUsd + " $\n\n" +
-    "👤 الاسم: " + d.customerName + "\n" +
-    "📞 الموبايل: " + d.phone + "\n" +
-    "📍 المحافظة: " + (d.governorate || "") + "\n" +
-    "🏠 العنوان: " + (d.address || "") + "\n\n" +
-    "مستني تأكيدكم 🙏";
-  window.open(`https://wa.me/201005609642?text=${encodeURIComponent(msg)}`);
+function showStep(step){
+  document.getElementById('stepProduct').classList.toggle('hidden', step!=='product');
+  document.getElementById('stepCart').classList.toggle('hidden', step!=='cart');
+  document.getElementById('stepSuccess').classList.toggle('hidden', step!=='success');
+  window.scrollTo({top:0,behavior:'smooth'});
+  updateCartFab();
 }
 
-function sendCustomerSummary() {
-  const d = lastOrderData;
-  const phone = String(d.phone || "").replace(/\D/g, "").replace(/^0/, "");
-  const qty = parseInt(d.quantity || 1);
-  const piecePrice = parseFloat(d.unitEgp || 0);
-  const total = parseFloat(d.newEgp || 0);
-  const specsLine = d.dimensions && d.dimensions.trim() ? `📝 المواصفات: ${d.dimensions.trim()}\n` : "";
-
-  const msg = `السلام عليكم ${d.customerName ? "أ/ " + d.customerName : "حضرتك"} 👋
-تم تسجيل طلب حضرتك بنجاح في TRY SHOPPY ✅
-
-🔖 رقم الطلب: ${d.newOrder}
-🔗 المنتج: ${d.newLink}
-📦 العدد: ${qty}
-${specsLine}💵 سعر القطعة: ${piecePrice.toLocaleString()} ج.م
-💰 الإجمالي: ${total.toLocaleString()} ج.م
-
-🚚 يمكنك تتبع هذا المنتج في أي وقت من هنا برقم الطلب:
-🔗 https://tryshoppy.github.io/TryShoppy/track
-
-📞 لأي استفسار، تواصل معنا في أي وقت 🙏`;
-
-  window.open(`https://wa.me/20${phone}?text=${encodeURIComponent(msg)}`);
+// 🛒 شكل السلة العائم — بيظهر بس لو فيه منتجات ومش واقف في شاشة
+// السلة نفسها أصلاً (عشان مايبقاش زرار يودّيك لمكانك)
+function updateCartFab(){
+  const fab = document.getElementById("cartFab");
+  if(!fab) return;
+  const cart = tsGetQuickCart();
+  const onCartStep = !document.getElementById("stepCart").classList.contains("hidden");
+  const loginShowing = document.getElementById("loginScreen").style.display !== "none";
+  if(cart.length && !onCartStep && !loginShowing){
+    document.getElementById("cartFabCount").textContent = cart.length;
+    fab.classList.remove("hidden");
+  } else {
+    fab.classList.add("hidden");
+  }
 }
 
-function createOrder() {
+let lastOrders = []; // [{orderNo, item}] — بعد آخر عملية checkout ناجحة، تستخدمها رسايل الواتساب
+
+function addCurrentToCart(){
   if (!selectedCustomer) return alert("ابحث عن العميل أولاً");
 
   const link = document.getElementById("link").value.trim();
@@ -341,54 +379,180 @@ function createOrder() {
   const egp  = parseFloat(document.getElementById("egp").value) || 0;
   const dimensions = document.getElementById("dimensions").value.trim();
 
-  if (!link || !usd || !egp) return alert("يرجى ملء كل البيانات");
+  if (!link || !usd || !egp) return alert("يرجى ملء كل بيانات المنتج (اللينك، الدولار، والمصري)");
 
-  // ✅ الإجمالي = سعر الوحدة × الكمية
-  const totalUsd = (usd * qty).toFixed(2);
-  const totalEgp = (egp * qty).toFixed(2);
+  tsAddToQuickCart({
+    link, qty, unitUsd: usd, unitEgp: egp, dimensions,
+    totalUsd: +(usd * qty).toFixed(2),
+    totalEgp: +(egp * qty).toFixed(2)
+  });
 
-  const newOrderId = generateTryOrderId();
-  const btn = document.getElementById("createBtn");
+  // تنضيف الفورم لمنتج جديد
+  document.getElementById("link").value = "";
+  document.getElementById("qty").value = "1";
+  document.getElementById("usd").value = "";
+  document.getElementById("egp").value = "";
+  document.getElementById("dimensions").value = "";
+
+  renderCart();
+  showStep('cart');
+}
+
+function renderCart(){
+  const cart = tsGetQuickCart();
+  const list = document.getElementById("cartItemsList");
+  list.innerHTML = cart.map(item=>{
+    const linkHtml = item.link ? '<a href="'+item.link+'" target="_blank" rel="noopener">'+(item.link.length>42?item.link.slice(0,42)+'…':item.link)+'</a>' : '—';
+    const specsLine = item.dimensions ? '<div class="cart-item-meta">📝 '+item.dimensions+'</div>' : '';
+    return '<div class="cart-item">'+
+      '<div><div class="cart-item-link">'+linkHtml+'</div>'+
+      '<div class="cart-item-meta">الكمية: '+item.qty+'</div>'+specsLine+'</div>'+
+      '<div class="cart-item-right"><div class="cart-item-price">'+item.totalEgp.toLocaleString()+' EGP</div>'+
+      '<button class="cart-item-remove" onclick="removeCartItem(\''+item.tempId+'\')">🗑 حذف</button></div>'+
+    '</div>';
+  }).join('');
+  document.getElementById("cartTotalDisplay").textContent = tsQuickCartTotal().toLocaleString()+' EGP';
+  updateCartFab();
+}
+
+function removeCartItem(tempId){
+  tsRemoveFromQuickCart(tempId);
+  renderCart();
+  if (tsGetQuickCart().length === 0) showStep('product');
+}
+
+function backToAddItem(){ showStep('product'); }
+
+function startNewCart(){
+  selectedCustomer = null;
+  document.getElementById("customerBox").style.display = "none";
+  document.getElementById("phone").value = "";
+  document.getElementById("customerEmail").value = "";
+  showStep('product');
+}
+
+function checkoutAll(){
+  const cart = tsGetQuickCart();
+  if (!cart.length) { alert("السلة فاضية — أضف منتج واحد على الأقل الأول"); return; }
+  if (!selectedCustomer) { alert("ابحث عن العميل أولاً"); showStep('product'); return; }
+
+  const email = document.getElementById("customerEmail").value.trim();
+  const btn = document.getElementById("checkoutBtn");
   btn.disabled = true;
   btn.innerHTML = 'جاري التسجيل... <span class="spinner"></span>';
 
-  fetch(scriptURL, {
-    method: "POST",
-    body: JSON.stringify({
-      action: "duplicateOrder",
-      originalOrder: selectedCustomer,
-      newOrder: newOrderId,
-      newLink: link,
-      newQty: qty,
-      newUsd: totalUsd,
-      newEgp: totalEgp,
-      newDimensions: dimensions,
-      newEmail: document.getElementById("customerEmail").value.trim(),
-      user: getCurrentUser(),   // ✅
-      staffToken: getStaffToken()
-    })
-  }).then(res => res.text()).then(text => {
-    btn.disabled = false;
-    btn.innerHTML = "إنشاء الأوردر";
+  // ⚠️ بقى بيمشي بنفس مبدأ DirectOrder.html بالظبط: من غير action
+  // ومن غير staffToken في نفس طلب الحفظ (مسار "NEW ORDER" العام في
+  // Orders_Code.gs، مش duplicateOrder) — عشان يستخدم بالظبط نفس
+  // مسار الإيميل المُثبَت إنه شغال صح مع emailSummary/cartTotal.
+  // ده قرار واعي منك إنك مقتنع بفقد التحقق من staffToken هنا مقابل
+  // ثبات سلوك الإيميل زي Direct Order بالظبط.
+  const c = selectedCustomer;
+  const cartWithOrders = cart.map(item => ({ item, orderNo: generateTryOrderId() }));
+  const label = c.category || "Quick Order";
+  // 📧 ملخص إيميل واحد مجمّع لكل منتجات السلة (نفس الفورمات اللي
+  // بيفهمها sendOrderEmails في Orders_Code.gs)، بدل ما العميل ياخد
+  // إيميل منفصل لكل منتج في نفس عملية الـcheckout
+  const emailSummary = cartWithOrders.map(({item, orderNo}) =>
+    [orderNo, item.link || "", label, item.qty, item.totalEgp].join("::")
+  ).join("\n");
+  const cartTotal = tsQuickCartTotal();
+  const orders = [];
 
-    if (!(text && text.indexOf("Success") !== -1)) {
-      alert("❌ حصل خطأ أثناء تسجيل الطلب: " + (text || "سبب غير معروف") + "\n(الطلب مش اتسجّل)");
+  Promise.all(cartWithOrders.map(({item, orderNo}, idx) => {
+    orders.push({ orderNo, item });
+    return fetch(scriptURL, {
+      method: "POST",
+      body: JSON.stringify({
+        order: orderNo,
+        customerName: c.customerName,
+        phone: c.phone,
+        email: email,
+        country: c.country,
+        address: c.address,
+        governorate: c.governorate,
+        link: item.link,
+        quantity: item.qty,
+        usd: item.totalUsd,
+        weight: c.weight,
+        dimensions: item.dimensions,
+        category: c.category,
+        finalPrice: item.totalEgp,
+        user: getCurrentUser(),
+        // 🔇 كل منتج بعد الأول ميبعتش إيميل مستقل — الملخص المجمّع
+        // بيتبعت مرة واحدة بس مع أول منتج في الدفعة
+        suppressEmail: idx > 0,
+        emailSummary: idx === 0 ? emailSummary : "",
+        cartTotal: idx === 0 ? cartTotal : undefined
+      })
+    }).then(res => res.text());
+  })).then(results => {
+    btn.disabled = false;
+    btn.innerHTML = "✅ إتمام كل الطلبات";
+
+    // ⚠️ المسار ده بيرجع "Order Saved" مش "Success" (مسار مختلف
+    // عن duplicateOrder اللي كان بيرجع "Success")
+    if (results.some(t => !(t && t.indexOf("Order Saved") !== -1))) {
+      alert("⚠️ بعض المنتجات فشلت تتسجل. راجع الشيت للتأكد قبل ما تبلغ العميل.\n" + results.join("\n"));
       return;
     }
-    alert("✅ تم إنشاء الأوردر: " + newOrderId);
 
-    lastOrderData = { ...selectedCustomer, newOrder: newOrderId, newLink: link, quantity: qty, unitUsd: usd, unitEgp: egp, newUsd: totalUsd, newEgp: totalEgp, dimensions };
-    document.getElementById("waContainer").style.display = "block";
-    document.getElementById("link").value = "";
-    document.getElementById("qty").value  = "1";
-    document.getElementById("usd").value  = "";
-    document.getElementById("egp").value  = "";
-    document.getElementById("dimensions").value = "";
+    lastOrders = orders;
+    tsClearQuickCart();
+    showStep('success');
   }).catch(() => {
     btn.disabled = false;
-    btn.innerHTML = "إنشاء الأوردر";
-    alert("❌ تعذر الاتصال بالسيرفر — الطلب مش اتسجّل. تأكد من الإنترنت وحاول تاني.");
+    btn.innerHTML = "✅ إتمام كل الطلبات";
+    alert("❌ تعذر الاتصال بالسيرفر — الطلبات مش اتسجلت. تأكد من الإنترنت وحاول تاني.");
   });
+}
+
+function sendWhatsApp() {
+  const itemsLines = lastOrders.map(o => {
+    const item = o.item;
+    const specsLine = item.dimensions ? "\n📝 SPCS: " + item.dimensions : "";
+    return "🔖 " + o.orderNo + "\n🔗 " + item.link + "\n📦 Qty: " + item.qty + specsLine +
+      "\n💵 سعر القطعة (EGP): " + item.unitEgp.toLocaleString() + " ج.م" +
+      "\n💰 الإجمالي (EGP): " + item.totalEgp.toLocaleString() + " ج.م";
+  }).join("\n\n");
+  const total = lastOrders.reduce((s,o)=>s+(o.item.totalEgp||0), 0);
+  const c = selectedCustomer || {};
+  const msg =
+    "مرحبًا Try Shoppy 👋\n" +
+    "عايز أأكد الطلب ده:\n\n" +
+    itemsLines + "\n\n" +
+    "💰 الإجمالي الكلي: " + total.toLocaleString() + " ج.م\n\n" +
+    "👤 الاسم: " + (c.customerName||"") + "\n" +
+    "📞 الموبايل: " + (c.phone||"") + "\n" +
+    "📍 المحافظة: " + (c.governorate||"") + "\n" +
+    "🏠 العنوان: " + (c.address||"") + "\n\n" +
+    "مستني تأكيدكم 🙏";
+  window.open(`https://wa.me/201005609642?text=${encodeURIComponent(msg)}`);
+}
+
+function sendCustomerSummary() {
+  const c = selectedCustomer || {};
+  const phone = String(c.phone || "").replace(/\D/g, "").replace(/^0/, "");
+  const itemsLines = lastOrders.map(o => {
+    const item = o.item;
+    const specsLine = item.dimensions ? `📝 المواصفات: ${item.dimensions}\n` : "";
+    return `🔖 ${o.orderNo}\n🔗 ${item.link}\n📦 العدد: ${item.qty}\n${specsLine}💵 سعر القطعة: ${item.unitEgp.toLocaleString()} ج.م\n💰 الإجمالي: ${item.totalEgp.toLocaleString()} ج.م`;
+  }).join("\n\n");
+  const total = lastOrders.reduce((s,o)=>s+(o.item.totalEgp||0), 0);
+
+  const msg = `السلام عليكم ${c.customerName ? "أ/ " + c.customerName : "حضرتك"} 👋
+تم تسجيل طلباتك بنجاح في TRY SHOPPY ✅
+
+${itemsLines}
+
+💰 الإجمالي الكلي: ${total.toLocaleString()} ج.م
+
+🚚 يمكنك تتبع كل منتج في أي وقت من هنا برقم الطلب الخاص به:
+🔗 https://tryshoppy.github.io/TryShoppy/track
+
+📞 لأي استفسار، تواصل معنا في أي وقت 🙏`;
+
+  window.open(`https://wa.me/20${phone}?text=${encodeURIComponent(msg)}`);
 }
 </script>
 </body>
