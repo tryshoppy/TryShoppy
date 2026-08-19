@@ -25,6 +25,7 @@ button:active{transform:scale(.98);}
 .btn-ghost{background:#f1f5f9;color:var(--text);}
 .btn-success{background:var(--success);}
 .btn-warning{background:var(--warning);}
+.btn-danger{background:var(--danger);}
 .hidden{display:none !important;}
 .row{display:flex;gap:10px;flex-wrap:wrap;}
 .row>*{flex:1;min-width:120px;}
@@ -147,6 +148,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{
       <span id="lastRefreshLbl" style="font-size:11px;color:var(--gray);"></span>
       <button id="refreshBtn" class="btn-ghost" onclick="manualRefresh(this)" title="تحديث القائمة" style="padding:8px 12px;">🔄</button>
       <button class="btn-ghost" onclick="exportCSV()" title="تصدير طلباتي كـ CSV" style="padding:8px 12px;">📊</button>
+      <button class="btn-ghost" onclick="openPaymentsModal()" title="دفعات الوصول" style="padding:8px 12px;">💰 دفعات</button>
     </div>
     <div id="notifBadge" class="notif-badge hidden" style="cursor:pointer;" onclick="jumpToNeedsReview()" title="اضغط للانتقال للمنتجات المحتاجة ردك"></div>
   </div>
@@ -179,7 +181,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{
 </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyz2XgdEyZb3HkZGFk9wN9fKoMD9I2Nin-YXwl1Dy3rtd5u3qPRokcpa0T9UKJyDdf6jg/exec"; // ⚠️ حط هنا رابط RMA_Vitamins_Code.gs بعد النشر
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyrKWDx_U1-qAn1QlzbwDOWz7VUSlyFqmS9OrwjADLDegnoxht_BYpjjxgEYhXDh5eA/exec"; // ⚠️ حط هنا رابط RMA_Vitamins_Code.gs بعد النشر
 
 // رقم واتساب الأدمن — نفس رقم TS_CONFIG.SUPPORT_PHONE بتاع الموقع
 // الرئيسي (بصيغة دولية من غير + أو صفر). غيّره هنا لو الرقم اتغيّر
@@ -501,22 +503,35 @@ function renderNotifBadge(){
 
 // ✅ بتاخد "items" (بعد الفلترة/البحث) بدل allProducts كله — الأرقام
 // فوق بتتبع بالظبط اللي شايفه في القائمة تحتها
-function renderStats(items){
+function renderStats(items, paymentsTotal, statusF){
+  paymentsTotal = paymentsTotal || 0;
   const confirmedLike = items.filter(p => ["Confirmed","Placed","Delayed","Delivered"].includes(p.status));
   const totalFinal = confirmedLike.reduce((s,p)=> s + (parseFloat(p.finalEgp)||0), 0);
-  const totalRemaining = confirmedLike.reduce((s,p)=> s + (parseFloat(p.remaining)||0), 0);
-  const totalPaid = confirmedLike.reduce((s,p)=> s + (parseFloat(p.deposit)||0), 0);
+  // 💰 المدفوع والمتبقي بقوا بيشملوا دفعات موعد الوصول اللي سجّلها
+  // الفريق، مش بس عربون كل منتج لوحده
+  const totalPaid = confirmedLike.reduce((s,p)=> s + (parseFloat(p.deposit)||0), 0) + paymentsTotal;
+  // ⚠️ المتبقي بيتحسب مباشرة من finalEgp-deposit، مش من عمود
+  // "remaining" المخزّن، عشان الإجمالي = المدفوع + المتبقي يفضل
+  // متطابق رياضيًا حتى لو حصل عدم تطابق تاريخي في البيانات
+  const totalRemaining = Math.max(0, confirmedLike.reduce((s,p)=> s + Math.max(0, (parseFloat(p.finalEgp)||0) - (parseFloat(p.deposit)||0)), 0) - paymentsTotal);
   const totalQty = items.reduce((s,p)=> s + (parseInt(p.quantity)||1), 0);
   const deliveredCount = items.filter(p=>p.status==="Delivered").length;
+
+  // 💡 القيمة/المدفوع/المتبقي بتظهر بس لو فيه فلتر حالة محدد
+  // فعليًا، مش وإنت شايف كل الحالات مع بعض
+  const showMoney = !!statusF;
+  const moneyBoxes = showMoney ? `
+    <div class="stat-box"><div class="num">${totalFinal.toLocaleString()}</div><div class="lbl">💰 إجمالي القيمة (EGP)</div></div>
+    <div class="stat-box"><div class="num" style="color:var(--success)">${totalPaid.toLocaleString()}</div><div class="lbl">🧾 إجمالي المدفوع (EGP)</div></div>
+    <div class="stat-box"><div class="num" style="color:var(--danger)">${totalRemaining.toLocaleString()}</div><div class="lbl">⏳ المتبقي عليك (EGP)</div></div>
+  ` : "";
 
   document.getElementById("statsGrid").innerHTML = `
     <div class="stat-box"><div class="num">${items.length}</div><div class="lbl">📦 إجمالي المنتجات${items.length!==allProducts.length ? ' (مفلترة)' : ''}</div></div>
     <div class="stat-box"><div class="num">${totalQty.toLocaleString()}</div><div class="lbl">🔢 إجمالي الكمية (قطعة)</div></div>
     <div class="stat-box"><div class="num">${confirmedLike.length}</div><div class="lbl">✅ مؤكدة</div></div>
     <div class="stat-box"><div class="num">${deliveredCount}</div><div class="lbl">🎉 تم التسليم</div></div>
-    <div class="stat-box"><div class="num">${totalFinal.toLocaleString()}</div><div class="lbl">💰 إجمالي القيمة (EGP)</div></div>
-    <div class="stat-box"><div class="num" style="color:var(--success)">${totalPaid.toLocaleString()}</div><div class="lbl">🧾 إجمالي المدفوع (EGP)</div></div>
-    <div class="stat-box"><div class="num" style="color:var(--danger)">${totalRemaining.toLocaleString()}</div><div class="lbl">⏳ المتبقي عليك (EGP)</div></div>
+    ${moneyBoxes}
   `;
 }
 
@@ -544,7 +559,9 @@ function renderList(){
   const statusF = document.getElementById("filterStatus").value;
   const arrivalF = document.getElementById("filterArrival").value;
 
-  let items = allProducts.slice().reverse(); // الأحدث الأول كأساس
+  // 💰 صفوف "Payment" مش منتجات عميل — دي سجلات داخلية لتتبع
+  // دفعات دفعة الوصول، ملهاش أي داعي تظهر للعميل خالص
+  let items = allProducts.filter(p => p.status !== "Payment").slice().reverse(); // الأحدث الأول كأساس
   if(q) items = items.filter(p => (p.productName||"").toLowerCase().includes(q) || (p.link||"").toLowerCase().includes(q) || (p.arrivalDate||"").toLowerCase().includes(q));
   if(statusF) items = items.filter(p => p.status === statusF);
   if(arrivalF) items = items.filter(p => (p.arrivalDate||"").indexOf(arrivalF) !== -1);
@@ -563,7 +580,14 @@ function renderList(){
   });
   lastRenderedItems = items;
 
-  renderStats(items); // ← نفس المجموعة المفلترة اللي هتتعرض تحت
+  // 💰 دفعات موعد الوصول اتشالت من items فوق، لكن لازم تتحسب في
+  // إجمالي المدفوع/المتبقي — بنفس فلتر تاريخ الوصول لو مستخدم
+  const paymentsTotal = allProducts
+    .filter(p => p.status === "Payment")
+    .filter(p => !arrivalF || (p.arrivalDate||"").indexOf(arrivalF) !== -1)
+    .reduce((s,p)=> s + (parseFloat(p.deposit)||0), 0);
+
+  renderStats(items, paymentsTotal, statusF); // ← نفس المجموعة المفلترة اللي هتتعرض تحت
   renderProducts(items);
 }
 
@@ -589,8 +613,9 @@ function renderProducts(items){
           </div>
           <div class="meta-line" id="qtyPreview-${p.id}" style="font-weight:800;color:var(--primary);margin-top:4px;"></div>
           <div class="row" style="margin-top:8px;">
-            <button class="mini-btn btn-success" onclick="confirmProduct('${p.id}')">✅ موافق</button>
-            <button class="mini-btn btn-ghost" onclick="toggleCounter('${p.id}')">💬 اقترح سعر تاني</button>
+            <button class="mini-btn btn-success" style="flex:1;min-width:96px;padding:9px 6px;" onclick="confirmProduct('${p.id}')">✅ موافق</button>
+            <button class="mini-btn btn-ghost" style="flex:1;min-width:96px;padding:9px 6px;" onclick="toggleCounter('${p.id}')">💬 سعر تاني</button>
+            <button class="mini-btn btn-danger" style="flex:1;min-width:96px;padding:9px 6px;" onclick="rejectProduct('${p.id}')">❌ إلغاء</button>
           </div>
           <div id="counterBox-${p.id}" class="hidden" style="margin-top:8px;">
             <div class="row">
@@ -609,7 +634,7 @@ function renderProducts(items){
         <div class="meta-line">🔢 العدد: ${p.quantity||1}</div>
         <div class="price-tag">💵 الإجمالي: ${Number(p.finalEgp||0).toLocaleString()} EGP</div>
         <div class="meta-line">📅 موعد الوصول: ${p.arrivalDate || "—"}</div>
-        <div class="meta-line">💰 العربون: ${Number(p.deposit||0).toLocaleString()} EGP — المتبقي: ${Number(p.remaining||0).toLocaleString()} EGP</div>
+        <div class="meta-line">💰 العربون: ${Number(p.deposit||0).toLocaleString()} EGP — المتبقي: ${Math.max(0, (parseFloat(p.finalEgp)||0) - (parseFloat(p.deposit)||0)).toLocaleString()} EGP</div>
         <button class="mini-btn btn-ghost" style="margin-top:8px;" onclick="reorderProduct('${p.id}', this)">🔁 إعادة طلب نفس المنتج</button>`;
     }
 
@@ -663,6 +688,23 @@ async function confirmProduct(id){
       const stillPending = allProducts.filter(p=>p.status==="PendingApproval").length;
       if(stillPending === 0 && confirmedThisSessionCount > 0) showConfirmDoneModal();
     }
+    else { clearBtnLoading(btn); alert(data.message || "حصل خطأ"); }
+  }catch(e){
+    clearBtnLoading(btn);
+    alert("تعذر الاتصال بالسيرفر");
+  }
+}
+
+// ❌ إلغاء المنتج المعروض عليك — بيتحوّل لـ"مرفوض" ومش هيظهرلك
+// تاني كطلب مفتوح. فيه تأكيد قبل الإرسال عشان مايتعملش بالغلط
+async function rejectProduct(id){
+  if(!confirm("متأكد إنك عايز تلغي طلب المنتج ده؟")) return;
+  const btn = document.querySelector(`button[onclick="rejectProduct('${id}')"]`);
+  setBtnLoading(btn, "جاري الإلغاء...");
+  try{
+    const res = await fetch(SCRIPT_URL, { method:"POST", body: JSON.stringify({ action:"clientReject", passcode:getPasscode(), id }) });
+    const data = await res.json();
+    if(data.success){ loadProducts(); }
     else { clearBtnLoading(btn); alert(data.message || "حصل خطأ"); }
   }catch(e){
     clearBtnLoading(btn);
@@ -769,7 +811,7 @@ function exportCSV(){
   const headers = ["اسم المنتج","الرابط","الحالة","سعر القطعة EGP","الكمية","الإجمالي EGP","العربون EGP","المتبقي EGP","تاريخ الوصول"];
   const rows = lastRenderedItems.map(p => [
     p.productName, p.link, STATUS_META[p.status]?.label || p.status,
-    p.staffEgp, p.quantity, p.finalEgp, p.deposit, p.remaining, p.arrivalDate
+    p.staffEgp, p.quantity, p.finalEgp, p.deposit, Math.max(0, (parseFloat(p.finalEgp)||0) - (parseFloat(p.deposit)||0)), p.arrivalDate
   ].map(csvEscape).join(","));
   const csv = "\uFEFF" + headers.map(csvEscape).join(",") + "\n" + rows.join("\n"); // BOM عشان إكسل يفتح العربي صح
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -781,6 +823,81 @@ function exportCSV(){
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+}
+
+/* ---------------------------------------------------------
+   💰 دفعات موعد الوصول (للعميل — عرض بس، من غير أي إضافة).
+   نفس منطق حساب الأدمن بالظبط: كل موعد وصول قائم بذاته
+   --------------------------------------------------------- */
+// تنسيق تاريخ/وقت تسجيل الدفعة نفسها (مش موعد الوصول)
+function formatPaymentDate(d){
+  if(!d) return "";
+  try{
+    return new Date(d).toLocaleString("ar-EG", {day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit"});
+  }catch(e){ return ""; }
+}
+
+function getArrivalBatches(){
+  const byDate = {};
+  const ensure = (d) => { if(!byDate[d]) byDate[d] = { arrivalDate: d, total: 0, paidFromProducts: 0, payments: [] }; return byDate[d]; };
+
+  allProducts.forEach(p => {
+    const d = (p.arrivalDate || "").trim();
+    if(!d) return;
+    if(p.status === "Payment"){
+      ensure(d).payments.push(p);
+      return;
+    }
+    if(!["Confirmed","Placed","Delayed","Delivered"].includes(p.status)) return;
+    const b = ensure(d);
+    b.total += parseFloat(p.finalEgp) || 0;
+    b.paidFromProducts += parseFloat(p.deposit) || 0;
+  });
+
+  return Object.values(byDate)
+    .filter(b => b.total > 0 || b.payments.length)
+    .map(b => {
+      const paidFromPayments = b.payments.reduce((s,p)=> s + (parseFloat(p.deposit)||0), 0);
+      const paid = b.paidFromProducts + paidFromPayments;
+      return Object.assign({}, b, { paidFromPayments, paid, remaining: b.total - paid });
+    })
+    .sort((a,b) => (b.arrivalDate||"").localeCompare(a.arrivalDate||""));
+}
+
+function openPaymentsModal(){
+  const batches = getArrivalBatches();
+  if(!batches.length){
+    showModal(`
+      <h3 style="margin-bottom:10px;">💰 دفعات الوصول</h3>
+      <div class="empty-hint">مفيش أي موعد وصول عليه منتجات مؤكدة أو دفعات مسجّلة لسه</div>
+      <button class="btn-ghost btn-block" style="margin-top:12px;" onclick="closeModal()">إغلاق</button>
+    `);
+    return;
+  }
+  const cardsHtml = batches.map(b => `
+    <div style="border:1.5px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;text-align:right;">
+      <div style="font-weight:900;color:var(--primary);margin-bottom:8px;">📅 ${escapeHtml(b.arrivalDate)}</div>
+      <div class="meta-line">💰 الإجمالي: ${b.total.toLocaleString()} EGP</div>
+      <div class="meta-line" style="color:var(--success);">✅ المدفوع: ${b.paid.toLocaleString()} EGP</div>
+      <div class="meta-line" style="color:var(--danger);font-weight:800;">⏳ المتبقي: ${b.remaining.toLocaleString()} EGP</div>
+      ${b.payments.length ? `
+        <div style="margin-top:10px;border-top:1px dashed var(--border);padding-top:8px;">
+          <div style="font-size:12px;color:var(--gray);font-weight:800;margin-bottom:6px;">سجل الدفعات:</div>
+          ${b.payments.map(p => `
+            <div style="font-size:12.5px;margin-bottom:6px;">
+              <div>${Number(p.deposit).toLocaleString()} EGP${p.notes ? " — " + escapeHtml(p.notes) : ""}</div>
+              <div style="font-size:11px;color:var(--gray);margin-top:2px;">🕒 ${formatPaymentDate(p.createdDate)}</div>
+            </div>
+          `).join("")}
+        </div>` : ""
+      }
+    </div>
+  `).join("");
+  showModal(`
+    <h3 style="margin-bottom:12px;">💰 دفعات الوصول</h3>
+    <div style="max-height:420px;overflow-y:auto;">${cardsHtml}</div>
+    <button class="btn-ghost btn-block" style="margin-top:8px;" onclick="closeModal()">إغلاق</button>
+  `);
 }
 /* ---------------------------------------------------------
    🍞 تنبيه خفيف غير معطّل (Toast) — بديل عن alert() المزعج لأي

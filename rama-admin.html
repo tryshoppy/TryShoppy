@@ -107,7 +107,9 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 
   <div class="topbar">
     <h2 style="margin:0;">📇 RAMA — إدارة الفيتامينات</h2>
-    <div style="display:flex;align-items:center;gap:10px;">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <button id="addItemBtn" class="btn-ghost" onclick="openAddItemModal()" title="إضافة منتج مباشرة" style="padding:8px 12px;">➕ منتج</button>
+      <button id="paymentsBtn" class="btn-ghost" onclick="openPaymentsModal()" title="دفعات الوصول" style="padding:8px 12px;">💰 دفعات</button>
       <span id="lastRefreshLbl" style="font-size:11px;color:var(--gray);"></span>
       <button id="refreshBtn" class="btn-ghost" onclick="manualRefresh(this)" title="تحديث القائمة" style="padding:8px 12px;">🔄</button>
       <button class="btn-ghost" onclick="showActivityLog()" title="سجل نشاطي" style="padding:8px 12px;">📜</button>
@@ -169,7 +171,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 <script src="staff-auth.js"></script>
 <script src="assets/config.js"></script>
 <script>
-const RMA_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyz2XgdEyZb3HkZGFk9wN9fKoMD9I2Nin-YXwl1Dy3rtd5u3qPRokcpa0T9UKJyDdf6jg/exec"; // ⚠️ نفس رابط RMA_Vitamins_Code.gs من صفحة العميل
+const RMA_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyrKWDx_U1-qAn1QlzbwDOWz7VUSlyFqmS9OrwjADLDegnoxht_BYpjjxgEYhXDh5eA/exec"; // ⚠️ نفس رابط RMA_Vitamins_Code.gs من صفحة العميل
 
 // ⚠️ رقم واتساب العميل بصيغة دولية من غير + أو صفر في الأول
 // (زي 201234567890) — يُستخدم بس لفتح رابط wa.me جاهز برسالة،
@@ -233,6 +235,10 @@ function applyRoleVisibility(){
   if(stats) stats.style.display = allowed ? "" : "none";
   const exportBtn = document.getElementById("exportCsvBtn");
   if(exportBtn) exportBtn.style.display = allowed ? "" : "none";
+  const addItemBtn = document.getElementById("addItemBtn");
+  if(addItemBtn) addItemBtn.style.display = allowed ? "" : "none";
+  const paymentsBtn = document.getElementById("paymentsBtn");
+  if(paymentsBtn) paymentsBtn.style.display = allowed ? "" : "none";
 }
 
 async function doLogin(){
@@ -327,10 +333,17 @@ function renderNotifBadge(){
 // ✅ الكروت دلوقتي بتاخد "items" (المجموعة بعد الفلترة/البحث) بدل
 // allProducts كله — يعني لو فلترت بحالة معيّنة أو بحثت عن حاجة،
 // الأرقام فوق بتتغيّر تتبع بالظبط اللي شايفه في القائمة تحتها
-function renderStats(items){
+function renderStats(items, paymentsTotal, statusF){
+  paymentsTotal = paymentsTotal || 0;
   const totalFinal = items.reduce((s,p)=> s + (parseFloat(p.finalEgp)||0), 0);
-  const totalRemaining = items.reduce((s,p)=> s + (parseFloat(p.remaining)||0), 0);
-  const totalPaid = items.reduce((s,p)=> s + (parseFloat(p.deposit)||0), 0);
+  // 💰 المدفوع والمتبقي بقوا بيشملوا دفعات موعد الوصول المسجّلة
+  // كمان، مش بس عربون كل منتج لوحده
+  const totalPaid = items.reduce((s,p)=> s + (parseFloat(p.deposit)||0), 0) + paymentsTotal;
+  // ⚠️ المتبقي بيتحسب مباشرة من finalEgp-deposit هنا، مش من عمود
+  // "remaining" المخزّن في الشيت — لو حصل أي عدم تطابق تاريخي بين
+  // القيمتين (صفوف قديمة اتلمست بطرق مختلفة قبل توحيد الحساب)،
+  // كده مضمون إن الإجمالي = المدفوع + المتبقي دايمًا رياضيًا
+  const totalRemaining = Math.max(0, items.reduce((s,p)=> s + Math.max(0, (parseFloat(p.finalEgp)||0) - (parseFloat(p.deposit)||0)), 0) - paymentsTotal);
   const totalQty = items.reduce((s,p)=> s + (parseInt(p.quantity)||1), 0);
   // إجمالي الدولار: سعر الدولار للقطعة × الكمية (لو الكمية لسه ماتحددتش
   // لأن العميل لسه ماأكدش، بنفترض قطعة واحدة كحد أدنى بدل ما نصفّرها)
@@ -338,15 +351,23 @@ function renderStats(items){
   const confirmedCount = items.filter(p=>["Confirmed","Placed","Delayed","Delivered"].includes(p.status)).length;
   const deliveredCount = items.filter(p=>p.status==="Delivered").length;
 
+  // 💡 القيمة/المدفوع/المتبقي بترجع مبالغ مضلّلة لو اتجمعت على كل
+  // الحالات مع بعض (منتجات لسه معلّقة قيمتها صفر بتتخلط مع منتجات
+  // مؤكدة) — بتظهر بس لو فيه فلتر حالة محدد فعليًا، مش "كل الحالات"
+  const showMoney = !!statusF;
+  const moneyBoxes = showMoney ? `
+    <div class="stat-box"><div class="num">$${totalUsd.toLocaleString()}</div><div class="lbl">💵 إجمالي الدولار (USD)</div></div>
+    <div class="stat-box"><div class="num">${totalFinal.toLocaleString()}</div><div class="lbl">💰 إجمالي القيمة (EGP)</div></div>
+    <div class="stat-box"><div class="num" style="color:var(--success)">${totalPaid.toLocaleString()}</div><div class="lbl">🧾 إجمالي المدفوع (EGP)</div></div>
+    <div class="stat-box"><div class="num" style="color:var(--danger)">${totalRemaining.toLocaleString()}</div><div class="lbl">⏳ المتبقي تحصيله (EGP)</div></div>
+  ` : "";
+
   document.getElementById("statsGrid").innerHTML = `
     <div class="stat-box"><div class="num">${items.length}</div><div class="lbl">📦 إجمالي المنتجات${items.length!==allProducts.length ? ' (مفلترة)' : ''}</div></div>
     <div class="stat-box"><div class="num">${totalQty.toLocaleString()}</div><div class="lbl">🔢 إجمالي الكمية (قطعة)</div></div>
     <div class="stat-box"><div class="num">${confirmedCount}</div><div class="lbl">✅ مؤكدة</div></div>
     <div class="stat-box"><div class="num">${deliveredCount}</div><div class="lbl">🎉 تم التسليم</div></div>
-    <div class="stat-box"><div class="num">${totalFinal.toLocaleString()}</div><div class="lbl">💰 إجمالي القيمة (EGP)</div></div>
-    <div class="stat-box"><div class="num">$${totalUsd.toLocaleString()}</div><div class="lbl">💵 إجمالي الدولار (USD)</div></div>
-    <div class="stat-box"><div class="num" style="color:var(--success)">${totalPaid.toLocaleString()}</div><div class="lbl">🧾 إجمالي المدفوع (EGP)</div></div>
-    <div class="stat-box"><div class="num" style="color:var(--danger)">${totalRemaining.toLocaleString()}</div><div class="lbl">⏳ المتبقي تحصيله (EGP)</div></div>
+    ${moneyBoxes}
   `;
 }
 
@@ -393,7 +414,10 @@ function renderList(){
   const q = (document.getElementById("searchInput").value || "").trim().toLowerCase();
   const statusF = document.getElementById("filterStatus").value;
   const arrivalF = document.getElementById("filterArrival").value;
-  let items = allProducts.slice().reverse(); // الأحدث الأول كأساس
+  // 💰 صفوف "Payment" مش منتجات — دي سجلات دفعات دفعة الوصول،
+  // وليها شاشتها الخاصة (هيثم بس). بتتشال هنا من غير ما تأثر على
+  // أي حاجة تانية في القايمة العادية
+  let items = allProducts.filter(p => p.status !== "Payment").slice().reverse(); // الأحدث الأول كأساس
 
   // 👤 أي حد غير هيثم بيشوف بس الطلبات المحتاجة تدخل فعلي —
   // أول ما الطلب يتأكد/يتشترى/يتأخر/يتسلم بيختفي من عنده تمامًا
@@ -418,7 +442,15 @@ function renderList(){
   });
   lastRenderedItems = items;
 
-  renderStats(items); // ← نفس المجموعة المفلترة اللي هتتعرض تحت
+  // 💰 دفعات موعد الوصول مش جزء من items (اتشالت فوق)، لكن لازم
+  // تتحسب في إجمالي المدفوع/المتبقي العام — بنفس فلتر تاريخ الوصول
+  // الحالي لو مستخدم، عشان الأرقام تفضل متسقة مع اللي ظاهر قدامك
+  const paymentsTotal = allProducts
+    .filter(p => p.status === "Payment")
+    .filter(p => !arrivalF || (p.arrivalDate||"").indexOf(arrivalF) !== -1)
+    .reduce((s,p)=> s + (parseFloat(p.deposit)||0), 0);
+
+  renderStats(items, paymentsTotal, statusF); // ← نفس المجموعة المفلترة اللي هتتعرض تحت
 
   const box = document.getElementById("productsList");
   if(!items.length){ box.innerHTML = '<div class="card empty-hint">🔍 مفيش نتائج مطابقة</div>'; return; }
@@ -482,7 +514,7 @@ function renderList(){
           </div>
           <div class="row" style="margin-top:8px;">
             <input type="number" id="deposit-${p.id}" placeholder="💰 العربون" value="${p.deposit||''}">
-            <div style="align-self:center;font-size:12.5px;color:var(--gray);">المتبقي: ${Number(p.remaining||0).toLocaleString()} EGP</div>
+            <div style="align-self:center;font-size:12.5px;color:var(--gray);">المتبقي: ${Math.max(0, (parseFloat(p.finalEgp)||0) - (parseFloat(p.deposit)||0)).toLocaleString()} EGP</div>
           </div>
           <button class="btn-block" style="margin-top:8px;" onclick="saveStatus('${p.id}')">💾 حفظ</button>
         </div>`;
@@ -727,6 +759,239 @@ function closeModal(){
 }
 
 /* ---------------------------------------------------------
+   ➕ إضافة منتج مباشرة من الأدمن (هيثم بس ظاهرله الزرار من
+   الفرونت إند) — بيدخل بحالة "بانتظار السعر" زي أي منتج جاي من
+   العميل بالظبط، فنفس واجهة التسعير العادية بتشتغل عليه على طول
+   --------------------------------------------------------- */
+function openAddItemModal(){
+  showModal(`
+    <h3 style="margin-bottom:14px;">➕ إضافة منتج مباشرة</h3>
+    <p style="font-size:12px;color:var(--gray);margin-bottom:10px;">هيتضاف مباشرة كـ"مؤكد" بالسعر اللي تكتبه هنا — من غير ما يعدي على مرحلة "بانتظار السعر" العادية</p>
+    <div class="input-group" style="text-align:right;">
+      <label>لينك المنتج</label>
+      <input type="text" id="addItemLink" placeholder="https://...">
+    </div>
+    <button class="btn-block btn-ghost" onclick="fetchForAddItem()" style="margin:8px 0;">🔍 جلب البيانات (اختياري)</button>
+    <div id="addItemHint" style="font-size:12px;color:var(--gray);margin-bottom:10px;min-height:16px;"></div>
+    <div class="input-group" style="text-align:right;">
+      <label>اسم المنتج</label>
+      <input type="text" id="addItemName">
+    </div>
+    <div class="input-group" style="text-align:right;">
+      <label>رابط الصورة</label>
+      <input type="text" id="addItemImage">
+    </div>
+    <div class="row">
+      <input type="number" id="addItemUnitEgp" placeholder="💰 سعر القطعة (EGP)">
+      <input type="number" id="addItemUnitUsd" placeholder="💵 سعر القطعة ($)">
+    </div>
+    <div class="row" style="margin-top:8px;">
+      <input type="number" id="addItemQty" placeholder="🔢 الكمية" value="1" min="1">
+      <input type="number" id="addItemDeposit" placeholder="🧾 العربون (اختياري)" value="0">
+    </div>
+    <button class="btn-block btn-success" id="submitAddItemBtn" onclick="submitAddItem()" style="margin-top:10px;">➕ إضافة المنتج (مؤكد)</button>
+    <button class="btn-ghost btn-block" style="margin-top:8px;" onclick="closeModal()">إلغاء</button>
+  `);
+}
+
+async function fetchForAddItem(){
+  const link = document.getElementById("addItemLink").value.trim();
+  if(!link){ alert("حط اللينك الأول"); return; }
+  const hint = document.getElementById("addItemHint");
+  const MAX_ATTEMPTS = 8;
+  let data = null;
+  for(let attempt=1; attempt<=MAX_ATTEMPTS; attempt++){
+    hint.textContent = `⏳ جاري الجلب... (${attempt}/${MAX_ATTEMPTS})`;
+    try{
+      const res = await fetch(RMA_SCRIPT_URL, { method:"POST", body: JSON.stringify({ action:"fetchProductInfo", link }) });
+      data = await res.json();
+      if(data && data.success) break;
+    }catch(e){ data = null; }
+    if(attempt < MAX_ATTEMPTS) await new Promise(r => setTimeout(r, 350));
+  }
+  if(data && data.success){
+    document.getElementById("addItemName").value = data.productName || "";
+    document.getElementById("addItemImage").value = data.imageUrl || "";
+    hint.textContent = data.nameSource === "url"
+      ? "⚠️ الاسم اتحزر من الرابط — راجعه قبل الإضافة"
+      : "✅ اتجابت بيانات من الصفحة";
+  } else {
+    hint.textContent = (data && data.message) || "تعذر الجلب — اكتب البيانات يدويًا";
+  }
+}
+
+async function submitAddItem(){
+  const link = document.getElementById("addItemLink").value.trim();
+  const name = document.getElementById("addItemName").value.trim();
+  const image = document.getElementById("addItemImage").value.trim();
+  const unitEgp = parseFloat(document.getElementById("addItemUnitEgp").value) || 0;
+  const unitUsd = parseFloat(document.getElementById("addItemUnitUsd").value) || 0;
+  const qty = parseInt(document.getElementById("addItemQty").value) || 1;
+  const deposit = parseFloat(document.getElementById("addItemDeposit").value) || 0;
+  if(!link){ alert("لازم تحط لينك المنتج"); return; }
+  if(!unitEgp){ alert("لازم تحط سعر القطعة بالجنيه على الأقل"); return; }
+
+  const btn = document.getElementById("submitAddItemBtn");
+  setBtnLoading(btn, "جاري الإضافة...");
+  try{
+    const res = await fetch(RMA_SCRIPT_URL, { method:"POST", body: JSON.stringify({
+      action:"staffAddItem", staffToken:getStaffToken(), link, productName:name, imageUrl:image,
+      unitEgp, unitUsd, quantity:qty, deposit
+    })});
+    const data = await res.json();
+    if(data.success){
+      logActivity("➕ إضافة مباشرة (مؤكد)", name || link, unitEgp.toLocaleString()+" EGP × "+qty);
+      closeModal();
+      showToast("✅ تم إضافة المنتج", "success");
+      loadProducts();
+    } else {
+      clearBtnLoading(btn);
+      alert(data.message || "حصل خطأ");
+    }
+  }catch(e){
+    clearBtnLoading(btn);
+    alert("تعذر الاتصال بالسيرفر");
+  }
+}
+
+/* ---------------------------------------------------------
+   💰 دفعات موعد الوصول (هيثم بس) — كل موعد وصول قائم بذاته:
+   إجمالي = مجموع finalEgp للمنتجات المؤكدة+ بنفس التاريخ
+   المدفوع = عربون كل منتج فيها + كل صفوف "Payment" المسجّلة عليها
+   المتبقي = إجمالي - مدفوع
+   --------------------------------------------------------- */
+let currentBatches = []; // آخر حساب دفعات — تستخدمه أزرار التسجيل/الحذف بدل ما نمرر نص التاريخ الحر مباشرة في onclick
+
+// تنسيق تاريخ/وقت تسجيل الدفعة نفسها (مش موعد الوصول) — بيتعامل
+// مع أي قيمة غير صالحة أو فاضية من غير ما يكسر عرض الكارت
+function formatPaymentDate(d){
+  if(!d) return "";
+  try{
+    return new Date(d).toLocaleString("ar-EG", {day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit"});
+  }catch(e){ return ""; }
+}
+
+function getArrivalBatches(){
+  const byDate = {};
+  const ensure = (d) => { if(!byDate[d]) byDate[d] = { arrivalDate: d, total: 0, paidFromProducts: 0, payments: [] }; return byDate[d]; };
+
+  allProducts.forEach(p => {
+    const d = (p.arrivalDate || "").trim();
+    if(!d) return; // من غير موعد وصول، مش جزء من أي دفعة
+    if(p.status === "Payment"){
+      ensure(d).payments.push(p);
+      return;
+    }
+    if(!["Confirmed","Placed","Delayed","Delivered"].includes(p.status)) return;
+    const b = ensure(d);
+    b.total += parseFloat(p.finalEgp) || 0;
+    b.paidFromProducts += parseFloat(p.deposit) || 0;
+  });
+
+  return Object.values(byDate)
+    .filter(b => b.total > 0 || b.payments.length) // نستبعد تواريخ من غير أي منتج مؤكد أو دفعة فعلية
+    .map(b => {
+      const paidFromPayments = b.payments.reduce((s,p)=> s + (parseFloat(p.deposit)||0), 0);
+      const paid = b.paidFromProducts + paidFromPayments;
+      return Object.assign({}, b, { paidFromPayments, paid, remaining: b.total - paid });
+    })
+    .sort((a,b) => (b.arrivalDate||"").localeCompare(a.arrivalDate||""));
+}
+
+function openPaymentsModal(){
+  currentBatches = getArrivalBatches();
+  if(!currentBatches.length){
+    showModal(`
+      <h3 style="margin-bottom:10px;">💰 دفعات الوصول</h3>
+      <div class="empty-hint">مفيش أي موعد وصول عليه منتجات مؤكدة أو دفعات مسجّلة لسه</div>
+      <button class="btn-ghost btn-block" style="margin-top:12px;" onclick="closeModal()">إغلاق</button>
+    `);
+    return;
+  }
+
+  const cardsHtml = currentBatches.map((b, i) => `
+    <div style="border:1.5px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;text-align:right;">
+      <div style="font-weight:900;color:var(--primary);margin-bottom:8px;">📅 ${escapeHtml(b.arrivalDate)}</div>
+      <div class="meta-line">💰 الإجمالي: ${b.total.toLocaleString()} EGP</div>
+      <div class="meta-line" style="color:var(--success);">✅ المدفوع: ${b.paid.toLocaleString()} EGP</div>
+      <div class="meta-line" style="color:var(--danger);font-weight:800;">⏳ المتبقي: ${b.remaining.toLocaleString()} EGP</div>
+      <div class="row" style="margin-top:10px;">
+        <input type="number" id="payAmount-${i}" placeholder="💵 مبلغ الدفعة">
+        <input type="text" id="payNote-${i}" placeholder="📝 ملاحظة (اختياري)">
+      </div>
+      <button class="btn-block btn-success" style="margin-top:8px;" onclick="submitPayment(${i}, this)">➕ تسجيل دفعة</button>
+      ${b.payments.length ? `
+        <div style="margin-top:10px;border-top:1px dashed var(--border);padding-top:8px;">
+          <div style="font-size:12px;color:var(--gray);font-weight:800;margin-bottom:6px;">سجل الدفعات:</div>
+          ${b.payments.map(p => `
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;font-size:12.5px;margin-bottom:6px;">
+              <div>
+                <div>${Number(p.deposit).toLocaleString()} EGP${p.notes ? " — " + escapeHtml(p.notes) : ""}</div>
+                <div style="font-size:11px;color:var(--gray);margin-top:2px;">🕒 ${formatPaymentDate(p.createdDate)}</div>
+              </div>
+              <button style="background:none;border:none;color:var(--danger);cursor:pointer;padding:2px 6px;font-size:12px;flex-shrink:0;" onclick="deletePaymentEntry('${p.id}', this)">🗑</button>
+            </div>
+          `).join("")}
+        </div>` : ""
+      }
+    </div>
+  `).join("");
+
+  showModal(`
+    <h3 style="margin-bottom:12px;">💰 دفعات الوصول</h3>
+    <div style="max-height:420px;overflow-y:auto;">${cardsHtml}</div>
+    <button class="btn-ghost btn-block" style="margin-top:8px;" onclick="closeModal()">إغلاق</button>
+  `);
+}
+
+async function submitPayment(i, btn){
+  const batch = currentBatches[i];
+  const amount = parseFloat(document.getElementById("payAmount-"+i).value);
+  const note = document.getElementById("payNote-"+i).value.trim();
+  if(!amount || amount <= 0){ alert("اكتب مبلغ صحيح"); return; }
+
+  setBtnLoading(btn, "جاري التسجيل...");
+  try{
+    const res = await fetch(RMA_SCRIPT_URL, { method:"POST", body: JSON.stringify({
+      action:"staffLogPayment", staffToken:getStaffToken(), arrivalDate: batch.arrivalDate, amount, note
+    })});
+    const data = await res.json();
+    if(data.success){
+      logActivity("💰 دفعة جديدة", "موعد وصول " + batch.arrivalDate, amount.toLocaleString()+" EGP");
+      await loadProducts();
+      openPaymentsModal(); // إعادة الرسم بالأرقام المحدثة فورًا
+      showToast("✅ تم إضافة الدفعة", "success");
+    } else {
+      clearBtnLoading(btn);
+      alert(data.message || "حصل خطأ");
+    }
+  }catch(e){
+    clearBtnLoading(btn);
+    alert("تعذر الاتصال بالسيرفر");
+  }
+}
+
+async function deletePaymentEntry(id, btn){
+  if(!confirm("متأكد إنك عايز تمسح الدفعة دي؟")) return;
+  if(btn){ btn.disabled = true; btn.textContent = "⏳"; }
+  try{
+    const res = await fetch(RMA_SCRIPT_URL, { method:"POST", body: JSON.stringify({ action:"staffDeletePayment", staffToken:getStaffToken(), id }) });
+    const data = await res.json();
+    if(data.success){
+      await loadProducts();
+      openPaymentsModal();
+      showToast("🗑 تم مسح الدفعة", "success");
+    } else {
+      if(btn){ btn.disabled = false; btn.textContent = "🗑"; }
+      alert(data.message || "حصل خطأ");
+    }
+  }catch(e){
+    if(btn){ btn.disabled = false; btn.textContent = "🗑"; }
+    alert("تعذر الاتصال بالسيرفر");
+  }
+}
+
+/* ---------------------------------------------------------
    📱 بوب أب "خلصت التسعير" — بيظهر أول ما طابور "بانتظار السعر"
    يفضى بعد أي تسعير ناجح، ومعاه رابط واتساب جاهز برسالة للعميل
    --------------------------------------------------------- */
@@ -796,7 +1061,7 @@ function exportCSV(){
   const rows = lastRenderedItems.map(p => [
     p.id, p.productName, p.link, STATUS_META[p.status]?.label || p.status,
     p.supplementType, p.pieceOrWeight, p.staffUsd, p.staffEgp, p.quantity,
-    p.clientCounterEgp, p.finalEgp, p.deposit, p.remaining,
+    p.clientCounterEgp, p.finalEgp, p.deposit, Math.max(0, (parseFloat(p.finalEgp)||0) - (parseFloat(p.deposit)||0)),
     p.arrivalDate, p.createdDate, p.lastUpdated, p.notes
   ].map(csvEscape).join(","));
   const csv = "\uFEFF" + headers.map(csvEscape).join(",") + "\n" + rows.join("\n"); // BOM عشان إكسل يفتح العربي صح
