@@ -67,8 +67,12 @@ const I18N = {
   // ---------- mart teaser ----------
   mart_eyebrow:    { en: "NEW", ar: "جديد" },
   mart_title:      { en: "Try Shoppy Mart", ar: "تراي شوبي مارت" },
-  mart_sub:        { en: "Discounted, outlet and returned items from past Try Shoppy orders — already in Egypt, ready to ship now.", ar: "منتجات بخصومات، أوت ليت، ومرتجعات من طلبات تراي شوبي السابقة — موجودة في مصر وجاهزة للشحن فورًا." },
+  mart_sub:        { en: "High-demand, brand-new picks alongside outlet finds — open-box, pre-delivery returns and heavily discounted items — organized by category and ready to ship now.", ar: "منتجات جديدة الأكثر طلبًا، جنب منتجات الأوتليت — عبوات مفتوحة، مرتجعات قبل التسليم، ومنتجات مخفضة بشكل كبير — متقسمة حسب الفئة وجاهزة للشحن فورًا." },
   mart_cta:        { en: "Browse the Mart", ar: "تصفح المارت" },
+  mart_tile_categories_sub: { en: "categories to browse", ar: "فئة للتصفح" },
+
+  // ---------- footer: contact ----------
+  foot_contact_t:  { en: "Contact Us", ar: "تواصل معنا" },
 
   // ---------- payments ----------
   pay_eyebrow:     { en: "PAY YOUR WAY", ar: "ادفع بالطريقة اللي تناسبك" },
@@ -147,6 +151,11 @@ const I18N = {
   /* ── product description (mart admin) ── */
   adm_desc_en:        { en: "Description (English) — optional", ar: "الوصف (إنجليزي) — اختياري" },
   adm_desc_ar:        { en: "Description (Arabic) — optional", ar: "الوصف (عربي) — اختياري" },
+  adm_section:        { en: "Section", ar: "القسم" },
+  adm_label:          { en: "Label", ar: "الليبل" },
+  adm_label_highdemand_hint: { en: "Automatically tagged \"Brand New\" — no manual choice needed for High Demand products.", ar: "بيتحط عليه تلقائيًا ليبل \"جديد\" — مفيش اختيار يدوي مطلوب لمنتجات القسم ده." },
+  adm_expiry:          { en: "Expiry date (optional — for supplements, hair products, etc.)", ar: "تاريخ الصلاحية (اختياري — للمكملات ومنتجات الشعر وغيرها)" },
+  adm_expiry_hint:     { en: "Leave empty if not applicable — it will simply not be shown on the product card.", ar: "سيبها فاضية لو مش مناسبة للمنتج — مش هتظهر في كارت المنتج خالص." },
 
   /* ── mandatory email verification on register ── */
   lbl_email_req:      { en: "Email", ar: "الإيميل" },
@@ -195,11 +204,35 @@ const I18N = {
   // ---------- mart page ----------
   mart_page_eyebrow:{ en: "ALREADY IN EGYPT", ar: "متوفر في مصر" },
   mart_page_title: { en: "Try Shoppy Mart", ar: "تراي شوبي مارت" },
-  mart_page_sub:   { en: "Discounted, outlet and lightly-returned items already cleared and in stock — no customs wait, ships in days.", ar: "منتجات بخصومات وأوت ليت ومرتجعات بحالة جيدة، مخلّصة جمركيًا وجاهزة بالمخزن — بدون انتظار جمارك، تشحن في أيام." },
+  mart_page_sub:   { en: "A wide range of our most-requested products, ready to ship at competitive prices — plus a selection of discounted items and Try Shoppy returns or undelivered orders, currently available for delivery.", ar: "مجموعة متنوعة من المنتجات الأكثر طلبا متوفرة للتسليم، باسعار تنافسية، بالإضافة إلي مجموعة من المنتجات المخفضة ومنتجات تراي شوبي مرتجعة أو لم تسلم متوفرة حاليا للتسليم." },
   mart_filter_all: { en: "All", ar: "الكل" },
   mart_filter_discount: { en: "Discounted", ar: "خصومات" },
   mart_filter_outlet:   { en: "Outlet", ar: "أوت ليت" },
   mart_filter_returns:  { en: "Returns", ar: "مرتجعات" },
+
+  // ---------- mart: tabs ----------
+  mart_tab_highdemand: { en: "High Demand", ar: "الأكثر طلبًا" },
+  mart_tab_outlet:      { en: "Outlet", ar: "أوتليت" },
+  mart_tab_all:          { en: "All Items", ar: "كل المنتجات" },
+  mart_cat_all:          { en: "All categories", ar: "كل الفئات" },
+  mart_expiry_note:      { en: "Best before", ar: "الصلاحية حتى" },
+
+  // ---------- mart: categories ----------
+  cat_accessories_toys: { en: "Accessories & Toys", ar: "الاكسسوارات والألعاب" },
+  cat_beauty:            { en: "Skincare, Hair & Beauty", ar: "العناية بالبشرة والشعر والتجميل" },
+  cat_supplements:       { en: "Supplements & Vitamins", ar: "المكملات الغذائية والفيتامينات" },
+  cat_clothing:          { en: "Clothing & Shoes", ar: "الملابس والأحذية" },
+  cat_electronics:       { en: "Electronics", ar: "الإلكترونيات" },
+  cat_office:            { en: "Office Supplies", ar: "منتجات مكتبية" },
+  cat_bags:              { en: "Bags", ar: "حقائب" },
+  cat_watches_glasses:   { en: "Watches & Glasses", ar: "ساعات ونظارات" },
+  cat_other:             { en: "Other", ar: "أخرى" },
+
+  // ---------- mart: labels (badges on product cards) ----------
+  lbl_brand_new:            { en: "Brand New", ar: "جديد" },
+  lbl_pre_delivery_return:  { en: "Pre-delivery return", ar: "مرتجع قبل التسليم" },
+  lbl_open_box:              { en: "Open box", ar: "عبوة مفتوحة" },
+  lbl_heavy_discount:        { en: "Heavily discounted", ar: "خصم كبير" },
   mart_order_btn:  { en: "Order on WhatsApp", ar: "اطلب عبر واتساب" },
   mart_only_left:  { en: "left in stock", ar: "متبقي بالمخزن" },
 
