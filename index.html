@@ -99,6 +99,11 @@ body { background-color: #FAFAFA; overflow-x: hidden; }
 .mart-tile { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 24px; transition: 0.3s cubic-bezier(0.2,0.8,0.2,1); backdrop-filter: blur(10px); }
 .mart-tile:hover { background: rgba(255,255,255,0.08); transform: translateY(-8px) scale(1.02) !important; border-color: var(--gold); box-shadow: 0 15px 30px rgba(0,0,0,0.2); }
 .mart-tile .pct { font-family: var(--fm); color: var(--gold); font-weight: 900; font-size: 1.6rem; text-shadow: 0 2px 10px rgba(245,184,32,0.3); }
+/* 🆕 tile content is now short phrases ("Brand New", "Heavily
+   Discounted") instead of stats ("-30%") — the original 1.6rem
+   stat-sized font overflowed these tiles, so we scale it down and
+   allow wrapping while keeping the same visual weight/feel */
+.mart-tile .pct { font-size: 1.05rem; line-height: 1.25; }
 .mart-tile .lbl { color: #A89C8A; font-size: 13px; margin-top: 6px; font-weight: 600; }
 
 .mart-float { position: absolute; font-size: 32px; opacity: 0.8; pointer-events: none; animation: floaty 6s ease-in-out infinite; z-index: 0; }
@@ -156,6 +161,22 @@ body { background-color: #FAFAFA; overflow-x: hidden; }
 .section-head .eyebrow { display: inline-flex; justify-content: center; }
 .section-head h2 { font-size: 2.2rem; font-weight: 900; color: var(--ink); margin: 12px 0; letter-spacing: -0.02em; }
 .section-head p { font-size: 1.1rem; color: var(--ink-2); }
+
+/* ── header fix: language pill was overlapping the logo/menu on
+   small screens (likely a leftover absolute/flex-basis rule in
+   style.css that only shows up under ~420px). We force a safe,
+   predictable row layout here regardless of what style.css does,
+   so the pill never overlaps the brand mark again. ── */
+.nav-row { flex-wrap: nowrap !important; gap: 10px; }
+.brand { position: relative; z-index: 1; flex-shrink: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.nav-actions { position: static !important; flex-shrink: 0; display: flex; align-items: center; gap: 8px; }
+.lang-pill { position: static !important; flex-shrink: 0; white-space: nowrap; transform: none !important; }
+@media (max-width: 480px) {
+  .brand { max-width: 42vw; font-size: 0.95rem; }
+  .brand img { width: 22px; height: 22px; }
+  .lang-pill { padding: 6px 10px; font-size: 12px; }
+  .nav-actions { gap: 6px; }
+}
 </style>
 </head>
 <body>
@@ -236,6 +257,32 @@ body { background-color: #FAFAFA; overflow-x: hidden; }
   </div>
 </section>
 
+<!-- MART — featured, animated -->
+<section id="mart-feature">
+  <div class="container">
+    <div class="mart-band reveal">
+      <span class="mart-float f1">🛍️</span><span class="mart-float f2">📦</span><span class="mart-float f3">✨</span>
+      <div>
+        <span class="mart-new-tag"><span class="spark">✦</span> NEW <span class="spark">✦</span></span>
+        <h2 data-i18n="mart_title">Try Shoppy Mart</h2>
+        <p data-i18n="mart_sub">Discounted, outlet and returned items from past Try Shoppy orders — already in Egypt, ready to ship now.</p>
+        <div class="mart-tags">
+          <span data-i18n="mart_tab_highdemand">High Demand</span>
+          <span data-i18n="mart_tab_outlet">Outlet</span>
+          <span data-i18n="mart_tab_all">All Items</span>
+        </div>
+        <a href="mart.html" class="btn btn-primary" data-i18n="mart_cta" style="box-shadow: 0 8px 25px rgba(245,184,32,0.5);">Browse the Mart</a>
+      </div>
+      <div class="mart-tiles">
+        <div class="mart-tile" style="transform: rotate(-2deg);"><div class="pct" data-i18n="lbl_brand_new">Brand New</div><div class="lbl" data-i18n="mart_tab_highdemand">High Demand</div></div>
+        <div class="mart-tile" style="transform: rotate(2deg);"><div class="pct" data-i18n="lbl_open_box">Open Box</div><div class="lbl" data-i18n="mart_tab_outlet">Outlet</div></div>
+        <div class="mart-tile" style="transform: rotate(1deg);"><div class="pct" data-i18n="lbl_heavy_discount">Heavily Discounted</div><div class="lbl" data-i18n="mart_tab_outlet">Outlet</div></div>
+        <div class="mart-tile" style="transform: rotate(-1deg);"><div class="pct" style="color: #fff;">9</div><div class="lbl" data-i18n="mart_tile_categories_sub">categories to browse</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- HOW -->
 <section id="how" class="bg-dim">
   <div class="container">
@@ -268,32 +315,6 @@ body { background-color: #FAFAFA; overflow-x: hidden; }
           <div class="step-icon"><svg viewBox="0 0 24 24"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg></div>
           <h3 data-i18n="how4_t">We buy, ship & deliver</h3><p data-i18n="how4_d">We purchase it abroad, bring it to Egypt, and hand it to you — tracked the whole way.</p>
         </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- MART — featured, animated -->
-<section id="mart-feature">
-  <div class="container">
-    <div class="mart-band reveal">
-      <span class="mart-float f1">🛍️</span><span class="mart-float f2">📦</span><span class="mart-float f3">✨</span>
-      <div>
-        <span class="mart-new-tag"><span class="spark">✦</span> NEW <span class="spark">✦</span></span>
-        <h2 data-i18n="mart_title">Try Shoppy Mart</h2>
-        <p data-i18n="mart_sub">Discounted, outlet and returned items from past Try Shoppy orders — already in Egypt, ready to ship now.</p>
-        <div class="mart-tags">
-          <span data-i18n="mart_filter_discount">Discounted</span>
-          <span data-i18n="mart_filter_outlet">Outlet</span>
-          <span data-i18n="mart_filter_returns">Returns</span>
-        </div>
-        <a href="mart.html" class="btn btn-primary" data-i18n="mart_cta" style="box-shadow: 0 8px 25px rgba(245,184,32,0.5);">Browse the Mart</a>
-      </div>
-      <div class="mart-tiles">
-        <div class="mart-tile" style="transform: rotate(-2deg);"><div class="pct">-30%</div><div class="lbl">Outlet electronics</div></div>
-        <div class="mart-tile" style="transform: rotate(2deg);"><div class="pct">-45%</div><div class="lbl">Open-box returns</div></div>
-        <div class="mart-tile" style="transform: rotate(1deg);"><div class="pct">-20%</div><div class="lbl">Last sizes — apparel</div></div>
-        <div class="mart-tile" style="transform: rotate(-1deg);"><div class="pct" style="color: #fff;">NEW</div><div class="lbl">Weekly drops</div></div>
       </div>
     </div>
   </div>
@@ -375,6 +396,7 @@ body { background-color: #FAFAFA; overflow-x: hidden; }
       <div><h4 data-i18n="foot_legal_t">Legal</h4><p><a href="privacy.html" data-i18n="foot_privacy">Privacy Policy</a></p><p><a href="terms.html" data-i18n="foot_terms">Terms & Conditions</a></p><p><a href="shipping-policy.html" data-i18n="foot_shipping">Shipping Policy</a></p><p><a href="returns-policy.html" data-i18n="foot_returns">Returns & Refunds</a></p><p><a href="cancellation-policy.html" data-i18n="foot_cancellation">Cancellation Policy</a></p><p><a href="restricted-items.html" data-i18n="foot_restricted">Restricted Items</a></p></div>
       <div><h4 data-i18n="foot_support_t">Support</h4><p><a href="https://wa.me/201005609642" target="_blank" data-i18n="foot_whatsapp">Chat on WhatsApp</a></p><p><a href="https://www.facebook.com/TryShoppy.eg/" target="_blank" rel="noopener" class="foot-social-link"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="vertical-align:-2.5px;margin-inline-end:5px"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.51 1.49-3.9 3.77-3.9 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.44 2.91h-2.34V22c4.78-.76 8.44-4.92 8.44-9.94z"/></svg><span data-i18n="foot_facebook">Follow us on Facebook</span></a></p></div>
       <div><h4 data-i18n="foot_payments_t">Payments</h4><p data-i18n="pay_cod">Cash on Delivery</p><p data-i18n="pay_instapay">InstaPay</p><p data-i18n="pay_card">Visa & Mastercard</p><p data-i18n="pay_paypal">PayPal</p><p data-i18n="pay_bank">Bank Transfer</p></div>
+      <div><h4 data-i18n="foot_contact_t">Contact Us</h4><p><a href="mailto:Info@try-shoppy.com">Info@try-shoppy.com</a></p><p><a href="https://wa.me/201005609642" target="_blank" data-i18n="foot_whatsapp">Chat on WhatsApp</a></p></div>
     </div>
     <div class="foot-bottom"><span data-i18n="foot_rights">© 2026 Try Shoppy. All rights reserved.</span><span>Made for shoppers in Egypt 🇪🇬</span></div>
   </div>
@@ -385,7 +407,10 @@ body { background-color: #FAFAFA; overflow-x: hidden; }
 <script src="assets/app.js"></script>
 <script>tsInitNav();
 
-/* ── brand logo grid: real logos via Clearbit, graceful text fallback ── */
+/* ── brand logo grid: real store logos (Clearbit Logo API), each
+   card links out to the actual store. Fallback chain per logo:
+   Clearbit → Google favicon service → text-only (name still shows,
+   never a broken image icon) ── */
 (function(){
   const grid=document.getElementById('brandGrid');
   if(!grid) return;
@@ -395,11 +420,15 @@ body { background-color: #FAFAFA; overflow-x: hidden; }
     ["SHEIN","shein.com"],["iHerb","iherb.com"],["Bath & Body Works","bathandbodyworks.com"],["Victoria's Secret","victoriassecret.com"],["Etsy","etsy.com"]
   ];
   grid.innerHTML=BRANDS.map(function(b,i){
-    return '<div class="brand-card reveal reveal-d'+((i%5)+1)+'">'
-      +'<img class="bicon" src="https://www.google.com/s2/favicons?sz=64&domain='+b[1]+'" alt="" loading="lazy" '
-      +'onerror="this.style.display=\'none\'">'
+    const domain=b[1];
+    const clearbitSrc='https://logo.clearbit.com/'+domain+'?size=64';
+    const faviconSrc='https://www.google.com/s2/favicons?sz=64&domain='+domain;
+    return '<a class="brand-card reveal reveal-d'+((i%5)+1)+'" href="https://www.'+domain+'" target="_blank" rel="noopener noreferrer">'
+      +'<img class="bicon" src="'+clearbitSrc+'" alt="" loading="lazy" '
+      +'data-fallback="'+faviconSrc+'" '
+      +'onerror="if(this.dataset.fallback){this.src=this.dataset.fallback;this.removeAttribute(\'data-fallback\');}else{this.style.display=\'none\';}">'
       +'<span class="bname">'+b[0]+'</span>'
-      +'</div>';
+      +'</a>';
   }).join('');
   if(typeof tsInitReveal==='function') tsInitReveal();
 })();</script>

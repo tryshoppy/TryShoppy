@@ -59,6 +59,13 @@
 .modal-btns .btn{flex:1}
 .state-msg{text-align:center;padding:56px 20px;color:var(--ink-2)}
 .state-msg .big{font-size:2.4rem;margin-bottom:12px}
+
+/* header fix — see index.html for the full explanation */
+.nav-row{flex-wrap:nowrap!important;gap:10px}
+.brand{position:relative;z-index:1;flex-shrink:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.nav-actions{position:static!important;flex-shrink:0;display:flex;align-items:center;gap:8px}
+.lang-pill{position:static!important;flex-shrink:0;white-space:nowrap;transform:none!important}
+@media(max-width:480px){.brand{max-width:34vw;font-size:.95rem}.brand img{width:22px;height:22px}.lang-pill{padding:6px 10px;font-size:12px}.nav-actions{gap:6px}}
 </style>
 </head>
 <body>
@@ -141,18 +148,49 @@
     </div>
     <div class="row2">
       <div class="field">
-        <label data-i18n="adm_category">Category</label>
-        <select id="fCategory">
-          <option value="discount" data-i18n="mart_filter_discount">Discounted</option>
-          <option value="outlet" data-i18n="mart_filter_outlet">Outlet</option>
-          <option value="returns" data-i18n="mart_filter_returns">Returns</option>
+        <label data-i18n="adm_section">Section</label>
+        <select id="fSection" onchange="onSectionChange()">
+          <option value="highdemand" data-i18n="mart_tab_highdemand">High Demand</option>
+          <option value="outlet" data-i18n="mart_tab_outlet">Outlet</option>
         </select>
       </div>
-      <div class="field"><label data-i18n="adm_stock">Stock Quantity</label><input id="fStock" type="number" min="0" value="1"></div>
+      <div class="field">
+        <label data-i18n="adm_category">Category</label>
+        <select id="fCategory">
+          <option value="accessories_toys" data-i18n="cat_accessories_toys">Accessories &amp; Toys</option>
+          <option value="beauty" data-i18n="cat_beauty">Skincare, Hair &amp; Beauty</option>
+          <option value="supplements" data-i18n="cat_supplements">Supplements &amp; Vitamins</option>
+          <option value="clothing" data-i18n="cat_clothing">Clothing &amp; Shoes</option>
+          <option value="electronics" data-i18n="cat_electronics">Electronics</option>
+          <option value="office" data-i18n="cat_office">Office Supplies</option>
+          <option value="bags" data-i18n="cat_bags">Bags</option>
+          <option value="watches_glasses" data-i18n="cat_watches_glasses">Watches &amp; Glasses</option>
+          <option value="other" data-i18n="cat_other">Other</option>
+        </select>
+      </div>
     </div>
     <div class="row2">
+      <div class="field" id="labelField">
+        <label data-i18n="adm_label">Label</label>
+        <select id="fLabel">
+          <option value="pre_delivery_return" data-i18n="lbl_pre_delivery_return">Pre-delivery return</option>
+          <option value="open_box" data-i18n="lbl_open_box">Open box</option>
+          <option value="heavy_discount" data-i18n="lbl_heavy_discount">Heavily discounted</option>
+        </select>
+        <div class="hint" data-i18n="adm_label_highdemand_hint" id="labelAutoHint" style="display:none">Automatically tagged "Brand New" — no manual choice needed for High Demand products.</div>
+      </div>
+      <div class="field">
+        <label data-i18n="adm_expiry">Expiry date (optional — for supplements, hair products, etc.)</label>
+        <input id="fExpiry" type="date">
+        <div class="hint" data-i18n="adm_expiry_hint">Leave empty if not applicable — it will simply not be shown on the product card.</div>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field"><label data-i18n="adm_stock">Stock Quantity</label><input id="fStock" type="number" min="0" value="1"></div>
       <div class="field"><label data-i18n="adm_price">Price (EGP)</label><input id="fPrice" type="number" min="0"></div>
-      <div class="field"><label data-i18n="adm_old_price">Old Price (EGP)</label><input id="fOldPrice" type="number" min="0"></div>
+    </div>
+    <div class="field">
+      <label data-i18n="adm_old_price">Old Price (EGP)</label><input id="fOldPrice" type="number" min="0">
     </div>
     <div class="field">
       <label data-i18n="adm_image">Image URL</label>
@@ -285,18 +323,44 @@ function renderStats(){
   document.getElementById('statsRow').innerHTML=cards.map(c=>'<div class="card stat-card"><div class="stat-num">'+c.n+'</div><div class="stat-lbl">'+c.l+'</div></div>').join('');
 }
 
-/* ── product list ── */
-const CAT_LABEL={discount:{en:'Discounted',ar:'خصومات',cls:'green'},outlet:{en:'Outlet',ar:'أوت ليت',cls:'orange'},returns:{en:'Returns',ar:'مرتجعات',cls:'blue'}};
+/* ── product list ──
+   نفس القاموس ده متكرر بالظبط في mart.html — لو غيّرت قيمة هنا
+   لازم تغيّرها هناك كمان (الاتنين شيت منفصل من كود عرض، مش
+   مشتركين في ملف واحد، عشان كل صفحة تفضل مستقلة بنفسها) */
+const CATEGORY_META={
+  accessories_toys:{en:'Accessories & Toys',ar:'الاكسسوارات والألعاب'},
+  beauty:{en:'Skincare, Hair & Beauty',ar:'العناية بالبشرة والشعر والتجميل'},
+  supplements:{en:'Supplements & Vitamins',ar:'المكملات الغذائية والفيتامينات'},
+  clothing:{en:'Clothing & Shoes',ar:'الملابس والأحذية'},
+  electronics:{en:'Electronics',ar:'الإلكترونيات'},
+  office:{en:'Office Supplies',ar:'منتجات مكتبية'},
+  bags:{en:'Bags',ar:'حقائب'},
+  watches_glasses:{en:'Watches & Glasses',ar:'ساعات ونظارات'},
+  other:{en:'Other',ar:'أخرى'}
+};
+const LABEL_META={
+  brand_new:{en:'Brand New',ar:'جديد',cls:'green'},
+  pre_delivery_return:{en:'Pre-delivery return',ar:'مرتجع قبل التسليم',cls:'blue'},
+  open_box:{en:'Open box',ar:'عبوة مفتوحة',cls:'orange'},
+  heavy_discount:{en:'Heavily discounted',ar:'خصم كبير',cls:'red'}
+};
+const SECTION_META={
+  highdemand:{en:'High Demand',ar:'الأكثر طلبًا',cls:'yellow'},
+  outlet:{en:'Outlet',ar:'أوتليت',cls:'gray'}
+};
 function renderList(){
   const list=document.getElementById('prodList');
   renderStats();
   if(!PRODUCTS.length){list.innerHTML='<div class="card state-msg"><div class="big">🗂️</div><span data-i18n="adm_no_products"></span></div>';applyI18N();return;}
   list.innerHTML=PRODUCTS.map(p=>{
-    const cat=CAT_LABEL[p.category]||CAT_LABEL.outlet;
+    const sec=SECTION_META[p.section]||SECTION_META.outlet;
+    const cat=CATEGORY_META[p.category]||CATEGORY_META.other;
+    const lbl=LABEL_META[p.label]||LABEL_META.open_box;
     const stock=parseInt(p.stock)||0;
     const _fi=String(p.image||'').split('|')[0].trim();const imgHtml=_fi?'<img src="'+_fi+'" alt="" loading="lazy" onerror="this.parentElement.innerHTML=\'<span class=&quot;ph&quot;>🛍️</span>\'">':'<span class="ph">🛍️</span>';
     const oldHtml=p.oldPrice&&p.oldPrice>p.price?' <span class="pr-old">'+parseFloat(p.oldPrice).toLocaleString()+'</span>':'';
-    return '<div class="card prod-row"><div class="prod-img">'+imgHtml+'</div><div class="pr-info"><div class="pr-name">'+(p.nameEn||'—')+(p.active===false?' <span class="badge gray" data-i18n="adm_hidden_badge">Hidden</span>':'')+'</div><div class="pr-name-ar">'+(p.nameAr||'')+'</div><div class="pr-meta"><span class="badge '+cat.cls+'">'+(TS_LANG==='ar'?cat.ar:cat.en)+'</span><span class="pr-price">'+parseFloat(p.price||0).toLocaleString()+' EGP'+oldHtml+'</span><span'+(stock<=2?' class="pr-stock-low"':'')+'>📦 '+stock+'</span><span class="mono" style="font-size:10.5px;color:var(--ink-3)">'+p.id+'</span></div></div><div class="pr-actions"><button class="btn btn-secondary btn-sm" onclick="editProduct(\''+p.id+'\')" data-i18n="adm_edit">Edit</button><button class="btn btn-danger btn-sm" onclick="deleteProduct(\''+p.id+'\',this)" data-i18n="adm_delete">Delete</button></div></div>';
+    const expiryHtml=p.expiryDate?' <span class="mono" style="font-size:10.5px;color:var(--err)">⏳ '+p.expiryDate+'</span>':'';
+    return '<div class="card prod-row"><div class="prod-img">'+imgHtml+'</div><div class="pr-info"><div class="pr-name">'+(p.nameEn||'—')+(p.active===false?' <span class="badge gray" data-i18n="adm_hidden_badge">Hidden</span>':'')+'</div><div class="pr-name-ar">'+(p.nameAr||'')+'</div><div class="pr-meta"><span class="badge '+sec.cls+'">'+(TS_LANG==='ar'?sec.ar:sec.en)+'</span><span class="badge gray">'+(TS_LANG==='ar'?cat.ar:cat.en)+'</span><span class="badge '+lbl.cls+'">'+(TS_LANG==='ar'?lbl.ar:lbl.en)+'</span><span class="pr-price">'+parseFloat(p.price||0).toLocaleString()+' EGP'+oldHtml+'</span><span'+(stock<=2?' class="pr-stock-low"':'')+'>📦 '+stock+'</span>'+expiryHtml+'<span class="mono" style="font-size:10.5px;color:var(--ink-3)">'+p.id+'</span></div></div><div class="pr-actions"><button class="btn btn-secondary btn-sm" onclick="editProduct(\''+p.id+'\')" data-i18n="adm_edit">Edit</button><button class="btn btn-danger btn-sm" onclick="deleteProduct(\''+p.id+'\',this)" data-i18n="adm_delete">Delete</button></div></div>';
   }).join('');
   applyI18N();
 }
@@ -328,6 +392,15 @@ function previewImg(){
   else wrap.classList.remove('show');
 }
 
+/* Label بس مطلوب لقسم الأوتليت — في هاي ديماند بيتحط "Brand New"
+   تلقائيًا من السيرفر أيًّا كان المُرسل، فبنخفي خانة الاختيار
+   ونوري تلميح بدلها عشان الأدمن ميتلخبطش ويفتكر إنه لازم يختار حاجة */
+function onSectionChange(){
+  const isHighDemand=document.getElementById('fSection').value==='highdemand';
+  document.getElementById('fLabel').style.display=isHighDemand?'none':'';
+  document.getElementById('labelAutoHint').style.display=isHighDemand?'':'none';
+}
+
 // اسم/وصف/صورة المنتج ممكن يكونوا جايين من موقع خارجي، فبنتأكد إن
 // أي حاجة بترجع كصورة فعلاً بروتوكول http/https عادي (منع
 // javascript:/data: لو حد حط لينك خبيث بدل رابط منتج)
@@ -353,9 +426,16 @@ document.getElementById('fetchLinkBtn').addEventListener('click', function(){
       if(data.description) document.getElementById('fDescEn').value=data.description;
       const img=safeUrl(data.imageUrl);
       if(img){document.getElementById('fImage').value=img;previewImg();}
-      hint.textContent=(data.nameSource==='url')
+      // 🆕 السعر المسحوب من الرابط عادةً بعملة أجنبية (دولار غالبًا)
+      // مش جنيه — فمبنحطوش مباشرة في خانة السعر بالجنيه، بنعرضه
+      // بس كرقم مرجعي في الـ hint عشان الأدمن يحسب منه السعر النهائي
+      const priceNote=(data.price!==null&&data.price!==undefined)
+        ? ((TS_LANG==='ar')?' — السعر الأصلي على الموقع تقريبًا: '+data.price+' (غالبًا دولار — احسب السعر النهائي بالجنيه يدويًا).':' — approx. original site price: '+data.price+' (likely USD — calculate the final EGP price manually).')
+        : '';
+      hint.textContent=((data.nameSource==='url')
         ? ((TS_LANG==='ar')?'⚠️ الاسم اتحزر من الرابط نفسه — راجعه واتأكد منه قبل الحفظ. حرّر الاسم العربي والوصف يدويًا.':'⚠️ Name guessed from the link itself — please review it before saving. Arabic name/description need manual translation.')
-        : ((TS_LANG==='ar')?'✅ اتجابت بيانات من الصفحة — راجعها واكمل الاسم العربي يدويًا.':'✅ Pulled from the page — please review, and fill in the Arabic name/description manually.');
+        : ((TS_LANG==='ar')?'✅ اتجابت بيانات من الصفحة — راجعها واكمل الاسم العربي يدويًا.':'✅ Pulled from the page — please review, and fill in the Arabic name/description manually.'))
+        + priceNote;
     }else if(data&&(data.message==='Unauthorized'||data.code==='unauthorized')){
       handleUnauthorized();
     }else{
@@ -373,7 +453,11 @@ document.getElementById('addBtn').addEventListener('click',()=>{
   document.getElementById('fetchLinkHint').textContent=tsT('adm_link_hint');
   document.getElementById('fNameEn').value='';
   document.getElementById('fNameAr').value='';
-  document.getElementById('fCategory').value='outlet';
+  document.getElementById('fSection').value='outlet';
+  document.getElementById('fCategory').value='other';
+  document.getElementById('fLabel').value='open_box';
+  document.getElementById('fExpiry').value='';
+  onSectionChange();
   document.getElementById('fPrice').value='';
   document.getElementById('fOldPrice').value='';
   document.getElementById('fStock').value='1';
@@ -392,7 +476,11 @@ function editProduct(id){
   document.getElementById('fetchLinkHint').textContent=tsT('adm_link_hint');
   document.getElementById('fNameEn').value=p.nameEn||'';
   document.getElementById('fNameAr').value=p.nameAr||'';
-  document.getElementById('fCategory').value=p.category||'outlet';
+  document.getElementById('fSection').value=p.section||'outlet';
+  document.getElementById('fCategory').value=p.category||'other';
+  document.getElementById('fLabel').value=p.label||'open_box';
+  document.getElementById('fExpiry').value=p.expiryDate||'';
+  onSectionChange();
   document.getElementById('fPrice').value=p.price||'';
   document.getElementById('fOldPrice').value=p.oldPrice||'';
   document.getElementById('fStock').value=p.stock||0;
@@ -412,13 +500,16 @@ document.getElementById('saveBtn').addEventListener('click',function(){
   const product={
     id:document.getElementById('fId').value||null,
     nameEn,nameAr,
+    section:document.getElementById('fSection').value,
     category:document.getElementById('fCategory').value,
+    label:document.getElementById('fLabel').value,
     price,
     oldPrice:parseFloat(document.getElementById('fOldPrice').value)||0,
     stock:parseInt(document.getElementById('fStock').value)||0,
     image:document.getElementById('fImage').value.trim(),
     descEn:document.getElementById('fDescEn').value.trim(),
     descAr:document.getElementById('fDescAr').value.trim(),
+    expiryDate:document.getElementById('fExpiry').value||'',
     active:document.getElementById('fActive').checked
   };
   const btn=this;tsSetBtnLoading(btn, tsT('common_saving'));

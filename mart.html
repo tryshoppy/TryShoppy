@@ -10,10 +10,23 @@
 .mart-hero{padding:56px 0 26px;text-align:center;background:radial-gradient(ellipse 620px 340px at 50% -60px,var(--gold-pale) 0%,transparent 68%)}
 .mart-hero h1{font-size:2.15rem;margin:12px 0 9px;font-weight:900;letter-spacing:-.02em}
 .mart-hero p{max-width:520px;margin:0 auto;color:var(--ink-2);font-size:.96rem}
-.filter-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:28px 0 34px}
+.filter-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:0 0 34px}
 .filter-row button{font-family:var(--f);font-size:13px;font-weight:700;border-radius:var(--pill);padding:9px 19px;background:var(--white);cursor:pointer;color:var(--ink-2);box-shadow:var(--sh-1);border:1.5px solid var(--sand);transition:.15s}
 .filter-row button.active{background:var(--ink);color:var(--gold-light);border-color:var(--ink)}
 .filter-row button:hover:not(.active){border-color:var(--sand-2);color:var(--ink)}
+
+/* ── tabs: the 3 top-level sections (High Demand / Outlet / All Items) —
+   visually heavier than the category chip row underneath, so the
+   hierarchy (tab first, then a category filter within it) reads clearly */
+.tab-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:28px 0 16px}
+.tab-row button{font-family:var(--f);font-size:14.5px;font-weight:800;border-radius:var(--pill);padding:12px 26px;background:var(--white);cursor:pointer;color:var(--ink-2);box-shadow:var(--sh-2);border:2px solid var(--sand);transition:.15s}
+.tab-row button.active{background:var(--gold);color:var(--ink);border-color:var(--gold);box-shadow:var(--sh-gold)}
+.tab-row button:hover:not(.active){border-color:var(--gold-light)}
+
+/* small "Section: Label" line shown only on the All Items tab, and
+   the optional expiry note — both sit under the description */
+.pcard-tagline{font-size:11px;color:var(--ink-3);font-weight:700;margin:0 0 4px}
+.pcard-expiry{font-size:11px;color:var(--err);font-weight:700;margin:0 0 4px;display:flex;align-items:center;gap:4px}
 .mart-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;padding-bottom:80px;align-items:stretch}
 @media(max-width:1000px){.mart-grid{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:760px){.mart-grid{grid-template-columns:repeat(2,1fr)}}
@@ -99,6 +112,13 @@
 .checkout-form input,.checkout-form select,.checkout-form textarea{padding:10px 13px;font-size:13px}
 .success-view{text-align:center;padding:32px 10px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
 .success-icon{font-size:2.5rem}
+
+/* header fix — see index.html for the full explanation */
+.nav-row{flex-wrap:nowrap!important;gap:10px}
+.brand{position:relative;z-index:1;flex-shrink:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.nav-actions{position:static!important;flex-shrink:0;display:flex;align-items:center;gap:8px}
+.lang-pill{position:static!important;flex-shrink:0;white-space:nowrap;transform:none!important}
+@media(max-width:480px){.brand{max-width:34vw;font-size:.95rem}.brand img{width:22px;height:22px}.lang-pill{padding:6px 10px;font-size:12px}.nav-actions{gap:6px}}
 </style>
 </head>
 <body>
@@ -132,17 +152,17 @@
   <div class="container">
     <span class="eyebrow" style="justify-content:center;display:flex" data-i18n="mart_page_eyebrow">ALREADY IN EGYPT</span>
     <h1 data-i18n="mart_page_title">Try Shoppy Mart</h1>
-    <p data-i18n="mart_page_sub">Discounted, outlet and lightly-returned items — cleared and in stock, ships in days.</p>
+    <p data-i18n="mart_page_sub">A wide range of our most-requested products, ready to ship at competitive prices — plus a selection of discounted items and Try Shoppy returns or undelivered orders, currently available for delivery.</p>
   </div>
 </div>
 
 <div class="container">
-  <div class="filter-row" id="filterRow">
-    <button class="active" data-filter="all" data-i18n="mart_filter_all">All</button>
-    <button data-filter="discount" data-i18n="mart_filter_discount">Discounted</button>
-    <button data-filter="outlet" data-i18n="mart_filter_outlet">Outlet</button>
-    <button data-filter="returns" data-i18n="mart_filter_returns">Returns</button>
+  <div class="tab-row" id="tabRow">
+    <button class="active" data-tab="highdemand" data-i18n="mart_tab_highdemand">High Demand</button>
+    <button data-tab="outlet" data-i18n="mart_tab_outlet">Outlet</button>
+    <button data-tab="all" data-i18n="mart_tab_all">All Items</button>
   </div>
+  <div class="filter-row" id="filterRow"></div>
   <div class="mart-grid" id="martGrid"></div>
 </div>
 
@@ -226,6 +246,7 @@
       <div><h4 data-i18n="foot_legal_t">Legal</h4><p><a href="privacy.html" data-i18n="foot_privacy">Privacy Policy</a></p><p><a href="terms.html" data-i18n="foot_terms">Terms & Conditions</a></p><p><a href="shipping-policy.html" data-i18n="foot_shipping">Shipping Policy</a></p><p><a href="returns-policy.html" data-i18n="foot_returns">Returns & Refunds</a></p><p><a href="cancellation-policy.html" data-i18n="foot_cancellation">Cancellation Policy</a></p><p><a href="restricted-items.html" data-i18n="foot_restricted">Restricted Items</a></p></div>
       <div><h4 data-i18n="foot_support_t">Support</h4><p><a href="https://wa.me/201005609642" target="_blank" data-i18n="foot_whatsapp">Chat on WhatsApp</a></p><p><a href="https://www.facebook.com/TryShoppy.eg/" target="_blank" rel="noopener" class="foot-social-link"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="vertical-align:-2.5px;margin-inline-end:5px"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.51 1.49-3.9 3.77-3.9 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.44 2.91h-2.34V22c4.78-.76 8.44-4.92 8.44-9.94z"/></svg><span data-i18n="foot_facebook">Follow us on Facebook</span></a></p></div>
       <div><h4 data-i18n="foot_payments_t">Payments</h4><p data-i18n="pay_cod">Cash on Delivery</p><p data-i18n="pay_instapay">InstaPay</p><p data-i18n="pay_card">Visa & Mastercard</p><p data-i18n="pay_paypal">PayPal</p><p data-i18n="pay_bank">Bank Transfer</p></div>
+      <div><h4 data-i18n="foot_contact_t">Contact Us</h4><p><a href="mailto:Info@try-shoppy.com">Info@try-shoppy.com</a></p><p><a href="https://wa.me/201005609642" target="_blank" data-i18n="foot_whatsapp">Chat on WhatsApp</a></p></div>
     </div>
     <div class="foot-bottom"><span data-i18n="foot_rights">© 2026 Try Shoppy. All rights reserved.</span><span>Made for shoppers in Egypt 🇪🇬</span></div>
   </div>
@@ -237,10 +258,36 @@
 <script>
 /* ── products load from a fully separate sheet/script (MART_PRODUCTS_SCRIPT_URL) ── */
 let MART_PRODUCTS=[];
-const TAG_CLS={discount:"green",outlet:"orange",returns:"blue"};
-const TAG_LABEL={discount:{en:"SALE",ar:"خصم"},outlet:{en:"OUTLET",ar:"أوت ليت"},returns:{en:"RETURN",ar:"مرتجع"}};
+
+/* نفس القاموس ده متكرر بالظبط في mart-admin.html — لو غيّرت قيمة
+   هنا لازم تغيّرها هناك كمان (كل صفحة مستقلة بكودها، مفيش ملف
+   مشترك بينهم غير API الشيت نفسه) */
+const CATEGORY_META={
+  accessories_toys:{en:'Accessories & Toys',ar:'الاكسسوارات والألعاب'},
+  beauty:{en:'Skincare, Hair & Beauty',ar:'العناية بالبشرة والشعر والتجميل'},
+  supplements:{en:'Supplements & Vitamins',ar:'المكملات الغذائية والفيتامينات'},
+  clothing:{en:'Clothing & Shoes',ar:'الملابس والأحذية'},
+  electronics:{en:'Electronics',ar:'الإلكترونيات'},
+  office:{en:'Office Supplies',ar:'منتجات مكتبية'},
+  bags:{en:'Bags',ar:'حقائب'},
+  watches_glasses:{en:'Watches & Glasses',ar:'ساعات ونظارات'},
+  other:{en:'Other',ar:'أخرى'}
+};
+const CATEGORY_ORDER=['accessories_toys','beauty','supplements','clothing','electronics','office','bags','watches_glasses','other'];
+const LABEL_META={
+  brand_new:{en:'Brand New',ar:'جديد',cls:'green'},
+  pre_delivery_return:{en:'Pre-delivery return',ar:'مرتجع قبل التسليم',cls:'blue'},
+  open_box:{en:'Open box',ar:'عبوة مفتوحة',cls:'orange'},
+  heavy_discount:{en:'Heavily discounted',ar:'خصم كبير',cls:'red'}
+};
+const SECTION_META={
+  highdemand:{en:'High Demand',ar:'الأكثر طلبًا'},
+  outlet:{en:'Outlet',ar:'أوتليت'}
+};
+
 function pid(id){return MART_PRODUCTS.find(p=>String(p.id)===String(id));}
-let curFilter='all';
+let curTab='highdemand';   // 'highdemand' | 'outlet' | 'all'
+let curCategory='all';     // 'all' or one of CATEGORY_ORDER
 
 function showState(msgKey,emoji,detail){
   const detailHtml = detail ? '<div style="font-family:var(--fm);font-size:11px;color:var(--ink-3);margin-top:10px;word-break:break-word;max-width:480px;margin-inline:auto">'+detail+'</div>' : '';
@@ -341,13 +388,41 @@ document.addEventListener('keydown',e=>{
   else if(e.key==='ArrowLeft')lbNav(-1);
 });
 
-function renderMart(filter){
+/* ── category chip row: rebuilt every time the tab changes, since
+   "All Items" needs an "All categories" chip too while the other
+   two tabs filter within their own product pool only ── */
+function renderCategoryChips(){
+  const row=document.getElementById('filterRow');
+  const chips=['<button class="'+(curCategory==='all'?'active':'')+'" data-cat="all" data-i18n="mart_cat_all">All categories</button>']
+    .concat(CATEGORY_ORDER.map(c=>'<button class="'+(curCategory===c?'active':'')+'" data-cat="'+c+'" data-i18n="cat_'+c+'">'+CATEGORY_META[c].en+'</button>'));
+  row.innerHTML=chips.join('');
+  row.querySelectorAll('button').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      row.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      curCategory=btn.dataset.cat;
+      renderMart();
+    });
+  });
+  applyI18N();
+}
+
+function filteredProducts(){
+  return MART_PRODUCTS.filter(p=>{
+    if(p.active===false) return false;
+    if(curTab!=='all' && p.section!==curTab) return false;
+    if(curCategory!=='all' && p.category!==curCategory) return false;
+    return true;
+  });
+}
+
+function renderMart(){
   const grid=document.getElementById('martGrid');
-  const items=(filter==='all'?MART_PRODUCTS:MART_PRODUCTS.filter(p=>p.category===filter)).filter(p=>p.active!==false);
+  const items=filteredProducts();
   if(!items.length){showState('mart_empty','🛍️');return;}
   grid.innerHTML=items.map(p=>{
-    const tl=TAG_LABEL[p.category]||TAG_LABEL.outlet;
-    const tag=TS_LANG==='ar'?tl.ar:tl.en;
+    const lbl=LABEL_META[p.label]||LABEL_META.open_box;
+    const tag=TS_LANG==='ar'?lbl.ar:lbl.en;
     const name=TS_LANG==='ar'?(p.nameAr||p.nameEn):(p.nameEn||p.nameAr);
     const out=p.stock<=0;
     const stockLine=out
@@ -356,7 +431,18 @@ function renderMart(filter){
     const oldHtml=p.oldPrice&&p.oldPrice>p.price?'<span class="pcard-old">'+p.oldPrice.toLocaleString()+'</span>':'';
     const desc=TS_LANG==='ar'?(p.descAr||p.descEn):(p.descEn||p.descAr);
     const descHtml='<div class="pcard-desc">'+(desc||'')+'</div>';
-    return '<div class="card pcard lift"><div class="prod-img"><span class="badge '+(TAG_CLS[p.category]||'orange')+' pcard-tag">'+tag+'</span>'+prodImgHtml(p)+'</div><div class="pcard-body"><div class="pcard-name">'+name+'</div>'+descHtml+'<div class="pcard-price"><span class="pcard-now">'+p.price.toLocaleString()+' EGP</span>'+oldHtml+'</div><div class="pcard-stock'+(out?'':' ')+'">'+stockLine+'</div><button class="btn btn-primary btn-block" onclick="handleAdd(\''+p.id+'\')" '+(out?'disabled':'')+' data-i18n="mart_add_to_cart">Add to Cart</button></div></div>';
+    // على تاب "All Items" بس بنوري سطر صغير يوضح القسم + الليبل
+    // (زي "Outlet: Open box")، عشان في التابات التانية القسم أصلاً
+    // واضح من التاب نفسه فمفيش داعي نكرره على كل كارت
+    const secMeta=SECTION_META[p.section]||SECTION_META.outlet;
+    const taglineHtml=(curTab==='all')
+      ? '<div class="pcard-tagline">'+(TS_LANG==='ar'?secMeta.ar:secMeta.en)+': '+tag+'</div>'
+      : '';
+    // تاريخ الصلاحية اختياري تمامًا — بيظهر بس لو موجود فعليًا في بيانات المنتج
+    const expiryHtml=p.expiryDate
+      ? '<div class="pcard-expiry">⏳ '+tsT('mart_expiry_note')+': '+p.expiryDate+'</div>'
+      : '';
+    return '<div class="card pcard lift"><div class="prod-img"><span class="badge '+lbl.cls+' pcard-tag">'+tag+'</span>'+prodImgHtml(p)+'</div><div class="pcard-body"><div class="pcard-name">'+name+'</div>'+taglineHtml+expiryHtml+descHtml+'<div class="pcard-price"><span class="pcard-now">'+p.price.toLocaleString()+' EGP</span>'+oldHtml+'</div><div class="pcard-stock'+(out?'':' ')+'">'+stockLine+'</div><button class="btn btn-primary btn-block" onclick="handleAdd(\''+p.id+'\')" '+(out?'disabled':'')+' data-i18n="mart_add_to_cart">Add to Cart</button></div></div>';
   }).join('');
   applyI18N();
 }
@@ -365,13 +451,23 @@ function loadProducts(){
   showSkeletons();
   tsFetchMartProducts().then(products=>{
     MART_PRODUCTS=(products||[]).map(p=>({...p,price:parseFloat(p.price)||0,oldPrice:parseFloat(p.oldPrice)||0,stock:parseInt(p.stock)||0}));
-    renderMart(curFilter);
+    renderCategoryChips();
+    renderMart();
   }).catch(err=>{showState('mart_load_error','⚠️', err && err.message ? err.message : '');});
 }
 loadProducts();
 
-document.querySelectorAll('#filterRow button').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('#filterRow button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');curFilter=btn.dataset.filter;renderMart(curFilter);});});
-document.addEventListener('ts-lang-changed',()=>{renderMart(curFilter);renderCartItems();});
+document.querySelectorAll('#tabRow button').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('#tabRow button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    curTab=btn.dataset.tab;
+    curCategory='all';           // بنرجع لـ "كل الفئات" كل ما نبدّل تاب
+    renderCategoryChips();
+    renderMart();
+  });
+});
+document.addEventListener('ts-lang-changed',()=>{renderCategoryChips();renderMart();renderCartItems();});
 function handleAdd(id){
   const p=pid(id);if(!p||p.stock<=0)return;
   tsAddToCart({id:p.id,name:{en:p.nameEn,ar:p.nameAr},price:p.price,cat:p.category});
@@ -444,7 +540,7 @@ document.getElementById('placeOrderBtn').addEventListener('click',async function
       tsDecrementMartStock(item.id,item.qty).then(res=>{
         if(res&&res.success){
           const p=MART_PRODUCTS.find(x=>String(x.id)===String(item.id));
-          if(p){ p.stock=res.stock; renderMart(curFilter); }   // الشبكة موجودة دايمًا خلف الدرج، فتحديثها آمن أيًّا كانت الخطوة الظاهرة
+          if(p){ p.stock=res.stock; renderMart(); }   // الشبكة موجودة دايمًا خلف الدرج، فتحديثها آمن أيًّا كانت الخطوة الظاهرة
         }
       }).catch(()=>{ /* فشل تحديث المخزون لا يلغي نجاح الطلب نفسه */ });
     });
