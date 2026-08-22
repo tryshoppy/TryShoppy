@@ -7,9 +7,14 @@
 // ============================================
 
 // جدول: تكلفة أساسية لكل فئة (بالجنيه المصري)
+// ⚠️ ده جدول التكلفة الحقيقية — لو عايز تزوّد/تقلل سعر فئة معينة
+// بنسبة مئوية (زي "قلّل Supplements 20%")، **متعدلش الأرقام هنا**.
+// روح لجدول TRYSHOPPY_CATEGORY_ADJUSTMENT تحت (فيه شرح تفصيلي) —
+// ده الجدول المخصص للنسب، وده الوحيد اللي بيأثر على السعر النهائي
+// كامل مش على جزء من التكلفة بس.
 const TRYSHOPPY_CATEGORY_BASE = {
-  "Clothes (Regular)": 100, "Jacket or BALTO": 350, "Electronics": 400, "Shoes (Regular)": 200,
-  "Food": 200, "Sunglasses": 300, "Shoes (Boot)": 300, "Watches": 150, "Accessories": 200,
+  "Clothes (Regular)": 100, "Jacket or BALTO": 350, "Electronics": 400, "Shoes (Regular)": 450,
+  "Food": 200, "Sunglasses": 300, "Shoes (Boot)": 500, "Watches": 150, "Accessories": 200,
   "Cosmetics": 300, "CarParts": 400, "Vitamin or Supplements": 370, "Shampoo or Conditioner": 300,
   "Small Size Hand bag (women)": 150, "Back bag (or Lap bag)": 400, "Large Size Hand bag (women)": 350, "Stationary": 200
 };
@@ -21,6 +26,54 @@ const TRYSHOPPY_WEIGHT_RATES = {
   "Cosmetics": 80, "CarParts": 50, "Vitamin or Supplements": 110, "Shampoo or Conditioner": 110,
   "Small Size Hand bag (women)": 35, "Back bag (or Lap bag)": 35, "Large Size Hand bag (women)": 35, "Stationary": 35
 };
+
+// ============================================
+//   🎛️ معاملات التعديل على السعر النهائي (اضرب بس، متلمسش الحسبة)
+//   ============================================
+//   المعامل بيتضرب في **السعر النهائي بعد كل الحسبة** — يعني لو
+//   عايز تزوّد كل الأسعار الطالعة من الحاسبة بنسبة 10%، غيّر الرقم
+//   لـ 1.1. عايز تقلل 5%؟ حطه 0.95. الرقم الافتراضي اللي مبيغيرش
+//   في حاجة خالص هو 1 (يعني بلاش تعديل).
+//
+//   بيتطبق معامّلين مع بعض على كل عملية حساب:
+//     1) TRYSHOPPY_GLOBAL_ADJUSTMENT   → بيأثر على **كل الفئات** مرة واحدة
+//     2) TRYSHOPPY_CATEGORY_ADJUSTMENT → معامل إضافي **خاص بكل فئة لوحدها**
+//   الاتنين بيتضربوا في بعض (السعر النهائي × المعامل العام ×
+//   معامل الفئة)، يعني تقدر تزوّد سعر فئة "Electronics" بس بـ 15%
+//   (category=1.15) وفي نفس الوقت تزوّد كل الموقع كله 5% كمان
+//   (global=1.05) — هيتطبقوا سوا من غير ما يتعارضوا.
+// ============================================
+
+// 1) المعامل العام — بيأثر على كل فئة من غير استثناء
+const TRYSHOPPY_GLOBAL_ADJUSTMENT = 1;
+
+// 2) معامل كل فئة لوحدها — لازم تفضل نفس أسماء الفئات بالظبط
+//    زي TRYSHOPPY_CATEGORY_BASE فوق (لو فئة مش موجودة هنا أو
+//    القيمة undefined، بتاخد 1 تلقائيًا يعني من غير أي تعديل)
+// ✅ ده الجدول الصح لو عايز تزوّد/تقلل سعر فئة بنسبة مئوية —
+// غيّر الرقم هنا بس (زي 0.8 = تقليل 20%، 1.2 = زيادة 20%).
+// ❌ متلمسش أرقام TRYSHOPPY_CATEGORY_BASE فوق عشان كده — دي
+// التكلفة الأساسية الحقيقية، مش معامل ضرب.
+const TRYSHOPPY_CATEGORY_ADJUSTMENT = {
+  "Clothes (Regular)": 1, "Jacket or BALTO": 1, "Electronics": 1, "Shoes (Regular)": 1,
+  "Food": 1, "Sunglasses": 1, "Shoes (Boot)": 1, "Watches": 1, "Accessories": 1,
+  "Cosmetics": 1, "CarParts": 1, "Vitamin or Supplements": 1, "Shampoo or Conditioner": 1,
+  "Small Size Hand bag (women)": 1, "Back bag (or Lap bag)": 1, "Large Size Hand bag (women)": 1, "Stationary": 1
+};
+
+// 🛡️ حماية من غلطة كتابة بسيطة (رقم فيه حرف بالغلط، فاصلة زيادة،
+// خانة اتمسحت بالغلط...) — من غيرها أي قيمة مش رقمية هتتحول
+// لـ NaN، وده هيوقّف كل أسعار الموقع فورًا من غير أي رسالة خطأ
+// واضحة (كل حاسبة هتعرض "EGP NaN" للعميل). الدالة دي بترجع 1
+// (يعني بلاش تعديل) تلقائيًا لو القيمة مش رقم صالح وموجب.
+function tryShoppySafeAdjustment_(value, label) {
+  const num = parseFloat(value);
+  if (!isFinite(num) || num <= 0) {
+    console.warn("⚠️ TRY SHOPPY: قيمة معامل غير صالحة في " + label + " (" + value + ") — استخدمنا 1 بدلها لحماية الأسعار من التوقف.");
+    return 1;
+  }
+  return num;
+}
 
 // جدول: نطاقات وزن الجميز (Gummies) حسب عدد الحبات
 const TRYSHOPPY_GUMMIES_RANGES = [
@@ -81,6 +134,12 @@ function tryShoppyCalculatePrice({ usd, category, weightGrams, quantity = 1 }) {
 
   const catBase = TRYSHOPPY_CATEGORY_BASE[category] || 0;
   const weightRate = TRYSHOPPY_WEIGHT_RATES[category] || 0;
+  // لو الفئة مش موجودة في جدول المعاملات أو قيمتها undefined، بتاخد
+  // 1 تلقائيًا (يعني من غير أي تعديل) — نفس منطق catBase/weightRate فوق
+  const rawCategoryAdj = TRYSHOPPY_CATEGORY_ADJUSTMENT[category] !== undefined ? TRYSHOPPY_CATEGORY_ADJUSTMENT[category] : 1;
+  const categoryAdj = tryShoppySafeAdjustment_(rawCategoryAdj, "TRYSHOPPY_CATEGORY_ADJUSTMENT[\"" + category + "\"]");
+  const globalAdj = tryShoppySafeAdjustment_(TRYSHOPPY_GLOBAL_ADJUSTMENT, "TRYSHOPPY_GLOBAL_ADJUSTMENT");
+  const totalAdj = globalAdj * categoryAdj;
 
   const basicPrice = (base + catBase + extra) * mult;
   let weightPrice = basicPrice;
@@ -89,9 +148,16 @@ function tryShoppyCalculatePrice({ usd, category, weightGrams, quantity = 1 }) {
     weightPrice = base + catBase + extra + (weightGrams / 1000 * weightRate * 55);
   }
 
-  const finalPrice = tryShoppyRoundSmart(Math.max(basicPrice, weightPrice) * quantity);
+  // 🎛️ المعاملين بيتطبقوا هنا بس — على أعلى سعر بين الحسبتين (basic
+  // vs weight) وبعد ضرب الكمية، قبل التقريب مباشرة. القيم المرجّعة
+  // تحت (basicPrice/weightPrice) بترجع بعد التعديل كمان عشان أي
+  // مكان تاني في الموقع بيعرض تفاصيل الحساب يبقى متطابق مع السعر
+  // النهائي الظاهر للعميل، مش قيم قديمة قبل التعديل.
+  const adjustedBasic = basicPrice * totalAdj;
+  const adjustedWeight = weightPrice * totalAdj;
+  const finalPrice = tryShoppyRoundSmart(Math.max(adjustedBasic, adjustedWeight) * quantity);
 
-  return { finalPrice, basicPrice, weightPrice };
+  return { finalPrice, basicPrice: adjustedBasic, weightPrice: adjustedWeight };
 }
 
 // ملاحظة: الملف ده متحمّل بـ <script src="function_calc.js"></script> عادي
