@@ -80,6 +80,9 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{
 #refreshBtn.spinning{animation:spin .8s linear infinite;}
 .notif-badge:not(.hidden){animation:pulseBadge 2s ease-in-out infinite;}
 @keyframes pulseBadge{0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,.35);} 50%{box-shadow:0 0 0 6px rgba(220,38,38,0);}}
+#paymentsBtn{background:var(--warning);color:#fff;font-weight:900;animation:pulseGold 2.2s ease-in-out infinite;}
+#paymentsBtn:hover{opacity:.9;}
+@keyframes pulseGold{0%,100%{box-shadow:0 0 0 0 rgba(217,119,6,.45);} 50%{box-shadow:0 0 0 7px rgba(217,119,6,0);}}
 
 /* موبايل: مساحات أضيق ومريحة أكتر بدل ما تتزنق */
 @media(max-width:480px){
@@ -99,6 +102,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{
 @media(prefers-reduced-motion:reduce){
   button,.product-link-btn,.product-card{transition:none;}
   .notif-badge:not(.hidden){animation:none;}
+  #paymentsBtn{animation:none;}
 }
 </style>
 </head>
@@ -148,7 +152,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{
       <span id="lastRefreshLbl" style="font-size:11px;color:var(--gray);"></span>
       <button id="refreshBtn" class="btn-ghost" onclick="manualRefresh(this)" title="تحديث القائمة" style="padding:8px 12px;">🔄</button>
       <button class="btn-ghost" onclick="exportCSV()" title="تصدير طلباتي كـ CSV" style="padding:8px 12px;">📊</button>
-      <button class="btn-ghost" onclick="openPaymentsModal()" title="دفعات الوصول" style="padding:8px 12px;">💰 دفعات</button>
+      <button id="paymentsBtn" class="btn-ghost" onclick="openPaymentsModal()" title="دفعات الوصول" style="padding:8px 12px;">💰 دفعات</button>
     </div>
     <div id="notifBadge" class="notif-badge hidden" style="cursor:pointer;" onclick="jumpToNeedsReview()" title="اضغط للانتقال للمنتجات المحتاجة ردك"></div>
   </div>
@@ -181,11 +185,15 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{
 </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyrKWDx_U1-qAn1QlzbwDOWz7VUSlyFqmS9OrwjADLDegnoxht_BYpjjxgEYhXDh5eA/exec"; // ⚠️ حط هنا رابط RMA_Vitamins_Code.gs بعد النشر
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzu7m7lEOZc_s9dXN9RuYGz41uWziWM2KMXf2GcunZM6QMdsBLpo-p-dEpoHJgL4dr83Q/exec"; // ⚠️ حط هنا رابط RMA_Vitamins_Code.gs بعد النشر
 
 // رقم واتساب الأدمن — نفس رقم TS_CONFIG.SUPPORT_PHONE بتاع الموقع
 // الرئيسي (بصيغة دولية من غير + أو صفر). غيّره هنا لو الرقم اتغيّر
 const ADMIN_WHATSAPP = "201005609642";
+// رقم واتساب مخصص لإشعارات "التأكيد" بس (بعد ما العميل يوافق على
+// منتجات) — مختلف عن ADMIN_WHATSAPP اللي لسه مستخدم لإشعارات
+// "طلب التسعير" (بعد إرسال السلة للفريق) زي ما هو
+const CONFIRM_WHATSAPP = "13022521911";
 
 // ⚠️ لازم يتعرّف قبل initSession() تحت — أول مرة اتحطت في آخر
 // الملف بالغلط وده كسر التحميل كله (TDZ error لأنها متعرّفة بـlet
@@ -786,7 +794,7 @@ function showOrderSentModal(count){
 function showConfirmDoneModal(){
   const count = confirmedThisSessionCount;
   const msg = encodeURIComponent(`مرحبًا 👋، أكّدت ${count} منتج على RAMA، تمام كده؟ 🙏`);
-  const waLink = `https://wa.me/${ADMIN_WHATSAPP}?text=${msg}`;
+  const waLink = `https://wa.me/${CONFIRM_WHATSAPP}?text=${msg}`;
   showModal(`
     <div style="font-size:2.2rem;margin-bottom:8px;">🎉</div>
     <h3 style="margin-bottom:8px;">أكّدت ${count} منتج!</h3>
