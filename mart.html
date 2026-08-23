@@ -179,9 +179,9 @@
 
 <div class="container">
   <div class="tab-row" id="tabRow">
-    <button class="active" data-tab="highdemand" data-i18n="mart_tab_highdemand">High Demand</button>
+    <button data-tab="highdemand" data-i18n="mart_tab_highdemand">High Demand</button>
     <button data-tab="outlet" data-i18n="mart_tab_outlet">Outlet</button>
-    <button data-tab="all" data-i18n="mart_tab_all">All Items</button>
+    <button class="active" data-tab="all" data-i18n="mart_tab_all">All Items</button>
   </div>
   <div class="filter-row" id="filterRow"></div>
   <div class="mart-grid" id="martGrid"></div>
@@ -307,7 +307,7 @@ const SECTION_META={
 };
 
 function pid(id){return MART_PRODUCTS.find(p=>String(p.id)===String(id));}
-let curTab='highdemand';   // 'highdemand' | 'outlet' | 'all'
+let curTab='all';   // 'highdemand' | 'outlet' | 'all' — الافتراضي بقى "All Items"
 let curCategory='all';     // 'all' or one of CATEGORY_ORDER
 
 function showState(msgKey,emoji,detail){
