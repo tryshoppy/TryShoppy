@@ -156,6 +156,8 @@ const I18N = {
   adm_label_highdemand_hint: { en: "Automatically tagged \"Brand New\" — no manual choice needed for High Demand products.", ar: "بيتحط عليه تلقائيًا ليبل \"جديد\" — مفيش اختيار يدوي مطلوب لمنتجات القسم ده." },
   adm_expiry:          { en: "Expiry date (optional — for supplements, hair products, etc.)", ar: "تاريخ الصلاحية (اختياري — للمكملات ومنتجات الشعر وغيرها)" },
   adm_expiry_hint:     { en: "Leave empty if not applicable — it will simply not be shown on the product card.", ar: "سيبها فاضية لو مش مناسبة للمنتج — مش هتظهر في كارت المنتج خالص." },
+  adm_restock_date:     { en: "Expected restock date (optional)", ar: "تاريخ التوفر المتوقع (اختياري)" },
+  adm_restock_hint:     { en: "Only shown to customers when Stock is 0. Leave empty to just show a generic \"Restocking soon\" message instead.", ar: "بتظهر للعملاء بس لما الكمية = 0. سيبها فاضية عشان تظهر رسالة عامة \"هيتوفر قريبًا\" بدلها." },
 
   /* ── mandatory email verification on register ── */
   lbl_email_req:      { en: "Email", ar: "الإيميل" },
@@ -216,6 +218,14 @@ const I18N = {
   mart_tab_all:          { en: "All Items", ar: "كل المنتجات" },
   mart_cat_all:          { en: "All categories", ar: "كل الفئات" },
   mart_expiry_note:      { en: "Best before", ar: "الصلاحية حتى" },
+
+  // ---------- mart: 2-day delivery banner ----------
+  mart_delivery_badge:    { en: "2-Day Delivery", ar: "توصيل خلال يومين" },
+  mart_delivery_sub:      { en: "Already cleared and in Egypt — no customs wait", ar: "مخلّصة جمركيًا وموجودة في مصر بالفعل — بدون انتظار جمارك" },
+
+  // ---------- mart: back in stock ----------
+  mart_back_in_stock:     { en: "Back in stock", ar: "متوفر تاني في" },
+  mart_restocking_soon:   { en: "Restocking soon", ar: "هيتوفر قريبًا" },
 
   // ---------- mart: categories ----------
   cat_accessories_toys: { en: "Accessories & Toys", ar: "الاكسسوارات والألعاب" },
