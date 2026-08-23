@@ -179,10 +179,17 @@
         </select>
         <div class="hint" data-i18n="adm_label_highdemand_hint" id="labelAutoHint" style="display:none">Automatically tagged "Brand New" — no manual choice needed for High Demand products.</div>
       </div>
+    </div>
+    <div class="row2">
       <div class="field">
         <label data-i18n="adm_expiry">Expiry date (optional — for supplements, hair products, etc.)</label>
         <input id="fExpiry" type="date">
         <div class="hint" data-i18n="adm_expiry_hint">Leave empty if not applicable — it will simply not be shown on the product card.</div>
+      </div>
+      <div class="field">
+        <label data-i18n="adm_restock_date">Expected restock date (optional)</label>
+        <input id="fRestockDate" type="date">
+        <div class="hint" data-i18n="adm_restock_hint">Only shown to customers when Stock is 0. Leave empty to just show a generic "Restocking soon" message instead.</div>
       </div>
     </div>
     <div class="row2">
@@ -360,7 +367,10 @@ function renderList(){
     const _fi=String(p.image||'').split('|')[0].trim();const imgHtml=_fi?'<img src="'+_fi+'" alt="" loading="lazy" onerror="this.parentElement.innerHTML=\'<span class=&quot;ph&quot;>🛍️</span>\'">':'<span class="ph">🛍️</span>';
     const oldHtml=p.oldPrice&&p.oldPrice>p.price?' <span class="pr-old">'+parseFloat(p.oldPrice).toLocaleString()+'</span>':'';
     const expiryHtml=p.expiryDate?' <span class="mono" style="font-size:10.5px;color:var(--err)">⏳ '+p.expiryDate+'</span>':'';
-    return '<div class="card prod-row"><div class="prod-img">'+imgHtml+'</div><div class="pr-info"><div class="pr-name">'+(p.nameEn||'—')+(p.active===false?' <span class="badge gray" data-i18n="adm_hidden_badge">Hidden</span>':'')+'</div><div class="pr-name-ar">'+(p.nameAr||'')+'</div><div class="pr-meta"><span class="badge '+sec.cls+'">'+(TS_LANG==='ar'?sec.ar:sec.en)+'</span><span class="badge gray">'+(TS_LANG==='ar'?cat.ar:cat.en)+'</span><span class="badge '+lbl.cls+'">'+(TS_LANG==='ar'?lbl.ar:lbl.en)+'</span><span class="pr-price">'+parseFloat(p.price||0).toLocaleString()+' EGP'+oldHtml+'</span><span'+(stock<=2?' class="pr-stock-low"':'')+'>📦 '+stock+'</span>'+expiryHtml+'<span class="mono" style="font-size:10.5px;color:var(--ink-3)">'+p.id+'</span></div></div><div class="pr-actions"><button class="btn btn-secondary btn-sm" onclick="editProduct(\''+p.id+'\')" data-i18n="adm_edit">Edit</button><button class="btn btn-danger btn-sm" onclick="deleteProduct(\''+p.id+'\',this)" data-i18n="adm_delete">Delete</button></div></div>';
+    // ده بس بادج مرجعي للأدمن نفسه — بيظهر بغض النظر عن الكمية عشان
+    // الأدمن يقدر يحضّر التاريخ مقدمًا حتى قبل ما المنتج يخلص فعليًا
+    const restockHtml=p.restockDate?' <span class="mono" style="font-size:10.5px;color:var(--inf)">📅 '+p.restockDate+'</span>':'';
+    return '<div class="card prod-row"><div class="prod-img">'+imgHtml+'</div><div class="pr-info"><div class="pr-name">'+(p.nameEn||'—')+(p.active===false?' <span class="badge gray" data-i18n="adm_hidden_badge">Hidden</span>':'')+'</div><div class="pr-name-ar">'+(p.nameAr||'')+'</div><div class="pr-meta"><span class="badge '+sec.cls+'">'+(TS_LANG==='ar'?sec.ar:sec.en)+'</span><span class="badge gray">'+(TS_LANG==='ar'?cat.ar:cat.en)+'</span><span class="badge '+lbl.cls+'">'+(TS_LANG==='ar'?lbl.ar:lbl.en)+'</span><span class="pr-price">'+parseFloat(p.price||0).toLocaleString()+' EGP'+oldHtml+'</span><span'+(stock<=2?' class="pr-stock-low"':'')+'>📦 '+stock+'</span>'+expiryHtml+restockHtml+'<span class="mono" style="font-size:10.5px;color:var(--ink-3)">'+p.id+'</span></div></div><div class="pr-actions"><button class="btn btn-secondary btn-sm" onclick="editProduct(\''+p.id+'\')" data-i18n="adm_edit">Edit</button><button class="btn btn-danger btn-sm" onclick="deleteProduct(\''+p.id+'\',this)" data-i18n="adm_delete">Delete</button></div></div>';
   }).join('');
   applyI18N();
 }
@@ -457,6 +467,7 @@ document.getElementById('addBtn').addEventListener('click',()=>{
   document.getElementById('fCategory').value='other';
   document.getElementById('fLabel').value='open_box';
   document.getElementById('fExpiry').value='';
+  document.getElementById('fRestockDate').value='';
   onSectionChange();
   document.getElementById('fPrice').value='';
   document.getElementById('fOldPrice').value='';
@@ -480,6 +491,7 @@ function editProduct(id){
   document.getElementById('fCategory').value=p.category||'other';
   document.getElementById('fLabel').value=p.label||'open_box';
   document.getElementById('fExpiry').value=p.expiryDate||'';
+  document.getElementById('fRestockDate').value=p.restockDate||'';
   onSectionChange();
   document.getElementById('fPrice').value=p.price||'';
   document.getElementById('fOldPrice').value=p.oldPrice||'';
@@ -510,6 +522,7 @@ document.getElementById('saveBtn').addEventListener('click',function(){
     descEn:document.getElementById('fDescEn').value.trim(),
     descAr:document.getElementById('fDescAr').value.trim(),
     expiryDate:document.getElementById('fExpiry').value||'',
+    restockDate:document.getElementById('fRestockDate').value||'',
     active:document.getElementById('fActive').checked
   };
   const btn=this;tsSetBtnLoading(btn, tsT('common_saving'));

@@ -10,6 +10,17 @@
 .mart-hero{padding:56px 0 26px;text-align:center;background:radial-gradient(ellipse 620px 340px at 50% -60px,var(--gold-pale) 0%,transparent 68%)}
 .mart-hero h1{font-size:2.15rem;margin:12px 0 9px;font-weight:900;letter-spacing:-.02em}
 .mart-hero p{max-width:520px;margin:0 auto;color:var(--ink-2);font-size:.96rem}
+
+/* ── 2-day delivery banner: highlighted, sits right under the Mart
+   description — the whole point is that Mart items are already
+   cleared and in Egypt, so this is the single biggest differentiator
+   vs a regular order, and it needs to visually pop ── */
+.mart-delivery-banner{display:inline-flex;align-items:center;gap:12px;margin:20px auto 0;padding:12px 22px;border-radius:var(--pill);background:linear-gradient(100deg,var(--gold) 0%,var(--gold-light) 100%);box-shadow:var(--sh-gold);max-width:100%}
+.mart-delivery-banner .mdb-icon{font-size:1.5rem;flex-shrink:0}
+.mart-delivery-banner .mdb-text{display:flex;flex-direction:column;align-items:flex-start;text-align:start;line-height:1.35}
+.mart-delivery-banner .mdb-text strong{font-size:14.5px;font-weight:900;color:var(--ink)}
+.mart-delivery-banner .mdb-text span{font-size:11.5px;font-weight:600;color:rgba(34,28,19,.75)}
+@media(max-width:480px){.mart-delivery-banner{padding:10px 16px;gap:9px}.mart-delivery-banner .mdb-text strong{font-size:13px}.mart-delivery-banner .mdb-text span{font-size:10.5px}}
 .filter-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:0 0 34px}
 .filter-row button{font-family:var(--f);font-size:13px;font-weight:700;border-radius:var(--pill);padding:9px 19px;background:var(--white);cursor:pointer;color:var(--ink-2);box-shadow:var(--sh-1);border:1.5px solid var(--sand);transition:.15s}
 .filter-row button.active{background:var(--ink);color:var(--gold-light);border-color:var(--ink)}
@@ -72,6 +83,9 @@
 .pcard-old{font-family:var(--fm);font-size:.75rem;color:var(--ink-3);text-decoration:line-through}
 .pcard-stock{font-size:11.5px;color:var(--err);font-weight:700;margin-bottom:10px;min-height:1.2em}
 .pcard-stock.ok{color:var(--ok)}
+/* لما فيه تاريخ توفر متوقع، اللون بيبقى معلوماتي (أزرق) بدل التحذيري
+   (أحمر) العادي — عشان يوضح للعميل إن ده مش نهائي، هيتوفر تاني */
+.pcard-restock{color:var(--inf)!important}
 .pcard-body .btn{font-size:13px;padding:10px 14px}
 .state-msg{grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--ink-2)}
 .state-msg .big{font-size:2.4rem;margin-bottom:12px}
@@ -153,6 +167,13 @@
     <span class="eyebrow" style="justify-content:center;display:flex" data-i18n="mart_page_eyebrow">ALREADY IN EGYPT</span>
     <h1 data-i18n="mart_page_title">Try Shoppy Mart</h1>
     <p data-i18n="mart_page_sub">A wide range of our most-requested products, ready to ship at competitive prices — plus a selection of discounted items and Try Shoppy returns or undelivered orders, currently available for delivery.</p>
+    <div class="mart-delivery-banner">
+      <span class="mdb-icon">🚚</span>
+      <div class="mdb-text">
+        <strong data-i18n="mart_delivery_badge">2-Day Delivery</strong>
+        <span data-i18n="mart_delivery_sub">Already cleared and in Egypt — no customs wait</span>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -425,8 +446,13 @@ function renderMart(){
     const tag=TS_LANG==='ar'?lbl.ar:lbl.en;
     const name=TS_LANG==='ar'?(p.nameAr||p.nameEn):(p.nameEn||p.nameAr);
     const out=p.stock<=0;
+    // لو المنتج خلص وفيه تاريخ توفر متوقع متسجل، نوريه بدل رسالة
+    // "Out of stock" العادية — لو خلص من غير تاريخ، رسالة عامة
+    // "هيتوفر قريبًا" بدل ما نسيب العميل من غير أي معلومة خالص
     const stockLine=out
-      ? '<span data-i18n="mart_out_of_stock">Out of stock</span>'
+      ? (p.restockDate
+          ? '<span class="pcard-restock">📅 '+tsT('mart_back_in_stock')+': '+p.restockDate+'</span>'
+          : '<span data-i18n="mart_restocking_soon">Restocking soon</span>')
       : p.stock+' '+tsT('mart_only_left');
     const oldHtml=p.oldPrice&&p.oldPrice>p.price?'<span class="pcard-old">'+p.oldPrice.toLocaleString()+'</span>':'';
     const desc=TS_LANG==='ar'?(p.descAr||p.descEn):(p.descEn||p.descAr);
