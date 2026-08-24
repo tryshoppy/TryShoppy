@@ -673,26 +673,48 @@ async function confirmOrder() {
   const orders = [];
 
   try {
-    const results = await Promise.all(cartWithOrders.map(({item,orderNo}, idx) => {
+    // 🐛→✅ كان بيبعت كل منتجات السلة مع بعض بالتوازي (Promise.all)،
+    // وده بيسبب فقد بعض الطلبات بصمت لما تتصادم كتابتين في نفس
+    // اللحظة على شيت Orders (شوف الشرح الكامل في Orders_Code.gs،
+    // ونفس الإصلاح اللي اتعمل في QuickOrder.html). دلوقتي بيبعتوا
+    // واحد ورا التاني بالتتابع، وبنتابع كل منتج لوحده عشان لو حصل
+    // فشل جزئي نعرف بالظبط أنهي منتج فشل ونسيبه في السلة بس.
+    const succeeded = [], failed = [];
+    for (let idx = 0; idx < cartWithOrders.length; idx++) {
+      const { item, orderNo } = cartWithOrders[idx];
       orders.push({ orderNo, item });
       const dimensions = "Size: " + (item.size||'-') + " | Color: " + (item.color||'-') + " | Notes: " + (item.notes||'-');
-      return fetch(ORDER_SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify({
-          order: orderNo, customerName: name, phone, email, country, address, governorate,
-          link: item.link, quantity: item.qty, usd: item.usdTotal, weight: item.weight,
-          dimensions, category: item.category, finalPrice: item.finalEGP, user,
-          suppressEmail: idx > 0,
-          emailSummary: idx === 0 ? emailSummary : '',
-          cartTotal: idx === 0 ? cartTotal : undefined
-        })
-      }).then(res => res.text());
-    }));
+      try {
+        const res = await fetch(ORDER_SCRIPT_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            order: orderNo, customerName: name, phone, email, country, address, governorate,
+            link: item.link, quantity: item.qty, usd: item.usdTotal, weight: item.weight,
+            dimensions, category: item.category, finalPrice: item.finalEGP, user,
+            suppressEmail: idx > 0,
+            emailSummary: idx === 0 ? emailSummary : '',
+            cartTotal: idx === 0 ? cartTotal : undefined
+          })
+        });
+        const text = await res.text();
+        if (text && text.indexOf("Order Saved") !== -1) { succeeded.push({ orderNo, item }); }
+        else { failed.push({ orderNo, item, reason: text }); }
+      } catch (e) {
+        failed.push({ orderNo, item, reason: "Network error" });
+      }
+    }
 
     tsClearBtnLoading(btn);
-    // السكريبت بيرجع "Order Saved" لكل طلب ناجح
-    if (results.some(t => !(t && t.indexOf("Order Saved") !== -1))) {
-      alert("⚠️ بعض المنتجات فشلت تتسجل. راجع الشيت للتأكد قبل ما تبلغ العميل.\n" + results.join("\n"));
+
+    if (failed.length) {
+      // منتجات فشلت بس هي اللي بتفضل في السلة — اللي نجح بيتشال
+      succeeded.forEach(s => tsRemoveFromDirectCart(s.item.tempId));
+      renderCart();
+      alert(
+        "⚠️ " + succeeded.length + " من " + cartWithOrders.length + " طلبات اتسجلت بنجاح.\n" +
+        "الطلبات دي فشلت وفضلت في السلة عشان تعيد المحاولة:\n" +
+        failed.map(f => "• " + f.orderNo + (f.item.link ? " — " + f.item.link : "")).join("\n")
+      );
       return;
     }
 
@@ -702,7 +724,7 @@ async function confirmOrder() {
     showStep('success');
   } catch (err) {
     tsClearBtnLoading(btn);
-    alert("❌ تعذر الاتصال بالسيرفر — الطلبات مش اتسجلت. تأكد من الإنترنت وحاول تاني.");
+    alert("❌ تعذر الاتصال بالسيرفر — راجع الشيت للتأكد قبل ما تبلغ العميل، وحاول تاني لو محتاج.");
   }
 }
 

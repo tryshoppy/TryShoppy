@@ -540,20 +540,35 @@ document.getElementById('placeOrderBtn').addEventListener('click',async function
   const emailSummary=cart.map(item=>((item.name&&item.name.en)||'')+' x'+item.qty+' — '+(item.price*item.qty).toLocaleString()+' EGP').join('\n');
 
   try{
-    // ⚠️ لازم ننتظر نتيجة كل الطلبات فعليًا قبل ما نعتبر العملية
-    // نجحت — قبل كده كان بيمسح السلة ويوري "نجح" حتى لو الشبكة
-    // فشلت والطلب مترجعش يتسجل خالص
-    const results = await Promise.all(cart.map(item=>{
+    // 🐛→✅ كان بيبعت كل منتجات السلة مع بعض بالتوازي (Promise.all)،
+    // وده بيسبب فقد بعض الطلبات بصمت لما تتصادم كتابتين في نفس
+    // اللحظة على شيت Orders (شوف الشرح الكامل في Orders_Code.gs).
+    // دلوقتي بيبعتوا واحد ورا التاني بالتتابع، وبنتابع كل منتج لوحده
+    // عشان لو حصل فشل جزئي نعرف بالظبط أنهي منتج فشل ونسيبه في
+    // السلة بس، مش نلغي الطلب كله من الصفر.
+    const succeeded=[], failed=[];
+    for(let idx=0; idx<cart.length; idx++){
+      const item=cart[idx];
       const o=tsGenerateMartOrderNumber();
-      const idx=orders.length;
       orders.push({orderNo:o,item});
-      return tsSubmitOrderRow({order:o,customerName:name,phone,email,country:"Try Shoppy Mart",address:addr,governorate:gov,link:'',quantity:item.qty,usd:'',weight:'',dimensions:(item.name&&item.name.en)||'',category:'Mart - '+item.cat,finalPrice:item.price*item.qty,status:'Pending Review',
-        suppressEmail:idx>0,                                  // إيميل واحد فقط للطلب كله
-        emailSummary:idx===0?emailSummary:'',
-        cartTotal:idx===0?tsCartSubtotal():undefined})        // ✅ إجمالي السلة الحقيقي، منفصل عن finalPrice بتاع الصف الأول بس
-        .then(res=>res.text());
-    }));
-    if(results.some(t=>t.indexOf('Error')!==-1)) throw new Error('order-save-failed');
+      try{
+        const text = await tsSubmitOrderRow({order:o,customerName:name,phone,email,country:"Try Shoppy Mart",address:addr,governorate:gov,link:'',quantity:item.qty,usd:'',weight:'',dimensions:(item.name&&item.name.en)||'',category:'Mart - '+item.cat,finalPrice:item.price*item.qty,status:'Pending Review',
+          suppressEmail:idx>0,                                  // إيميل واحد فقط للطلب كله
+          emailSummary:idx===0?emailSummary:'',
+          cartTotal:idx===0?tsCartSubtotal():undefined})        // ✅ إجمالي السلة الحقيقي، منفصل عن finalPrice بتاع الصف الأول بس
+          .then(res=>res.text());
+        if(text.indexOf('Error')!==-1){ failed.push(item); } else { succeeded.push({orderNo:o,item}); }
+      }catch(e){ failed.push(item); }
+    }
+    if(failed.length){
+      // منتجات فشلت بس هي اللي بتفضل في السلة — اللي نجح بيتشال
+      const failedIds=new Set(failed.map(i=>i.id));
+      cart.forEach(item=>{ if(!failedIds.has(item.id)) tsUpdateCartQty(item.id,0); });
+      renderCartItems();
+      tsClearBtnLoading(btn);
+      tsToast(succeeded.length+' من '+cart.length+' اتسجلوا، والباقي فضل في السلة — جرب "Place Order" تاني');
+      return;
+    }
 
     lastSummary={name,phone,gov,addr,orders,total:tsCartSubtotal()};
     document.getElementById('successEmailNote').classList.toggle('hidden',!email);
@@ -561,7 +576,11 @@ document.getElementById('placeOrderBtn').addEventListener('click',async function
 
     /* 📉 تقليل المخزون فعليًا في شيت المارت لكل منتج اتباع —
        وتحديث الأرقام في الذاكرة فورًا عشان لو العميل ضغط
-       "Continue Shopping" يشوف الكمية الجديدة من غير ما يعمل Refresh */
+       "Continue Shopping" يشوف الكمية الجديدة من غير ما يعمل Refresh
+       (ده نداءات لـ MartProducts_Code.gs، سكريبت منفصل تمامًا عن
+       Orders_Code.gs — التوازي هنا آمن لأنها منتجات مختلفة/صفوف
+       مختلفة عادةً، لكن لو نفس المنتج اتباع في نفس اللحظة من عميل
+       تاني كمان، ده يحتاج قفل في decrementStock نفسها لو حصل معاك) */
     cart.forEach(item=>{
       tsDecrementMartStock(item.id,item.qty).then(res=>{
         if(res&&res.success){

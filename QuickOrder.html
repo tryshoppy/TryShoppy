@@ -439,7 +439,6 @@ function checkoutAll(){
   const email = document.getElementById("customerEmail").value.trim();
   const btn = document.getElementById("checkoutBtn");
   btn.disabled = true;
-  btn.innerHTML = 'جاري التسجيل... <span class="spinner"></span>';
 
   // ⚠️ بقى بيمشي بنفس مبدأ DirectOrder.html بالظبط: من غير action
   // ومن غير staffToken في نفس طلب الحفظ (مسار "NEW ORDER" العام في
@@ -457,53 +456,89 @@ function checkoutAll(){
     [orderNo, item.link || "", label, item.qty, item.totalEgp].join("::")
   ).join("\n");
   const cartTotal = tsQuickCartTotal();
-  const orders = [];
 
-  Promise.all(cartWithOrders.map(({item, orderNo}, idx) => {
-    orders.push({ orderNo, item });
-    return fetch(scriptURL, {
-      method: "POST",
-      body: JSON.stringify({
-        order: orderNo,
-        customerName: c.customerName,
-        phone: c.phone,
-        email: email,
-        country: c.country,
-        address: c.address,
-        governorate: c.governorate,
-        link: item.link,
-        quantity: item.qty,
-        usd: item.totalUsd,
-        weight: c.weight,
-        dimensions: item.dimensions,
-        category: c.category,
-        finalPrice: item.totalEgp,
-        user: getCurrentUser(),
-        // 🔇 كل منتج بعد الأول ميبعتش إيميل مستقل — الملخص المجمّع
-        // بيتبعت مرة واحدة بس مع أول منتج في الدفعة
-        suppressEmail: idx > 0,
-        emailSummary: idx === 0 ? emailSummary : "",
-        cartTotal: idx === 0 ? cartTotal : undefined
-      })
-    }).then(res => res.text());
-  })).then(results => {
+  // 🐛→✅ الإصلاح الأساسي: كنا بنبعت كل طلبات السلة مع بعض بـ
+  // Promise.all (خمس نداءات fetch في نفس اللحظة بالظبط). Orders_Code.gs
+  // بيعمل mainSheet.appendRow() من غير أي LockService حواليها — لما
+  // كذا نداء متزامن يوصلوا لنفس الشيت في نفس اللحظة، بعضهم بيضيع
+  // (نفس المشكلة اللي queueNotification() في نفس السكريبت اتعملها
+  // LockService عشانها فعلاً، بس المسار ده مكنش متوقع يتنادى بالتوازي
+  // قبل QuickOrder). الحل: نبعت الطلبات **واحد ورا التاني بالتتابع**
+  // (await جوه for-loop)، مش كلهم مع بعض — كده كل appendRow بيخلص
+  // قبل ما اللي بعده يبدأ، ومفيش أي احتمال تصادم خالص.
+  (async () => {
+    const succeeded = [];
+    const failed = [];
+
+    for (let idx = 0; idx < cartWithOrders.length; idx++) {
+      const { item, orderNo } = cartWithOrders[idx];
+      btn.innerHTML = 'جاري تسجيل الطلب ' + (idx + 1) + ' من ' + cartWithOrders.length + '... <span class="spinner"></span>';
+      try {
+        const res = await fetch(scriptURL, {
+          method: "POST",
+          body: JSON.stringify({
+            order: orderNo,
+            customerName: c.customerName,
+            phone: c.phone,
+            email: email,
+            country: c.country,
+            address: c.address,
+            governorate: c.governorate,
+            link: item.link,
+            quantity: item.qty,
+            usd: item.totalUsd,
+            weight: c.weight,
+            dimensions: item.dimensions,
+            category: c.category,
+            finalPrice: item.totalEgp,
+            user: getCurrentUser(),
+            // 🔇 كل منتج بعد الأول ميبعتش إيميل مستقل — الملخص المجمّع
+            // بيتبعت مرة واحدة بس مع أول منتج في الدفعة
+            suppressEmail: idx > 0,
+            emailSummary: idx === 0 ? emailSummary : "",
+            cartTotal: idx === 0 ? cartTotal : undefined
+          })
+        });
+        const text = await res.text();
+        // ⚠️ المسار ده بيرجع "Order Saved" مش "Success" (مسار مختلف
+        // عن duplicateOrder اللي كان بيرجع "Success")
+        if (text && text.indexOf("Order Saved") !== -1) {
+          succeeded.push({ orderNo, item, tempId: item.tempId });
+        } else {
+          failed.push({ orderNo, item, tempId: item.tempId, reason: text });
+        }
+      } catch (err) {
+        failed.push({ orderNo, item, tempId: item.tempId, reason: "Network error" });
+      }
+    }
+
     btn.disabled = false;
     btn.innerHTML = "✅ إتمام كل الطلبات";
 
-    // ⚠️ المسار ده بيرجع "Order Saved" مش "Success" (مسار مختلف
-    // عن duplicateOrder اللي كان بيرجع "Success")
-    if (results.some(t => !(t && t.indexOf("Order Saved") !== -1))) {
-      alert("⚠️ بعض المنتجات فشلت تتسجل. راجع الشيت للتأكد قبل ما تبلغ العميل.\n" + results.join("\n"));
+    if (failed.length) {
+      // 🛡️ منتجات فشلت فقط هي اللي بتتسيب في السلة عشان تقدر تعيد
+      // المحاولة عليها بس — اللي نجح فعلاً بيتشال من السلة عادي، عشان
+      // ميتكررش لو دُست الزرار تاني بالغلط
+      const remaining = succeeded.length
+        ? tsGetQuickCart().filter(i => failed.some(f => f.tempId === i.tempId))
+        : tsGetQuickCart();
+      tsSaveQuickCart(remaining);
+      renderCart();
+      alert(
+        "⚠️ " + succeeded.length + " من " + cartWithOrders.length + " طلبات اتسجلت بنجاح.\n" +
+        "الطلبات دي فشلت وفضلت في السلة عشان تعيد المحاولة:\n" +
+        failed.map(f => "• " + f.orderNo + (f.item.link ? " — " + f.item.link : "")).join("\n")
+      );
       return;
     }
 
-    lastOrders = orders;
+    lastOrders = succeeded.map(s => ({ orderNo: s.orderNo, item: s.item }));
     tsClearQuickCart();
     showStep('success');
-  }).catch(() => {
+  })().catch(() => {
     btn.disabled = false;
     btn.innerHTML = "✅ إتمام كل الطلبات";
-    alert("❌ تعذر الاتصال بالسيرفر — الطلبات مش اتسجلت. تأكد من الإنترنت وحاول تاني.");
+    alert("❌ تعذر الاتصال بالسيرفر — راجع الشيت للتأكد قبل ما تبلغ العميل، وحاول تاني لو محتاج.");
   });
 }
 

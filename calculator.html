@@ -560,25 +560,41 @@ async function confirmOrder(){
   const orders=[];
 
   try{
-    // ⚠️ بننتظر نتيجة كل المنتجات فعليًا قبل ما نعتبر العملية نجحت —
-    // نفس المبدأ اللي طبقناه في mart.html، عشان محدش يفتكر إن طلبه
-    // اتسجل وهو فعليًا فشل يتسجل لأي سبب شبكة
-    const results = await Promise.all(cartWithOrders.map(({item,orderNo}, idx)=>{
+    // 🐛→✅ كان بيبعت كل منتجات السلة مع بعض بالتوازي (Promise.all)،
+    // وده بيسبب فقد بعض الطلبات بصمت لما تتصادم كتابتين في نفس
+    // اللحظة على شيت Orders (شوف الشرح الكامل في Orders_Code.gs).
+    // دلوقتي بيبعتوا واحد ورا التاني بالتتابع، وبنتابع كل منتج لوحده
+    // عشان لو حصل فشل جزئي نعرف بالظبط أنهي منتج فشل ونسيبه في
+    // السلة بس، مش نلغي الطلب كله من الصفر.
+    const succeeded=[], failed=[];
+    for(let idx=0; idx<cartWithOrders.length; idx++){
+      const {item, orderNo}=cartWithOrders[idx];
       orders.push({orderNo, item});
       const packageDims = item.dimLength && item.dimWidth && item.dimHeight
         ? item.dimLength+' × '+item.dimWidth+' × '+item.dimHeight+' cm'
         : '-';
       const dimensions='Package: '+packageDims+' | Size: '+(item.size||'-')+' | Color: '+(item.color||'-')+' | Notes: '+(item.notes||'-');
-      return tsSubmitOrderRow({
-        order:orderNo, customerName:name, phone, email, country, address, governorate,
-        link:item.link, quantity:item.qty, usd:(item.usd*item.qty), weight:item.weightGrams,
-        dimensions, category:item.category, finalPrice:item.finalPrice,
-        suppressEmail: idx>0,                         // إيميل واحد بس للطلب كله
-        emailSummary: idx===0 ? emailSummary : '',
-        cartTotal: idx===0 ? cartTotal : undefined      // إجمالي السلة الحقيقي
-      }).then(res=>res.text());
-    }));
-    if(results.some(t=>t.indexOf('Error')!==-1)) throw new Error('order-save-failed');
+      try{
+        const text = await tsSubmitOrderRow({
+          order:orderNo, customerName:name, phone, email, country, address, governorate,
+          link:item.link, quantity:item.qty, usd:(item.usd*item.qty), weight:item.weightGrams,
+          dimensions, category:item.category, finalPrice:item.finalPrice,
+          suppressEmail: idx>0,                         // إيميل واحد بس للطلب كله
+          emailSummary: idx===0 ? emailSummary : '',
+          cartTotal: idx===0 ? cartTotal : undefined      // إجمالي السلة الحقيقي
+        }).then(res=>res.text());
+        if(text.indexOf('Error')!==-1){ failed.push(item); } else { succeeded.push({orderNo,item}); }
+      }catch(e){ failed.push(item); }
+    }
+    if(failed.length){
+      // منتجات فشلت بس هي اللي بتفضل في السلة — اللي نجح بيتشال
+      succeeded.forEach(s=>tsRemoveFromCalcCart(s.item.tempId));
+      renderCart();
+      renderCalcCartBadge();
+      tsClearBtnLoading(btn);
+      alert(succeeded.length+' من '+cartWithOrders.length+' اتسجلوا، والباقي فضل في السلة — جرب تأكيد الطلب تاني');
+      return;
+    }
 
     lastOrders=orders;
     document.getElementById('successEmailNote').classList.toggle('hidden', !email);
