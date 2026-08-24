@@ -150,7 +150,11 @@ function renderByOrder(d){
 function buildStepper(status){
   const idx=STAGES.findIndex(s=>s.key===status);
   let h='<div class="stepper">';
-  STAGES.forEach((s,i)=>{let cls='step',dot='';if(idx!==-1){if(i<idx){cls+=' done';dot='✓';}else if(i===idx)cls+=' active';}const p=TS_LANG==='ar'?s.ar:s.en,q=TS_LANG==='ar'?s.en:s.ar;h+='<div class="'+cls+'"><div class="step-dot">'+dot+'</div><div class="step-label">'+p+'</div><div class="step-sub">'+q+'</div></div>';});
+  // ✓ بتظهر دلوقتي جنب الخطوة الحالية (active) كمان، مش بس اللي
+  // خلصت (done) — العميل عايز يشوف علامة واضحة على مكانه الحالي،
+  // مش بس دايرة لونها مختلف. اللون لسه بيفرّق بينهم (أخضر=خلصت،
+  // غامق بحلقة دهبي=دلوقتي)، بس الشكل بقى موحّد.
+  STAGES.forEach((s,i)=>{let cls='step',dot='';if(idx!==-1){if(i<idx){cls+=' done';dot='✓';}else if(i===idx){cls+=' active';dot='✓';}}const p=TS_LANG==='ar'?s.ar:s.en,q=TS_LANG==='ar'?s.en:s.ar;h+='<div class="'+cls+'"><div class="step-dot">'+dot+'</div><div class="step-label">'+p+'</div><div class="step-sub">'+q+'</div></div>';});
   return h+'</div>';
 }
 tsInitNav();
