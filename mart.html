@@ -94,6 +94,12 @@ src="https://www.facebook.com/tr?id=1562757605584870&ev=PageView&noscript=1"
 .lb-price{font-family:var(--fm);font-weight:700;font-size:1rem;margin-top:7px}
 .lb-price .old{font-size:.75rem;color:var(--ink-3);text-decoration:line-through;margin-inline-start:7px;font-weight:400}
 .pcard-tag{position:absolute;top:10px;inset-inline-start:10px;z-index:2}
+
+/* 🆕 توهيج مؤقت للمنتج اللي جاي من رابط مباشر (?product=ID) —
+   حلقة دهبية بتنبض مرتين وتخفت، عشان تلفت النظر من غير ما تبقى
+   مزعجة أو تفضل للأبد */
+.pcard-highlight{animation:pcardPulse 1.3s ease-out 2}
+@keyframes pcardPulse{0%{box-shadow:0 0 0 0 rgba(245,184,32,.65)}70%{box-shadow:0 0 0 14px rgba(245,184,32,0)}100%{box-shadow:0 0 0 0 rgba(245,184,32,0)}}
 .pcard-body{padding:15px 16px 16px;display:flex;flex-direction:column;flex:1}
 .pcard-name{font-weight:700;font-size:13.5px;line-height:1.35;min-height:2.6em;color:var(--ink)}
 .pcard-price{display:flex;align-items:baseline;gap:7px;margin:7px 0 4px;margin-top:auto}
@@ -487,7 +493,7 @@ function renderMart(){
     const expiryHtml=p.expiryDate
       ? '<div class="pcard-expiry">⏳ '+tsT('mart_expiry_note')+': '+p.expiryDate+'</div>'
       : '';
-    return '<div class="card pcard lift"><div class="prod-img"><span class="badge '+lbl.cls+' pcard-tag">'+tag+'</span>'+prodImgHtml(p)+'</div><div class="pcard-body"><div class="pcard-name">'+name+'</div>'+taglineHtml+expiryHtml+descHtml+'<div class="pcard-price"><span class="pcard-now">'+p.price.toLocaleString()+' EGP</span>'+oldHtml+'</div><div class="pcard-stock'+(out?'':' ')+'">'+stockLine+'</div><button class="btn btn-primary btn-block" onclick="handleAdd(\''+p.id+'\')" '+(out?'disabled':'')+' data-i18n="mart_add_to_cart">Add to Cart</button></div></div>';
+    return '<div class="card pcard lift" data-product-id="'+p.id+'"><div class="prod-img"><span class="badge '+lbl.cls+' pcard-tag">'+tag+'</span>'+prodImgHtml(p)+'</div><div class="pcard-body"><div class="pcard-name">'+name+'</div>'+taglineHtml+expiryHtml+descHtml+'<div class="pcard-price"><span class="pcard-now">'+p.price.toLocaleString()+' EGP</span>'+oldHtml+'</div><div class="pcard-stock'+(out?'':' ')+'">'+stockLine+'</div><button class="btn btn-primary btn-block" onclick="handleAdd(\''+p.id+'\')" '+(out?'disabled':'')+' data-i18n="mart_add_to_cart">Add to Cart</button></div></div>';
   }).join('');
   applyI18N();
 }
@@ -498,9 +504,44 @@ function loadProducts(){
     MART_PRODUCTS=(products||[]).map(p=>({...p,price:parseFloat(p.price)||0,oldPrice:parseFloat(p.oldPrice)||0,stock:parseInt(p.stock)||0}));
     renderCategoryChips();
     renderMart();
+    openProductFromUrl();
   }).catch(err=>{showState('mart_load_error','⚠️', err && err.message ? err.message : '');});
 }
 loadProducts();
+
+// 🆕 دعم روابط منتج مباشرة: mart.html?product=TSM-XXXX — مستخدم في
+// فييد فيسبوك (كل منتج في كاتالوج الإعلانات ليه رابط خاص بيه) وأي
+// مكان تاني حابب تشير فيه لمنتج بعينه (واتساب، بايو إنستجرام...).
+// بيحوّل تلقائيًا لتاب "All Items" وفلتر "كل الفئات" عشان يضمن إن
+// المنتج هيبان أيًّا كان قسمه أو فئته، وبعدين يعمل Scroll + توهيج
+// بسيط عشان العين توديك عليه على طول وسط باقي المنتجات.
+function openProductFromUrl(){
+  const params=new URLSearchParams(location.search);
+  const wantedId=params.get('product');
+  if(!wantedId) return;
+  const wanted=MART_PRODUCTS.find(p=>String(p.id)===String(wantedId));
+  if(!wanted) return; // منتج اتشال أو الرابط غلط — نسيب الصفحة عادي من غير كسر حاجة
+
+  // 📊 Meta Pixel — ViewContent. ده الحدث اللي كان ناقص وسبب تحذير
+  // "Products aren't matching ad events" في Commerce Manager. لازم
+  // نبعته بالظبط هنا — لما حد يوصل لمنتج بعينه من رابط مباشر (غالبًا
+  // جاي من إعلان كاتالوج نفسه)، عشان فيسبوك يتأكد إن الـ content_id
+  // اللي بيتبعت من الـ Pixel فعلًا موجود في نفس الكاتالوج
+  if(typeof fbq!=='undefined') fbq('track','ViewContent',{content_ids:[wanted.id],content_name:wanted.nameEn,content_type:'product',value:wanted.price,currency:'EGP'});
+
+  curTab='all'; curCategory='all';
+  document.querySelectorAll('#tabRow button').forEach(b=>b.classList.toggle('active', b.dataset.tab==='all'));
+  renderCategoryChips();
+  renderMart();
+
+  setTimeout(()=>{
+    const card=document.querySelector('[data-product-id="'+CSS.escape(String(wantedId))+'"]');
+    if(!card) return;
+    card.scrollIntoView({behavior:'smooth', block:'center'});
+    card.classList.add('pcard-highlight');
+    setTimeout(()=>card.classList.remove('pcard-highlight'), 2600);
+  }, 60); // فريم واحد كفاية عشان الـ DOM يتحدث بعد renderMart قبل ما ندوّر على الكارت
+}
 
 document.querySelectorAll('#tabRow button').forEach(btn=>{
   btn.addEventListener('click',()=>{
