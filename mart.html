@@ -4,6 +4,25 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Try Shoppy Mart — Outlet &amp; Discounted Finds</title>
+
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1562757605584870');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1562757605584870&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
+
 <link rel="icon" href="assets/logo.png">
 <link rel="stylesheet" href="assets/style.css">
 <style>
@@ -497,6 +516,11 @@ document.addEventListener('ts-lang-changed',()=>{renderCategoryChips();renderMar
 function handleAdd(id){
   const p=pid(id);if(!p||p.stock<=0)return;
   tsAddToCart({id:p.id,name:{en:p.nameEn,ar:p.nameAr},price:p.price,cat:p.category});
+  // 📊 Meta Pixel — بدون الحدث ده، البيكسل بيعرف بس إن حد زار
+  // الصفحة (PageView)، مش إنه فعلًا مهتم بمنتج بعينه. ده أهم إشارة
+  // لأي حملة إعلانات "Add to Cart retargeting" أو تحسين لأشخاص
+  // شبه اللي بيضيفوا للسلة فعلًا (Lookalike Audience)
+  if(typeof fbq!=='undefined') fbq('track','AddToCart',{content_ids:[p.id],content_name:p.nameEn,content_type:'product',value:p.price,currency:'EGP'});
   tsToast(tsT('mart_added_toast'));openCart();
 }
 
@@ -573,6 +597,14 @@ document.getElementById('placeOrderBtn').addEventListener('click',async function
     lastSummary={name,phone,gov,addr,orders,total:tsCartSubtotal()};
     document.getElementById('successEmailNote').classList.toggle('hidden',!email);
     document.getElementById('successOrderNos').textContent=orders.map(o=>o.orderNo).join(' · ');
+
+    // 📊 Meta Pixel — أهم حدث في القمع كله. من غيره، فيسبوك بيحسّن
+    // الحملات على "زيارات" بس، مش على "طلبات فعلية" — يعني ميزانيتك
+    // الإعلانية بتتوجه لناس شبه اللي بيزوروا الموقع، مش شبه اللي
+    // بيشتروا فعلًا. لازم يتبعت هنا بس (بعد تأكيد نجاح الحفظ في
+    // الشيت)، مش لحظة الضغط على الزرار، عشان محدش يتحسب "عميل"
+    // وهو فعليًا طلبه فشل يتسجل.
+    if(typeof fbq!=='undefined') fbq('track','Purchase',{value:tsCartSubtotal(),currency:'EGP',content_ids:orders.map(o=>o.item.id),content_type:'product',num_items:orders.length});
 
     /* 📉 تقليل المخزون فعليًا في شيت المارت لكل منتج اتباع —
        وتحديث الأرقام في الذاكرة فورًا عشان لو العميل ضغط
