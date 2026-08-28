@@ -329,6 +329,11 @@ const I18N = {
   calc_country_other:  { en: "Other Countries", ar: "دول أخرى" },
   calc_country_msg:    { en: "Sorry, we only serve orders from USA currently.", ar: "نعتذر، حالياً نوفر الطلبات من أمريكا فقط." },
   calc_price_label:    { en: "Total Price in USD *", ar: "السعر شامل شحن الموقع ($) *" },
+  // 🆕 مفتاح منفصل لـ calculator.html بس — الصفحة دي فيها حقل كمية،
+  // والكود بيضرب السعر × الكمية، فلازم العميل يفهم إنه يكتب سعر
+  // القطعة الواحدة مش الإجمالي (نفس صياغة DirectOrder.html بالظبط).
+  // calculatorOP.html بتفضل على calc_price_label لأنها مفيهاش كمية أصلاً.
+  calc_unit_price_label: { en: "Price per item in USD (incl. store shipping) *", ar: "سعر القطعة الواحدة شامل شحن الموقع ($) *" },
   calc_weight_label:   { en: "Weight (g) *", ar: "الوزن (جرام) *" },
   calc_weight_ph:      { en: "e.g. 500", ar: "مثلاً: 500" },
   calc_category_label: { en: "Category *", ar: "الفئة *" },
