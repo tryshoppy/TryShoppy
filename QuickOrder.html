@@ -112,11 +112,21 @@ button:hover{ opacity:.9; }
 </div>
 
 <div class="input-group">
-  <label>رقم التليفون</label>
-  <input type="text" id="phone" placeholder="01xxxxxxxxx">
+  <label>اسم العميل أو رقم التليفون</label>
+  <input type="text" id="customerSearch" placeholder="اكتب رقم التليفون أو جزء من الاسم" onkeydown="if(event.key==='Enter')searchCustomer()">
 </div>
 
-<button onclick="searchCustomer()">بحث عن العميل</button>
+<button onclick="searchCustomer()">🔍 بحث عن العميل</button>
+
+<!-- 🆕 نتايج البحث بالاسم — بتظهر بس لو فيه أكتر من عميل واحد بنفس
+     الاسم (أو اسم قريب)، عشان الموظف يتأكد من رقم الهاتف الصح قبل
+     ما يختار، بدل ما نفترض إحنا مين العميل المقصود ونغلط بينهم -->
+<div id="nameMatchesBox" style="display:none;margin-top:10px">
+  <div style="background:#fff7ed;border:1.5px solid #fb923c;color:#9a3412;padding:10px 14px;border-radius:10px;font-weight:800;font-size:13px;margin-bottom:8px">
+    ⚠️ فيه أكتر من عميل بنفس الاسم — تأكد من رقم التليفون الصح قبل ما تختار
+  </div>
+  <div id="nameMatchesList"></div>
+</div>
 
 <div id="customerBox" class="customer-box">
   <div id="customerName"></div>
@@ -306,8 +316,28 @@ function normalizePhone(phone) {
 }
 
 function searchCustomer() {
-  const phone = normalizePhone(document.getElementById("phone").value);
-  if (!phone) return alert("ادخل رقم التليفون");
+  const raw = (document.getElementById("customerSearch").value || "").trim();
+  if (!raw) return alert("اكتب رقم التليفون أو اسم العميل");
+
+  document.getElementById("nameMatchesBox").style.display = "none"; // نقفل أي ليستة اختيار قديمة من بحث سابق
+
+  // 🆕 خانة واحدة للاتنين — نحدد تلقائيًا هل ده رقم تليفون ولا اسم:
+  // لو 60% على الأقل من الحروف المكتوبة أرقام، نعتبره رقم تليفون
+  // ونبحث بالمطابقة التامة زي الأول. غير كده، نعتبره اسم ونبحث
+  // بالاحتواء الجزئي (contains) بين كل العملاء.
+  const digitsOnly = raw.replace(/\D/g, "");
+  const looksLikePhone = raw.length > 0 && (digitsOnly.length / raw.replace(/\s/g, "").length) >= 0.6 && digitsOnly.length >= 6;
+
+  if (looksLikePhone) {
+    searchByPhone(digitsOnly);
+  } else {
+    searchByName(raw);
+  }
+}
+
+function searchByPhone(rawDigits) {
+  const phone = normalizePhone(rawDigits);
+  if (!phone) return alert("رقم التليفون غير صحيح");
 
   // ⚠️ لو السلة فيها منتجات لعميل تاني، لازم تأكيد قبل ما نغيّر
   // العميل الحالي — عشان مايحصلش خلط بين طلبات عميلين في نفس السلة
@@ -326,7 +356,71 @@ function searchCustomer() {
     return alert("العميل غير موجود");
   }
 
-  selectedCustomer = found;
+  applySelectedCustomer(found);
+}
+
+// 🆕 بحث بالاسم — بيدوّر جزئيًا (contains، من غير حساسية لحالة
+// الحروف) وسط كل الطلبات، وبعدين بيجمّع العملاء الفريدين (بالموبايل
+// كمفتاح، عشان نفس العميل ممكن يبقى ليه كذا طلب/صف). لو لقى أكتر من
+// عميل مختلف بنفس الاسم أو اسم قريب، بيوقف ويوري تحذير + ليستة
+// اختيار بدل ما يفترض هو مين المقصود ويغلط.
+function searchByName(rawName) {
+  const q = rawName.trim().toLowerCase();
+  if (!q) return alert("اكتب اسم العميل أو جزء منه");
+
+  document.getElementById("customerBox").style.display = "none";
+  selectedCustomer = null;
+
+  const matches = ordersData.filter(o => String(o.customerName || "").toLowerCase().includes(q));
+  if (!matches.length) return alert("مفيش عميل بالاسم ده — جرب رقم التليفون بدل كده");
+
+  // تجميع بالموبايل — نفس العميل ممكن يظهر في أكتر من صف طلب
+  const byPhone = new Map();
+  matches.forEach(o => {
+    const key = normalizePhone(o.phone);
+    if (!byPhone.has(key)) byPhone.set(key, o);
+  });
+  const unique = [...byPhone.values()];
+
+  if (unique.length === 1) {
+    // عميل واحد بس مطابق — نختاره على طول (بنفس حماية "السلة فيها عميل تاني")
+    if (tsGetQuickCart().length && selectedCustomer && normalizePhone(selectedCustomer.phone) !== normalizePhone(unique[0].phone)) {
+      if (!confirm("السلة فيها منتجات لعميل تاني. لو غيّرت العميل دلوقتي، السلة هتتصفّر. تكمل؟")) return;
+      tsClearQuickCart();
+      renderCart();
+      showStep('product');
+    }
+    applySelectedCustomer(unique[0]);
+    return;
+  }
+
+  // أكتر من عميل مختلف بنفس الاسم — نوقف ونوري تحذير + ليستة اختيار
+  const box = document.getElementById("nameMatchesBox");
+  const list = document.getElementById("nameMatchesList");
+  list.innerHTML = unique.map(o => `
+    <div onclick="pickNameMatch('${String(o.phone).replace(/'/g, "\\'")}')"
+         style="background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:.15s"
+         onmouseover="this.style.borderColor='#6366f1'" onmouseout="this.style.borderColor='#e2e8f0'">
+      <div style="font-weight:800;font-size:14px">👤 ${o.customerName || "-"}</div>
+      <div style="font-size:13px;color:#475569;margin-top:3px">📞 ${o.phone || "-"}</div>
+      <div style="font-size:12.5px;color:#94a3b8;margin-top:2px">📍 ${o.address || "-"}</div>
+    </div>
+  `).join("");
+  box.style.display = "block";
+}
+
+// لما الموظف يدوس على عميل من ليستة الاختيار
+function pickNameMatch(phone) {
+  document.getElementById("nameMatchesBox").style.display = "none";
+  searchByPhone(phone);
+}
+
+// 🆕 نقطة واحدة مشتركة لتفعيل العميل المختار (سواء جاي من بحث
+// تليفون مباشر، أو بحث اسم اتحل لعميل واحد، أو اختيار من ليستة) —
+// عشان مفيش تكرار كود بين المسارات التلاتة
+function applySelectedCustomer(customer) {
+  selectedCustomer = customer;
+  document.getElementById("customerSearch").value = customer.phone; // نوري رقمه في الخانة تأكيدًا
   document.getElementById("customerBox").style.display = "block";
   document.getElementById("customerName").innerText = "👤 " + (selectedCustomer.customerName || "-");
   document.getElementById("customerAddress").innerText = "📍 " + (selectedCustomer.address || "-");
@@ -426,7 +520,8 @@ function backToAddItem(){ showStep('product'); }
 function startNewCart(){
   selectedCustomer = null;
   document.getElementById("customerBox").style.display = "none";
-  document.getElementById("phone").value = "";
+  document.getElementById("nameMatchesBox").style.display = "none";
+  document.getElementById("customerSearch").value = "";
   document.getElementById("customerEmail").value = "";
   showStep('product');
 }
