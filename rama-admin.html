@@ -340,9 +340,6 @@ function renderNotifBadge(){
 function renderStats(items, paymentsTotal, statusF){
   paymentsTotal = paymentsTotal || 0;
   const totalFinal = items.reduce((s,p)=> s + (parseFloat(p.finalEgp)||0), 0);
-  // 💰 المدفوع والمتبقي بقوا بيشملوا دفعات موعد الوصول المسجّلة
-  // كمان، مش بس عربون كل منتج لوحده
-  const totalPaid = items.reduce((s,p)=> s + (parseFloat(p.deposit)||0), 0) + paymentsTotal;
   // ⚠️ المتبقي بيتحسب مباشرة من finalEgp-deposit هنا، مش من عمود
   // "remaining" المخزّن في الشيت — لو حصل أي عدم تطابق تاريخي بين
   // القيمتين (صفوف قديمة اتلمست بطرق مختلفة قبل توحيد الحساب)،
@@ -355,14 +352,18 @@ function renderStats(items, paymentsTotal, statusF){
   const confirmedCount = items.filter(p=>["Confirmed","Placed","Delayed","Delivered"].includes(p.status)).length;
   const deliveredCount = items.filter(p=>p.status==="Delivered").length;
 
-  // 💡 القيمة/المدفوع/المتبقي بترجع مبالغ مضلّلة لو اتجمعت على كل
-  // الحالات مع بعض (منتجات لسه معلّقة قيمتها صفر بتتخلط مع منتجات
-  // مؤكدة) — بتظهر بس لو فيه فلتر حالة محدد فعليًا، مش "كل الحالات"
+  // 💡 القيمة/المتبقي بترجع مبالغ مضلّلة لو اتجمعت على كل الحالات
+  // مع بعض (منتجات لسه معلّقة قيمتها صفر بتتخلط مع منتجات مؤكدة)
+  // — بتظهر بس لو فيه فلتر حالة محدد فعليًا، مش "كل الحالات"
   const showMoney = !!statusF;
+  // 🆕 "إجمالي القيمة" تحديدًا بيتخفى لما الفلتر يكون "Delivered"
+  // بالظبط — في الحالة دي المتبقي غالبًا صفر فمفيش داعي نكرر نفس
+  // الرقم في كارتين. "إجمالي المدفوع" اتشال خالص من هنا ومن صفحة
+  // العميل، مش محتاجينه كإحصائية منفصلة دلوقتي
+  const showTotalValue = statusF !== "Delivered";
   const moneyBoxes = showMoney ? `
     <div class="stat-box"><div class="num">$${totalUsd.toLocaleString()}</div><div class="lbl">💵 إجمالي الدولار (USD)</div></div>
-    <div class="stat-box"><div class="num">${totalFinal.toLocaleString()}</div><div class="lbl">💰 إجمالي القيمة (EGP)</div></div>
-    <div class="stat-box"><div class="num" style="color:var(--success)">${totalPaid.toLocaleString()}</div><div class="lbl">🧾 إجمالي المدفوع (EGP)</div></div>
+    ${showTotalValue ? `<div class="stat-box"><div class="num">${totalFinal.toLocaleString()}</div><div class="lbl">💰 إجمالي القيمة (EGP)</div></div>` : ""}
     <div class="stat-box"><div class="num" style="color:var(--danger)">${totalRemaining.toLocaleString()}</div><div class="lbl">⏳ المتبقي تحصيله (EGP)</div></div>
   ` : "";
 

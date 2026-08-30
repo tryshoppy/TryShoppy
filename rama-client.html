@@ -515,9 +515,6 @@ function renderStats(items, paymentsTotal, statusF){
   paymentsTotal = paymentsTotal || 0;
   const confirmedLike = items.filter(p => ["Confirmed","Placed","Delayed","Delivered"].includes(p.status));
   const totalFinal = confirmedLike.reduce((s,p)=> s + (parseFloat(p.finalEgp)||0), 0);
-  // 💰 المدفوع والمتبقي بقوا بيشملوا دفعات موعد الوصول اللي سجّلها
-  // الفريق، مش بس عربون كل منتج لوحده
-  const totalPaid = confirmedLike.reduce((s,p)=> s + (parseFloat(p.deposit)||0), 0) + paymentsTotal;
   // ⚠️ المتبقي بيتحسب مباشرة من finalEgp-deposit، مش من عمود
   // "remaining" المخزّن، عشان الإجمالي = المدفوع + المتبقي يفضل
   // متطابق رياضيًا حتى لو حصل عدم تطابق تاريخي في البيانات
@@ -525,12 +522,14 @@ function renderStats(items, paymentsTotal, statusF){
   const totalQty = items.reduce((s,p)=> s + (parseInt(p.quantity)||1), 0);
   const deliveredCount = items.filter(p=>p.status==="Delivered").length;
 
-  // 💡 القيمة/المدفوع/المتبقي بتظهر بس لو فيه فلتر حالة محدد
-  // فعليًا، مش وإنت شايف كل الحالات مع بعض
+  // 💡 القيمة/المتبقي بتظهر بس لو فيه فلتر حالة محدد فعليًا، مش
+  // وإنت شايف كل الحالات مع بعض
   const showMoney = !!statusF;
+  // 🆕 "إجمالي القيمة" بيتخفى تحديدًا لما الفلتر يكون "Delivered"
+  // بالظبط. "إجمالي المدفوع" اتشال خالص، مش محتاجينه هنا
+  const showTotalValue = statusF !== "Delivered";
   const moneyBoxes = showMoney ? `
-    <div class="stat-box"><div class="num">${totalFinal.toLocaleString()}</div><div class="lbl">💰 إجمالي القيمة (EGP)</div></div>
-    <div class="stat-box"><div class="num" style="color:var(--success)">${totalPaid.toLocaleString()}</div><div class="lbl">🧾 إجمالي المدفوع (EGP)</div></div>
+    ${showTotalValue ? `<div class="stat-box"><div class="num">${totalFinal.toLocaleString()}</div><div class="lbl">💰 إجمالي القيمة (EGP)</div></div>` : ""}
     <div class="stat-box"><div class="num" style="color:var(--danger)">${totalRemaining.toLocaleString()}</div><div class="lbl">⏳ المتبقي عليك (EGP)</div></div>
   ` : "";
 
