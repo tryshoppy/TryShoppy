@@ -1,1029 +1,381 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRY SHOPPY - Pro Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <style>
-
-        :root {
-            /* Modern Color Palette */
-            --primary: #4753d6;
-            --primary-hover: #3c47c2;
-            --primary-soft: #eef0fd;
-            --ink: #1c2333;
-            --bg: #f6f7fa;
-            --surface: #ffffff;
-            --surface-glass: rgba(255, 255, 255, 0.9);
-            --text-main: #2a3145;
-            --text-muted: #626a80;
-            --text-faint: #9aa1b3;
-            --border: #e7e9f0;
-            --border-hover: #d5d9e6;
-            
-            /* Status Colors */
-            --success: #10b981;
-            --success-soft: #d1fae5;
-            --danger: #ef4444;
-            --danger-soft: #fee2e2;
-            --warning: #f59e0b;
-            --warning-soft: #fef3c7;
-            --gold: #fbbf24;
-            
-            /* Shadows & Radius */
-            --shadow-xs: 0 1px 2px rgba(28, 35, 51, 0.04);
-            --shadow-sm: 0 2px 8px -2px rgba(28, 35, 51, 0.05), 0 1px 3px -1px rgba(28, 35, 51, 0.03);
-            --shadow-md: 0 8px 20px -4px rgba(28, 35, 51, 0.07), 0 3px 6px -2px rgba(28, 35, 51, 0.03);
-            --shadow-hover: 0 14px 30px -8px rgba(28, 35, 51, 0.1), 0 6px 10px -4px rgba(28, 35, 51, 0.04);
-            --radius-md: 12px;
-            --radius-lg: 18px;
-            --radius-xl: 26px;
-        }
-
-        .ic { width:1.2em; height:1.2em; display:inline-block; vertical-align:-0.2em; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
-
-        body { 
-            font-family: 'Cairo', sans-serif; 
-            background-color: var(--bg); 
-            margin: 0; 
-            padding: 0; 
-            color: var(--text-main); 
-            -webkit-font-smoothing: antialiased;
-            overflow-x: hidden;
-        }
-
-        /* ====== Scrollbar Customization ====== */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-
-        /* ====== Header Styles ====== */
-        header { 
-            background: var(--surface-glass); 
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            padding: 18px 5%; 
-            box-shadow: var(--shadow-sm); 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .brand-mark { display: flex; align-items: center; gap: 14px; }
-        .brand-logo {
-            width: 44px; height: 44px; border-radius: 12px;
-            background: linear-gradient(135deg, var(--ink) 0%, #334155 100%);
-            display: flex; align-items: center; justify-content: center;
-            color: var(--gold); font-weight: 900; font-size: 1.2rem; flex-shrink: 0;
-            box-shadow: var(--shadow-sm);
-        }
-        .brand-text h1 { margin: 0; font-size: 1.2rem; color: var(--ink); font-weight: 900; line-height: 1.2; letter-spacing: -0.5px; }
-        .brand-text span { font-size: 0.75rem; color: var(--primary); font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; }
-
-        .btn-logout {
-            background: var(--surface);
-            color: var(--danger);
-            border: 1px solid var(--danger-soft);
-            padding: 10px 20px;
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            font-weight: 700;
-            font-family: 'Cairo';
-            font-size: 0.9rem;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex; align-items: center; gap: 8px;
-            box-shadow: var(--shadow-xs);
-        }
-        .btn-logout:hover { background: var(--danger); color: white; border-color: var(--danger); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); }
-
-        .container { max-width: 1400px; margin: 32px auto; padding: 0 20px; } 
-        
-        /* ====== Stats Grid ====== */
-        .stats-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); 
-            gap: 18px; 
-            margin-bottom: 28px; 
-        }
-        .stat-card { 
-            background: var(--surface); 
-            padding: 22px 24px; 
-            border-radius: var(--radius-lg); 
-            box-shadow: none; 
-            border: 1px solid var(--border);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            align-items: center;
-            gap: 18px;
-            position: relative;
-            overflow: hidden;
-        }
-        .stat-card::after {
-            content: ''; position: absolute; top: 0; right: 0; width: 4px; height: 100%;
-            background: transparent; transition: background 0.3s;
-        }
-        .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-sm); border-color: var(--border-hover); }
-        .stat-card:hover::after { background: var(--primary); }
-        
-        .stat-icon {
-            width: 54px; height: 54px; border-radius: 14px; flex-shrink: 0;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem;
-        }
-        .stat-body { flex: 1; }
-        .stat-body h3 { margin: 0 0 6px 0; font-size: 0.8rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;}
-        .stat-card .value { font-size: 1.6rem; font-weight: 900; color: var(--ink); line-height: 1; }
-        
-        .stat-icon.c-primary { background: var(--primary-soft); color: var(--primary); }
-        .stat-icon.c-success { background: var(--success-soft); color: var(--success); }
-        .stat-icon.c-warning { background: var(--warning-soft); color: var(--warning); }
-        .stat-icon.c-slate    { background: #f1f5f9; color: #475569; }
-        .stat-icon.c-gold     { background: #fef3c7; color: #d97706; }
-        .stat-icon.c-pink     { background: #fdf2f8; color: #db2777; }
-
-        /* ====== Control Panel ====== */
-        .control-panel {
-            background: var(--surface);
-            border-radius: var(--radius-lg);
-            box-shadow: none;
-            padding: 26px 28px;
-            margin-bottom: 28px;
-            border: 1px solid var(--border);
-        }
-
-        .controls-row {
-            display: flex;
-            gap: 14px 20px;
-            flex-wrap: wrap;
-            align-items: center;
-            margin-bottom: 22px;
-            padding-bottom: 22px;
-            border-bottom: 1px solid var(--border);
-        }
-        .controls-row:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
-        
-        .row-label {
-            display: flex; align-items: center; gap: 8px;
-            font-size: 0.8rem; font-weight: 800; color: var(--text-muted);
-            width: 100%; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.4px;
-        }
-
-        .input-group { display: flex; gap: 12px; flex: 1; min-width: 280px; flex-wrap: wrap; }
-        
-        input, select { 
-            padding: 13px 16px; 
-            border: 1.5px solid var(--border); 
-            border-radius: var(--radius-md); 
-            font-family: 'Cairo'; 
-            font-size: 0.95rem;
-            outline: none;
-            transition: all 0.2s ease;
-            background: #fafbfc;
-            color: var(--ink);
-            font-weight: 600;
-            flex: 1;
-            min-width: 140px;
-            line-height: 1.3;
-        }
-        input:focus, select:focus { 
-            border-color: var(--primary); 
-            background: #ffffff; 
-            box-shadow: 0 0 0 4px var(--primary-soft); 
-        }
-        input::placeholder { color: var(--text-faint); font-weight: 500; }
-        
-        button { font-family: 'Cairo'; font-weight: 800; cursor: pointer; border: none; transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; }
-        
-        .btn-search { background: var(--primary); color: white; padding: 12px 28px; border-radius: var(--radius-md); font-size: 0.95rem; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2); }
-        .btn-search:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(79, 70, 229, 0.3); }
-
-        .btn-action { background: var(--ink); color: white; padding: 12px 24px; border-radius: var(--radius-md); font-size: 0.95rem; }
-        .btn-action.active { background: var(--gold); color: var(--ink); }
-        .btn-action:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2); }
-
-        .btn-soft { background: var(--surface); color: var(--ink); padding: 12px 20px; border-radius: var(--radius-md); font-size: 0.95rem; border: 1.5px solid var(--border); }
-        .btn-soft:hover { border-color: var(--border-hover); background: #f8fafc; transform: translateY(-2px); }
-        .btn-soft.c-purple { color: #6d28d9; border-color: #ede9fe; background: #f5f3ff;}
-        .btn-soft.c-purple:hover { border-color: #ddd6fe; background: #ede9fe; }
-        .btn-soft.c-green { color: var(--success); border-color: var(--success-soft); background: #f0fdf4;}
-        .btn-soft.c-green:hover { border-color: #a7f3d0; background: var(--success-soft); }
-
-        .btn-reset { background: #f1f5f9; color: var(--text-muted); padding: 12px 20px; border-radius: var(--radius-md); border: 1.5px solid var(--border); font-size: 0.95rem; }
-        .btn-reset:hover { background: var(--danger-soft); color: var(--danger); border-color: #fecaca; transform: translateY(-2px); }
-
-        /* ====== شارة عدد التحديد ====== */
-        .selection-badge {
-            display: inline-flex; align-items: center; padding: 0 16px; border-radius: var(--radius-md);
-            font-size: 0.85rem; font-weight: 800; background: #f1f5f9; color: var(--text-faint);
-            border: 1.5px solid var(--border); white-space: nowrap; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .selection-badge.active { background: var(--primary-soft); color: var(--primary); border-color: #c7d2fe; }
-        .btn-action:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
-        .btn-action:disabled:hover { opacity: 0.4; transform: none; box-shadow: none; }
-
-        /* ====== Table Re-design (Floating Rows) ====== */
-        .table-wrapper { 
-            background: transparent; 
-            box-shadow: none; 
-            border: none;
-            overflow-x: auto;
-            max-height: 75vh; 
-            padding-bottom: 40px;
-            position: relative;
-        }
-        table { 
-            width: 100%; 
-            min-width: 1240px; /* Ensure table doesn't squash on mobile */
-            table-layout: fixed;        
-            border-collapse: separate; 
-            border-spacing: 0 10px; /* Floating cards effect */
-            text-align: right; 
-        }
-        
-        th { 
-            background: var(--bg); 
-            padding: 14px 16px;         
-            color: var(--text-muted); 
-            font-size: 0.78rem; 
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            border-bottom: 2px solid var(--border);
-            white-space: nowrap;
-        }
-        
-        td { 
-            padding: 18px 16px;         
-            font-size: 0.92rem; 
-            vertical-align: middle; 
-            color: var(--ink);
-            background: var(--surface);
-            border-top: 1px solid var(--border);
-            border-bottom: 1px solid var(--border);
-            transition: background 0.15s ease;
-        }
-        
-        tr td:first-child { 
-            border-right: 1px solid var(--border); 
-            border-top-right-radius: var(--radius-md); 
-            border-bottom-right-radius: var(--radius-md); 
-        }
-        tr td:last-child { 
-            border-left: 1px solid var(--border); 
-            border-top-left-radius: var(--radius-md); 
-            border-bottom-left-radius: var(--radius-md); 
-        }
-
-        tr:hover td { 
-            background: #f9f9fc; 
-            border-color: var(--primary-soft);
-        }
-        tr:hover td:first-child, tr:hover td:last-child { border-color: var(--primary-soft); }
-        tr:hover td:first-child { box-shadow: 4px 4px 20px rgba(79, 70, 229, 0.05); }
-
-        /* --- Table Inputs --- */
-        .price-input { 
-            width: 100%; 
-            padding: 10px; 
-            border: 1.5px solid var(--border); 
-            border-radius: 8px; 
-            background: #f8fafc; 
-            font-weight: 800; 
-            text-align: center; 
-            color: var(--ink);
-            font-size: 0.9rem;
-            min-width: 0;
-        }
-        .price-input:focus { background: #ffffff; }
-        .deposit-input { color: var(--danger); background: var(--danger-soft); border-color: #fecaca; }
-        
-        .amounts-cell { display: flex; flex-direction: column; gap: 8px; }
-        .amounts-row { display: flex; align-items: center; gap: 8px; }
-        .amounts-row .amt-lbl { font-size: 0.75rem; color: var(--text-muted); font-weight: 800; width: 45px; flex-shrink: 0; }
-        
-        .actions-cell { display: flex; align-items: center; justify-content: center; gap: 8px; }
-
-        /* Badges */
-        .spec-badge { 
-            background: var(--primary-soft); 
-            color: var(--primary); 
-            padding: 6px 12px; 
-            border-radius: 8px; 
-            font-size: 0.78rem; 
-            font-weight: 800; 
-            display: inline-block; 
-            margin: 2px 4px 2px 0; 
-        }
-        
-        .dim-text {
-            display: block;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-top: 8px;
-            font-weight: 600;
-        }
-        
-        .end-price-cell { 
-            font-weight: 900; 
-            color: var(--success); 
-            font-size: 1.05rem; 
-            background: var(--success-soft);
-            padding: 8px 12px;
-            border-radius: 8px;
-            text-align: center;
-            border: 1.5px solid #a7f3d0;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        td select {
-            padding: 10px;
-            font-size: 0.85rem;
-            border: 1.5px solid var(--border);
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-            background: #f8fafc;
-            font-weight: 700;
-            color: var(--ink);
-        }
-
-        .btn-icon { 
-            width: 40px; 
-            height: 40px; 
-            border-radius: 10px; 
-            display: inline-flex; 
-            align-items: center; 
-            justify-content: center; 
-            padding: 0; 
-            border: none; 
-            font-size: 1.1rem;
-            flex-shrink: 0;
-            transition: all 0.2s;
-        }
-        .btn-update { background: var(--success-soft); color: var(--success); border: 1px solid #a7f3d0; }
-        .btn-update:hover { background: var(--success); color: white; transform: scale(1.05); }
-        .btn-print-sm { background: var(--primary-soft); color: var(--primary); border: 1px solid #c7d2fe; }
-        .btn-print-sm:hover { background: var(--primary); color: white; transform: scale(1.05); }
-
-        .link-btn { 
-            color: var(--ink); 
-            text-decoration: none; 
-            font-weight: 700; 
-            background: #f1f5f9;
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid var(--border);
-            transition: all 0.2s ease;
-        }
-        .link-btn:hover { background: var(--ink); color: white; transform: scale(1.05); }
-
-        /* User Badges */
-        .user-badge {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 800;
-            background: #f1f5f9;
-            color: var(--ink);
-            border: 1px solid var(--border);
-            white-space: nowrap;
-        }
-        .user-badge-a, .user-badge-ah, .user-badge-am { background:#ede9fe; color:#5b21b6; border-color:#ddd6fe; }
-        .user-badge-m, .user-badge-mo, .user-badge-ma { background:#fce7f3; color:#9d174d; border-color:#fbcfe8; }
-        .user-badge-s, .user-badge-sa, .user-badge-sh { background:#d1fae5; color:#065f46; border-color:#a7f3d0; }
-        .user-badge-n, .user-badge-na, .user-badge-no { background:#fef3c7; color:#92400e; border-color:#fde68a; }
-        .user-badge-r, .user-badge-ra, .user-badge-re { background:#dbeafe; color:#1e40af; border-color:#bfdbfe; }
-        .user-badge-h, .user-badge-ha, .user-badge-he { background:#ffedd5; color:#9a3412; border-color:#fed7aa; }
-        .user-badge-k, .user-badge-ka, .user-badge-kh { background:#f0fdf4; color:#166534; border-color:#bbf7d0; }
-        .user-badge-y, .user-badge-ya, .user-badge-yo { background:#fdf4ff; color:#7e22ce; border-color:#e9d5ff; }
-        .user-badge-z, .user-badge-za, .user-badge-zo { background:#ecfeff; color:#164e63; border-color:#a5f3fc; }
-
-        /* ====== Responsive Design ====== */
-        @media (max-width: 992px) {
-            .stats-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
-            .input-group { flex-direction: column; width: 100%; }
-            input, select, button { width: 100%; }
-            .controls-row { flex-direction: column; align-items: flex-start; gap: 16px; }
-            .controls-row > div { width: 100%; }
-        }
-        @media (max-width: 768px) {
-            header { padding: 12px 20px; }
-            .brand-text h1 { font-size: 1rem; }
-            .brand-logo { width: 36px; height: 36px; font-size: 1rem; }
-            .btn-logout { padding: 8px 12px; font-size: 0.8rem; }
-            .btn-logout span { display: none; } /* Hide text on mobile, keep icon */
-            .stat-card { padding: 16px; flex-direction: column; text-align: center; gap: 10px; }
-            .stat-card::after { display: none; } /* Remove side border on mobile */
-            .control-panel { padding: 16px; }
-        }
-    
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>لوحة الطلبات — Try Shoppy</title>
+<link rel="icon" href="assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
-  body:not(.ts-ready) > *:not(#tsInitLoader):not(#loginScreen) { display: none !important; }
+/* ═══════════════════════════════════════════════════════════
+   لوحة الطلبات — إعادة تصميم كاملة
+   ---------------------------------------------------------
+   الفكرة: "لوحة قيادة" — عمود جانبي غامق (كحلي) ثابت فيه كل
+   أدوات التحكم والفلاتر، ومساحة عمل بيضا واسعة للجدول. الذهبي
+   لون الفعل والانتباه بس (الأزرار الأساسية، التحديد، الأرقام
+   المهمة)، مش لون خلفيات — كده العين تروح على اللي يهم.
+   الأرقام كلها Plex Mono بأرقام جدولية عشان الأعمدة تترص.
+   ═══════════════════════════════════════════════════════════ */
+:root{
+  --navy:#101B33;        /* العمود الجانبي */
+  --navy-2:#1B2A4A;      /* طبقة أفتح جواه */
+  --navy-3:#2A3D63;
+  --gold:#F5B820;        /* لون الفعل */
+  --gold-2:#FFD35C;
+  --gold-ink:#7A5A08;
+  --gold-wash:#FFF8E6;
+  --blue:#2563EB;        /* لون معلوماتي */
+  --blue-wash:#EAF1FE;
+  --paper:#F4F6FB;
+  --panel:#FFFFFF;
+  --line:#E3E8F2;
+  --line-2:#EEF2F8;
+  --ink:#101B33;
+  --ink-2:#5A6885;
+  --ink-3:#95A1BC;
+  --ok:#0F9D6E; --ok-wash:#E6F6F0;
+  --warn:#D97706; --warn-wash:#FEF4E5;
+  --dead:#DC2626; --dead-wash:#FDECEC;
+  --f:'Cairo',system-ui,sans-serif;
+  --fm:'IBM Plex Mono',ui-monospace,monospace;
+  --sbw:262px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:var(--f);background:var(--paper);color:var(--ink);font-size:14px;line-height:1.55}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+input[type=number]{-moz-appearance:textfield}
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+:focus-visible{outline:2.5px solid var(--gold);outline-offset:2px;border-radius:6px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.mono{font-family:var(--fm);font-variant-numeric:tabular-nums}
+
+/* ══ العمود الجانبي ══ */
+.sb{position:fixed;inset-inline-start:0;top:0;bottom:0;width:var(--sbw);background:var(--navy);color:#fff;display:flex;flex-direction:column;z-index:50;overflow-y:auto}
+.sb::-webkit-scrollbar{width:5px}.sb::-webkit-scrollbar-thumb{background:var(--navy-3);border-radius:9px}
+.sb-brand{padding:18px 18px 14px;display:flex;align-items:center;gap:11px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sb-brand .lg{width:38px;height:38px;border-radius:11px;background:var(--gold);color:var(--navy);display:grid;place-items:center;font-weight:900;font-size:15px;flex:none}
+.sb-brand b{display:block;font-size:14.5px;font-weight:900;letter-spacing:-.01em}
+.sb-brand span{display:block;font-size:11px;color:#8FA0C4}
+.sb-sec{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.07)}
+.sb-sec h4{margin:0 0 10px;font-size:10.5px;font-weight:800;letter-spacing:.09em;color:#7A8CB4;text-transform:uppercase}
+.sbf{margin-bottom:9px}
+.sbf:last-child{margin-bottom:0}
+.sbf label{display:block;font-size:11px;font-weight:700;color:#9FB0D2;margin-bottom:4px}
+.sbf input,.sbf select{width:100%;padding:9px 11px;border-radius:9px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.07);color:#fff;font-size:13px}
+.sbf input::placeholder{color:#7A8CB4}
+.sbf select option{background:var(--navy-2);color:#fff}
+.sbf input:focus,.sbf select:focus{border-color:var(--gold);background:rgba(255,255,255,.12);outline:none}
+.sbf .two{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.sb-btn{width:100%;padding:10px;border-radius:9px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#fff;font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px}
+.sb-btn:hover{background:rgba(255,255,255,.13)}
+.sb-btn.gold{background:var(--gold);color:var(--navy);border-color:var(--gold);font-weight:900}
+.sb-btn.gold:hover{background:var(--gold-2)}
+.sb-btn.on{background:var(--gold);color:var(--navy);border-color:var(--gold)}
+.sb-btn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.sb-foot{margin-top:auto;padding:14px 16px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:9px}
+.sb-foot .who{flex:1;min-width:0}
+.sb-foot .who b{display:block;font-size:12.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-foot .who span{font-size:10.5px;color:#7A8CB4}
+.sb-foot button{background:rgba(220,38,38,.22);border:1px solid rgba(220,38,38,.4);color:#FFB4B4;border-radius:8px;padding:7px 11px;cursor:pointer;font-weight:700;font-size:12px}
+
+/* ══ مساحة العمل ══ */
+.main{margin-inline-start:var(--sbw);min-height:100vh;padding:16px 18px 40px}
+.topline{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.topline h1{margin:0;font-size:19px;font-weight:900;letter-spacing:-.02em}
+.topline .scope{font-size:12px;color:var(--ink-2);background:var(--panel);border:1px solid var(--line);padding:5px 11px;border-radius:20px;font-weight:700}
+.topline .sp{margin-inline-start:auto;display:flex;gap:8px;flex-wrap:wrap}
+.tbtn{padding:9px 15px;border-radius:9px;border:1px solid var(--line);background:var(--panel);cursor:pointer;font-weight:700;font-size:13px;display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.tbtn:hover{border-color:var(--ink-3)}
+.tbtn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.tbtn.gold{background:var(--gold);border-color:var(--gold);color:var(--navy);font-weight:900}
+.tbtn.gold:hover{background:var(--gold-2)}
+.tbtn.on{background:var(--navy);border-color:var(--navy);color:var(--gold)}
+
+/* ══ الأرقام ══ */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:13px 15px;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;inset-inline-start:0;top:0;bottom:0;width:3px;background:var(--line)}
+.kpi.k-egp::before{background:var(--gold)}
+.kpi.k-net::before{background:var(--ok)}
+.kpi.k-cnt::before{background:var(--blue)}
+.kpi.k-usd::before{background:var(--navy-3)}
+.kpi.k-pf::before{background:var(--ok)}
+.kpi h3{margin:0 0 5px;font-size:11.5px;font-weight:700;color:var(--ink-2)}
+.kpi .value{font-family:var(--fm);font-variant-numeric:tabular-nums;font-size:20px;font-weight:600;letter-spacing:-.02em}
+
+/* ══ شريط الإجراءات الجماعية ══ */
+.bulkbar{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:11px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;position:sticky;top:8px;z-index:20;box-shadow:0 2px 10px rgba(16,27,51,.05)}
+.selbadge{font-size:12.5px;font-weight:800;padding:7px 13px;border-radius:20px;background:var(--line-2);color:var(--ink-2);white-space:nowrap}
+.selbadge.active{background:var(--gold-wash);color:var(--gold-ink);box-shadow:inset 0 0 0 1.5px var(--gold)}
+.bulkbar select{padding:9px 12px;border-radius:9px;border:1px solid var(--line);background:#fff;min-width:170px}
+.bulkbar .sp{margin-inline-start:auto;display:flex;gap:8px;flex-wrap:wrap}
+.linkbtn{background:none;border:none;color:var(--blue);font-weight:800;font-size:12.5px;cursor:pointer;padding:6px 4px}
+.linkbtn:hover{text-decoration:underline}
+.tbtn:disabled{opacity:.45;cursor:not-allowed}
+
+/* ══ الجدول ══ */
+.tblwrap{background:var(--panel);border:1px solid var(--line);border-radius:13px;overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:1120px}
+thead th{position:sticky;top:0;z-index:10;background:var(--navy);color:#C9D6F0;font-size:11.5px;font-weight:800;text-align:start;padding:11px 12px;white-space:nowrap;letter-spacing:.02em}
+thead th:first-child{border-start-start-radius:12px}
+thead th:last-child{border-start-end-radius:12px}
+tbody td{padding:11px 12px;border-bottom:1px solid var(--line-2);vertical-align:middle}
+.orow{transition:background .12s}
+.orow:hover{background:#FAFBFE}
+.orow.is-sel{background:var(--gold-wash)}
+.orow td:first-child{box-shadow:inset 3px 0 0 var(--line)}
+.orow.tone-done td:first-child{box-shadow:inset 3px 0 0 var(--ok)}
+.orow.tone-dead td:first-child{box-shadow:inset 3px 0 0 var(--dead)}
+.orow.tone-wait td:first-child{box-shadow:inset 3px 0 0 var(--warn)}
+.orow.tone-late td:first-child{box-shadow:inset 3px 0 0 #A855F7}
+.orow.tone-move td:first-child{box-shadow:inset 3px 0 0 var(--blue)}
+input[type=checkbox]{width:17px;height:17px;cursor:pointer;accent-color:var(--gold)}
+.c-check{width:42px}
+.oid{font-family:var(--fm);font-weight:600;font-size:13.5px;color:var(--navy);letter-spacing:-.01em}
+.odate{font-family:var(--fm);font-size:11px;color:var(--ink-3);margin-top:3px}
+.cname{font-weight:800;font-size:13.5px}
+.cphone{font-family:var(--fm);font-size:11.5px;color:var(--ink-2);direction:ltr;text-align:start;margin-top:2px}
+.chips{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:4px}
+.chip{font-family:var(--fm);font-size:11px;font-weight:600;padding:3px 8px;border-radius:7px;background:var(--blue-wash);color:var(--blue)}
+.dims{font-size:11.5px;color:var(--ink-2);max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.c-money{min-width:186px}
+.mrow{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.mrow span{font-size:11px;color:var(--ink-2);font-weight:700;width:38px;flex:none}
+.inp{width:100%;padding:6px 9px;border:1px solid var(--line);border-radius:8px;font-family:var(--fm);font-size:12.5px;background:#fff;text-align:start}
+.inp:focus{border-color:var(--gold);outline:none;box-shadow:0 0 0 3px rgba(245,184,32,.16)}
+.inp.dep{background:var(--warn-wash);border-color:#F3DCB4}
+.inp.usd{background:var(--blue-wash);border-color:#CBDCFB;color:var(--blue);font-weight:600}
+.net{font-family:var(--fm);font-size:13px;font-weight:600;color:var(--ok);background:var(--ok-wash);padding:5px 9px;border-radius:8px;text-align:center;margin-top:2px}
+.net b{font-size:10px;font-weight:600;opacity:.7}
+.c-usd{width:110px}
+.c-arr{width:140px}
+.stsel{padding:8px 10px;border-radius:9px;border:1.5px solid var(--line);background:#fff;font-weight:700;font-size:12.5px;min-width:158px;cursor:pointer}
+.stsel.st-done{border-color:var(--ok);background:var(--ok-wash);color:var(--ok)}
+.stsel.st-dead{border-color:var(--dead);background:var(--dead-wash);color:var(--dead)}
+.stsel.st-wait{border-color:#F0C97A;background:var(--warn-wash);color:var(--warn)}
+.stsel.st-late{border-color:#C89BF5;background:#F6EEFE;color:#7E22CE}
+.stsel.st-move{border-color:#BBD1FA;background:var(--blue-wash);color:var(--blue)}
+.ubadge{display:inline-block;font-size:11.5px;font-weight:800;padding:4px 10px;border-radius:20px;background:var(--navy);color:var(--gold-2);white-space:nowrap}
+.muted{color:var(--ink-3)}
+.c-act{width:130px}
+.acts{display:flex;gap:5px;justify-content:center}
+.ib{width:33px;height:33px;border-radius:9px;border:1px solid var(--line);background:#fff;cursor:pointer;display:grid;place-items:center;padding:0}
+.ib svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.ib.save{background:var(--gold);border-color:var(--gold);color:var(--navy)}
+.ib.save:hover{background:var(--gold-2)}
+.ib.save:disabled{background:var(--line-2);border-color:var(--line);color:var(--ink-3);cursor:not-allowed}
+.ib.print{color:var(--navy)}.ib.print:hover{border-color:var(--navy)}
+.ib.link{color:var(--blue)}.ib.link:hover{border-color:var(--blue)}
+
+/* ══ صف RAMA المُجمّع — بنفسجي عشان يتميّز فورًا عن الطلبات ══ */
+.rama-row{background:#FAF7FF}
+.rama-row:hover{background:#F5EFFE}
+.rama-row td:first-child{box-shadow:inset 3px 0 0 #7C3AED!important}
+.rtag{display:inline-block;font-size:9.5px;font-weight:900;letter-spacing:.04em;padding:3px 6px;border-radius:6px;background:#7C3AED;color:#fff}
+.rama-id{color:#6D28D9!important}
+.rmoney{display:flex;align-items:center;gap:7px;margin-bottom:4px;font-size:12px}
+.rmoney span{color:var(--ink-2);font-weight:700;width:38px;flex:none}
+.rmoney b{font-weight:600}
+.rusd{display:inline-block;padding:5px 9px;border-radius:8px;background:var(--blue-wash);color:var(--blue);font-size:12.5px;font-weight:600}
+.rarr{font-size:12.5px;font-weight:700;color:var(--ink-2)}
+.rstatus{display:inline-block;padding:7px 12px;border-radius:9px;background:#F1E9FE;color:#6D28D9;font-weight:800;font-size:12.5px;white-space:nowrap}
+
+/* ══ شاشة الدخول ══ */
+#loginScreen{position:fixed;inset:0;z-index:9999;background:var(--navy);display:none;align-items:center;justify-content:center;padding:20px}
+.lcard{background:#fff;border-radius:18px;padding:34px;width:100%;max-width:390px}
+.lcard .lg{width:56px;height:56px;border-radius:15px;background:var(--gold);color:var(--navy);display:grid;place-items:center;font-weight:900;font-size:19px;margin:0 auto 15px}
+.lcard h2{margin:0 0 3px;text-align:center;font-size:19px;font-weight:900}
+.lcard p{margin:0 0 22px;text-align:center;font-size:12.5px;color:var(--ink-2)}
+.lfld{margin-bottom:13px}
+.lfld label{display:block;font-size:12px;font-weight:700;color:var(--ink-2);margin-bottom:5px}
+.lfld input{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.lfld input:focus{border-color:var(--gold);outline:none;box-shadow:0 0 0 3px rgba(245,184,32,.16)}
+#loginError{display:none;background:var(--dead-wash);color:var(--dead);border:1px solid #F6CFCF;padding:10px 13px;border-radius:10px;font-size:13px;font-weight:700;text-align:center;margin-bottom:13px}
+.lbtn{width:100%;padding:13px;border-radius:10px;border:none;background:var(--gold);color:var(--navy);font-weight:900;font-size:15px;cursor:pointer}
+.lbtn:hover{background:var(--gold-2)}
+
+.empty{text-align:center;padding:56px 20px;color:var(--ink-2)}
+.empty .big{font-size:2.3rem;margin-bottom:9px}
+
+@media(max-width:1080px){
+  :root{--sbw:0px}
+  .sb{transform:translateX(100%);transition:transform .22s;width:280px;box-shadow:-8px 0 30px rgba(0,0,0,.25)}
+  .sb.open{transform:translateX(0)}
+  .main{margin-inline-start:0;padding:12px}
+  .sbToggle{display:inline-flex!important}
+}
+.sbToggle{display:none}
 </style>
-
-<style id="ts-comfort-ui">
-/* =========================================================
-   TRY SHOPPY — Comfortable UI refresh
-   Visual-only overrides. No IDs / JS logic / actions changed.
-   ========================================================= */
-:root {
-  --primary: #3156d8;
-  --primary-hover: #2848bd;
-  --primary-soft: #eef3ff;
-  --ink: #172033;
-  --bg: #f4f6f9;
-  --surface: #ffffff;
-  --surface-glass: rgba(255,255,255,.94);
-  --text-main: #2a3448;
-  --text-muted: #697386;
-  --text-faint: #9aa4b5;
-  --border: #e5e9f0;
-  --border-hover: #d7ddea;
-  --success: #15966a;
-  --success-soft: #eaf8f2;
-  --danger: #dc4c5b;
-  --danger-soft: #fff0f1;
-  --warning: #db9226;
-  --warning-soft: #fff7e6;
-  --gold: #f6c84a;
-  --shadow-xs: 0 1px 2px rgba(23,32,51,.035);
-  --shadow-sm: 0 5px 16px rgba(23,32,51,.055);
-  --shadow-md: 0 12px 32px rgba(23,32,51,.075);
-  --shadow-hover: 0 18px 45px rgba(23,32,51,.10);
-  --radius-md: 11px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
-}
-
-html { background: var(--bg); }
-body {
-  background:
-    radial-gradient(circle at 100% 0%, rgba(49,86,216,.045), transparent 28rem),
-    linear-gradient(180deg, #f8f9fb 0%, var(--bg) 34%, var(--bg) 100%);
-  color: var(--text-main);
-  font-size: 15px;
-}
-
-/* Header */
-header {
-  min-height: 70px;
-  padding: 12px clamp(18px,4vw,54px);
-  background: rgba(255,255,255,.94);
-  border-bottom: 1px solid var(--border);
-  box-shadow: 0 2px 14px rgba(23,32,51,.035);
-}
-.brand-mark { gap: 12px; }
-.brand-logo {
-  width: 42px; height: 42px;
-  border-radius: 12px;
-  background: linear-gradient(145deg,#182238,#293956);
-  color: var(--gold);
-  box-shadow: 0 7px 18px rgba(23,32,51,.12);
-}
-.brand-text h1 { font-size: 1.12rem; letter-spacing: -.2px; }
-.brand-text span { color: var(--text-muted); font-size: .68rem; letter-spacing: .9px; }
-#dashUserBadge {
-  border: 1px solid var(--border) !important;
-  background: #f8fafc !important;
-  box-shadow: none !important;
-  color: #46526a;
-}
-.btn-logout {
-  padding: 9px 15px;
-  border-radius: 10px;
-  background: #fff;
-  box-shadow: none;
-}
-.btn-logout:hover { transform: none; box-shadow: none; }
-
-.container { max-width: 1480px; margin: 24px auto 42px; padding: 0 24px; }
-
-/* KPI cards: calmer hierarchy */
-.stats-grid {
-  grid-template-columns: repeat(3,minmax(0,1fr));
-  gap: 14px;
-  margin-bottom: 18px;
-}
-.stat-card {
-  min-height: 88px;
-  padding: 17px 19px;
-  gap: 14px;
-  border-radius: 15px;
-  border-color: var(--border);
-  box-shadow: 0 3px 12px rgba(23,32,51,.025);
-}
-.stat-card::after { width: 3px; opacity: .72; }
-.stat-card:hover {
-  transform: translateY(-1px);
-  border-color: #dce2ec;
-  box-shadow: 0 7px 18px rgba(23,32,51,.055);
-}
-.stat-icon { width: 46px; height: 46px; border-radius: 12px; font-size: 1.25rem; }
-.stat-body h3 {
-  margin-bottom: 7px;
-  font-size: .73rem;
-  color: #7b8597;
-  letter-spacing: .25px;
-}
-.stat-card .value { font-size: 1.38rem; letter-spacing: -.3px; }
-
-/* Filters */
-.control-panel {
-  padding: 20px;
-  margin-bottom: 18px;
-  border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(23,32,51,.035);
-}
-.controls-row {
-  display: grid;
-  grid-template-columns: minmax(410px,2fr) minmax(290px,1fr) minmax(380px,1.35fr);
-  gap: 12px;
-  align-items: center;
-  margin-bottom: 16px;
-  padding-bottom: 16px;
-}
-.controls-row .row-label {
-  grid-column: 1 / -1;
-  margin: 0 0 2px;
-  color: #566176;
-  font-size: .78rem;
-  text-transform: none;
-  letter-spacing: 0;
-}
-.controls-row:last-child,
-.control-panel .controls-row:nth-child(2) {
-  grid-template-columns: minmax(560px,1.5fr) minmax(390px,1fr);
-}
-.input-group {
-  min-width: 0;
-  width: 100%;
-  gap: 9px;
-  flex-wrap: nowrap;
-}
-input, select {
-  min-width: 0;
-  min-height: 43px;
-  padding: 10px 13px;
-  border-width: 1px;
-  border-color: #dfe4ec;
-  border-radius: 10px;
-  background: #fbfcfd;
-  color: #263147;
-  font-size: .88rem;
-  font-weight: 600;
-}
-input:hover, select:hover { border-color: #cfd6e2; background: #fff; }
-input:focus, select:focus {
-  border-color: #7892e9;
-  box-shadow: 0 0 0 3px rgba(49,86,216,.10);
-}
-input::placeholder { color: #a5adbb; }
-button { min-height: 42px; border-radius: 10px; }
-.btn-search, .btn-action, .btn-soft, .btn-reset { padding: 10px 17px; font-size: .86rem; }
-.btn-search {
-  background: #3156d8;
-  box-shadow: 0 4px 10px rgba(49,86,216,.16);
-}
-.btn-search:hover { transform: none; box-shadow: 0 5px 12px rgba(49,86,216,.20); }
-.btn-action { background: #202b40; }
-.btn-action:hover, .btn-soft:hover, .btn-reset:hover { transform: none; }
-.btn-soft { background: #fff; border-width: 1px; }
-.btn-reset { background: #f7f8fa; border-width: 1px; }
-.selection-badge {
-  min-height: 42px;
-  padding: 0 13px;
-  border-width: 1px;
-  border-radius: 10px;
-  background: #f7f9fb;
-}
-
-/* Main data surface — less visual noise than floating rows */
-.table-wrapper {
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  box-shadow: 0 5px 18px rgba(23,32,51,.035);
-  overflow: auto;
-  max-height: 76vh;
-  padding: 0;
-  scrollbar-gutter: stable;
-}
-table {
-  min-width: 1240px;
-  border-spacing: 0;
-  background: #fff;
-}
-th {
-  top: 0;
-  padding: 13px 14px;
-  background: #f8f9fb;
-  color: #657084;
-  border-bottom: 1px solid #dfe4ec;
-  font-size: .73rem;
-  letter-spacing: .15px;
-  text-transform: none;
-  box-shadow: 0 1px 0 rgba(23,32,51,.015);
-}
-td {
-  padding: 14px;
-  font-size: .86rem;
-  background: #fff;
-  border-top: 0;
-  border-bottom: 1px solid #edf0f4;
-  transition: background .15s ease;
-}
-tr td:first-child,
-tr td:last-child {
-  border-right: 0;
-  border-left: 0;
-  border-radius: 0;
-}
-tbody tr:last-child td { border-bottom: 0; }
-tr:hover td { background: #fbfcff; border-color: #e8edf6; }
-tr:hover td:first-child { box-shadow: none; }
-
-/* Table fields */
-.price-input, td select {
-  min-height: 38px;
-  padding: 8px 9px;
-  border-width: 1px;
-  border-radius: 9px;
-  background: #fafbfc;
-  font-size: .82rem;
-  box-shadow: none;
-}
-.price-input:hover, td select:hover { background: #fff; }
-.price-input:focus, td select:focus { border-color:#7892e9; box-shadow:0 0 0 3px rgba(49,86,216,.08); }
-.deposit-input { background: #fff7f7; border-color: #f4d9dc; color: #c74452; }
-.amounts-cell { gap: 6px; }
-.amounts-row { gap: 6px; }
-.amounts-row .amt-lbl { width: 40px; font-size: .69rem; color: #8891a0; }
-.end-price-cell {
-  padding: 7px 9px;
-  border-width: 1px;
-  border-color: #ccebdc;
-  border-radius: 9px;
-  background: #effaf5;
-  color: #0f835b;
-  font-size: .88rem;
-}
-.spec-badge {
-  padding: 5px 9px;
-  border-radius: 8px;
-  background: #f0f4ff;
-  color: #405fc6;
-  font-size: .72rem;
-}
-.dim-text { margin-top: 6px; font-size: .78rem; color: #788397; }
-.user-badge { padding: 5px 10px; font-size: .76rem; border-radius: 999px; }
-.actions-cell { gap: 6px; }
-.btn-icon, .link-btn { width: 36px; height: 36px; border-radius: 9px; }
-.btn-update:hover, .btn-print-sm:hover, .link-btn:hover { transform: none; }
-
-/* Checkboxes */
-input[type="checkbox"] { accent-color: var(--primary); }
-
-/* Login — calm, brand-consistent */
-#loginScreen {
-  background:
-    radial-gradient(circle at 15% 85%, rgba(49,86,216,.10), transparent 26rem),
-    radial-gradient(circle at 85% 15%, rgba(246,200,74,.10), transparent 24rem),
-    #f4f6f9 !important;
-}
-#loginScreen > div {
-  max-width: 400px !important;
-  padding: 34px !important;
-  border: 1px solid #e2e7ef !important;
-  border-radius: 22px !important;
-  box-shadow: 0 24px 70px rgba(23,32,51,.10) !important;
-  background: rgba(255,255,255,.97) !important;
-}
-#loginScreen input { min-height: 48px; background:#fafbfc !important; }
-#loginScreen button[onclick="doLogin()"] {
-  min-height: 50px;
-  border-radius: 11px !important;
-  box-shadow: 0 8px 20px rgba(49,86,216,.18) !important;
-}
-
-/* Accessibility / visual comfort */
-:focus-visible { outline: 2px solid rgba(49,86,216,.38); outline-offset: 2px; }
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
-}
-
-@media (max-width: 1180px) {
-  .stats-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
-  .controls-row,
-  .controls-row:last-child,
-  .control-panel .controls-row:nth-child(2) { grid-template-columns: 1fr 1fr; }
-  .controls-row .row-label { grid-column: 1 / -1; }
-  .controls-row > .input-group:first-of-type { grid-column: 1 / -1; }
-}
-
-@media (max-width: 768px) {
-  body { background:#f5f7fa; }
-  header { min-height: 62px; padding: 10px 14px; }
-  header > div:last-child { gap: 8px !important; }
-  #dashUserBadge { max-width: 125px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding:7px 9px !important; }
-  .brand-logo { width: 36px; height: 36px; }
-  .brand-text span { display:none; }
-  .container { margin: 15px auto 28px; padding: 0 12px; }
-  .stats-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; margin-bottom: 12px; }
-  .stat-card { min-height: 92px; padding: 13px 10px; gap: 8px; border-radius: 13px; }
-  .stat-icon { width: 38px; height: 38px; }
-  .stat-card .value { font-size: 1.05rem; }
-  .stat-body h3 { font-size: .64rem; margin-bottom:4px; }
-  .control-panel { padding: 13px; border-radius: 14px; margin-bottom:12px; }
-  .controls-row,
-  .controls-row:last-child,
-  .control-panel .controls-row:nth-child(2) { display:flex; flex-direction:column; gap:9px; padding-bottom:12px; margin-bottom:12px; }
-  .input-group { flex-direction:column; gap:8px; }
-  input, select, button { width:100%; min-height:44px; }
-  .selection-badge { width:100%; justify-content:center; box-sizing:border-box; }
-  .control-panel .controls-row:nth-child(2) > div:last-child { width:100%; display:grid !important; grid-template-columns:1fr 1fr; gap:8px !important; }
-  .table-wrapper { border-radius:13px; max-height:70vh; }
-  th { padding:11px 12px; }
-  td { padding:12px; }
-}
-
-@media (max-width: 430px) {
-  .stats-grid { grid-template-columns: 1fr 1fr; }
-  .stat-card { flex-direction:row; text-align:right; }
-  .stat-icon { display:none; }
-  .stat-card .value { font-size:.98rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .control-panel .controls-row:nth-child(2) > div:last-child { grid-template-columns:1fr; }
-}
-</style>
-
-<style id="ts-uiux-polish">
-/* =========================================================
-   TRY SHOPPY — Spacing & responsive consistency pass
-   Fixes: uneven gaps in the filter panel, the "إلى" date
-   separator collapsing onto its own row on mobile, and
-   inconsistent wrapping of the action-button rows.
-   Visual-only. No IDs / JS logic changed.
-   ========================================================= */
-
-/* ---- One spacing scale used everywhere in the control panel ---- */
-:root {
-  --gap-sm: 8px;
-  --gap-md: 12px;
-  --gap-lg: 18px;
-}
-
-.control-panel { display: flex; flex-direction: column; gap: 0; }
-.controls-row { row-gap: var(--gap-md); column-gap: var(--gap-md); }
-
-/* ---- Date range: always a single compact row, never stacks ---- */
-.date-range-group {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center;
-  gap: var(--gap-sm) !important;
-  flex-wrap: nowrap;
-}
-.date-range-group input[type="date"] {
-  flex: 1 1 0;
-  min-width: 0;
-}
-.date-range-sep {
-  flex: 0 0 auto;
-  color: var(--text-faint);
-  font-weight: 900;
-  font-size: 0.85rem;
-  padding: 0 2px;
-}
-
-/* ---- Bulk-actions row: consistent gap + clean wrap ---- */
-.bulk-row { display: flex; flex-wrap: wrap; gap: var(--gap-md); }
-.bulk-actions-group,
-.table-tools-group {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--gap-sm);
-}
-
-/* ---- Uniform vertical rhythm between major sections ---- */
-.stats-grid { margin-bottom: var(--gap-lg); }
-.control-panel { margin-bottom: var(--gap-lg); }
-
-/* ---- Tablet / narrow desktop ---- */
-@media (max-width: 1180px) {
-  .date-range-group { grid-column: auto; }
-}
-
-/* ---- Mobile: every group becomes a clean full-width stack,
-        except the date range which stays a compact row ---- */
-@media (max-width: 768px) {
-  .controls-row { row-gap: var(--gap-sm); column-gap: var(--gap-sm); }
-  .search-group, .status-group { gap: var(--gap-sm); }
-  .date-range-group { width: 100%; }
-  .date-range-group input[type="date"] { min-height: 44px; }
-  .bulk-row { flex-direction: column; align-items: stretch; gap: var(--gap-sm); }
-  .bulk-actions-group, .table-tools-group { flex-direction: column; align-items: stretch; width: 100%; }
-  .bulk-actions-group > *, .table-tools-group > * { width: 100%; }
-}
-
-@media (max-width: 430px) {
-  .date-range-sep { font-size: 0.78rem; }
-}
-</style>
-
 </head>
 <body>
-<div id="tsInitLoader" style="position:fixed; inset:0; z-index:99999; background:var(--bg); display:flex; align-items:center; justify-content:center; font-family:'Cairo',sans-serif; color:var(--primary); font-weight:800; font-size:1.2rem; flex-direction:column; gap:16px;">
-  <div style="width:48px; height:48px; border:4px solid var(--primary-soft); border-top-color:var(--primary); border-radius:50%; animation:tsSpin 0.8s ease-in-out infinite;"></div>
-  <div>جاري إعداد بيئة العمل...</div>
-</div>
-<style>@keyframes tsSpin { to { transform: rotate(360deg); } }</style>
 
-<!-- ====== شاشة الدخول الاحترافية ====== -->
-<div id="loginScreen" style="display:none; position:fixed; inset:0; z-index:9999; background: radial-gradient(circle at 10% 90%, rgba(224,231,255,0.6) 0%, rgba(224,231,255,0) 45%), radial-gradient(circle at 90% 10%, rgba(224,231,255,0.6) 0%, rgba(224,231,255,0) 45%), var(--bg); align-items:center; justify-content:center; flex-direction:column; padding:20px; box-sizing:border-box;">
-  <div style="background:rgba(255, 255, 255, 0.9); backdrop-filter:blur(20px); border-radius:var(--radius-xl); padding:40px; width:100%; max-width:420px; box-shadow:var(--shadow-hover); border:1px solid rgba(255,255,255,0.5); font-family:'Cairo',sans-serif;">
-    <div style="width:64px; height:64px; border-radius:18px; background:linear-gradient(135deg, var(--ink) 0%, #334155 100%); display:flex; align-items:center; justify-content:center; color:var(--gold); font-weight:900; font-size:1.8rem; margin:0 auto 20px; box-shadow:var(--shadow-md);">TS</div>
-    <div style="font-size:1.8rem; font-weight:900; color:var(--ink); text-align:center; margin-bottom:4px; letter-spacing:-0.5px;">TRY SHOPPY</div>
-    <div style="font-size:14px; color:var(--primary); text-align:center; margin-bottom:32px; font-weight:800; text-transform:uppercase; letter-spacing:1px;">WorkSpace Access</div>
-    
-    <label style="font-weight:800; font-size:14px; color:var(--text-muted); display:block; margin-bottom:8px;">اسم المستخدم</label>
-    <input id="loginUser" type="text" placeholder="أدخل اسم المستخدم" autocomplete="username" style="width:100%; padding:14px 18px; border-radius:var(--radius-md); border:1.5px solid var(--border); font-family:'Cairo'; font-size:16px; background:var(--surface); box-sizing:border-box; margin-bottom:20px; font-weight:600; box-shadow:var(--shadow-xs);" onkeydown="if(event.key==='Enter') doLogin();">
-    
-    <label style="font-weight:800; font-size:14px; color:var(--text-muted); display:block; margin-bottom:8px;">كلمة المرور</label>
-    <input id="loginPass" type="password" placeholder="أدخل كلمة المرور" autocomplete="current-password" style="width:100%; padding:14px 18px; border-radius:var(--radius-md); border:1.5px solid var(--border); font-family:'Cairo'; font-size:16px; background:var(--surface); box-sizing:border-box; margin-bottom:24px; font-weight:600; box-shadow:var(--shadow-xs);" onkeydown="if(event.key==='Enter') doLogin();">
-    
-    <div id="loginError" style="display:none; color:var(--danger); font-size:14px; font-weight:800; text-align:center; margin-bottom:20px; background:var(--danger-soft); padding:12px; border-radius:var(--radius-md); border:1px solid #fecaca;">❌ بيانات الدخول غير صحيحة</div>
-    
-    <button onclick="doLogin()" style="width:100%; padding:16px; background:var(--primary); color:#fff; border:none; border-radius:var(--radius-md); font-family:'Cairo'; font-weight:900; font-size:16px; cursor:pointer; box-shadow:0 10px 20px rgba(79, 70, 229, 0.25); transition:all 0.3s ease;">تسجيل الدخول <svg class="ic" viewBox="0 0 24 24" style="margin-right:8px;"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+<div id="tsInitLoader" style="position:fixed;inset:0;background:var(--navy);display:grid;place-items:center;z-index:99999;color:var(--gold);font-weight:800">
+  <div style="text-align:center">
+    <div style="width:46px;height:46px;border:3px solid rgba(245,184,32,.25);border-top-color:var(--gold);border-radius:50%;margin:0 auto 14px;animation:sp .8s linear infinite"></div>
+    جاري التحميل…
+  </div>
+</div>
+<style>@keyframes sp{to{transform:rotate(360deg)}}</style>
+
+<!-- ═══ شاشة الدخول ═══ -->
+<div id="loginScreen">
+  <div class="lcard">
+    <div class="lg">TS</div>
+    <h2>لوحة الطلبات</h2>
+    <p>ادخل ببيانات الموظف بتاعتك</p>
+    <div class="lfld"><label>اسم المستخدم</label><input id="loginUser" type="text" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <div class="lfld"><label>كلمة المرور</label><input id="loginPass" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <div id="loginError"></div>
+    <button class="lbtn" onclick="doLogin()">تسجيل الدخول</button>
   </div>
 </div>
 
-<main class="dashboard-wrapper">
-    <header>
-        <div class="brand-mark">
-            <div class="brand-logo">TS</div>
-            <div class="brand-text">
-                <h1>TRY SHOPPY</h1>
-                <span>System Dashboard</span>
-            </div>
-        </div>
-        <div style="display:flex; align-items:center; gap:16px;">
-          <span id="dashUserBadge" class="user-badge" style="background:var(--surface); box-shadow:var(--shadow-xs); padding:8px 16px;"></span>
-          <button onclick="logout()" class="btn-logout">
-            <svg class="ic" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> 
-            <span>تسجيل الخروج</span>
-          </button>
-        </div>
-    </header>
+<!-- ═══ العمود الجانبي ═══ -->
+<aside class="sb" id="sb">
+  <div class="sb-brand">
+    <div class="lg">TS</div>
+    <div><b>لوحة الطلبات</b><span>Try Shoppy</span></div>
+  </div>
 
-    <div class="container">
-        <!-- الإحصائيات -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon c-primary"><svg class="ic" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-                <div class="stat-body"><h3>إجمالي المبيعات (EGP)</h3><div id="totalEGP" class="value">0</div></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon c-success"><svg class="ic" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
-                <div class="stat-body"><h3>صافي التحصيل (End Price)</h3><div id="totalNet" class="value" style="color:var(--success)">0</div></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon c-slate"><svg class="ic" viewBox="0 0 24 24"><path d="M12.89 1.45l8 4A2 2 0 0 1 22 7.24v9.53a2 2 0 0 1-1.11 1.79l-8 4a2 2 0 0 1-1.79 0l-8-4a2 2 0 0 1-1.1-1.8V7.24a2 2 0 0 1 1.11-1.79l8-4a2 2 0 0 1 1.78 0z"/><polyline points="2.32 6.16 12 11 21.68 6.16"/><line x1="12" y1="22.76" x2="12" y2="11"/></svg></div>
-                <div class="stat-body"><h3>عدد الشحنات</h3><div id="totalCount" class="value">0</div></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon c-warning"><svg class="ic" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="3"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
-                <div class="stat-body"><h3>التكلفة (USD)</h3><div id="totalUSD" class="value">0</div></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon c-success"><svg class="ic" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
-                <div class="stat-body"><h3>أرباح الطلبات (Profit)</h3><div id="totalProfit" class="value" style="color:var(--success)">0</div></div>
-            </div>
-            <div class="stat-card" style="cursor:pointer;" onclick="document.getElementById('searchUser').focus()" title="اضغط للفلتر بالموظف">
-                <div class="stat-icon c-pink"><svg class="ic" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
-                <div class="stat-body"><h3>الموظف الحالي</h3><div id="activeUser" class="value" style="color:#db2777; font-size:1.2rem;">كل الموظفين</div></div>
-            </div>
-        </div>
-
-        <!-- أشرطة التحكم والفلاتر -->
-        <div class="control-panel">
-            <div class="controls-row">
-                <div class="row-label"><svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> البحث والفلاتر الذكية</div>
-                <div class="input-group search-group">
-                    <input id="searchInput" placeholder="بحث سريع (اسم، موبايل، رقم طلب)..." onkeydown="if(event.key==='Enter') applyFilters()">
-                    <input id="searchArrival" placeholder="بحث بموعد الوصول" onkeydown="if(event.key==='Enter') applyFilters()">
-                   <button class="btn-search" onclick="applyFilters()"><svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> بحث</button>
-                </div>
-                <div class="input-group date-range-group">
-                    <input type="date" id="dateFrom" title="من تاريخ">
-                    <span class="date-range-sep">إلى</span>
-                    <input type="date" id="dateTo" title="إلى تاريخ">
-                </div>
-                <div class="input-group status-group">
-                    <select id="searchStatus" onchange="applyFilters()">
-                        <option value="">كل الحالات</option>
-                        <option value="Pending Review">Pending Review</option>
-                        <option value="Confirmed Via Try">Confirmed Via Try</option>
-                        <option value="Placed">Placed</option>
-                        <option value="Processing">Processing</option>
-                        <option value="Arrived USA HUB">Arrived USA HUB</option>
-                        <option value="Arrived Cairo HUB">Arrived Cairo HUB</option>
-                        <option value="Shipped To You">Shipped To You</option>
-                        <option value="Delivered">Delivered</option>
-                        <option value="Delayed">Delayed</option>
-                        <option value="Canceled">Canceled</option>
-                    </select>
-                    <select id="searchUser" onchange="applyFilters()">
-                        <option value="">كل الموظفين</option>
-                    </select>
-                    <button class="btn-search" onclick="applyFilters()"><svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> بحث</button>
-                    <button class="btn-reset" onclick="resetFilters()" title="مسح كل الفلاتر"><svg class="ic" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> مسح</button>
-                </div>
-            </div>
-
-            <div class="controls-row bulk-row" style="justify-content: space-between; border-bottom: none; padding-bottom: 0;">
-                <div class="input-group bulk-actions-group" style="align-items:center;">
-                    <button class="btn-soft" onclick="selectAllFiltered()" title="حدد كل نتائج الفلتر الحالي"><svg class="ic" viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg> تحديد كل النتائج</button>
-                    <span id="selectedCountBadge" class="selection-badge">مفيش طلبات محددة</span>
-                    <select id="bulkStatus" style="max-width: 250px;">
-                        <option value="">إجراء مجمع: تغيير الحالة...</option>
-                        <option value="Pending Review">Pending Review</option>
-                        <option value="Confirmed Via Try">Confirmed Via Try</option>
-                        <option value="Placed">Placed</option>
-                        <option value="Processing">Processing</option>
-                        <option value="Arrived Cairo HUB">Arrived Cairo HUB</option>
-                        <option value="Shipped To You">Shipped To You</option>
-                        <option value="Delivered">Delivered</option>
-                        <option value="Canceled">Canceled</option>
-                        <option value="Delayed">Delayed</option>
-                    </select>
-                    <button class="btn-action" id="bulkApplyBtn" onclick="applyBulkStatus()" disabled><svg class="ic" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> تطبيق الحالة</button>
-                    <button class="btn-soft" onclick="clearSelection()" title="إلغاء كل التحديد"><svg class="ic" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> إلغاء التحديد</button>
-                </div>
-
-                <div class="table-tools-group">
-                    <button id="groupBtn" class="btn-action" onclick="toggleGrouping()"><svg class="ic" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> تجميع الطلبات</button>
-                    <button class="btn-soft c-purple" onclick="printAllDisplayed()"><svg class="ic" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> طباعة الجدول</button>
-                    <button class="btn-soft c-green" onclick="exportCSV()"><svg class="ic" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> تصدير CSV</button>	
-                </div>
-            </div>
-        </div>
-
-        <!-- جدول البيانات -->
-        <div class="table-wrapper">
-            <table>
-                <colgroup>
-                    <col style="width:3%">
-                    <col style="width:11%">
-                    <col style="width:13%">
-                    <col style="width:13%">
-                    <col style="width:14%">
-                    <col style="width:8%">
-                    <col style="width:9%">
-                    <col style="width:13%">
-                    <col style="width:7%">
-                    <col style="width:9%">
-                </colgroup>
-                <thead>
-                    <tr>
-                        <th width="40"><input type="checkbox" id="checkAll" onclick="toggleAll(this)" style="width:18px;height:18px; cursor:pointer;"></th>
-                        <th>رقم الطلب / التاريخ</th>
-                        <th>العميل</th>
-                        <th>المواصفات</th>
-                        <th style="text-align:center;">المبالغ (EGP)</th>
-                        <th style="text-align:center;">التكلفة (USD)</th>
-                        <th>موعد الوصول</th>
-                        <th>حالة الطلب</th>
-                        <th style="text-align:center;">الموظف</th>
-                        <th style="text-align:center;">الإجراءات</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody"></tbody>
-            </table>
-        </div>
+  <div class="sb-sec">
+    <h4>بحث</h4>
+    <div class="sbf">
+      <input id="searchInput" placeholder="اسم، موبايل، رقم طلب…" onkeydown="if(event.key==='Enter') applyFilters()" oninput="applyFilters()">
     </div>
+  </div>
+
+  <div class="sb-sec">
+    <h4>المصدر</h4>
+    <div class="sbf">
+      <select id="srcFilter" onchange="applyFilters()">
+        <option value="">الكل (الطلبات + RAMA)</option>
+        <option value="orders">الطلبات بس</option>
+        <option value="rama">RAMA بس</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="sb-sec">
+    <h4>موعد الوصول</h4>
+    <div class="sbf">
+      <select id="arrivalSelect" onchange="applyFilters()"><option value="">📅 كل مواعيد الوصول</option></select>
+    </div>
+    <div class="sbf">
+      <input id="searchArrival" placeholder="أو اكتب جزء من الموعد…" onkeydown="if(event.key==='Enter') applyFilters()" oninput="applyFilters()">
+    </div>
+  </div>
+
+  <div class="sb-sec">
+    <h4>تصفية</h4>
+    <div class="sbf">
+      <label>الحالة</label>
+      <select id="searchStatus" onchange="applyFilters()">
+        <option value="">كل الحالات</option>
+        <option value="Pending Review">Pending Review</option>
+        <option value="Confirmed Via Try">Confirmed Via Try</option>
+        <option value="Placed">Placed</option>
+        <option value="Processing">Processing</option>
+        <option value="Arrived Cairo HUB">Arrived Cairo HUB</option>
+        <option value="Shipped To You">Shipped To You</option>
+        <option value="Delivered">Delivered</option>
+        <option value="Canceled">Canceled</option>
+        <option value="Delayed">Delayed</option>
+      </select>
+    </div>
+    <div class="sbf">
+      <label>الموظف</label>
+      <select id="searchUser" onchange="applyFilters()"><option value="">👤 كل الموظفين</option></select>
+    </div>
+    <div class="sbf">
+      <label>تاريخ التسجيل</label>
+      <div class="two">
+        <input id="dateFrom" type="date" onchange="applyFilters()">
+        <input id="dateTo" type="date" onchange="applyFilters()">
+      </div>
+    </div>
+    <button class="sb-btn" onclick="resetFilters()">مسح كل الفلاتر</button>
+  </div>
+
+  <div class="sb-sec">
+    <h4>عرض</h4>
+    <button class="sb-btn" id="groupBtn" onclick="toggleGrouping()"><svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> تجميع الطلبات</button>
+  </div>
+
+  <div class="sb-foot">
+    <div class="who"><b id="dashUserBadge">—</b><span>مسجّل دخول</span></div>
+    <button onclick="logout()">خروج</button>
+  </div>
+</aside>
+
+<!-- ═══ مساحة العمل ═══ -->
+<main class="main">
+  <div class="topline">
+    <button class="tbtn sbToggle" onclick="document.getElementById('sb').classList.toggle('open')">☰</button>
+    <h1>الطلبات</h1>
+    <span class="scope">👤 <span id="activeUser">كل الموظفين</span></span>
+    <div class="sp">
+      <button class="tbtn" onclick="loadData()"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> تحديث</button>
+      <button class="tbtn" onclick="exportCSV()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> تصدير CSV</button>
+      <button class="tbtn gold" onclick="printAllDisplayed()"><svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> طباعة الكل</button>
+    </div>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi k-egp"><h3>إجمالي المبيعات (EGP)</h3><div id="totalEGP" class="value">0</div></div>
+    <div class="kpi k-net"><h3>صافي التحصيل (End Price)</h3><div id="totalNet" class="value" style="color:var(--ok)">0</div></div>
+    <div class="kpi k-cnt"><h3>عدد الشحنات</h3><div id="totalCount" class="value">0</div></div>
+    <div class="kpi k-usd"><h3>التكلفة (USD)</h3><div id="totalUSD" class="value">0</div></div>
+    <div class="kpi k-pf"><h3>أرباح الطلبات (Profit)</h3><div id="totalProfit" class="value" style="color:var(--ok)">0</div></div>
+  </div>
+
+  <div class="bulkbar">
+    <span class="selbadge" id="selectedCountBadge">مفيش طلبات محددة</span>
+    <button class="linkbtn" onclick="selectAllFiltered()">تحديد كل المعروض</button>
+    <button class="linkbtn" onclick="clearSelection()">إلغاء التحديد</button>
+    <div class="sp">
+      <select id="bulkStatus">
+        <option value="">— غيّر حالة المحدد إلى —</option>
+        <option value="Pending Review">Pending Review</option>
+        <option value="Confirmed Via Try">Confirmed Via Try</option>
+        <option value="Placed">Placed</option>
+        <option value="Processing">Processing</option>
+        <option value="Arrived Cairo HUB">Arrived Cairo HUB</option>
+        <option value="Shipped To You">Shipped To You</option>
+        <option value="Delivered">Delivered</option>
+        <option value="Canceled">Canceled</option>
+        <option value="Delayed">Delayed</option>
+      </select>
+      <button class="tbtn gold" id="bulkApplyBtn" onclick="applyBulkStatus()" disabled>تطبيق</button>
+    </div>
+  </div>
+
+  <div class="tblwrap">
+    <table>
+      <thead>
+        <tr>
+          <th width="42"><input type="checkbox" id="checkAll" onclick="toggleAll(this)"></th>
+          <th>رقم الطلب / التاريخ</th>
+          <th>العميل</th>
+          <th>المواصفات</th>
+          <th>المبالغ (EGP)</th>
+          <th>التكلفة (USD)</th>
+          <th>موعد الوصول</th>
+          <th>حالة الطلب</th>
+          <th>الموظف</th>
+          <th style="text-align:center">الإجراءات</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
 </main>
 
 <script src="assets/config.js"></script>
 <script src="assets/app.js"></script>
 <script>
+
 
 // ================================================================
 // جميع وظائف الـ JS الأصلية بدون أي تعديل إطلاقاً بناءً على طلبك
@@ -1055,9 +407,112 @@ async function loadData() {
             return;
         }
         ordersData = data;
+        await loadRama();               // 🟣 نجيب RAMA كمان قبل ما نعرض
         populateUserFilter();
+        populateArrivalFilter();
         applyFilters(); 
     } catch(e) { console.error("Data Load Error", e); }
+}
+
+
+/* 🆕 توحيد كتابة موعد الوصول — "15 Sep" و "15 sep" و " 15  SEP "
+   لازم يبقوا خيار واحد في الفلتر مش تلاتة */
+function arrKeyD(s){ return String(s||"").trim().toLowerCase().replace(/\s+/g," "); }
+const ARR_LABEL_D = new Map();
+
+function populateArrivalFilter(){
+    const sel = document.getElementById("arrivalSelect");
+    if(!sel) return;
+    const cur = sel.value;
+    ARR_LABEL_D.clear();
+    ordersData.concat(ramaRows).forEach(o=>{
+        const raw = String(o.arrivaldate||"").trim();
+        if(!raw) return;
+        const k = arrKeyD(raw);
+        if(!ARR_LABEL_D.has(k)) ARR_LABEL_D.set(k, raw);
+    });
+    const keys=[...ARR_LABEL_D.keys()].sort().reverse();
+    const hasEmpty = ordersData.some(o=>!String(o.arrivaldate||"").trim());
+    sel.innerHTML = '<option value="">📅 كل مواعيد الوصول</option>'
+        + (hasEmpty ? '<option value="__none">— بدون موعد وصول —</option>' : '')
+        + keys.map(k=>`<option value="${k}">📅 ${ARR_LABEL_D.get(k)}</option>`).join("");
+    if(cur) sel.value = cur;
+}
+
+
+/* 🆕 توحيد رقم الموبايل للبحث — بيشيل أي رموز/مسافات، وبيشيل
+   كود الدولة 20 والصفر البادئ، عشان كل الصيغ تتطابق مع بعض */
+function normPhoneD(p){
+    return String(p||"").replace(/\D/g,"").replace(/^20/,"").replace(/^0/,"");
+}
+
+/* ═══════════════════════════════════════════════════════════
+   🟣 RAMA — بتتعرض كصف مُجمّع واحد لكل موعد وصول، مش صف لكل
+   منتج. الصف ده للقراءة بس (مفيش تعديل ولا تحديد ولا طباعة)
+   لأن بياناته أصلاً في نظام تاني — الغرض منه إنك تشوف إجمالي
+   RAMA جنب الطلبات في نفس الشاشة وتفلتر عليه.
+   ═══════════════════════════════════════════════════════════ */
+const RAMA_URL = "https://script.google.com/macros/s/AKfycbzu7m7lEOZc_s9dXN9RuYGz41uWziWM2KMXf2GcunZM6QMdsBLpo-p-dEpoHJgL4dr83Q/exec";
+let ramaRows = [];
+
+const MONTHS_D = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+/** بيحوّل موعد الوصول لصيغة اسم الصف: 18SEP2026.
+ *  لو التاريخ مش مفهوم كتاريخ فعلي، بيستخدم النص زي ما هو بحروف كبيرة. */
+function ramaTag(raw){
+    const t = String(raw||"").trim();
+    if(!t) return "NO-DATE";
+    // ⚠️ لازم يكون فيه سنة من 4 أرقام صراحة قبل ما نثق في التحويل —
+    // من غيرها جافاسكريبت بيفترض سنة من عنده (مثلاً "15 Sep" بيطلع
+    // 2001)، وده رقم مضلل هيظهر في اسم الصف. لو مفيش سنة واضحة،
+    // بنستخدم النص زي ما هو.
+    const hasYear = /\b\d{4}\b/.test(t);
+    const d = new Date(t);
+    if(hasYear && !isNaN(d.getTime())){
+        return String(d.getDate()).padStart(2,"0") + MONTHS_D[d.getMonth()] + d.getFullYear();
+    }
+    return t.toUpperCase().replace(/\s+/g,"");
+}
+
+async function loadRama(){
+    try{
+        const res = await fetch(RAMA_URL + "?scope=staff&staffToken=" + encodeURIComponent(getStaffToken()));
+        const raw = await res.json();
+        const arr = Array.isArray(raw) ? raw : (raw && Array.isArray(raw.items) ? raw.items : []);
+        const groups = {};
+        arr.forEach(p=>{
+            const dateRaw = String(p.arrivalDate||"").trim();
+            const k = arrKeyD(dateRaw) || "__none";
+            if(!groups[k]) groups[k] = { dateRaw, items:0, qty:0, usd:0, egp:0, dep:0 };
+            const q = parseInt(p.quantity)||1;
+            groups[k].items += 1;
+            groups[k].qty   += q;
+            groups[k].usd   += (parseFloat(p.staffUsd)||0) * q;   // staffUsd سعر القطعة
+            groups[k].egp   += parseFloat(p.finalEgp)||0;
+            groups[k].dep   += parseFloat(p.deposit)||0;
+        });
+        ramaRows = Object.values(groups).map(g=>({
+            isRama: true,
+            order: "RAMA-" + ramaTag(g.dateRaw),
+            customerName: "RAMA — إجمالي الموعد",
+            phone: "",
+            quantity: g.qty,
+            ramaItems: g.items,
+            weight: 0,
+            dimensions: g.items + " صنف",
+            usd: g.usd,
+            finalPrice: g.egp,
+            shipping: 0,
+            deposit: g.dep,
+            arrivaldate: g.dateRaw,
+            status: "RAMA",
+            user: "",
+            date: "",
+            link: ""
+        }));
+    }catch(e){
+        ramaRows = [];   // لو RAMA وقعت، اللوحة تكمل شغالة بالطلبات عادي
+        console.warn("تعذر تحميل RAMA:", e);
+    }
 }
 
 function populateUserFilter() {
@@ -1077,6 +532,8 @@ function populateUserFilter() {
 function resetFilters() {
     document.getElementById("searchInput").value = "";
     document.getElementById("searchArrival").value = "";
+    document.getElementById("arrivalSelect").value = "";
+    document.getElementById("srcFilter").value = "";
     document.getElementById("dateFrom").value = "";
     document.getElementById("dateTo").value = "";
     document.getElementById("searchStatus").value = "";
@@ -1086,10 +543,14 @@ function resetFilters() {
 }
 
 function createRowHTML(o) {
+    // 🟣 صف RAMA مُجمّع — للعرض بس: مفيش تعديل ولا تحديد ولا
+    // طباعة، لأن بياناته في نظام تاني ومش بتتحدّث من هنا
+    if(o.isRama) return createRamaRowHTML(o);
+
     const cur = o.status || "Pending Review";
     const printPhone = o.phone ? o.phone.toString().replace(/\s/g, '') : '';
     const printOrder = o.order ? o.order.toString().split(' + ')[0] : 'N/A';
-    
+
     const qty = isGrouped ? o.totalQty : (o.quantity || 1);
     const weight = parseFloat(isGrouped ? o.totalWeight : (o.weight || 0)).toFixed(2);
     const dims = isGrouped ? "متعددة" : (o.dimensions || "غير محددة");
@@ -1099,39 +560,49 @@ function createRowHTML(o) {
     const dep = parseFloat(o.deposit || 0);
     const endP = finalP + ship - dep;
 
-    let statusColor = "var(--border)";
-    if(cur.includes("Delivered")) statusColor = "var(--success)";
-    if(cur.includes("Canceled")) statusColor = "var(--danger)";
-    if(cur.includes("Pending")) statusColor = "var(--warning)";
+    // تصنيف الحالة لخانة لونية — بيتحكم في شريط الصف الجانبي كمان
+    let tone = "hold";
+    if (cur.indexOf("Delivered") !== -1) tone = "done";
+    else if (cur.indexOf("Canceled") !== -1) tone = "dead";
+    else if (cur.indexOf("Pending") !== -1) tone = "wait";
+    else if (cur.indexOf("Delayed") !== -1) tone = "late";
+    else tone = "move";
 
-    return `<tr>
-        <td><input type="checkbox" class="row-check" value="${printOrder}" ${selectedOrderIds.has(printOrder) ? 'checked' : ''} onchange="onRowCheckChange(this)" style="width:18px;height:18px; cursor:pointer;"></td>
-        <td>
-            <span style="font-weight:900; color:var(--primary); font-size:1.1rem; letter-spacing:0.5px;">${o.order}</span>
-            ${o.date ? `<div style="font-size:0.85rem; color:var(--text-muted); margin-top:6px; font-weight:600;">📅 ${new Date(o.date).toISOString().split('T')[0]}</div>` : ``}
+    const checked = selectedOrderIds.has(printOrder);
+
+    return `<tr class="orow tone-${tone} ${checked?'is-sel':''}" data-order="${printOrder}">
+        <td class="c-check"><input type="checkbox" class="row-check" value="${printOrder}" ${checked ? 'checked' : ''} onchange="onRowCheckChange(this)"></td>
+
+        <td class="c-id">
+            <div class="oid">${o.order}</div>
+            ${o.date ? `<div class="odate">${new Date(o.date).toISOString().split('T')[0]}</div>` : ``}
         </td>
-        <td>
-            <div style="font-weight:800; font-size:1rem; color:var(--ink);">${o.customerName}</div>
-            <div style="font-size:0.85rem; color:var(--text-muted); margin-top:6px; font-weight:600; direction:ltr; text-align:right;">📱 ${o.phone}</div>
+
+        <td class="c-cust">
+            <div class="cname">${o.customerName || "—"}</div>
+            <div class="cphone">${o.phone || ""}</div>
         </td>
-        <td>
-            <span class="spec-badge">x${qty}</span>
-            <span class="spec-badge">${weight} gm</span>
-            <div class="dim-text">📦 ${dims}</div>
-        </td>
-        <td>
-            <div class="amounts-cell">
-                <div class="amounts-row"><span class="amt-lbl">إجمالي</span><input type="number" id="egp-${printOrder}" class="price-input" value="${finalP}" placeholder="EGP"></div>
-                <div class="amounts-row"><span class="amt-lbl">عربون</span><input type="number" id="deposit-${printOrder}" class="price-input deposit-input" value="${dep}" placeholder="0"></div>
-                <div class="end-price-cell" title="الصافي (تحصيل)">${endP.toLocaleString()} EGP</div>
+
+        <td class="c-spec">
+            <div class="chips">
+                <span class="chip">×${qty}</span>
+                <span class="chip">${weight} g</span>
             </div>
+            <div class="dims" title="${dims}">${dims}</div>
         </td>
-        <td style="text-align:center;"><input type="number" id="usd-${printOrder}" class="price-input" value="${parseFloat(o.usd || 0).toFixed(2)}" style="color:var(--primary); background:var(--primary-soft); border-color:#c7d2fe;"></td>
-        <td>
-            <input type="text" id="arrival-${printOrder}" class="price-input" value="${o.arrivaldate || ''}" placeholder="موعد الوصول">
+
+        <td class="c-money">
+            <label class="mrow"><span>إجمالي</span><input type="number" id="egp-${printOrder}" class="inp" value="${finalP}"></label>
+            <label class="mrow"><span>عربون</span><input type="number" id="deposit-${printOrder}" class="inp dep" value="${dep}"></label>
+            <div class="net" title="الصافي المطلوب تحصيله">${endP.toLocaleString()} <b>EGP</b></div>
         </td>
-        <td>
-            <select id="status-${printOrder}" style="border-right: 4px solid ${statusColor}">
+
+        <td class="c-usd"><input type="number" id="usd-${printOrder}" class="inp usd" value="${parseFloat(o.usd || 0).toFixed(2)}"></td>
+
+        <td class="c-arr"><input type="text" id="arrival-${printOrder}" class="inp" value="${o.arrivaldate || ''}" placeholder="موعد الوصول"></td>
+
+        <td class="c-status">
+            <select id="status-${printOrder}" class="stsel st-${tone}">
                 <option value="Pending Review" ${cur==='Pending Review'?'selected':''}>Pending Review</option>
                 <option value="Confirmed Via Try" ${cur==='Confirmed Via Try'?'selected':''}>Confirmed Via Try</option>
                 <option value="Placed" ${cur==='Placed'?'selected':''}>Placed</option>
@@ -1143,22 +614,20 @@ function createRowHTML(o) {
                 <option value="Delayed" ${cur==='Delayed'?'selected':''}>Delayed</option>
             </select>
         </td>
-        <td style="text-align:center;">
-            ${o.user ? `<span class="user-badge user-badge-${(o.user||'').toLowerCase().replace(/\s+/g,'').substring(0,6)}">${o.user}</span>` : `<span style="color:var(--border-hover);font-size:0.8rem;">—</span>`}
-        </td>
-        <td>
-            <div class="actions-cell">
-                <button class="btn-icon btn-update"
-                    style="${isGrouped ? 'background:#e2e8f0;color:#94a3b8;cursor:not-allowed;border-color:#cbd5e1;' : ''}"
+
+        <td class="c-user">${o.user ? `<span class="ubadge">${o.user}</span>` : `<span class="muted">—</span>`}</td>
+
+        <td class="c-act">
+            <div class="acts">
+                <button class="ib save" ${isGrouped ? 'disabled' : ''}
                     onclick="${isGrouped ? 'groupLockMsg()' : `updateOrder('${printOrder}')`}"
-                    title="حفظ التعديلات"><svg class="ic" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg></button>
-                <button class="btn-icon btn-print-sm" onclick="printLabel('${printPhone}', '${printOrder}')" title="طباعة بوليصة"><svg class="ic" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></button>
-                ${o.link ? `<a href="${o.link}" target="_blank" class="link-btn" title="رابط المنتج"><svg class="ic" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></a>` : ''}
+                    title="حفظ التعديلات"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg></button>
+                <button class="ib print" onclick="printLabel('${printPhone}', '${printOrder}')" title="طباعة بوليصة"><svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></button>
+                ${o.link ? `<a href="${o.link}" target="_blank" class="ib link" title="رابط المنتج"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></a>` : ''}
             </div>
         </td>
     </tr>`;
 }
-
 function renderTable(data) {
     const tbody = document.getElementById("tableBody");
     tbody.innerHTML = ""; 
@@ -1183,6 +652,10 @@ function renderTable(data) {
 
 function applyFilters() {
      const arrivalSearch = document.getElementById("searchArrival").value.toLowerCase();
+    // 🆕 فلتر موعد الوصول من قايمة جاهزة — بيشتغل جنب البحث النصي:
+    // القايمة للاختيار السريع من المواعيد الموجودة فعلاً، والبحث
+    // النصي لو عايز تكتب جزء من التاريخ بإيدك
+    const arrivalPick = document.getElementById("arrivalSelect").value;
        const from = document.getElementById("dateFrom").value;
     const to = document.getElementById("dateTo").value;
     const search = document.getElementById("searchInput").value.toLowerCase();
@@ -1190,18 +663,33 @@ function applyFilters() {
     const userFilter = document.getElementById("searchUser").value;
     const USD_RATE = 50; 
 
-    let filtered = ordersData.filter(o => {
+    const srcFilter = document.getElementById("srcFilter").value;   // "" | orders | rama
+
+    // بنضم صفوف RAMA المُجمّعة للطلبات قبل الفلترة، عشان تاخد
+    // نفس فلاتر موعد الوصول والبحث بالظبط
+    const pool = srcFilter === "orders" ? ordersData
+               : srcFilter === "rama"   ? ramaRows
+               : ordersData.concat(ramaRows);
+
+    let filtered = pool.filter(o => {
         const d = o.date ? new Date(o.date).toISOString().split('T')[0] : "";
         const dateMatch = (!from || d >= from) && (!to || d <= to);
         const cleanOrder = String(o.order || "").toLowerCase().replace(/\s/g, "");
 
-const searchMatch =
+// 🆕 البحث بالموبايل بقى بيوحّد الصيغة على الجهتين — يعني
+// "01012345678" و "1012345678" و "201012345678" كلهم بيلاقوا
+// نفس العميل، سواء الرقم متخزّن بصفر في الأول أو من غيره
+const searchDigits = normPhoneD(search);
+const phoneMatch = !!searchDigits && normPhoneD(o.phone).includes(searchDigits);
+const searchMatch = !search ||
     (o.customerName || "").toLowerCase().includes(search) ||
-    (o.phone || "").toString().includes(search) ||
+    phoneMatch ||
     cleanOrder.includes(search.replace(/\s/g, ""));
         const statusMatch = !status || o.status === status;
-        const arrivalMatch = !arrivalSearch ||
-    (o.arrivaldate || "").toString().toLowerCase().includes(arrivalSearch);
+        const arrivalRaw = (o.arrivaldate || "").toString();
+        const arrivalMatch = (!arrivalSearch || arrivalRaw.toLowerCase().includes(arrivalSearch))
+            && (!arrivalPick || (arrivalPick === "__none" ? !arrivalRaw.trim()
+                                                          : arrKeyD(arrivalRaw) === arrivalPick));
         const userMatch = !userFilter || (o.user || "") === userFilter;
 
 return dateMatch && searchMatch && statusMatch && arrivalMatch && userMatch;
@@ -1211,6 +699,8 @@ return dateMatch && searchMatch && statusMatch && arrivalMatch && userMatch;
 
     if (isGrouped) {
         const groups = {};
+        const ramaKeep = filtered.filter(o=>o.isRama);   // صفوف RAMA مش بتتجمّع بالموبايل
+        filtered = filtered.filter(o=>!o.isRama);
         filtered.forEach(o => {
             const key = o.phone ? o.phone.toString().replace(/\s/g, '') : 'Unknown';
             if (!groups[key]) {
@@ -1233,7 +723,7 @@ return dateMatch && searchMatch && statusMatch && arrivalMatch && userMatch;
                 groups[key].usd += parseFloat(o.usd || 0);
             }
         });
-        filtered = Object.values(groups).map(g => ({ ...g, order: g.order.join(' + ') }));
+        filtered = Object.values(groups).map(g => ({ ...g, order: g.order.join(' + ') })).concat(ramaKeep);
     }
 	
     const totalEGP = filtered.reduce((a,b) => a + parseFloat(b.finalPrice || 0), 0);
@@ -1531,7 +1021,10 @@ function toggleAll(el){
     } else {
         selectedOrderIds.clear();
     }
-    document.querySelectorAll(".row-check").forEach(c => { c.checked = selectedOrderIds.has(c.value); });
+    document.querySelectorAll(".row-check").forEach(c => {
+        c.checked = selectedOrderIds.has(c.value);
+        const tr = c.closest("tr"); if(tr) tr.classList.toggle("is-sel", c.checked);
+    });
     updateSelectionUI();
 }
 
@@ -1539,6 +1032,7 @@ function toggleAll(el){
 function onRowCheckChange(el){
     if(el.checked) selectedOrderIds.add(el.value);
     else selectedOrderIds.delete(el.value);
+    const tr = el.closest("tr"); if(tr) tr.classList.toggle("is-sel", el.checked);
     updateSelectionUI();
 }
 
@@ -1569,7 +1063,10 @@ function updateSelectionUI(){
 
 function clearSelection(){
     selectedOrderIds.clear();
-    document.querySelectorAll(".row-check").forEach(c => c.checked = false);
+    document.querySelectorAll(".row-check").forEach(c => {
+        c.checked = false;
+        const tr = c.closest("tr"); if(tr) tr.classList.remove("is-sel");
+    });
     updateSelectionUI();
 }
 
@@ -1624,11 +1121,32 @@ function groupLockMsg(){
   alert("⚠️ تم تفعيل التجميع\n\n✋ لا يمكن التعديل أثناء التجميع\nيرجى فك التجميع للتعديل");
 }
 
+
+function createRamaRowHTML(o){
+    const finalP = parseFloat(o.finalPrice||0);
+    const dep    = parseFloat(o.deposit||0);
+    const endP   = finalP - dep;
+    return `<tr class="orow rama-row">
+        <td class="c-check"><span class="rtag">RAMA</span></td>
+        <td class="c-id"><div class="oid rama-id">${o.order}</div><div class="odate">${o.ramaItems} صنف</div></td>
+        <td class="c-cust"><div class="cname">${o.customerName}</div><div class="cphone muted">نظام منفصل — للعرض فقط</div></td>
+        <td class="c-spec"><div class="chips"><span class="chip">×${o.quantity}</span></div><div class="dims">${o.dimensions}</div></td>
+        <td class="c-money">
+            <div class="rmoney"><span>إجمالي</span><b class="mono">${finalP.toLocaleString()}</b></div>
+            <div class="rmoney"><span>عربون</span><b class="mono">${dep.toLocaleString()}</b></div>
+            <div class="net">${endP.toLocaleString()} <b>EGP</b></div>
+        </td>
+        <td class="c-usd"><span class="rusd mono">$${(parseFloat(o.usd)||0).toLocaleString(undefined,{maximumFractionDigits:2})}</span></td>
+        <td class="c-arr"><span class="rarr">${o.arrivaldate || "—"}</span></td>
+        <td class="c-status"><span class="rstatus">إجمالي RAMA</span></td>
+        <td class="c-user"><span class="muted">—</span></td>
+        <td class="c-act"><span class="muted" style="font-size:11.5px">للعرض فقط</span></td>
+    </tr>`;
+}
 </script>
-
 <script src="staff-auth.js"></script>
-
 <script>
+
 
 const SESSION_TIME = 2 * 60 * 60 * 1000;
 
