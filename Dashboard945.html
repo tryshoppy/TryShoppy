@@ -98,6 +98,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .kpi{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:13px 15px;position:relative;overflow:hidden}
 .kpi::before{content:'';position:absolute;inset-inline-start:0;top:0;bottom:0;width:3px;background:var(--line)}
 .kpi.k-egp::before{background:var(--gold)}
+.kpi.k-dep::before{background:var(--warn)}
 .kpi.k-net::before{background:var(--ok)}
 .kpi.k-cnt::before{background:var(--blue)}
 .kpi.k-usd::before{background:var(--navy-3)}
@@ -207,6 +208,20 @@ input[type=checkbox]{width:17px;height:17px;cursor:pointer;accent-color:var(--go
   .sbToggle{display:inline-flex!important}
 }
 .sbToggle{display:none}
+
+/* ══ إغلاق القائمة على الموبايل ══
+   المشكلة اللي كانت: زرار ☰ بيتغطى بالقائمة نفسها لما تفتح،
+   فمفيش طريقة تقفلها. الحل تلات مخارج: زرار ✕ جوه القائمة،
+   طبقة خلفية بتقفل بالضغط، وإغلاق تلقائي بعد أي فلتر. */
+.sb-close{display:none;margin-inline-start:auto;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#fff;width:34px;height:34px;border-radius:9px;font-size:17px;cursor:pointer;line-height:1;flex:none}
+.sb-close:hover{background:rgba(255,255,255,.2)}
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(16,27,51,.55);z-index:45}
+.sb-overlay.show{display:block}
+body.sb-open{overflow:hidden}
+@media(max-width:1080px){
+  .sb-close{display:grid;place-items:center}
+  .sb{z-index:50}
+}
 </style>
 </head>
 <body>
@@ -233,23 +248,25 @@ input[type=checkbox]{width:17px;height:17px;cursor:pointer;accent-color:var(--go
 </div>
 
 <!-- ═══ العمود الجانبي ═══ -->
+<div class="sb-overlay" id="sbOverlay" onclick="closeSb()"></div>
 <aside class="sb" id="sb">
   <div class="sb-brand">
     <div class="lg">TS</div>
     <div><b>لوحة الطلبات</b><span>Try Shoppy</span></div>
+    <button class="sb-close" onclick="closeSb()" aria-label="إغلاق القائمة">✕</button>
   </div>
 
   <div class="sb-sec">
     <h4>بحث</h4>
     <div class="sbf">
-      <input id="searchInput" placeholder="اسم، موبايل، رقم طلب…" onkeydown="if(event.key==='Enter') applyFilters()" oninput="applyFilters()">
+      <input id="searchInput" placeholder="اسم، موبايل، رقم طلب…" onkeydown="if(event.key==='Enter'){applyFilters();autoCloseSb();}" oninput="applyFilters()">
     </div>
   </div>
 
   <div class="sb-sec">
     <h4>المصدر</h4>
     <div class="sbf">
-      <select id="srcFilter" onchange="applyFilters()">
+      <select id="srcFilter" onchange="applyFilters();autoCloseSb()">
         <option value="">الكل (الطلبات + RAMA)</option>
         <option value="orders">الطلبات بس</option>
         <option value="rama">RAMA بس</option>
@@ -260,10 +277,10 @@ input[type=checkbox]{width:17px;height:17px;cursor:pointer;accent-color:var(--go
   <div class="sb-sec">
     <h4>موعد الوصول</h4>
     <div class="sbf">
-      <select id="arrivalSelect" onchange="applyFilters()"><option value="">📅 كل مواعيد الوصول</option></select>
+      <select id="arrivalSelect" onchange="applyFilters();autoCloseSb()"><option value="">📅 كل مواعيد الوصول</option></select>
     </div>
     <div class="sbf">
-      <input id="searchArrival" placeholder="أو اكتب جزء من الموعد…" onkeydown="if(event.key==='Enter') applyFilters()" oninput="applyFilters()">
+      <input id="searchArrival" placeholder="أو اكتب جزء من الموعد…" onkeydown="if(event.key==='Enter'){applyFilters();autoCloseSb();}" oninput="applyFilters()">
     </div>
   </div>
 
@@ -271,7 +288,7 @@ input[type=checkbox]{width:17px;height:17px;cursor:pointer;accent-color:var(--go
     <h4>تصفية</h4>
     <div class="sbf">
       <label>الحالة</label>
-      <select id="searchStatus" onchange="applyFilters()">
+      <select id="searchStatus" onchange="applyFilters();autoCloseSb()">
         <option value="">كل الحالات</option>
         <option value="Pending Review">Pending Review</option>
         <option value="Confirmed Via Try">Confirmed Via Try</option>
@@ -286,21 +303,21 @@ input[type=checkbox]{width:17px;height:17px;cursor:pointer;accent-color:var(--go
     </div>
     <div class="sbf">
       <label>الموظف</label>
-      <select id="searchUser" onchange="applyFilters()"><option value="">👤 كل الموظفين</option></select>
+      <select id="searchUser" onchange="applyFilters();autoCloseSb()"><option value="">👤 كل الموظفين</option></select>
     </div>
     <div class="sbf">
       <label>تاريخ التسجيل</label>
       <div class="two">
-        <input id="dateFrom" type="date" onchange="applyFilters()">
-        <input id="dateTo" type="date" onchange="applyFilters()">
+        <input id="dateFrom" type="date" onchange="applyFilters();autoCloseSb()">
+        <input id="dateTo" type="date" onchange="applyFilters();autoCloseSb()">
       </div>
     </div>
-    <button class="sb-btn" onclick="resetFilters()">مسح كل الفلاتر</button>
+    <button class="sb-btn" onclick="resetFilters();autoCloseSb()">مسح كل الفلاتر</button>
   </div>
 
   <div class="sb-sec">
     <h4>عرض</h4>
-    <button class="sb-btn" id="groupBtn" onclick="toggleGrouping()"><svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> تجميع الطلبات</button>
+    <button class="sb-btn" id="groupBtn" onclick="toggleGrouping();autoCloseSb()"><svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> تجميع الطلبات</button>
   </div>
 
   <div class="sb-foot">
@@ -312,7 +329,7 @@ input[type=checkbox]{width:17px;height:17px;cursor:pointer;accent-color:var(--go
 <!-- ═══ مساحة العمل ═══ -->
 <main class="main">
   <div class="topline">
-    <button class="tbtn sbToggle" onclick="document.getElementById('sb').classList.toggle('open')">☰</button>
+    <button class="tbtn sbToggle" onclick="openSb()">☰ الفلاتر</button>
     <h1>الطلبات</h1>
     <span class="scope">👤 <span id="activeUser">كل الموظفين</span></span>
     <div class="sp">
@@ -324,6 +341,7 @@ input[type=checkbox]{width:17px;height:17px;cursor:pointer;accent-color:var(--go
 
   <div class="kpis">
     <div class="kpi k-egp"><h3>إجمالي المبيعات (EGP)</h3><div id="totalEGP" class="value">0</div></div>
+    <div class="kpi k-dep"><h3>إجمالي العربون المحصّل</h3><div id="totalDeposit" class="value" style="color:var(--warn)">0</div></div>
     <div class="kpi k-net"><h3>صافي التحصيل (End Price)</h3><div id="totalNet" class="value" style="color:var(--ok)">0</div></div>
     <div class="kpi k-cnt"><h3>عدد الشحنات</h3><div id="totalCount" class="value">0</div></div>
     <div class="kpi k-usd"><h3>التكلفة (USD)</h3><div id="totalUSD" class="value">0</div></div>
@@ -492,7 +510,7 @@ async function loadRama(){
         });
         ramaRows = Object.values(groups).map(g=>({
             isRama: true,
-            order: "RAMA-" + ramaTag(g.dateRaw),
+            order: "RAMA-O-" + ramaTag(g.dateRaw),
             customerName: "RAMA — إجمالي الموعد",
             phone: "",
             quantity: g.qty,
@@ -513,6 +531,24 @@ async function loadRama(){
         ramaRows = [];   // لو RAMA وقعت، اللوحة تكمل شغالة بالطلبات عادي
         console.warn("تعذر تحميل RAMA:", e);
     }
+}
+
+/* فتح وقفل القائمة الجانبية على الموبايل */
+document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeSb(); });
+function openSb(){
+    document.getElementById("sb").classList.add("open");
+    document.getElementById("sbOverlay").classList.add("show");
+    document.body.classList.add("sb-open");
+}
+function closeSb(){
+    document.getElementById("sb").classList.remove("open");
+    document.getElementById("sbOverlay").classList.remove("show");
+    document.body.classList.remove("sb-open");
+}
+/** بعد أي فلترة على الموبايل، بنقفل القائمة تلقائيًا عشان
+ *  المستخدم يشوف النتيجة على طول من غير ما يدوّر على زرار قفل */
+function autoCloseSb(){
+    if(window.matchMedia("(max-width:1080px)").matches) closeSb();
 }
 
 function populateUserFilter() {
@@ -728,6 +764,9 @@ return dateMatch && searchMatch && statusMatch && arrivalMatch && userMatch;
 	
     const totalEGP = filtered.reduce((a,b) => a + parseFloat(b.finalPrice || 0), 0);
     const totalUSD = filtered.reduce((a,b) => a + parseFloat(b.usd || 0), 0);
+    // 🆕 إجمالي العربون المحصّل — بيتبع نفس الفلتر المطبّق بالظبط
+    // (شامل صفوف RAMA المُجمّعة، لأن عربونها متجمّع فيها أصلاً)
+    const totalDeposit = filtered.reduce((a,b) => a + parseFloat(b.deposit || 0), 0);
     const totalNet = filtered.reduce((a,b) => {
         const ship = isGrouped ? (parseFloat(b.totalShipping)||0) : (parseFloat(b.shipping)||0);
         return a + (parseFloat(b.finalPrice||0) + ship - parseFloat(b.deposit||0));
@@ -736,6 +775,7 @@ return dateMatch && searchMatch && statusMatch && arrivalMatch && userMatch;
     
     document.getElementById("totalEGP").innerText = Math.round(totalEGP).toLocaleString() + " EGP";
     document.getElementById("totalUSD").innerText = Math.round(totalUSD).toLocaleString() + " $";
+    document.getElementById("totalDeposit").innerText = Math.round(totalDeposit).toLocaleString() + " ج.م";
     document.getElementById("totalNet").innerText = Math.round(totalNet).toLocaleString() + " ج.م";
     document.getElementById("totalProfit").innerText = Math.round(totalProfit).toLocaleString() + " ج.م";
     document.getElementById("totalCount").innerText = filtered.length;
