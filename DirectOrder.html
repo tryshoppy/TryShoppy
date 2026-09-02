@@ -449,7 +449,7 @@ function showStep(step){
 let lastOrders = [];
 
 function generateOrder() {
-  return "TRY-" + Math.floor(100000 + Math.random() * 900000);
+  return "TRY-2026-" + Math.floor(100000 + Math.random() * 900000);
 }
 
 function showConfirm() {
@@ -666,8 +666,16 @@ async function confirmOrder() {
   // رقم الطلب نفسه بيبقى هو الرابط (اللينك مختفي وراه)، بدل ما نعرض
   // رابط المنتج الطويل كامل في الإيميل
   const cartWithOrders = cart.map(item => ({ item, orderNo: generateOrder() }));
+  // 🆕 حقل سادس للمواصفات (مقاس/لون/ملاحظات) — شوف calculator.html
+  const cleanSpec = v => String(v||'').replace(/::/g,':').replace(/[\r\n]+/g,' ').trim();
+  const specsFor = it => [
+    it.size  ? 'المقاس: ' + cleanSpec(it.size)  : '',
+    it.color ? 'اللون: '  + cleanSpec(it.color) : '',
+    it.notes ? 'ملاحظات: '+ cleanSpec(it.notes) : ''
+  ].filter(Boolean).join(' • ');
+
   const emailSummary = cartWithOrders.map(({item,orderNo}) =>
-    [orderNo, item.link||'', item.category||'Item', item.qty, item.finalEGP].join('::')
+    [orderNo, item.link||'', item.category||'Item', item.qty, item.finalEGP, specsFor(item)].join('::')
   ).join('\n');
   const cartTotal = tsDirectCartTotal();
   const orders = [];

@@ -553,8 +553,19 @@ async function confirmOrder(){
   // رقم الطلب نفسه بيبقى هو الرابط (اللينك مختفي وراه)، بدل ما نعرض
   // رابط المنتج الطويل كامل في الإيميل زي ما كان بيحصل قبل كده
   const cartWithOrders = cart.map(item => ({ item, orderNo: generateOrder() }));
+  // 🆕 حقل سادس للمواصفات — المقاس واللون والملاحظات اللي كتبها
+  // العميل. قبل كده كانت بتتبعت للشيت بس ومبتظهرش في الإيميل خالص،
+  // فالعميل والموظف مكنوش بيشوفوها في تأكيد الطلب.
+  // بننضّف "::" و"\n" من النص عشان ميكسروش تنسيق السطر.
+  const cleanSpec = v => String(v||'').replace(/::/g,':').replace(/[\r\n]+/g,' ').trim();
+  const specsFor = it => [
+    it.size  ? 'المقاس: ' + cleanSpec(it.size)  : '',
+    it.color ? 'اللون: '  + cleanSpec(it.color) : '',
+    it.notes ? 'ملاحظات: '+ cleanSpec(it.notes) : ''
+  ].filter(Boolean).join(' • ');
+
   const emailSummary = cartWithOrders.map(({item,orderNo}) =>
-    [orderNo, item.link||'', item.category||'Item', item.qty, item.finalPrice].join('::')
+    [orderNo, item.link||'', item.category||'Item', item.qty, item.finalPrice, specsFor(item)].join('::')
   ).join('\n');
   const cartTotal=tsCalcCartTotal();
   const orders=[];

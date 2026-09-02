@@ -547,8 +547,11 @@ function checkoutAll(){
   // 📧 ملخص إيميل واحد مجمّع لكل منتجات السلة (نفس الفورمات اللي
   // بيفهمها sendOrderEmails في Orders_Code.gs)، بدل ما العميل ياخد
   // إيميل منفصل لكل منتج في نفس عملية الـcheckout
+  // 🆕 حقل سادس للمواصفات — هنا المواصفات حقل واحد (dimensions)
+  // بيكتبه الموظف، فبنبعته زي ما هو بعد تنضيفه
+  const cleanSpec = v => String(v||"").replace(/::/g,":").replace(/[\r\n]+/g," ").trim();
   const emailSummary = cartWithOrders.map(({item, orderNo}) =>
-    [orderNo, item.link || "", label, item.qty, item.totalEgp].join("::")
+    [orderNo, item.link || "", label, item.qty, item.totalEgp, cleanSpec(item.dimensions)].join("::")
   ).join("\n");
   const cartTotal = tsQuickCartTotal();
 
