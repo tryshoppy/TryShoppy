@@ -8,7 +8,7 @@
 const TS_CONFIG = {
   /* ── رابط سكريبت الطلبات الموحّد (GET + POST) ──
      نفس الرابط من ملف script_link.js بتاعك             */
-  ORDERS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbyN7MH1Cm8Pfpog724at_xZaEpH3OSV1D0fxJ2n25eZWlWDgaWY0npofeDqukI1S3Vt/exec",
+  ORDERS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbwSQyk0o9wTqnZL3u3cYRROS7kLozpb1INSYQ4_B2q8wCTYAKrDw9Ik0dc-gBWG5HXN/exec",
 
   /* ── رابط سكريبت الحسابات (حسابات العملاء) ──
      انشر Users_Code.gs واحط الرابط هنا              */
