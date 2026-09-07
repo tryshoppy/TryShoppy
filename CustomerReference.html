@@ -100,6 +100,14 @@ button:hover{ opacity:.9; }
 .b-green{ background:#f0fdf4; color:#16a34a; }
 .b-red{ background:#fef2f2; color:#dc2626; }
 .b-yellow{ background:#fffbeb; color:#a16207; }
+
+/* تنبيه تشابه أسماء العملاء */
+.duplicate-warning{ background:#fffbeb; border:1px solid #fde68a; color:#92400e; }
+.duplicate-warning h3{ margin:0 0 7px; font-size:1rem; }
+.duplicate-warning p{ margin:0; font-size:13px; font-weight:700; }
+.customer-choice{ width:100%; margin-top:10px; padding:12px 14px; text-align:right; background:#fff; color:var(--text); border:1px solid #fde68a; box-shadow:none; }
+.customer-choice:hover{ background:#fffbeb; opacity:1; }
+.customer-choice small{ display:block; margin-top:3px; color:var(--gray); font-weight:700; }
 </style>
 </head>
 <body>
@@ -130,7 +138,7 @@ button:hover{ opacity:.9; }
     </div>
 
     <div class="search-row">
-      <input type="text" id="phoneInput" placeholder="رقم موبايل العميل (01xxxxxxxxx)" onkeydown="if(event.key==='Enter') doSearch();">
+      <input type="text" id="customerSearchInput" placeholder="اسم العميل أو رقم الموبايل (01xxxxxxxxx)" onkeydown="if(event.key==='Enter') doSearch();">
       <button id="searchBtn" onclick="doSearch()">🔍 بحث</button>
     </div>
   </div>
@@ -230,7 +238,8 @@ function doLogout(){
   localStorage.removeItem("crefLoginTime");
   localStorage.removeItem("crefStaffToken");
   document.getElementById("resultArea").innerHTML = "";
-  document.getElementById("phoneInput").value = "";
+  document.getElementById("customerSearchInput").value = "";
+  nameSearchCandidates = [];
   showLogin();
 }
 
@@ -240,14 +249,18 @@ function initAuth(){
 }
 initAuth();
 
-/* ---------- تحميل طلبات عميل واحد بس (بحث سيرفر-سايد) ----------
+/* ---------- تحميل طلبات العميل (بالموبايل من السيرفر أو بالاسم محليًا) ----------
    ⚠️ قبل كده الصفحة كانت بتحمّل *كل* طلبات الشركة أول ما تدوّر
    على أي عميل، وتفلترهم في المتصفح — ده كان بيبقى أبطأ وأبطأ كل ما
    عدد الطلبات يكبر (تحميل آلاف الطلبات + تاريخها عشان تلاقي عميل
    واحد بس). دلوقتي السيرفر نفسه بيفلتر برقم الموبايل ويرجّع طلبات
-   العميل ده بس — حجم البيانات المنقولة صغير وثابت تقريبًا. */
-async function fetchCustomerOrders(phone){
-  const url = scriptURL + "?staffToken=" + encodeURIComponent(getStaffToken()) + "&customerPhone=" + encodeURIComponent(phone);
+   العميل ده بس — حجم البيانات المنقولة صغير وثابت تقريبًا.
+   البحث بالاسم يستخدم صلاحية الموظف الحالية ثم يفلتر النتائج في الصفحة،
+   لذلك لا يحتاج أي تعديل في Orders_Code.gs. */
+async function fetchCustomerOrders(query, searchBy){
+  const url = searchBy === "phone"
+    ? scriptURL + "?staffToken=" + encodeURIComponent(getStaffToken()) + "&customerPhone=" + encodeURIComponent(query)
+    : scriptURL + "?staffToken=" + encodeURIComponent(getStaffToken());
   const res = await fetch(url);
   const data = await res.json();
   if(!Array.isArray(data)){
@@ -258,8 +271,42 @@ async function fetchCustomerOrders(phone){
   return data;
 }
 
-function normPhone(v){ return String(v||"").replace(/\D/g,"").replace(/^2/,"").replace(/^0/,""); }
+// يبقى الرقم نصًا طوال الوقت؛ لا نستخدم parseInt حتى لا تضيع الأصفار من الشمال.
+function normPhone(v){
+  const digits = String(v || "").replace(/\D/g, "");
+  // نقبل 010... و 2010... كرقم واحد، مع الإبقاء على المقارنة النصية.
+  return digits.replace(/^20/, "").replace(/^0/, "");
+}
+function isPhoneSearch(v){ return /\d/.test(v); }
 function fmt(v){ return parseFloat(v||0).toLocaleString(); }
+var nameSearchCandidates = [];
+
+function escapeHtml(v){
+  return String(v || "").replace(/[&<>\"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", "\"":"&quot;", "'":"&#39;" })[c]);
+}
+
+function showCustomerCandidate(index){
+  const orders = nameSearchCandidates[index];
+  if(orders) renderCustomer(orders);
+}
+
+function showNameSearchWarning(groups){
+  const area = document.getElementById("resultArea");
+  nameSearchCandidates = groups.map(g => g.orders);
+  let h = '<div class="card duplicate-warning" role="alert">';
+  h += '<h3>⚠️ تنبيه: يوجد ' + groups.length + ' عملاء بأرقام مختلفة مطابقون للاسم</h3>';
+  h += '<p>اختَر رقم العميل الصحيح قبل عرض طلباته، حتى لا تختلط بيانات العملاء.</p>';
+  groups.forEach((group, index) => {
+    const latest = [...group.orders].sort((a,b) => new Date(b.date || 0) - new Date(a.date || 0))[0];
+    const name = escapeHtml(latest.customerName || "بدون اسم");
+    const phone = escapeHtml(latest.phone || "بدون رقم");
+    const details = [latest.governorate, latest.address].filter(Boolean).map(escapeHtml).join(' • ');
+    h += '<button class="customer-choice" onclick="showCustomerCandidate(' + index + ')">👤 ' + name + ' — 📞 ' + phone +
+      '<small>' + (details || 'عدد الطلبات: ' + group.orders.length) + '</small></button>';
+  });
+  h += '</div>';
+  area.innerHTML = h;
+}
 
 const OPEN_STATUSES_LABELS = { "Pending Review":"قيد المراجعة","Confirmed Via Try":"تم التأكيد","Processing":"جاري التجهيز","Placed":"تم الطلب وجاري الشحن","Arrived Cairo HUB":"وصل مخزن القاهرة","Shipped To You":"في الطريق إليك" };
 const STATUS_LABELS = Object.assign({ "Delivered":"تم التسليم 🎉","Canceled":"ملغي","Delayed":"متأخر" }, OPEN_STATUSES_LABELS);
@@ -270,18 +317,24 @@ function statusClass(s){ return STATUS_BADGE_CLASS[s] || "b-gray"; }
 function isOpenStatus(s){ return s !== "Delivered" && s !== "Canceled"; }
 
 async function doSearch(){
-  const raw = document.getElementById("phoneInput").value.trim();
+  const raw = document.getElementById("customerSearchInput").value.trim();
   const area = document.getElementById("resultArea");
   const btn = document.getElementById("searchBtn");
-  if(!raw){ area.innerHTML = '<div class="card empty-hint">اكتب رقم موبايل العميل الأول</div>'; return; }
+  if(!raw){ area.innerHTML = '<div class="card empty-hint">اكتب اسم العميل أو رقم موبايله الأول</div>'; return; }
 
-  const target = normPhone(raw);
+  const searchBy = isPhoneSearch(raw) ? "phone" : "name";
+  const target = searchBy === "phone" ? normPhone(raw) : raw;
+  if(searchBy === "phone" && !target){ area.innerHTML = '<div class="card empty-hint">اكتب رقم موبايل صحيح</div>'; return; }
   tsSetBtnLoading(btn, "جاري البحث...");
   area.innerHTML = '<div class="card empty-hint">جاري تحميل بيانات الطلبات…</div>';
 
   let matches;
   try{
-    matches = await fetchCustomerOrders(target);
+    matches = await fetchCustomerOrders(target, searchBy);
+    if(searchBy === "name"){
+      const nameQuery = target.toLocaleLowerCase();
+      matches = matches.filter(o => String(o.customerName || "").trim().toLocaleLowerCase().includes(nameQuery));
+    }
   }catch(e){
     tsClearBtnLoading(btn);
     return; // fetchCustomerOrders already alerted + logged out
@@ -290,8 +343,22 @@ async function doSearch(){
   tsClearBtnLoading(btn);
 
   if(matches.length === 0){
-    area.innerHTML = '<div class="card empty-hint">🚫 مفيش أي طلبات مسجّلة بالرقم ده</div>';
+    area.innerHTML = '<div class="card empty-hint">🚫 مفيش أي طلبات مسجّلة بالاسم أو الرقم ده</div>';
     return;
+  }
+
+  if(searchBy === "name"){
+    const byPhone = new Map();
+    matches.forEach(order => {
+      const key = normPhone(order.phone) || String(order.phone || "بدون رقم").trim();
+      if(!byPhone.has(key)) byPhone.set(key, []);
+      byPhone.get(key).push(order);
+    });
+    const groups = [...byPhone.values()].map(orders => ({ orders }));
+    if(groups.length > 1){
+      showNameSearchWarning(groups);
+      return;
+    }
   }
 
   renderCustomer(matches);
