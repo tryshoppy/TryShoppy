@@ -101,20 +101,24 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .st-move{background:var(--blue-wash);color:var(--blue)}
 .who{font-size:10.5px;font-weight:800;padding:3px 9px;border-radius:20px;background:var(--navy);color:var(--gold-2);white-space:nowrap}
 /* ══ إخفاء الطلب عن موظف معيّن — بس للأدمن ══
-   🐛→✅ قبل كده كانت لوحة الموظفين (.hf-panel) بتتحط جوه كل كارت
-   لوحده وبـ [hidden] عشان تتقفل افتراضيًا — بس .hf-panel{display:flex}
-   هنا (قاعدة author) كانت بتكسب على [hidden]{display:none} بتاعة
-   المتصفح (author بيغلب user-agent حتى مع تساوي الـ specificity)،
-   فاللوحة كانت ظاهرة دايمًا في كل كارت مهما ضغطت — ده اللي كان بيعمل
-   الزحمة. الحل الأنضف: مودال واحد مشترك لكل الكروت (زي مودال "إضافة
-   منتج" بالظبط) بيتفتح بس وقت الحاجة، مش لوحة تتكرر في كل كارت. */
-.hf-toggle{width:100%;text-align:center;padding:8px 10px;border-radius:9px;border:1px dashed var(--line);background:var(--line-2);color:var(--ink-2);font-weight:800;font-size:12px;cursor:pointer;margin-top:8px}
-.hf-toggle.hf-active{background:var(--dead-wash);border-color:#F5CFCF;border-style:solid;color:var(--dead)}
-.hf-modal-list{display:flex;flex-direction:column;gap:2px;max-height:280px;overflow-y:auto;margin-bottom:6px}
-.hf-item{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;padding:9px 4px;border-bottom:1px solid var(--line-2)}
+   الكارت فيه زرار واحد بس (شارة الحالة + بيفتح مودال مشترك لكل
+   الكروت)، مش لوحة موظفين بتتكرر جوه كل كارت.
+   🎨 لون الزرار بنفسجي عشان يتفرق فورًا عن أزرار الحفظ (دهبي)
+   والفاتورة (رمادي) والواتساب (أخضر) — ولما الطلب يبقى مخفي فعلاً
+   بيتحوّل للأحمر كتنبيه واضح. */
+.hf-toggle{width:100%;text-align:center;padding:10px;border-radius:10px;border:1px solid #DDD0FB;background:var(--late-wash);color:var(--late);font-weight:800;font-size:12.5px;cursor:pointer;margin-top:8px;min-height:42px}
+.hf-toggle:active{background:#E9DEFC}
+.hf-toggle.hf-active{background:var(--dead-wash);border-color:#F5CFCF;color:var(--dead)}
+.hf-modal-list{display:flex;flex-direction:column;gap:2px;max-height:280px;overflow-y:auto;overflow-x:hidden;margin-bottom:6px}
+.hf-item{display:flex;align-items:center;gap:10px;font-size:13.5px;font-weight:700;padding:9px 4px;border-bottom:1px solid var(--line-2);cursor:pointer}
 .hf-item:last-child{border-bottom:none}
-.hf-item input{width:19px;height:19px;flex:none}
-.hf-empty{font-size:12px;color:var(--ink-3)}
+.hf-item .hf-name{flex:1;min-width:0;word-break:break-word}
+/* ⚠️ لازم يكون أخص من `.modal-content input` تحت (اللي بيحط
+   width:100% و padding و min-height:48px لكل input جوه المودال) —
+   من غير كده الـ checkbox كان بياخد عرض السطر كله ويزق الاسم بره
+   ويعمل سكرول أفقي. `.hf-item input[type=checkbox]` أخص منه فبيكسب. */
+.hf-item input[type="checkbox"]{width:20px;height:20px;min-height:0;flex:none;padding:0;margin:0;border-radius:4px;accent-color:var(--late)}
+.hf-empty{font-size:12.5px;color:var(--ink-3);padding:14px 4px;text-align:center}
 .oc-cust{background:var(--line-2);border-radius:11px;padding:10px 12px;margin-bottom:10px}
 .oc-cust .nm{font-weight:900;font-size:14.5px}
 .oc-cust .ph{font-family:var(--fm);font-size:13px;color:var(--blue);direction:ltr;display:inline-block;margin-top:2px;text-decoration:none;font-weight:600}
@@ -802,7 +806,7 @@ function hfRenderList(hiddenSet){
   list.innerHTML = STAFF_DIRECTORY.map(s => `
     <label class="hf-item">
       <input type="checkbox" class="hf-cb" value="${tsEscapeHtml(s.username)}" ${hiddenSet.has(String(s.username).toLowerCase()) ? 'checked' : ''}>
-      ${tsEscapeHtml(s.label || s.username)}
+      <span class="hf-name">${tsEscapeHtml(s.label || s.username)}</span>
     </label>
   `).join('');
 }
