@@ -454,7 +454,7 @@ const I18N = {
   // ---------- track page ----------
   trk_pageTitle:        { en: "Track Your Order Status", ar: "تتبع حالة طلبك" },
   trk_inputPlaceholder: { en: "Order Number", ar: "رقم الطلب" },
-  trk_inputHint:        { en: "You can search by order number (e.g. TRY123 or TRY-123)", ar: "يمكنك البحث برقم الطلب (مثال: TRY123 أو TRY-123)" },
+  trk_inputHint:        { en: "You can search by order number (e.g. TRY12345678)", ar: "يمكنك البحث برقم الطلب (مثال: TRY12345678)" },
   trk_trackBtn:         { en: "Track Now", ar: "تتبع الآن" },
   trk_searching:        { en: "Searching...", ar: "جاري البحث..." },
   trk_emptyInput:       { en: "Please enter an order number", ar: "يرجى إدخال رقم الطلب" },

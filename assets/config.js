@@ -8,16 +8,16 @@
 const TS_CONFIG = {
   /* ── رابط سكريبت الطلبات الموحّد (GET + POST) ──
      نفس الرابط من ملف script_link.js بتاعك             */
-  ORDERS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbwSQyk0o9wTqnZL3u3cYRROS7kLozpb1INSYQ4_B2q8wCTYAKrDw9Ik0dc-gBWG5HXN/exec",
+  ORDERS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbx5yfveR8j01Yaa17zvFRueQ2Tf0J3kgChhmbsqrVTaovkTiKiw3CU0RFbz6myUblVZ/exec",
 
   /* ── رابط سكريبت الحسابات (حسابات العملاء) ──
      انشر Users_Code.gs واحط الرابط هنا              */
-  USERS_API_URL: "https://script.google.com/macros/s/AKfycbxZdEi8c8xRh-aMvP_fORqAwRAr7JF18_QH57RVBa3lHpM73WNCCaE_6nW6hO2SiaIV/exec",
+  USERS_API_URL: "https://script.google.com/macros/s/AKfycbyZxsg-z7oNsAw0NsKsCKY0eUn7GTpEEG2LSQdDtyFQJTguRglEfZwxed5hz4jF-M6Ilw/exec",
 
   /* ── رابط سكريبت منتجات المارت (شيت منفصل تمامًا) ──
      انشر backend/MartProducts_Code.gs على شيت جديد
      مستقل، واحط الرابط هنا                          */
-  MART_PRODUCTS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbxdYhoWNasClKfYhGlGqPVQIxtbOpZGkPgQT_ccKDkevj-8O68_s1iFYyZBRp4TT813/exec",
+  MART_PRODUCTS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbz6J-BjsME8PowOovnR-1Kg9xULT6_tXGfPdsfFi_O9rel4E9BeTgJjd7yP3_W16ccx5w/exec",
 
   SUPPORT_PHONE: "201005609642"
 };

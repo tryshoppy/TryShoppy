@@ -43,6 +43,57 @@ function tsClearBtnLoading(btn){
   document.head.appendChild(s);
 })();
 
+/* ---------- 🔒 تنضيف نص قبل حقنه في innerHTML ----------
+   أي بيانات جاية من طلب/عميل (اسم، رابط منتج، عنوان...) بتتخزن
+   في الشيت زي ما العميل كتبها بالظبط — لو حد كتب فيها HTML/JS
+   بالغلط أو عمدًا، وصفحة زي track.html أو الداشبوردات بتحقنها
+   في innerHTML من غير تنضيف، ده بيفتح باب XSS (كود بيتنفذ في
+   متصفح أي حد يشوف الطلب ده، حتى لو مش مسجل دخول). استخدم الدالة
+   دي على أي قيمة نصية جاية من السيرفر قبل ما تدخل innerHTML. */
+function tsEscapeHtml(v){
+  return String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+}
+/* رابط منتج آمن للاستخدام في href — بيرفض أي حاجة غير http(s)
+   (زي javascript: أو data:) عشان الضغط على "رابط المنتج" ميقدرش
+   ينفّذ كود، ويهرب أي quotes جوه الرابط نفسه. */
+function tsSafeHref(url){
+  const u = String(url || '').trim();
+  return /^https?:\/\//i.test(u) ? tsEscapeHtml(u) : '#';
+}
+/* 🔒 نفس فكرة tsEscapeHtml، بس مخصصة للقيم اللي بتتحط جوه
+   onclick="fn('${value}')" (زي printLabel(phone, order) في
+   Dashboard945/DashboardMob2) — سياق مزدوج: نص JS جوه quotes
+   واحدة، والكل ده جوه attribute بـ quotes مزدوجة. من غير الهروب
+   الصحيح هنا، رقم موبايل أو رقم طلب فيه ' يقدر يكسر الـ onclick
+   ويحقن جافاسكريبت تعسفي في متصفح الموظف (ولو التوكن بتاعه في
+   localStorage وقتها، يبقى ممكن يتسرق). بنهرب الـ JS string الأول
+   (backslash وquote مفردة)، وبعدين نهرب الـ HTML attribute. */
+function tsJsAttr(v){
+  const s = String(v == null ? '' : v).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/[\r\n]/g, '');
+  return tsEscapeHtml(s);
+}
+
+/* 🖨️ فتح صفحة HTML جاهزة (بوليصة/فاتورة) في تاب جديد — بديل
+   window.open('', '_blank') + document.write(). النمط القديم ده
+   بيفشل بـ"Unsafe attempt to load URL ... file: URLs are treated
+   as unique security origins" لو الموقع اتفتح كملف محلي (file://)
+   بدل سيرفر حقيقي: window.open('', ...) بيتحل كـ"نفس رابط الصفحة
+   الحالية" (نص فاضي = بدون تغيير في الـURL)، فمتصفح Chrome بيرفضه
+   كمحاولة تحميل غير آمنة. رابط Blob بيشتغل بنفس الشكل تمامًا على
+   السيرفر الحقيقي وعلى file:// كمان، فمفيش داعي نغيّر سلوك حقيقي
+   عشان نصلّح مشكلة اختبار محلي بس. */
+function tsOpenHtmlDoc(html){
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const win = window.open(url, '_blank');
+  if(win){
+    win.addEventListener('load', () => URL.revokeObjectURL(url));
+  } else {
+    URL.revokeObjectURL(url); // اتحجب (popup blocker) — مفيش داعي نسيب الـ blob في الذاكرة
+  }
+  return win;
+}
+
 /* ---------- toast ---------- */
 function tsToast(msg){
   let el = document.getElementById('ts-toast');
@@ -242,8 +293,9 @@ function tsFetchOrderByNumber(orderNumber){
   return fetch(url).then(res => res.json());
 }
 
-/* يُستخدم من الحاسبة والمارت — نفس الرابط، فقط يختلف رقم الطلب
-   (TRY-xxxxxx للحاسبة العادية، TRY-MARTxxxxxx للمارت) */
+/* يُستخدم من الحاسبة والمارت — نفس الرابط، ونفس صيغة رقم الطلب
+   بالظبط (TRYxxxxxxxx — 8 أرقام بعد TRY، من غير أي شرطة أو سنة أو
+   بادئة تانية) في كل مصادر الطلبات على الموقع كله. */
 function tsSubmitOrderRow(payload){
   return fetch(TS_CONFIG.ORDERS_SCRIPT_URL, {
     method: 'POST',
@@ -252,7 +304,7 @@ function tsSubmitOrderRow(payload){
 }
 
 function tsGenerateMartOrderNumber(){
-  return "TRY-MART" + Math.floor(100000 + Math.random() * 900000);
+  return "TRY" + Math.floor(10000000 + Math.random() * 90000000);
 }
 
 /* ---------- Mart products — شيت وسكريبت منفصلين تمامًا عن الطلبات ----------
