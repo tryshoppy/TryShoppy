@@ -293,14 +293,44 @@ function tsFetchOrderByNumber(orderNumber){
   return fetch(url).then(res => res.json());
 }
 
+/* ═══════════════════════════════════════════════════════════
+   📮 إرسال POST لأي سكريبت Apps Script — "وصل ولا مـوصلش" بس
+   ═══════════════════════════════════════════════════════════
+   🐛→✅ المشكلة اللي كانت بتخلي الطلب يتسجل في الشيت ويتبعت إيميله
+   فعلاً، ومع ذلك الموقع يقول "0 من 1 اتسجلوا، جرب تاني":
+
+   Apps Script مبيردّش على الـ POST مباشرة — بيرد بـ 302 Redirect
+   لرابط تاني على دومين مختلف:
+       https://script.googleusercontent.com/macros/echo?user_content_key=...
+   المتصفح لازم يتابع الريديركت ده عشان يقرا الرد. الـ POST نفسه
+   بيبقى خلص واتنفذ بالكامل على سيرفرات جوجل قبل الريديركت ده خالص
+   (عشان كده الصف بيتسجل والإيميل بيتبعت عادي) — لكن لو الرابط
+   التاني رجع 404 (وده اللي بيحصل، وظاهر في Console كـ
+   "echo:1 Failed to load resource: 404")، الـ fetch بيرمي error،
+   فالكود كان بيفتكر إن الطلب فشل وهو ناجح.
+
+   الحل: mode:'no-cors' — الطلب بيتبعت ويتنفذ بنفس الشكل بالظبط،
+   بس المتصفح مبيحاولش يقرا الرد (بيرجع "opaque")، فمفيش أي فرصة
+   إن مشكلة في قراءة الرد تتحول لـ"فشل" وهمي. النتيجة: بترجع true
+   لو الطلب اتبعت فعلاً، وبترمي exception بس لو النت نفسه فاصل.
+
+   ⚠️ الثمن: مبقاش نقدر نقرا رسالة السيرفر (Order Saved / Success /
+   Unauthorized). عشان كده أي شاشة محتاجة تتأكد إن التعديل نزل فعلاً
+   بتعمل تحديث بـ GET بعدها (والـ GET شغال تمام — نفس الريديركت
+   بيرجع 200 معاه)، وده بيكشف انتهاء الجلسة أو أي مشكلة حقيقية. */
+function tsPostScript(url, payload){
+  return fetch(url, {
+    method: 'POST',
+    mode: 'no-cors',
+    body: JSON.stringify(payload)
+  }).then(() => true);
+}
+
 /* يُستخدم من الحاسبة والمارت — نفس الرابط، ونفس صيغة رقم الطلب
    بالظبط (TRYxxxxxxxx — 8 أرقام بعد TRY، من غير أي شرطة أو سنة أو
    بادئة تانية) في كل مصادر الطلبات على الموقع كله. */
 function tsSubmitOrderRow(payload){
-  return fetch(TS_CONFIG.ORDERS_SCRIPT_URL, {
-    method: 'POST',
-    body: JSON.stringify(payload)
-  });
+  return tsPostScript(TS_CONFIG.ORDERS_SCRIPT_URL, payload);
 }
 
 function tsGenerateMartOrderNumber(){
