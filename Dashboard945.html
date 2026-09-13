@@ -438,6 +438,66 @@ async function loadData() {
 function arrKeyD(s){ return String(s||"").trim().toLowerCase().replace(/\s+/g," "); }
 const ARR_LABEL_D = new Map();
 
+/* ═══════════════════════════════════════════════════════════
+   📅 قراءة موعد الوصول كتاريخ حقيقي — عشان الفلتر يترتب زمنيًا
+   ═══════════════════════════════════════════════════════════
+   🐛→✅ الفلتر كان بيترتب **أبجديًا** (.sort().reverse())، فالترتيب
+   كان بيطلع عشوائي بالنسبة للتواريخ: "6032026" قبل "18OCT2026"
+   لأن "6" أكبر من "1" كحرف، مش كتاريخ.
+
+   المواعيد في الشيت مكتوبة بصيغ مختلفة حسب اللي كاتبها:
+     O-8SEP2026 · 0-18Oct2026 · 21Sep2026 · 29032026 · 6032026
+   الدالة دي بتفهمهم كلهم وترجّع قيمة زمنية (timestamp) للترتيب،
+   أو null لو الصيغة مش مفهومة خالص (وقتها بيتحطوا في الآخر بدل
+   ما يختفوا). ملاحظة: الأرقام الصافية بتتقرا يوم-شهر-سنة
+   (29032026 = 29 مارس 2026) — وده الشائع في كتابتنا. */
+function arrDateValueD(raw){
+    const original = String(raw||"").trim().toUpperCase();
+    if(!original) return null;
+
+    function tryParse(t){
+        if(!t) return null;
+
+        // 1) أرقام صافية: DDMMYYYY أو DMMYYYY (29032026 / 6032026)
+        if(/^\d+$/.test(t) && (t.length === 8 || t.length === 7)){
+            const y = +t.slice(-4);
+            const rest = t.slice(0, -4);           // DDMM أو DMM
+            const mm = +rest.slice(-2);
+            const dd = +rest.slice(0, -2);
+            if(mm >= 1 && mm <= 12 && dd >= 1 && dd <= 31) return new Date(y, mm - 1, dd).getTime();
+        }
+
+        // 2) فيه اسم شهر: 8SEP2026 / 21 Sep 2026
+        const mIdx = MONTHS_D.findIndex(m => t.indexOf(m) !== -1);
+        if(mIdx !== -1){
+            const nums = t.replace(new RegExp(MONTHS_D[mIdx] + "[A-Z]*"), " ").match(/\d+/g) || [];
+            let day = null, year = null;
+            nums.forEach(n => {
+                if(n.length === 4) year = +n;
+                else if(day === null) day = +n;
+            });
+            if(year && day >= 1 && day <= 31) return new Date(year, mIdx, day).getTime();
+        }
+
+        // 3) صيغ بفواصل: 2026-09-18 / 18-09-2026 / 18/9/2026
+        const parts = t.split(/[^0-9]+/).filter(Boolean).map(Number);
+        if(parts.length === 3){
+            let y, m, d;
+            if(String(parts[0]).length === 4){ y = parts[0]; m = parts[1]; d = parts[2]; }
+            else { d = parts[0]; m = parts[1]; y = parts[2]; }
+            if(y > 1900 && m >= 1 && m <= 12 && d >= 1 && d <= 31) return new Date(y, m - 1, d).getTime();
+        }
+        return null;
+    }
+
+    // بنجرّب النص كامل الأول (عشان "18-09-2026" ميتقصّش بالغلط)،
+    // وبعدين بنجرّب تاني من غير البادئة اللي الموظفين بيكتبوها
+    // قدام الموعد (زي "O-" أو "0-") لأنها مش جزء من التاريخ
+    return tryParse(original) !== null
+        ? tryParse(original)
+        : tryParse(original.replace(/^[A-Z0-9]{1,3}[-–—\s]+/, "").trim());
+}
+
 function populateArrivalFilter(){
     const sel = document.getElementById("arrivalSelect");
     if(!sel) return;
@@ -449,7 +509,16 @@ function populateArrivalFilter(){
         const k = arrKeyD(raw);
         if(!ARR_LABEL_D.has(k)) ARR_LABEL_D.set(k, raw);
     });
-    const keys=[...ARR_LABEL_D.keys()].sort().reverse();
+    // 📅 الأحدث الأول ثم الأقدم — ترتيب زمني حقيقي مش أبجدي.
+    // أي موعد بصيغة مش مفهومة بيتحط في الآخر (مبيختفيش من القائمة).
+    const keys=[...ARR_LABEL_D.keys()].sort((a,b)=>{
+        const va = arrDateValueD(ARR_LABEL_D.get(a));
+        const vb = arrDateValueD(ARR_LABEL_D.get(b));
+        if(va !== null && vb !== null) return vb - va;
+        if(va !== null) return -1;
+        if(vb !== null) return 1;
+        return String(b).localeCompare(String(a));
+    });
     const hasEmpty = ordersData.some(o=>!String(o.arrivaldate||"").trim());
     sel.innerHTML = '<option value="">📅 كل مواعيد الوصول</option>'
         + (hasEmpty ? '<option value="__none">— بدون موعد وصول —</option>' : '')
