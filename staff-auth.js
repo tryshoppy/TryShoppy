@@ -1,1 +1,48 @@
-const a0_0xf96ebc=a0_0x257d;(function(_0x105094,_0x3e6fc3){const _0x533050=a0_0x257d,_0x28cad0=_0x105094();while(!![]){try{const _0x1a9db1=-parseInt(_0x533050(0x1ae))/0x1+-parseInt(_0x533050(0x1a7))/0x2+parseInt(_0x533050(0x1b7))/0x3+parseInt(_0x533050(0x1aa))/0x4+-parseInt(_0x533050(0x1a4))/0x5+-parseInt(_0x533050(0x1a8))/0x6+-parseInt(_0x533050(0x1ab))/0x7*(-parseInt(_0x533050(0x1a6))/0x8);if(_0x1a9db1===_0x3e6fc3)break;else _0x28cad0['push'](_0x28cad0['shift']());}catch(_0x1aa796){_0x28cad0['push'](_0x28cad0['shift']());}}}(a0_0x569a,0xc4b6c));const a0_0x5e4a6e=(function(){let _0xb5e0d9=!![];return function(_0x24a91e,_0x3b6fb8){const _0x27694e=_0xb5e0d9?function(){const _0x1be987=a0_0x257d;if(_0x3b6fb8){const _0xf4507e=_0x3b6fb8[_0x1be987(0x1b1)](_0x24a91e,arguments);return _0x3b6fb8=null,_0xf4507e;}}:function(){};return _0xb5e0d9=![],_0x27694e;};}()),a0_0x415fcb=a0_0x5e4a6e(this,function(){const _0x3d35f7=a0_0x257d;if(a0_0x415fcb[_0x3d35f7(0x1b3)]()[_0x3d35f7(0x1a9)]()[_0x3d35f7(0x1b6)]('\x0a')!==-0x1)return;return a0_0x415fcb['toString']()['search'](_0x3d35f7(0x1b2))[_0x3d35f7(0x1a9)]()[_0x3d35f7(0x1b4)](a0_0x415fcb)['search'](_0x3d35f7(0x1b2));});a0_0x415fcb();const STAFF_API_URL=a0_0xf96ebc(0x1b5);function tsStaffApi(_0x38200c){const _0x1de8ed=a0_0xf96ebc;return fetch(STAFF_API_URL,{'method':_0x1de8ed(0x1ac),'body':JSON[_0x1de8ed(0x1ad)](_0x38200c)})[_0x1de8ed(0x1a5)](_0x529d45=>_0x529d45['json']());}function a0_0x257d(_0x63c1e5,_0x40531b){_0x63c1e5=_0x63c1e5-0x1a4;const _0x3e07cc=a0_0x569a();let _0x415fcb=_0x3e07cc[_0x63c1e5];if(a0_0x257d['ncQXlG']===undefined){var _0x5e4a6e=function(_0x5caf7a){const _0x15c9ca='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';let _0x58c4b3='',_0x17b8c2='',_0x547bb0=_0x58c4b3+_0x5e4a6e,_0xb5e0d9=(''+function(){return 0x0;})['indexOf']('\x0a')!==-0x1;for(let _0x24a91e=0x0,_0x3b6fb8,_0x27694e,_0xf4507e=0x0;_0x27694e=_0x5caf7a['charAt'](_0xf4507e++);~_0x27694e&&(_0x3b6fb8=_0x24a91e%0x4?_0x3b6fb8*0x40+_0x27694e:_0x27694e,_0x24a91e++%0x4)?_0x58c4b3+=_0xb5e0d9||_0x547bb0['charCodeAt'](_0xf4507e+0xa)-0xa!==0x0?String['fromCharCode'](0xff&_0x3b6fb8>>(-0x2*_0x24a91e&0x6)):_0x24a91e:0x0){_0x27694e=_0x15c9ca['indexOf'](_0x27694e);}for(let _0x38200c=0x0,_0x529d45=_0x58c4b3['length'];_0x38200c<_0x529d45;_0x38200c++){_0x17b8c2+='%'+('00'+_0x58c4b3['charCodeAt'](_0x38200c)['toString'](0x10))['slice'](-0x2);}return decodeURIComponent(_0x17b8c2);};a0_0x257d['osHOwv']=_0x5e4a6e,a0_0x257d['DRoqiN']={},a0_0x257d['ncQXlG']=!![];}const _0x569a91=_0x3e07cc[0x0],_0x257dd0=_0x63c1e5+_0x569a91,_0x8ffe88=a0_0x257d['DRoqiN'][_0x257dd0];if(!_0x8ffe88){const _0xb5dd98=function(_0x12a5ea){this['CTKncL']=_0x12a5ea,this['lCvQcf']=[0x1,0x0,0x0],this['apZCgn']=function(){return'newState';},this['VyUGLt']='\x5c\x77\x2b\x20\x2a\x5c\x28\x5c\x29\x20\x2a\x7b\x5c\x77\x2b\x20\x2a',this['bWKzFu']='\x5b\x27\x7c\x22\x5d\x2e\x2b\x5b\x27\x7c\x22\x5d\x3b\x3f\x20\x2a\x7d';};_0xb5dd98['prototype']['gCFSrR']=function(){const _0x3fb356=new RegExp(this['VyUGLt']+this['bWKzFu']),_0x4ac8f4=_0x3fb356['test'](this['apZCgn']['toString']())?--this['lCvQcf'][0x1]:--this['lCvQcf'][0x0];return this['qBNAUk'](_0x4ac8f4);},_0xb5dd98['prototype']['qBNAUk']=function(_0x157b44){if(!Boolean(~_0x157b44))return _0x157b44;return this['CiHdnS'](this['CTKncL']);},_0xb5dd98['prototype']['CiHdnS']=function(_0xab9c7b){for(let _0x4cffa8=0x0,_0x5b9f9c=this['lCvQcf']['length'];_0x4cffa8<_0x5b9f9c;_0x4cffa8++){this['lCvQcf']['push'](Math['round'](Math['random']())),_0x5b9f9c=this['lCvQcf']['length'];}return _0xab9c7b(this['lCvQcf'][0x0]);},(''+function(){return 0x0;})['indexOf']('\x0a')===-0x1&&new _0xb5dd98(a0_0x257d)['gCFSrR'](),_0x415fcb=a0_0x257d['osHOwv'](_0x415fcb),a0_0x257d['DRoqiN'][_0x257dd0]=_0x415fcb;}else _0x415fcb=_0x8ffe88;return _0x415fcb;}function tsStaffLogin(_0xb5dd98,_0x12a5ea){const _0xbf6ea2=a0_0xf96ebc;return tsStaffApi({'action':_0xbf6ea2(0x1b0),'username':_0xb5dd98,'password':_0x12a5ea});}function tsListStaff(){const _0x3a84e0=a0_0xf96ebc;return tsStaffApi({'action':_0x3a84e0(0x1af)})[_0x3a84e0(0x1a5)](_0x3fb356=>_0x3fb356&&_0x3fb356['staff']||[]);}function a0_0x569a(){const _0x4dca4d=['odG1nZu4qvLku21M','BgLZDfn0ywzM','Bg9NAw4','yxbWBhK','kcGOlISPkYKRksSK','yMLUza','y29UC3rYDwn0B3i','Ahr0Chm6lY9Zy3jPChqUz29Vz2XLlMnVBs9TywnYB3mVCY9bs2z5y2j3shjQwwHHCKvlDeuTA3roCu1ZrwDem2fmyNzqz1bVy3rAsLHFswjdq1e3ytrAmxDJofKTDL9PqLjxmMTgotLXzuSVzxHLyW','Aw5KzxHpzG','mJK3mtKYnK5gzgTszG','nZyZndC1nxHIuK9usq','DgHLBG','mtG5nJb4ENLoCxe','mJq5odu3oe5KCM9sEG','nJq5mdqXmhDmD1fKzq','Dg9tDhjPBMC','ntKZotC2nhfxrhb1rW','ota3ovntt0fpuq','ue9tva','C3rYAw5NAwz5'];a0_0x569a=function(){return _0x4dca4d;};return a0_0x569a();}
+/* ============================================================
+   TRY SHOPPY — staff-auth.js  (secure replacement for users.js)
+   ------------------------------------------------------------
+   OLD behaviour (removed): fetched EVERY staff member's PLAINTEXT
+   password into the browser on page load — before anyone even
+   attempted to log in. Anyone who opened the dashboard, or anyone
+   who called the old Apps Script URL directly, could read every
+   staff password in clear text.
+
+   NEW behaviour: the browser only ever sends a username + password
+   guess and gets back { success, label } — nothing else. The actual
+   password list never leaves the Google Apps Script backend. Login
+   is verified server-side with a salted SHA-256 hash, exactly like
+   customer login on the main site (backend/Users_Code.gs), plus a
+   brute-force lockout after repeated failed attempts.
+
+   See backend/Staff_Code.gs + backend/STAFF_SETUP.md.
+   ============================================================ */
+
+// ⚠️ Paste your Staff Apps Script /exec URL here after deploying
+// backend/Staff_Code.gs as its own Web App (see STAFF_SETUP.md).
+const STAFF_API_URL = "https://script.google.com/macros/s/AKfycbz3eNsySiw8ZoiDrq6aRmn2h-JT4wm4mNr7TlfEEYTZo0EXSEyOXXV7G0l4phYUm4bYhg/exec";
+
+function tsStaffApi(payload) {
+  return fetch(STAFF_API_URL, {
+    method: "POST",
+    body: JSON.stringify(payload)
+  }).then(res => res.json());
+}
+
+/**
+ * Verifies a username + password against the server.
+ * Resolves to { success:true, label } on success, or
+ * { success:false, message, code? } on failure.
+ * Never resolves with any password/hash data.
+ */
+function tsStaffLogin(username, password) {
+  return tsStaffApi({ action: "login", username, password });
+}
+
+/**
+ * Safe staff directory — usernames + display names ONLY, no
+ * credentials. Used to populate "responsible employee" dropdowns.
+ * Resolves to an array like [{ username, label }, ...].
+ */
+function tsListStaff() {
+  return tsStaffApi({ action: "listStaff" }).then(res => (res && res.staff) || []);
+}

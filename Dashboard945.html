@@ -461,7 +461,7 @@ function populateArrivalFilter(){
 /* 🆕 توحيد رقم الموبايل للبحث — بيشيل أي رموز/مسافات، وبيشيل
    كود الدولة 20 والصفر البادئ، عشان كل الصيغ تتطابق مع بعض */
 function normPhoneD(p){
-    return String(p||"").replace(/\D/g,"").replace(/^20/,"").replace(/^0/,"");
+    return String(p||"").replace(/\D/g,"").replace(/^2/,"").replace(/^0/,"");
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -606,17 +606,31 @@ function createRowHTML(o) {
 
     const checked = selectedOrderIds.has(printOrder);
 
-    return `<tr class="orow tone-${tone} ${checked?'is-sel':''}" data-order="${printOrder}">
-        <td class="c-check"><input type="checkbox" class="row-check" value="${printOrder}" ${checked ? 'checked' : ''} onchange="onRowCheckChange(this)"></td>
+    // 🔒 كل حقل جاي من طلب عميل (اسم، موبايل، مواصفات، رابط منتج...)
+    // بيتحط زي ما هو في الشيت، ومن غير تنضيف هنا كان أي عميل يقدر
+    // يكتب HTML/JS في أي حقل من دول ويشغّله في متصفح الموظف نفسه
+    // (اللي معاه staffToken صالح في localStorage) — راجع tsEscapeHtml
+    // وtsJsAttr في assets/app.js للتفاصيل.
+    const safeOrder = tsEscapeHtml(printOrder);
+    const safeOrderJs = tsJsAttr(printOrder);
+    const safePhoneJs = tsJsAttr(printPhone);
+    const safeCustomerName = tsEscapeHtml(o.customerName || "—");
+    const safePhone = tsEscapeHtml(o.phone || "");
+    const safeDims = tsEscapeHtml(dims);
+    const safeArrival = tsEscapeHtml(o.arrivaldate || '');
+    const safeUser = tsEscapeHtml(o.user || '');
+
+    return `<tr class="orow tone-${tone} ${checked?'is-sel':''}" data-order="${safeOrder}">
+        <td class="c-check"><input type="checkbox" class="row-check" value="${safeOrder}" ${checked ? 'checked' : ''} onchange="onRowCheckChange(this)"></td>
 
         <td class="c-id">
-            <div class="oid">${o.order}</div>
+            <div class="oid">${safeOrder}</div>
             ${o.date ? `<div class="odate">${new Date(o.date).toISOString().split('T')[0]}</div>` : ``}
         </td>
 
         <td class="c-cust">
-            <div class="cname">${o.customerName || "—"}</div>
-            <div class="cphone">${o.phone || ""}</div>
+            <div class="cname">${safeCustomerName}</div>
+            <div class="cphone">${safePhone}</div>
         </td>
 
         <td class="c-spec">
@@ -624,7 +638,7 @@ function createRowHTML(o) {
                 <span class="chip">×${qty}</span>
                 <span class="chip">${weight} g</span>
             </div>
-            <div class="dims" title="${dims}">${dims}</div>
+            <div class="dims" title="${safeDims}">${safeDims}</div>
         </td>
 
         <td class="c-money">
@@ -635,7 +649,7 @@ function createRowHTML(o) {
 
         <td class="c-usd"><input type="number" id="usd-${printOrder}" class="inp usd" value="${parseFloat(o.usd || 0).toFixed(2)}"></td>
 
-        <td class="c-arr"><input type="text" id="arrival-${printOrder}" class="inp" value="${o.arrivaldate || ''}" placeholder="موعد الوصول"></td>
+        <td class="c-arr"><input type="text" id="arrival-${printOrder}" class="inp" value="${safeArrival}" placeholder="موعد الوصول"></td>
 
         <td class="c-status">
             <select id="status-${printOrder}" class="stsel st-${tone}">
@@ -651,15 +665,15 @@ function createRowHTML(o) {
             </select>
         </td>
 
-        <td class="c-user">${o.user ? `<span class="ubadge">${o.user}</span>` : `<span class="muted">—</span>`}</td>
+        <td class="c-user">${o.user ? `<span class="ubadge">${safeUser}</span>` : `<span class="muted">—</span>`}</td>
 
         <td class="c-act">
             <div class="acts">
                 <button class="ib save" ${isGrouped ? 'disabled' : ''}
-                    onclick="${isGrouped ? 'groupLockMsg()' : `updateOrder('${printOrder}')`}"
+                    onclick="${isGrouped ? 'groupLockMsg()' : `updateOrder('${safeOrderJs}')`}"
                     title="حفظ التعديلات"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg></button>
-                <button class="ib print" onclick="printLabel('${printPhone}', '${printOrder}')" title="طباعة بوليصة"><svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></button>
-                ${o.link ? `<a href="${o.link}" target="_blank" class="ib link" title="رابط المنتج"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></a>` : ''}
+                <button class="ib print" onclick="printLabel('${safePhoneJs}', '${safeOrderJs}')" title="طباعة بوليصة"><svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></button>
+                ${o.link ? `<a href="${tsSafeHref(o.link)}" target="_blank" rel="noopener noreferrer" class="ib link" title="رابط المنتج"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></a>` : ''}
             </div>
         </td>
     </tr>`;
@@ -848,7 +862,7 @@ function generateLabelHTML(data, isBulk = false) {
     const totalQ = data.totalQty || data.quantity || 1;
 
     const rawPhone   = (data.phone || '').toString().replace(/\s/g, '');
-    const barcodeVal = rawPhone.replace(/\D/g, '') || data.order.toString();
+    const barcodeVal = tsEscapeHtml(rawPhone.replace(/\D/g, '') || data.order.toString());
 
     return `
     <div class="label${isBulk ? ' bulk' : ''}">
@@ -864,15 +878,15 @@ function generateLabelHTML(data, isBulk = false) {
         </div>
         <div class="sec recipient">
             <div class="sec-head">&#9654; إلى المستلم / Recipient</div>
-            <div class="cust-name">${data.customerName}</div>
+            <div class="cust-name">${tsEscapeHtml(data.customerName)}</div>
             <table class="info-tbl">
                 <tr>
                     <td class="info-icon">&#128205;</td>
-                    <td class="info-val">${data.governorate} &mdash; ${data.address}</td>
+                    <td class="info-val">${tsEscapeHtml(data.governorate)} &mdash; ${tsEscapeHtml(data.address)}</td>
                 </tr>
                 <tr>
                     <td class="info-icon">&#128222;</td>
-                    <td class="info-val phone-num">${data.phone}</td>
+                    <td class="info-val phone-num">${tsEscapeHtml(data.phone)}</td>
                 </tr>
             </table>
         </div>
@@ -894,7 +908,7 @@ function generateLabelHTML(data, isBulk = false) {
         </div>
         <div class="order-strip">
             <span class="ord-lbl">&#9646;&#9646; رقم / رقم الطلب</span>
-            <span class="ord-val">${data.order}</span>
+            <span class="ord-val">${tsEscapeHtml(data.order)}</span>
         </div>
         <div class="cod-sec">
             <div class="cod-top-label">COD-المبلغ المطلوب تحصيله عند التسليم</div>
@@ -998,23 +1012,19 @@ function printLabel(phone, orderId) {
 
     if (!toPrint) return;
 
-    const win = window.open('', '_blank');
-    win.document.write(`<!DOCTYPE html>
+    tsOpenHtmlDoc(`<!DOCTYPE html>
         <html dir="rtl" lang="ar">
         <head><meta charset="UTF-8">${getLabelStyles()}</head>
         <body>${generateLabelHTML(toPrint)}${getBarcodeScript()}</body></html>`);
-    win.document.close();
 }
 
 function printAllDisplayed() {
     let allHTML = '';
     currentFilteredData.forEach(item => { allHTML += generateLabelHTML(item, true); });
-    const win = window.open('', '_blank');
-    win.document.write(`<!DOCTYPE html>
+    tsOpenHtmlDoc(`<!DOCTYPE html>
         <html dir="rtl" lang="ar">
         <head><meta charset="UTF-8">${getLabelStyles()}</head>
         <body>${allHTML}${getBarcodeScript()}</body></html>`);
-    win.document.close();
 }
 
 function logout(){
@@ -1119,7 +1129,7 @@ function selectAllFiltered(){
     toggleAll(checkAll);
 }
 
-function applyBulkStatus(){
+async function applyBulkStatus(){
     const status = document.getElementById("bulkStatus").value;
     if(!status) return alert("اختار الحالة");
 
@@ -1130,32 +1140,50 @@ function applyBulkStatus(){
     const bulkBtn = document.getElementById("bulkApplyBtn");
     tsSetBtnLoading(bulkBtn, "جاري التطبيق...");
 
-    const requests = selected.map(orderId=>
-        fetch(scriptURL,{
-            method:"POST",
-            body: JSON.stringify({
-                action:"updateStatus",
-                order: orderId,
-                status: status,
-                user: (typeof getCurrentUser === "function" ? getCurrentUser() : ""),
-                staffToken: getStaffToken()
-            })
-        }).then(res=>res.text()).then(text=>({orderId, ok: text && text.indexOf("Success")!==-1, text}))
-          .catch(err=>({orderId, ok:false, text:String(err)}))
-    );
+    // 🐛→✅ السبب اللي بيخلي التحديث الجماعي يفشل لعدد عشوائي من
+    // الطلبات (زي "اتحدّث 12 من 49") مش له علاقة برقم الطلب نفسه
+    // ولا بياناته — قبل كده كل الطلبات المحددة (ممكن تبقى عشرات) كانت
+    // بتتبعت كـ Promise.all واحد، يعني كل الروابط بتتضرب لسكريبت
+    // Orders_Code.gs في نفس اللحظة بالظبط. Google Apps Script بيحدد
+    // أقصى عدد تنفيذات متوازية مسموحة لنفس السكريبت (سقف صغير نسبيًا،
+    // ومش موثّق بدقة لكل الحسابات) — أي نداء زيادة عن السقف ده كان
+    // بيترفض/يفشل من عند جوجل نفسها قبل ما يوصل لكود التحديث أصلًا،
+    // فالطلبات اللي "بتفشل" كانت عشوائية حسب زحمة السيرفر وقتها، مش
+    // حسب صيغة رقم الطلب أو أي حاجة تانية في الداتا. نفس الفكرة بالظبط
+    // كانت اتصلّحت قبل كده في تسجيل السلة (calculator.html/DirectOrder.html
+    // — راجع التعليق هناك) بإرسال الطلبات ورا بعض بدل مرة واحدة، بس
+    // التحديث الجماعي هنا فات عليه الإصلاح ده. الحل: نبعت الطلبات
+    // المحددة على دفعات صغيرة (BATCH_SIZE) ورا بعض، مش كلهم مرة واحدة.
+    const BATCH_SIZE = 6;
+    const results = [];
+    for(let i = 0; i < selected.length; i += BATCH_SIZE){
+        const batch = selected.slice(i, i + BATCH_SIZE);
+        const batchResults = await Promise.all(batch.map(orderId=>
+            fetch(scriptURL,{
+                method:"POST",
+                body: JSON.stringify({
+                    action:"updateStatus",
+                    order: orderId,
+                    status: status,
+                    user: (typeof getCurrentUser === "function" ? getCurrentUser() : ""),
+                    staffToken: getStaffToken()
+                })
+            }).then(res=>res.text()).then(text=>({orderId, ok: text && text.indexOf("Success")!==-1, text}))
+              .catch(err=>({orderId, ok:false, text:String(err)}))
+        ));
+        results.push(...batchResults);
+    }
 
-    Promise.all(requests).then(results=>{
-        tsClearBtnLoading(bulkBtn);
-        const failed = results.filter(r=>!r.ok);
-        if(failed.length===0){
-            alert("✅ تم تحديث "+results.length+" طلب بنجاح");
-        }else{
-            alert("⚠️ اتحدّث "+(results.length-failed.length)+" من "+results.length+" طلب.\n"
-                +"الطلبات دي فشلت: "+failed.map(f=>f.orderId).join(", "));
-        }
-        selectedOrderIds.clear();
-        loadData();
-    });
+    tsClearBtnLoading(bulkBtn);
+    const failed = results.filter(r=>!r.ok);
+    if(failed.length===0){
+        alert("✅ تم تحديث "+results.length+" طلب بنجاح");
+    }else{
+        alert("⚠️ اتحدّث "+(results.length-failed.length)+" من "+results.length+" طلب.\n"
+            +"الطلبات دي فشلت: "+failed.map(f=>f.orderId).join(", "));
+    }
+    selectedOrderIds.clear();
+    loadData();
 }
 function groupLockMsg(){
   alert("⚠️ تم تفعيل التجميع\n\n✋ لا يمكن التعديل أثناء التجميع\nيرجى فك التجميع للتعديل");
@@ -1168,16 +1196,16 @@ function createRamaRowHTML(o){
     const endP   = finalP - dep;
     return `<tr class="orow rama-row">
         <td class="c-check"><span class="rtag">RAMA</span></td>
-        <td class="c-id"><div class="oid rama-id">${o.order}</div><div class="odate">${o.ramaItems} صنف</div></td>
-        <td class="c-cust"><div class="cname">${o.customerName}</div><div class="cphone muted">نظام منفصل — للعرض فقط</div></td>
-        <td class="c-spec"><div class="chips"><span class="chip">×${o.quantity}</span></div><div class="dims">${o.dimensions}</div></td>
+        <td class="c-id"><div class="oid rama-id">${tsEscapeHtml(o.order)}</div><div class="odate">${tsEscapeHtml(o.ramaItems)} صنف</div></td>
+        <td class="c-cust"><div class="cname">${tsEscapeHtml(o.customerName)}</div><div class="cphone muted">نظام منفصل — للعرض فقط</div></td>
+        <td class="c-spec"><div class="chips"><span class="chip">×${tsEscapeHtml(o.quantity)}</span></div><div class="dims">${tsEscapeHtml(o.dimensions)}</div></td>
         <td class="c-money">
             <div class="rmoney"><span>إجمالي</span><b class="mono">${finalP.toLocaleString()}</b></div>
             <div class="rmoney"><span>عربون</span><b class="mono">${dep.toLocaleString()}</b></div>
             <div class="net">${endP.toLocaleString()} <b>EGP</b></div>
         </td>
         <td class="c-usd"><span class="rusd mono">$${(parseFloat(o.usd)||0).toLocaleString(undefined,{maximumFractionDigits:2})}</span></td>
-        <td class="c-arr"><span class="rarr">${o.arrivaldate || "—"}</span></td>
+        <td class="c-arr"><span class="rarr">${tsEscapeHtml(o.arrivaldate || "—")}</span></td>
         <td class="c-status"><span class="rstatus">إجمالي RAMA</span></td>
         <td class="c-user"><span class="muted">—</span></td>
         <td class="c-act"><span class="muted" style="font-size:11.5px">للعرض فقط</span></td>

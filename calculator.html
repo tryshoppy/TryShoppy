@@ -282,7 +282,7 @@ function showStep(step){
 /* لو فيه عناصر متسيبة في السلة من زيارة سابقة (قفل المتصفح قبل ما يكمل)، نورّيها على طول */
 (function(){ renderCalcCartBadge(); if(tsGetCalcCart().length){ renderCart(); showStep('cart'); } })();
 
-function generateOrder(){return'TRY-'+Math.floor(100000+Math.random()*900000);}
+function generateOrder(){return'TRY'+Math.floor(10000000+Math.random()*90000000);}
 function checkCountry(){const v=document.getElementById('country').value;document.getElementById('countryMsg').classList.toggle('hidden',v!=='OTHER');}
 
 /* ============================================

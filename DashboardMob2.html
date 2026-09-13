@@ -57,8 +57,13 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .totbar{margin-top:9px;background:var(--gold);color:var(--navy);border-radius:11px;padding:9px 13px;font-weight:900;font-size:14.5px;text-align:center;display:none}
 .totbar b{font-family:var(--fm)}
 
-/* ══ شريط الأدوات ══ */
-.tools{position:sticky;top:0;z-index:30;background:var(--paper);padding:10px 14px 8px;display:flex;gap:8px}
+/* ══ شريط الأدوات ══
+   🐛→✅ كان top:0 هنا زي الهيدر بالظبط — لأن الاتنين sticky بنفس
+   top:0، شريط الأدوات (الفلاتر + التجميع) كان بيتحط تحت الهيدر في
+   الـ z-index وقت السكرول (40 > 30)، فيختفي عمليًا تحت الهيدر بدل
+   ما يفضل ثابت وظاهر تحته. دلوقتي بيلزق تحت الهيدر مباشرة (top =
+   ارتفاع الهيدر الفعلي، بيتحسب بجافاسكريبت في --hdr-h). */
+.tools{position:sticky;top:var(--hdr-h, 64px);z-index:30;background:var(--paper);padding:10px 14px 8px;display:flex;gap:8px}
 .tool{flex:1;padding:11px;border-radius:11px;border:1px solid var(--line);background:var(--panel);font-weight:800;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px}
 .tool.on{background:var(--navy);color:var(--gold);border-color:var(--navy)}
 .tool .n{background:var(--gold);color:var(--navy);border-radius:20px;padding:1px 7px;font-size:11px;font-family:var(--fm)}
@@ -95,6 +100,21 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .st-late{background:var(--late-wash);color:var(--late)}
 .st-move{background:var(--blue-wash);color:var(--blue)}
 .who{font-size:10.5px;font-weight:800;padding:3px 9px;border-radius:20px;background:var(--navy);color:var(--gold-2);white-space:nowrap}
+/* ══ إخفاء الطلب عن موظف معيّن — بس للأدمن ══
+   🐛→✅ قبل كده كانت لوحة الموظفين (.hf-panel) بتتحط جوه كل كارت
+   لوحده وبـ [hidden] عشان تتقفل افتراضيًا — بس .hf-panel{display:flex}
+   هنا (قاعدة author) كانت بتكسب على [hidden]{display:none} بتاعة
+   المتصفح (author بيغلب user-agent حتى مع تساوي الـ specificity)،
+   فاللوحة كانت ظاهرة دايمًا في كل كارت مهما ضغطت — ده اللي كان بيعمل
+   الزحمة. الحل الأنضف: مودال واحد مشترك لكل الكروت (زي مودال "إضافة
+   منتج" بالظبط) بيتفتح بس وقت الحاجة، مش لوحة تتكرر في كل كارت. */
+.hf-toggle{width:100%;text-align:center;padding:8px 10px;border-radius:9px;border:1px dashed var(--line);background:var(--line-2);color:var(--ink-2);font-weight:800;font-size:12px;cursor:pointer;margin-top:8px}
+.hf-toggle.hf-active{background:var(--dead-wash);border-color:#F5CFCF;border-style:solid;color:var(--dead)}
+.hf-modal-list{display:flex;flex-direction:column;gap:2px;max-height:280px;overflow-y:auto;margin-bottom:6px}
+.hf-item{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;padding:9px 4px;border-bottom:1px solid var(--line-2)}
+.hf-item:last-child{border-bottom:none}
+.hf-item input{width:19px;height:19px;flex:none}
+.hf-empty{font-size:12px;color:var(--ink-3)}
 .oc-cust{background:var(--line-2);border-radius:11px;padding:10px 12px;margin-bottom:10px}
 .oc-cust .nm{font-weight:900;font-size:14.5px}
 .oc-cust .ph{font-family:var(--fm);font-size:13px;color:var(--blue);direction:ltr;display:inline-block;margin-top:2px;text-decoration:none;font-weight:600}
@@ -187,12 +207,11 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
       <div id="headerUserBadge" class="who"></div>
       <button class="out" onclick="logout()">خروج</button>
     </div>
-    <div id="totalBox" class="totbar">الإجمالي: 0 ج.م</div>
   </header>
 
   <div class="tools">
     <button class="tool" id="filterToggle" onclick="toggleFilters()">⚙️ الفلاتر <span class="n" id="fCount" style="display:none">0</span></button>
-    <button class="tool" onclick="toggleGrouping()">👥 تجميع</button>
+    <button class="tool" id="groupToggle" onclick="toggleGrouping()">👥 تجميع</button>
   </div>
 
   <div class="fpanel" id="fpanel">
@@ -263,11 +282,38 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
     </div>
   </div>
 
+  <!-- ══ مودال إخفاء الطلب عن موظف معيّن — بس للأدمن ══
+       مودال واحد مشترك لكل الكروت (مش لوحة بتتكرر جوه كل كارت). -->
+  <div id="hfModal" class="modal-overlay">
+    <div class="modal-content">
+      <h3>🔒 إخفاء الطلب عن موظف</h3>
+      <p style="font-size:12.5px;color:var(--ink-2);margin:-8px 0 12px;text-align:center">
+        رقم الطلب: <b id="hfModalOrderId"></b> — <span id="hfModalCustomerName"></span>
+      </p>
+      <div id="hfModalList" class="hf-modal-list"></div>
+      <div style="display:flex;gap:10px;margin-top:6px">
+        <button class="ab" style="flex:1" onclick="closeHiddenFromModal()">إلغاء</button>
+        <button class="ab primary" style="flex:1" id="hfModalSaveBtn" onclick="saveHiddenFrom()">💾 حفظ</button>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script src="assets/config.js"></script>
 <script src="assets/app.js"></script>
 <script>
+/* 📏 شريط الأدوات (.tools) بيلزق تحت الهيدر مباشرة بدل ما يتحط
+   تحته وقت السكرول — بنحسب ارتفاع الهيدر الفعلي (بيتغيّر حسب
+   safe-area-inset-top على الأجهزة اللي فيها notch) ونحطه في
+   --hdr-h، بدل رقم ثابت هيغلط على شاشات مختلفة. */
+function syncHeaderHeight(){
+  const hdr = document.querySelector('.hdr');
+  if(hdr) document.documentElement.style.setProperty('--hdr-h', hdr.offsetHeight + 'px');
+}
+window.addEventListener('resize', syncHeaderHeight);
+window.addEventListener('orientationchange', syncHeaderHeight);
+
 /* ══ لوحة الفلاتر — على الموبايل بتبقى مقفولة افتراضيًا عشان
    الكروت تبان من أول لحظة من غير تمرير طويل ══ */
 function toggleFilters(){
@@ -352,6 +398,7 @@ async function loadData(){
 function normalizePhone(phone){
   return String(phone || "")
     .replace(/\D/g,'')   // يشيل أي رموز
+    .replace(/^2/, '')   // يشيل كود الدولة 2 (زي normalizePhoneOrders في Orders_Code.gs)
     .replace(/^0+/, ''); // يشيل الصفر الأول
 }
 
@@ -366,10 +413,11 @@ function formatPhone(phone){
 
 function renderCards(data, append = false){
   const container = document.getElementById("cardsContainer");
-  
-  if(!append) container.innerHTML = ""; 
-  
-  let htmlString = ""; 
+  const isAdminUI = localStorage.getItem("isAdmin") === "1";
+
+  if(!append) container.innerHTML = "";
+
+  let htmlString = "";
 
   data.forEach(o => {
     let phone = String(o.phone || "").replace(/\D/g, "").replace(/^0/, "");
@@ -388,14 +436,14 @@ function renderCards(data, append = false){
     let linksHTML = "";
     if (isGrouped && o.items) {
       linksHTML = o.items.map((item, i) => `
-        <a href="${item.link}" target="_blank" class="link-btn has-qty">
+        <a href="${tsSafeHref(item.link)}" target="_blank" rel="noopener noreferrer" class="link-btn has-qty">
           <span>🔗 منتج ${i + 1} - ${parseFloat(item.price).toLocaleString()} ج.م</span>
-          <span class="qty-tag">الكمية: ${item.qty || 1}</span>
+          <span class="qty-tag">الكمية: ${tsEscapeHtml(item.qty || 1)}</span>
         </a>
       `).join('');
     } else {
       linksHTML = `
-        <a href="${o.link || '#'}" target="_blank" class="link-btn">
+        <a href="${tsSafeHref(o.link)}" target="_blank" rel="noopener noreferrer" class="link-btn">
           🔗 معاينة المنتج
         </a>
       `;
@@ -457,7 +505,7 @@ let summaryBtn = "";
 if (isGrouped) {
   summaryBtn = `
     <button
-      onclick="sendUndeliveredSummary('${cleanOrderId}')"
+      onclick="sendUndeliveredSummary('${tsJsAttr(cleanOrderId)}')"
       class="link-btn"
       style="background:#f59e0b; color:white; border-color:#d97706;"
     >
@@ -503,38 +551,64 @@ if (o.status === "Arrived Cairo HUB") {
   }
 }
 
+    // 🔒 نفس التنضيف المستخدم في Dashboard945.html — بيانات الطلب
+    // (اسم/موبايل/مواصفات/رابط) جاية من العميل زي ما هي، من غير
+    // escape كانت بتفتح XSS في متصفح الموظف نفسه (staffToken في
+    // localStorage وقتها). راجع tsEscapeHtml/tsJsAttr في assets/app.js.
+    const safeOrderId = tsEscapeHtml(orderId);
+    const safeCleanOrderIdJs = tsJsAttr(cleanOrderId);
+    const safeCustomerName = tsEscapeHtml(o.customerName || "—");
+    const safeStatus = tsEscapeHtml(o.status || 'Pending');
+    const safeUser = tsEscapeHtml(o.user || '');
+    const safeDims = tsEscapeHtml(dims);
+    const safeArrival = tsEscapeHtml(currentArrival);
+
+    // 🔒 "إخفاء عن" — بس للأدمن (IsAdmin=TRUE في شيت الموظفين)، وبس
+    // لصف طلب حقيقي (مش صف مُجمّع isGrouped، لأن مفيش رقم طلب واحد
+    // بيتحفظ عليه). التحقق الحقيقي من الصلاحية بيحصل في السيرفر
+    // (Orders_Code.gs) على أي حال — isAdminUI هنا بس تحكم في ظهور
+    // الزرار، مش مصدر الحماية. الزرار ده بس شارة الحالة الحالية +
+    // فتح مودال مشترك (hfModal) — مفيش لوحة بتتكرر في كل كارت.
+    const hiddenSet = new Set(String(o.hiddenFrom || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean));
+    const hiddenFromHtml = (isAdminUI && !isGrouped) ? `
+      <button type="button" class="hf-toggle ${hiddenSet.size ? 'hf-active' : ''}" onclick="openHiddenFromModal('${safeCleanOrderIdJs}')">
+        ${hiddenSet.size ? '🔒 مخفي عن ' + hiddenSet.size + ' موظف' : '🔓 إخفاء الطلب عن موظف معيّن'}
+      </button>
+    ` : '';
+
     htmlString += `
     <article class="ocard ${isGrouped ? 'grouped' : ''}">
       <div class="oc-top">
         <div class="oc-id">
-          <b>${orderId}</b>
-          <time>📅 ${o.date || '—'}</time>
+          <b>${safeOrderId}</b>
+          <time>📅 ${tsEscapeHtml(o.date || '—')}</time>
         </div>
         <div class="oc-tags">
-          <span class="st st-${statusTone(o.status)}">${o.status || 'Pending'}</span>
-          ${o.user ? `<span class="who">👤 ${o.user}</span>` : ''}
+          <span class="st st-${statusTone(o.status)}">${safeStatus}</span>
+          ${o.user ? `<span class="who">👤 ${safeUser}</span>` : ''}
         </div>
       </div>
+      ${hiddenFromHtml}
 
       <div class="oc-cust">
-        <div class="nm">${o.customerName || "—"}</div>
-        <a class="ph" href="tel:${String(o.phone||'').replace(/\D/g,'')}">${formatPhone(o.phone)}</a>
+        <div class="nm">${safeCustomerName}</div>
+        <a class="ph" href="tel:${String(o.phone||'').replace(/\D/g,'')}">${tsEscapeHtml(formatPhone(o.phone))}</a>
       </div>
 
       <div class="oc-chips">
         <span class="chip">×${qty}</span>
         <span class="chip">${weight} جم</span>
-        <span class="chip wide" title="${dims}">📝 ${dims}</span>
+        <span class="chip wide" title="${safeDims}">📝 ${safeDims}</span>
       </div>
 
       <div class="oc-grid">
         <label class="fl">
           <span>الإجمالي (EGP)</span>
-          <input type="number" id="egp-${cleanOrderId}" value="${total}" oninput="recalc('${cleanOrderId}', ${ship})">
+          <input type="number" id="egp-${cleanOrderId}" value="${total}" oninput="recalc('${safeCleanOrderIdJs}', ${ship})">
         </label>
         <label class="fl">
           <span>المدفوع مقدمًا</span>
-          <input type="number" id="deposit-${cleanOrderId}" class="neg" value="${dep}" oninput="recalc('${cleanOrderId}', ${ship})">
+          <input type="number" id="deposit-${cleanOrderId}" class="neg" value="${dep}" oninput="recalc('${safeCleanOrderIdJs}', ${ship})">
         </label>
         <label class="fl">
           <span>التكلفة (USD)</span>
@@ -542,7 +616,7 @@ if (o.status === "Arrived Cairo HUB") {
         </label>
         <label class="fl">
           <span>موعد الوصول</span>
-          <input type="text" id="arrival-${cleanOrderId}" class="arr" value="${currentArrival}" placeholder="—">
+          <input type="text" id="arrival-${cleanOrderId}" class="arr" value="${safeArrival}" placeholder="—">
         </label>
       </div>
 
@@ -570,12 +644,12 @@ if (o.status === "Arrived Cairo HUB") {
 
       <div class="oc-acts">
         <button class="ab primary" ${isGrouped ? 'disabled' : ''}
-          onclick="${isGrouped ? 'groupLockMsg()' : `updateOrder('${cleanOrderId}')`}">✔ حفظ</button>
-        <button class="ab" onclick="openInvoice('${cleanOrderId}')">🧾 فاتورة</button>
+          onclick="${isGrouped ? 'groupLockMsg()' : `updateOrder('${safeCleanOrderIdJs}')`}">✔ حفظ</button>
+        <button class="ab" onclick="openInvoice('${safeCleanOrderIdJs}')">🧾 فاتورة</button>
         ${whatsappBtn}
         ${summaryBtn}
         <button class="ab wide" ${isGrouped ? 'disabled' : ''}
-          onclick="${isGrouped ? 'groupLockMsg()' : `openDuplicateModal('${cleanOrderId}')`}">📋 إضافة منتج لنفس العميل</button>
+          onclick="${isGrouped ? 'groupLockMsg()' : `openDuplicateModal('${safeCleanOrderIdJs}')`}">📋 إضافة منتج لنفس العميل</button>
       </div>
     </article>
     `;
@@ -649,30 +723,28 @@ function applyFilters(){
 
   // 🙈 "opex" اسم عميل داخلي خاص — مش المفروض يظهر في القائمة المرئية
   // خالص في الملف ده تحديدًا، لكن لازم يفضل موجود ومحسوب زي أي طلب
-  // عادي في كل حاجة تانية (totalBox تحت، التجميع، currentViewData) —
-  // فبنستبعده هنا بس، لحظة العرض النهائي على الكروت، مش قبل كده.
+  // عادي في كل حاجة تانية (التجميع، currentViewData) — فبنستبعده هنا
+  // بس، لحظة العرض النهائي على الكروت، مش قبل كده.
   const displayData = finalData.filter(o => (o.customerName || "").trim().toLowerCase() !== "opex");
 
   renderCards(displayData.slice(0, 30), false);
 
   if(displayData.length > 30) {
     renderTimer = setTimeout(() => {
-        renderCards(displayData.slice(30), true); 
-    }, 500); 
-  }
-
-  const totalBox = document.getElementById("totalBox");
-  if (status === "") {
-    totalBox.style.display = "none";
-  } else {
-    let totalEGP = 0;
-    filtered.forEach(o => { totalEGP += parseFloat(o.finalPrice || 0); });
-    totalBox.style.display = "block";
-    totalBox.innerText = "الإجمالي: " + totalEGP.toLocaleString() + " ج.م";
+        renderCards(displayData.slice(30), true);
+    }, 500);
   }
 }
 
-function toggleGrouping(){ isGrouped=!isGrouped; applyFilters(); }
+function toggleGrouping(){
+  isGrouped=!isGrouped;
+  const btn = document.getElementById("groupToggle");
+  if(btn){
+    btn.textContent = isGrouped ? "👥 فك التجميع" : "👥 تجميع";
+    btn.classList.toggle("on", isGrouped);
+  }
+  applyFilters();
+}
 
 function updateOrder(orderId){
   const newEGP=document.getElementById("egp-"+orderId).value;
@@ -711,6 +783,66 @@ function updateOrder(orderId){
   });
 }
 
+/* 🔒 مودال "إخفاء عن" — بس ظاهر للأدمن (شوف isAdminUI في renderCards).
+   الحماية الحقيقية بتحصل في السيرفر (Orders_Code.gs يتحقق إن
+   staffToken فعلاً لأدمن قبل ما يحفظ hiddenFrom)، فمفيش خطورة لو
+   حد وصل للدالة دي من غير ما يكون أدمن فعليًا — السيرفر هيتجاهل
+   التحديث بصمت. مودال واحد مشترك (زي مودال "إضافة منتج" بالظبط)
+   بيتفتح على الطلب اللي ضغطت على زراره، بدل لوحة بتتكرر في كل كارت. */
+let hfTargetOrderId = "";
+function openHiddenFromModal(orderId){
+  hfTargetOrderId = orderId;
+  const order = ordersData.find(o => String(o.order).split(' + ')[0] === orderId);
+  const hiddenSet = new Set(String((order && order.hiddenFrom) || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean));
+
+  document.getElementById("hfModalOrderId").textContent = orderId;
+  document.getElementById("hfModalCustomerName").textContent = (order && order.customerName) || '';
+
+  const list = document.getElementById("hfModalList");
+  list.innerHTML = STAFF_DIRECTORY.length ? STAFF_DIRECTORY.map(s => `
+    <label class="hf-item">
+      <input type="checkbox" class="hf-cb" value="${tsEscapeHtml(s.username)}" ${hiddenSet.has(String(s.username).toLowerCase()) ? 'checked' : ''}>
+      ${tsEscapeHtml(s.label || s.username)}
+    </label>
+  `).join('') : '<span class="hf-empty">جاري تحميل قائمة الموظفين... جرب افتح المودال تاني بعد شوية</span>';
+
+  document.getElementById("hfModal").style.display = "flex";
+}
+function closeHiddenFromModal(){
+  document.getElementById("hfModal").style.display = "none";
+  hfTargetOrderId = "";
+}
+function saveHiddenFrom(){
+  if(!hfTargetOrderId) return;
+  const list = document.getElementById("hfModalList");
+  const usernames = Array.from(list.querySelectorAll(".hf-cb:checked")).map(cb => cb.value);
+  const hiddenFrom = usernames.join(",");
+
+  const btn = document.getElementById("hfModalSaveBtn");
+  tsSetBtnLoading(btn, "جاري الحفظ...");
+
+  fetch(scriptURL, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "updateStatus",
+      order: hfTargetOrderId,
+      hiddenFrom: hiddenFrom,
+      staffToken: getStaffToken()
+    })
+  }).then(res => res.text()).then(text => {
+    tsClearBtnLoading(btn);
+    if(text && text.indexOf("Success") !== -1){
+      closeHiddenFromModal();
+      loadData(); // إعادة تحميل عشان زرار "🔒 مخفي عن N موظف" يتحدّث فورًا
+    } else {
+      alert("❌ حصل خطأ أثناء حفظ الإخفاء: " + (text || "سبب غير معروف"));
+    }
+  }).catch(err => {
+    tsClearBtnLoading(btn);
+    alert("❌ تعذر الاتصال بالسيرفر — الإخفاء مش اتحفظ.\n" + err);
+  });
+}
+
 function checkPendingReview() {
   const pendingOrders = ordersData.filter(o => o.status === "Pending Review" && (o.customerName || "").trim().toLowerCase() !== "opex");
   if (pendingOrders.length > 0) {
@@ -734,26 +866,24 @@ function generateInvoice(order){
     order.items.forEach((item,i)=>{
       const price = parseFloat(item.price || 0);
       total += price;
-      itemsHTML += `<tr><td>Personal imported item ${i+1}</td><td><a href="${item.link}" target="_blank">Link</a></td><td>${price.toLocaleString()} ج.م</td></tr>`;
+      itemsHTML += `<tr><td>Personal imported item ${i+1}</td><td><a href="${tsSafeHref(item.link)}" target="_blank" rel="noopener noreferrer">Link</a></td><td>${price.toLocaleString()} ج.م</td></tr>`;
     });
   }else{
     const price = parseFloat(order.finalPrice || 0);
     total = price;
-    itemsHTML += `<tr><td>Personal imported item</td><td><a href="${order.link}" target="_blank">Link</a></td><td>${price.toLocaleString()} ج.م</td></tr>`;
+    itemsHTML += `<tr><td>Personal imported item</td><td><a href="${tsSafeHref(order.link)}" target="_blank" rel="noopener noreferrer">Link</a></td><td>${price.toLocaleString()} ج.م</td></tr>`;
   }
 
-  const invoiceWindow = window.open("", "_blank");
-  invoiceWindow.document.write(`
+  tsOpenHtmlDoc(`
     <html dir="rtl"><head><title>Invoice</title>
       <style>body{font-family:Arial;padding:20px;} h2{margin-bottom:5px;} table{width:100%;border-collapse:collapse;margin-top:20px;} th,td{border:1px solid #ddd;padding:10px;text-align:center;} th{background:#f5f5f5;}</style>
     </head><body>
       <h2>TRY SHOPPY</h2><p>Zahraa Maadi Cairo Egypt</p><p>201094112666</p><hr>
-      <h3>بيانات العميل</h3><p>الاسم: ${order.customerName || "-"}</p><p>العنوان: ${order.address || "-"}</p><p>التليفون: ${order.phone || "-"}</p><hr>
+      <h3>بيانات العميل</h3><p>الاسم: ${tsEscapeHtml(order.customerName || "-")}</p><p>العنوان: ${tsEscapeHtml(order.address || "-")}</p><p>التليفون: ${tsEscapeHtml(order.phone || "-")}</p><hr>
       <h3>تفاصيل المنتجات</h3><table><tr><th>المنتج</th><th>الرابط</th><th>السعر</th></tr>${itemsHTML}</table>
       <h3 style="margin-top:20px;">Total for personal imported items: ${total.toLocaleString()} ج.م</h3>
     </body></html>
   `);
-  invoiceWindow.document.close();
 }
 
 function groupLockMsg(){
@@ -857,7 +987,7 @@ let targetOrderId = "";
 let lastDupData = {}; // لتخزين بيانات الأوردر المنسوخ لإرساله واتساب
 
 function generateTryOrderId() {
-    const randomNum = Math.floor(100000 + Math.random() * 900000);
+    const randomNum = Math.floor(10000000 + Math.random() * 90000000);
     return "TRY" + randomNum;
 }
 
@@ -1041,6 +1171,7 @@ function showMain() {
   document.getElementById("mainContent").style.display = "block";
   const badge = document.getElementById("headerUserBadge");
   if (badge) badge.textContent = "👤 " + getCurrentUser();
+  syncHeaderHeight(); // الهيدر كان display:none لحد دلوقتي، فارتفاعه مايتحسبش صح غير بعد ما يظهر
   tsListStaff().then(list => { STAFF_DIRECTORY = list; }).catch(() => { STAFF_DIRECTORY = []; });
   loadData();
 }
@@ -1065,6 +1196,10 @@ async function doLogin() {
     localStorage.setItem("currentUserLabel", res.label || u);
     localStorage.setItem("loginTime", new Date().getTime());
     localStorage.setItem("staffToken", res.token || "");
+    // 🆕 isAdmin بيتحط جوه التوكن الموقّع نفسه في السيرفر (Staff_Code.gs)
+    // ومبيتتحققش منه فعليًا إلا هناك — القيمة هنا بس عشان نعرف نظهر
+    // أدوات "إخفاء عن" في الواجهة، مش مصدر الصلاحية الحقيقي.
+    localStorage.setItem("isAdmin", res.isAdmin ? "1" : "");
     showMain();
   } else {
     document.getElementById("loginError").textContent =
@@ -1077,6 +1212,7 @@ function logout() {
   localStorage.removeItem("currentUserLabel");
   localStorage.removeItem("loginTime");
   localStorage.removeItem("staffToken");
+  localStorage.removeItem("isAdmin");
   showLogin();
 }
 function initAuth() {
@@ -1089,6 +1225,7 @@ function initAuth() {
     localStorage.removeItem("currentUserLabel");
     localStorage.removeItem("loginTime");
     localStorage.removeItem("staffToken");
+    localStorage.removeItem("isAdmin");
     showLogin();
   }
 }

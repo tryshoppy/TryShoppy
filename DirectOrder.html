@@ -354,7 +354,12 @@ const ORDER_SCRIPT_URL = TS_CONFIG.ORDERS_SCRIPT_URL;
 function checkSession() {
   const key  = localStorage.getItem("currentUser");
   const time = localStorage.getItem("loginTime");
-  return !!(key && time && (new Date().getTime() - time < SESSION_TIME));
+  // 🐛→✅ كان الشرط هنا ناقص التحقق من وجود staffToken (موجود في
+  // نفس الدالة بالظبط في Dashboard945/DashboardMob2/QuickOrder/
+  // CustomerReference) — من غيره، لو التوكن راح لأي سبب والباقي
+  // (currentUser/loginTime) لسه موجود، الصفحة كانت تفضل تعرض إنها
+  // "مسجّل دخول" بس أي نداء للسيرفر يفشل بـ Unauthorized بصمت.
+  return !!(key && time && (new Date().getTime() - time < SESSION_TIME) && localStorage.getItem("staffToken"));
 }
 function getStaffToken(){ return localStorage.getItem("staffToken") || ""; }
 
@@ -424,6 +429,7 @@ function initAuth() {
     localStorage.removeItem("currentUser");
     localStorage.removeItem("currentUserLabel");
     localStorage.removeItem("loginTime");
+    localStorage.removeItem("staffToken");
     showLogin();
   }
 }
@@ -449,7 +455,7 @@ function showStep(step){
 let lastOrders = [];
 
 function generateOrder() {
-  return "TRY-2026-" + Math.floor(100000 + Math.random() * 900000);
+  return "TRY" + Math.floor(10000000 + Math.random() * 90000000);
 }
 
 function showConfirm() {
@@ -501,13 +507,14 @@ function renderCart(){
   const cart = tsGetDirectCart();
   const list = document.getElementById("cartItemsList");
   list.innerHTML = cart.map(item=>{
-    const linkHtml = item.link ? '<a href="'+item.link+'" target="_blank" rel="noopener">'+(item.link.length>42?item.link.slice(0,42)+'…':item.link)+'</a>' : '—';
+    const linkText = item.link && item.link.length>42 ? item.link.slice(0,42)+'…' : (item.link||'');
+    const linkHtml = item.link ? '<a href="'+tsSafeHref(item.link)+'" target="_blank" rel="noopener noreferrer">'+tsEscapeHtml(linkText)+'</a>' : '—';
     return '<div class="cart-item">'+
-      '<div><div class="cart-item-cat">'+(item.category||'بدون فئة')+'</div>'+
+      '<div><div class="cart-item-cat">'+tsEscapeHtml(item.category||'بدون فئة')+'</div>'+
       '<div class="cart-item-link">'+linkHtml+'</div>'+
-      '<div class="cart-item-meta">الكمية: '+item.qty+'</div></div>'+
+      '<div class="cart-item-meta">الكمية: '+tsEscapeHtml(item.qty)+'</div></div>'+
       '<div class="cart-item-right"><div class="cart-item-price">'+item.finalEGP.toLocaleString()+' EGP</div>'+
-      '<button class="cart-item-remove" onclick="removeCartItem(\''+item.tempId+'\')">🗑 حذف</button></div>'+
+      '<button class="cart-item-remove" onclick="removeCartItem(\''+tsJsAttr(item.tempId)+'\')">🗑 حذف</button></div>'+
     '</div>';
   }).join('');
   document.getElementById("cartTotalDisplay").textContent = tsDirectCartTotal().toLocaleString()+' EGP';
@@ -619,9 +626,9 @@ function renderCustomerSearchResults(){
   }
   box.innerHTML = customerMatches.map((c,i)=>{
     return '<div class="cart-item search-result-item" onclick="selectExistingCustomer('+i+')">'+
-      '<div><div class="cart-item-cat">'+(c.customerName||'—')+'</div>'+
-      '<div class="cart-item-meta">📞 '+c.phone+' &nbsp;—&nbsp; 📍 '+(c.governorate||'—')+'</div>'+
-      '<div class="cart-item-link">'+(c.address||'')+'</div></div>'+
+      '<div><div class="cart-item-cat">'+tsEscapeHtml(c.customerName||'—')+'</div>'+
+      '<div class="cart-item-meta">📞 '+tsEscapeHtml(c.phone)+' &nbsp;—&nbsp; 📍 '+tsEscapeHtml(c.governorate||'—')+'</div>'+
+      '<div class="cart-item-link">'+tsEscapeHtml(c.address||'')+'</div></div>'+
       '<div class="cart-item-right"><button type="button" class="btn-secondary" style="width:auto;padding:9px 18px;margin:0;" onclick="event.stopPropagation();selectExistingCustomer('+i+')">اختيار</button></div>'+
     '</div>';
   }).join('');
@@ -643,7 +650,7 @@ function selectExistingCustomer(idx){
 
   document.getElementById('customerFillWarning').classList.remove('hidden');
   document.getElementById('customerSearchResults').innerHTML =
-    '<div class="picked-banner">✅ اتملت بيانات: '+(c.customerName||'')+' — راجعها تحت قبل الإرسال</div>';
+    '<div class="picked-banner">✅ اتملت بيانات: '+tsEscapeHtml(c.customerName||'')+' — راجعها تحت قبل الإرسال</div>';
 }
 
 async function confirmOrder() {

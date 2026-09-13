@@ -135,15 +135,15 @@ function renderByOrder(d){
   const res=document.getElementById('result');
   if(!d||!d.success||!d.order){res.innerHTML='<div class="err-box">'+bi('trk_invalidOrder')+'</div>';res.style.display='block';return;}
   const found=d.order, sibs=d.siblings||[];
-  let h='<div class="order-head"><div class="order-id">🔖 '+tsT('trk_orderLabel')+': '+found.order+'</div>';
-  if(found.arrivaldate)h+='<div class="arrival-line">📅 '+tsT('trk_arrivalLabel')+': '+found.arrivaldate+'</div>';
-  if(found.link)h+='<a class="order-link" href="'+found.link+'" target="_blank">🔗 '+found.link+'</a>';
-  h+='<div class="order-meta"><span>📦 '+tsT('trk_qtyLabel')+': '+(found.quantity||1)+'</span><span class="price-tag">💰 '+fmt(found.finalPrice)+' '+tsT('trk_currency')+'</span></div></div>';
+  let h='<div class="order-head"><div class="order-id">🔖 '+tsT('trk_orderLabel')+': '+tsEscapeHtml(found.order)+'</div>';
+  if(found.arrivaldate)h+='<div class="arrival-line">📅 '+tsT('trk_arrivalLabel')+': '+tsEscapeHtml(found.arrivaldate)+'</div>';
+  if(found.link)h+='<a class="order-link" href="'+tsSafeHref(found.link)+'" target="_blank" rel="noopener noreferrer">🔗 '+tsEscapeHtml(found.link)+'</a>';
+  h+='<div class="order-meta"><span>📦 '+tsT('trk_qtyLabel')+': '+tsEscapeHtml(found.quantity||1)+'</span><span class="price-tag">💰 '+fmt(found.finalPrice)+' '+tsT('trk_currency')+'</span></div></div>';
   if(found.status==='Canceled')h+='<div class="status-banner canceled">❌ '+tsT('trk_canceledMsg')+'<small>'+tsOther('trk_canceledMsg')+'</small></div>';
   else if(found.status==='Delayed')h+='<div class="status-banner delayed">⏳ '+tsT('trk_delayedMsg')+'<small>'+tsOther('trk_delayedMsg')+'</small></div>';
   else h+=buildStepper(found.status);
-  if(found.history&&found.history.length){h+='<div class="siblings-title">'+tsT('trk_historyTitle')+'</div>';found.history.forEach(e=>{h+='<div class="sibling-card"><div class="sibling-top"><span class="sibling-order">'+e.status+'</span><span style="font-size:12px;color:var(--ink3)">'+e.time+'</span></div></div>';});}
-  if(sibs.length){h+='<div class="siblings-title">📦 '+tsT('trk_siblingsTitle')+' ('+sibs.length+')</div>';sibs.forEach(s=>{const b=sbadge(s.status);h+='<div class="sibling-card"><div class="sibling-top"><span class="sibling-order">🔖 '+s.order+'</span><span class="badge '+b.cls+'">'+b.label+'</span></div>'+(s.arrivaldate?'<div class="sibling-arrival">📅 '+s.arrivaldate+'</div>':'')+(s.link?'<a class="sibling-link" href="'+s.link+'" target="_blank">🔗 '+s.link+'</a>':'')+'<div class="sibling-meta"><span>📦 '+(s.quantity||1)+' '+tsT('trk_pieceWord')+' — 💰 '+fmt(s.finalPrice)+' '+tsT('trk_currency')+'</span></div></div>';});}
+  if(found.history&&found.history.length){h+='<div class="siblings-title">'+tsT('trk_historyTitle')+'</div>';found.history.forEach(e=>{h+='<div class="sibling-card"><div class="sibling-top"><span class="sibling-order">'+tsEscapeHtml(e.status)+'</span><span style="font-size:12px;color:var(--ink3)">'+tsEscapeHtml(e.time)+'</span></div></div>';});}
+  if(sibs.length){h+='<div class="siblings-title">📦 '+tsT('trk_siblingsTitle')+' ('+sibs.length+')</div>';sibs.forEach(s=>{const b=sbadge(s.status);h+='<div class="sibling-card"><div class="sibling-top"><span class="sibling-order">🔖 '+tsEscapeHtml(s.order)+'</span><span class="badge '+b.cls+'">'+tsEscapeHtml(b.label)+'</span></div>'+(s.arrivaldate?'<div class="sibling-arrival">📅 '+tsEscapeHtml(s.arrivaldate)+'</div>':'')+(s.link?'<a class="sibling-link" href="'+tsSafeHref(s.link)+'" target="_blank" rel="noopener noreferrer">🔗 '+tsEscapeHtml(s.link)+'</a>':'')+'<div class="sibling-meta"><span>📦 '+tsEscapeHtml(s.quantity||1)+' '+tsT('trk_pieceWord')+' — 💰 '+fmt(s.finalPrice)+' '+tsT('trk_currency')+'</span></div></div>';});}
   h+='<div class="help-line">'+tsT('trk_helpQuestion')+' <a href="https://wa.me/'+SUPPORT_PHONE+'" target="_blank">'+tsT('trk_helpCta')+'</a></div>';
   res.innerHTML=h;res.style.display='block';
 }

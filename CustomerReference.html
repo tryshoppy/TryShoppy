@@ -275,7 +275,7 @@ async function fetchCustomerOrders(query, searchBy){
 function normPhone(v){
   const digits = String(v || "").replace(/\D/g, "");
   // نقبل 010... و 2010... كرقم واحد، مع الإبقاء على المقارنة النصية.
-  return digits.replace(/^20/, "").replace(/^0/, "");
+  return digits.replace(/^2/, "").replace(/^0/, "");
 }
 function isPhoneSearch(v){ return /\d/.test(v); }
 function fmt(v){ return parseFloat(v||0).toLocaleString(); }
@@ -384,9 +384,9 @@ function renderCustomer(orders){
 
   let h = '<div class="card">';
   h += '<div class="cust-head"><div>';
-  h += '<div class="cust-name">👤 ' + (latest.customerName || "—") + '</div>';
-  h += '<div class="cust-sub">📞 ' + (latest.phone || "—") + (latest.governorate ? ' &nbsp;•&nbsp; 📍 ' + latest.governorate : '') + '</div>';
-  if(latest.address) h += '<div class="cust-sub">🏠 ' + latest.address + '</div>';
+  h += '<div class="cust-name">👤 ' + escapeHtml(latest.customerName || "—") + '</div>';
+  h += '<div class="cust-sub">📞 ' + escapeHtml(latest.phone || "—") + (latest.governorate ? ' &nbsp;•&nbsp; 📍 ' + escapeHtml(latest.governorate) : '') + '</div>';
+  if(latest.address) h += '<div class="cust-sub">🏠 ' + escapeHtml(latest.address) + '</div>';
   h += '</div></div>';
 
   h += '<div class="stats-grid">';
@@ -401,10 +401,10 @@ function renderCustomer(orders){
   sorted.forEach((o, idx) => {
     const rowId = "hist_" + idx;
     h += '<div class="order-row" onclick="toggleHistory(\'' + rowId + '\')">';
-    h += '<div class="order-top"><span class="order-id">🔖 ' + (o.order || "—") + '</span><span class="badge ' + statusClass(o.status) + '">' + statusLabel(o.status) + '</span></div>';
+    h += '<div class="order-top"><span class="order-id">🔖 ' + escapeHtml(o.order || "—") + '</span><span class="badge ' + statusClass(o.status) + '">' + statusLabel(o.status) + '</span></div>';
     h += '<div class="order-meta">';
     h += '<span>📅 ' + (o.date ? new Date(o.date).toLocaleDateString('ar-EG') : "—") + '</span>';
-    if(o.arrivaldate) h += '<span>🚚 وصول متوقع: ' + o.arrivaldate + '</span>';
+    if(o.arrivaldate) h += '<span>🚚 وصول متوقع: ' + escapeHtml(o.arrivaldate) + '</span>';
     h += '</div>';
 
     // المنتج (لينك) + الكمية + سعر القطعة + الإجمالي — تفاصيل كاملة لكل صف
@@ -415,7 +415,7 @@ function renderCustomer(orders){
 
     h += '<div class="order-detail-grid">';
     h += '<div class="dl"><span class="dt">المنتج</span><span class="dd">' +
-         (o.link ? '<a href="' + o.link + '" target="_blank" onclick="event.stopPropagation()">🔗 فتح اللينك</a>' : '—') +
+         (o.link ? '<a href="' + tsSafeHref(o.link) + '" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">🔗 فتح اللينك</a>' : '—') +
          '</span></div>';
     h += '<div class="dl"><span class="dt">الكمية</span><span class="dd">' + qty + ' قطعة</span></div>';
     h += '<div class="dl"><span class="dt">سعر القطعة</span><span class="dd">' + fmt(unitPrice) + ' جنيه</span></div>';
@@ -423,7 +423,7 @@ function renderCustomer(orders){
     h += '</div>';
     h += '<div class="order-history" id="' + rowId + '">';
     if(o.history && o.history.length){
-      o.history.forEach(ev => { h += '<div>• ' + statusLabel(ev.status) + ' — ' + ev.time + (ev.note ? ' (' + ev.note + ')' : '') + '</div>'; });
+      o.history.forEach(ev => { h += '<div>• ' + statusLabel(ev.status) + ' — ' + escapeHtml(ev.time) + (ev.note ? ' (' + escapeHtml(ev.note) + ')' : '') + '</div>'; });
     } else {
       h += '<div>مفيش سجل تحديثات لسه لهذا الطلب</div>';
     }

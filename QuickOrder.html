@@ -398,12 +398,12 @@ function searchByName(rawName) {
   const box = document.getElementById("nameMatchesBox");
   const list = document.getElementById("nameMatchesList");
   list.innerHTML = unique.map(o => `
-    <div onclick="pickNameMatch('${String(o.phone).replace(/'/g, "\\'")}')"
+    <div onclick="pickNameMatch('${tsJsAttr(o.phone)}')"
          style="background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:.15s"
          onmouseover="this.style.borderColor='#6366f1'" onmouseout="this.style.borderColor='#e2e8f0'">
-      <div style="font-weight:800;font-size:14px">👤 ${o.customerName || "-"}</div>
-      <div style="font-size:13px;color:#475569;margin-top:3px">📞 ${o.phone || "-"}</div>
-      <div style="font-size:12.5px;color:#94a3b8;margin-top:2px">📍 ${o.address || "-"}</div>
+      <div style="font-weight:800;font-size:14px">👤 ${tsEscapeHtml(o.customerName || "-")}</div>
+      <div style="font-size:13px;color:#475569;margin-top:3px">📞 ${tsEscapeHtml(o.phone || "-")}</div>
+      <div style="font-size:12.5px;color:#94a3b8;margin-top:2px">📍 ${tsEscapeHtml(o.address || "-")}</div>
     </div>
   `).join("");
   box.style.display = "block";
@@ -427,7 +427,7 @@ function applySelectedCustomer(customer) {
 }
 
 function generateTryOrderId() {
-  return "TRY" + Math.floor(100000 + Math.random() * 900000);
+  return "TRY" + Math.floor(10000000 + Math.random() * 90000000);
 }
 
 // ── السلة (منفصلة تمامًا عن سلة الحاسبة العامة وسلة الديركت أوردر) ──
@@ -496,13 +496,14 @@ function renderCart(){
   const cart = tsGetQuickCart();
   const list = document.getElementById("cartItemsList");
   list.innerHTML = cart.map(item=>{
-    const linkHtml = item.link ? '<a href="'+item.link+'" target="_blank" rel="noopener">'+(item.link.length>42?item.link.slice(0,42)+'…':item.link)+'</a>' : '—';
-    const specsLine = item.dimensions ? '<div class="cart-item-meta">📝 '+item.dimensions+'</div>' : '';
+    const linkText = item.link && item.link.length>42 ? item.link.slice(0,42)+'…' : (item.link||'');
+    const linkHtml = item.link ? '<a href="'+tsSafeHref(item.link)+'" target="_blank" rel="noopener noreferrer">'+tsEscapeHtml(linkText)+'</a>' : '—';
+    const specsLine = item.dimensions ? '<div class="cart-item-meta">📝 '+tsEscapeHtml(item.dimensions)+'</div>' : '';
     return '<div class="cart-item">'+
       '<div><div class="cart-item-link">'+linkHtml+'</div>'+
-      '<div class="cart-item-meta">الكمية: '+item.qty+'</div>'+specsLine+'</div>'+
+      '<div class="cart-item-meta">الكمية: '+tsEscapeHtml(item.qty)+'</div>'+specsLine+'</div>'+
       '<div class="cart-item-right"><div class="cart-item-price">'+item.totalEgp.toLocaleString()+' EGP</div>'+
-      '<button class="cart-item-remove" onclick="removeCartItem(\''+item.tempId+'\')">🗑 حذف</button></div>'+
+      '<button class="cart-item-remove" onclick="removeCartItem(\''+tsJsAttr(item.tempId)+'\')">🗑 حذف</button></div>'+
     '</div>';
   }).join('');
   document.getElementById("cartTotalDisplay").textContent = tsQuickCartTotal().toLocaleString()+' EGP';
