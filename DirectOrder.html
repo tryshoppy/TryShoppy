@@ -700,20 +700,20 @@ async function confirmOrder() {
       orders.push({ orderNo, item });
       const dimensions = "Size: " + (item.size||'-') + " | Color: " + (item.color||'-') + " | Notes: " + (item.notes||'-');
       try {
-        const res = await fetch(ORDER_SCRIPT_URL, {
-          method: "POST",
-          body: JSON.stringify({
-            order: orderNo, customerName: name, phone, email, country, address, governorate,
-            link: item.link, quantity: item.qty, usd: item.usdTotal, weight: item.weight,
-            dimensions, category: item.category, finalPrice: item.finalEGP, user,
-            suppressEmail: idx > 0,
-            emailSummary: idx === 0 ? emailSummary : '',
-            cartTotal: idx === 0 ? cartTotal : undefined
-          })
+        // 🐛→✅ كان بيقرا رد السيرفر ويدوّر على "Order Saved" — وده كان
+        // بيفشل رغم إن الطلب اتسجل فعلاً، لأن Apps Script بيرد بريديركت
+        // لرابط تاني بيرجع أحيانًا 404. دلوقتي بنستخدم tsPostScript
+        // (mode:'no-cors') — الطلب بيتنفذ زي ما هو، ومفيش "فشل وهمي".
+        // الشرح الكامل جوه assets/app.js.
+        await tsPostScript(ORDER_SCRIPT_URL, {
+          order: orderNo, customerName: name, phone, email, country, address, governorate,
+          link: item.link, quantity: item.qty, usd: item.usdTotal, weight: item.weight,
+          dimensions, category: item.category, finalPrice: item.finalEGP, user,
+          suppressEmail: idx > 0,
+          emailSummary: idx === 0 ? emailSummary : '',
+          cartTotal: idx === 0 ? cartTotal : undefined
         });
-        const text = await res.text();
-        if (text && text.indexOf("Order Saved") !== -1) { succeeded.push({ orderNo, item }); }
-        else { failed.push({ orderNo, item, reason: text }); }
+        succeeded.push({ orderNo, item });
       } catch (e) {
         failed.push({ orderNo, item, reason: "Network error" });
       }

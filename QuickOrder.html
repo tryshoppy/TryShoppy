@@ -573,39 +573,33 @@ function checkoutAll(){
       const { item, orderNo } = cartWithOrders[idx];
       btn.innerHTML = 'جاري تسجيل الطلب ' + (idx + 1) + ' من ' + cartWithOrders.length + '... <span class="spinner"></span>';
       try {
-        const res = await fetch(scriptURL, {
-          method: "POST",
-          body: JSON.stringify({
-            order: orderNo,
-            customerName: c.customerName,
-            phone: c.phone,
-            email: email,
-            country: c.country,
-            address: c.address,
-            governorate: c.governorate,
-            link: item.link,
-            quantity: item.qty,
-            usd: item.totalUsd,
-            weight: c.weight,
-            dimensions: item.dimensions,
-            category: c.category,
-            finalPrice: item.totalEgp,
-            user: getCurrentUser(),
-            // 🔇 كل منتج بعد الأول ميبعتش إيميل مستقل — الملخص المجمّع
-            // بيتبعت مرة واحدة بس مع أول منتج في الدفعة
-            suppressEmail: idx > 0,
-            emailSummary: idx === 0 ? emailSummary : "",
-            cartTotal: idx === 0 ? cartTotal : undefined
-          })
+        // 🐛→✅ كان بيقرا رد السيرفر ويدوّر على "Order Saved" — وده كان
+        // بيفشل رغم إن الطلب اتسجل فعلاً (Apps Script بيرد بريديركت
+        // لرابط بيرجع أحيانًا 404). tsPostScript بتبعت الطلب بـ
+        // mode:'no-cors' فمفيش "فشل وهمي" — الشرح في assets/app.js.
+        await tsPostScript(scriptURL, {
+          order: orderNo,
+          customerName: c.customerName,
+          phone: c.phone,
+          email: email,
+          country: c.country,
+          address: c.address,
+          governorate: c.governorate,
+          link: item.link,
+          quantity: item.qty,
+          usd: item.totalUsd,
+          weight: c.weight,
+          dimensions: item.dimensions,
+          category: c.category,
+          finalPrice: item.totalEgp,
+          user: getCurrentUser(),
+          // 🔇 كل منتج بعد الأول ميبعتش إيميل مستقل — الملخص المجمّع
+          // بيتبعت مرة واحدة بس مع أول منتج في الدفعة
+          suppressEmail: idx > 0,
+          emailSummary: idx === 0 ? emailSummary : "",
+          cartTotal: idx === 0 ? cartTotal : undefined
         });
-        const text = await res.text();
-        // ⚠️ المسار ده بيرجع "Order Saved" مش "Success" (مسار مختلف
-        // عن duplicateOrder اللي كان بيرجع "Success")
-        if (text && text.indexOf("Order Saved") !== -1) {
-          succeeded.push({ orderNo, item, tempId: item.tempId });
-        } else {
-          failed.push({ orderNo, item, tempId: item.tempId, reason: text });
-        }
+        succeeded.push({ orderNo, item, tempId: item.tempId });
       } catch (err) {
         failed.push({ orderNo, item, tempId: item.tempId, reason: "Network error" });
       }

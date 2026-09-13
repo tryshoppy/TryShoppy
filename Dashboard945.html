@@ -824,27 +824,24 @@ function updateOrder(orderId) {
     const btn = document.querySelector(`button[onclick="updateOrder('${orderId}')"]`);
     tsSetBtnLoading(btn, "جاري التحديث...");
 
-    fetch(scriptURL, {
-        method: "POST",
-        body: JSON.stringify({ 
-            action: "updateStatus", 
-            order: orderId, 
-            status: newStatus,
-            finalPrice: newEGP,
-            usd: newUSD,
-            deposit: newDeposit,
-                   arrivaldate: newArrival,
-            user: (typeof getCurrentUser === "function" ? getCurrentUser() : ""),
-            staffToken: getStaffToken()
-        })
-    }).then(res => res.text()).then(text => {
+    // 🐛→✅ مبقاش بنقرا رد السيرفر (كان بيفشل بالغلط رغم نجاح التحديث —
+    // الشرح الكامل في tsPostScript جوه assets/app.js). التأكيد الحقيقي
+    // بقى من loadData() بعد الحفظ: البيانات اللي بترجع (GET، شغال تمام)
+    // بتوضّح إن التعديل نزل، ولو الجلسة انتهت هي اللي بتكشفها.
+    tsPostScript(scriptURL, {
+        action: "updateStatus",
+        order: orderId,
+        status: newStatus,
+        finalPrice: newEGP,
+        usd: newUSD,
+        deposit: newDeposit,
+        arrivaldate: newArrival,
+        user: (typeof getCurrentUser === "function" ? getCurrentUser() : ""),
+        staffToken: getStaffToken()
+    }).then(() => {
         tsClearBtnLoading(btn);
-        if (text && text.indexOf("Success") !== -1) {
-            alert("تم تحديث الطلب #" + orderId);
-            loadData();
-        } else {
-            alert("❌ حصل خطأ أثناء التحديث: " + (text || "سبب غير معروف") + "\n(الطلب مش اتحدّث)");
-        }
+        alert("تم تحديث الطلب #" + orderId);
+        loadData();
     }).catch(err => {
         tsClearBtnLoading(btn);
         alert("❌ تعذر الاتصال بالسيرفر — الطلب مش اتحدّث. تأكد من الإنترنت وحاول تاني.\n" + err);
@@ -1140,35 +1137,26 @@ async function applyBulkStatus(){
     const bulkBtn = document.getElementById("bulkApplyBtn");
     tsSetBtnLoading(bulkBtn, "جاري التطبيق...");
 
-    // 🐛→✅ السبب اللي بيخلي التحديث الجماعي يفشل لعدد عشوائي من
-    // الطلبات (زي "اتحدّث 12 من 49") مش له علاقة برقم الطلب نفسه
-    // ولا بياناته — قبل كده كل الطلبات المحددة (ممكن تبقى عشرات) كانت
-    // بتتبعت كـ Promise.all واحد، يعني كل الروابط بتتضرب لسكريبت
-    // Orders_Code.gs في نفس اللحظة بالظبط. Google Apps Script بيحدد
-    // أقصى عدد تنفيذات متوازية مسموحة لنفس السكريبت (سقف صغير نسبيًا،
-    // ومش موثّق بدقة لكل الحسابات) — أي نداء زيادة عن السقف ده كان
-    // بيترفض/يفشل من عند جوجل نفسها قبل ما يوصل لكود التحديث أصلًا،
-    // فالطلبات اللي "بتفشل" كانت عشوائية حسب زحمة السيرفر وقتها، مش
-    // حسب صيغة رقم الطلب أو أي حاجة تانية في الداتا. نفس الفكرة بالظبط
-    // كانت اتصلّحت قبل كده في تسجيل السلة (calculator.html/DirectOrder.html
-    // — راجع التعليق هناك) بإرسال الطلبات ورا بعض بدل مرة واحدة، بس
-    // التحديث الجماعي هنا فات عليه الإصلاح ده. الحل: نبعت الطلبات
-    // المحددة على دفعات صغيرة (BATCH_SIZE) ورا بعض، مش كلهم مرة واحدة.
+    // 🐛→✅ رسالة "اتحدّث 12 من 49" كانت **غلط** في أغلب الحالات:
+    // الطلبات كانت بتتحدّث فعلاً في الشيت، بس الموقع مكانش قادر يقرا
+    // رد السيرفر فيحسبها فاشلة (Apps Script بيرد بريديركت لرابط
+    // googleusercontent/echo اللي بيرجع أحيانًا 404 — الشرح الكامل في
+    // tsPostScript جوه assets/app.js). دلوقتي بنستخدم tsPostScript
+    // اللي مبيحاولش يقرا الرد أصلًا، فمفيش "فشل وهمي".
+    // وبنبعتهم كمان على دفعات صغيرة (BATCH_SIZE) بدل ما نضرب عشرات
+    // النداءات في نفس اللحظة — أخف على السيرفر وأأمن مع الأعداد الكبيرة.
     const BATCH_SIZE = 6;
     const results = [];
     for(let i = 0; i < selected.length; i += BATCH_SIZE){
         const batch = selected.slice(i, i + BATCH_SIZE);
         const batchResults = await Promise.all(batch.map(orderId=>
-            fetch(scriptURL,{
-                method:"POST",
-                body: JSON.stringify({
-                    action:"updateStatus",
-                    order: orderId,
-                    status: status,
-                    user: (typeof getCurrentUser === "function" ? getCurrentUser() : ""),
-                    staffToken: getStaffToken()
-                })
-            }).then(res=>res.text()).then(text=>({orderId, ok: text && text.indexOf("Success")!==-1, text}))
+            tsPostScript(scriptURL, {
+                action:"updateStatus",
+                order: orderId,
+                status: status,
+                user: (typeof getCurrentUser === "function" ? getCurrentUser() : ""),
+                staffToken: getStaffToken()
+            }).then(()=>({orderId, ok:true}))
               .catch(err=>({orderId, ok:false, text:String(err)}))
         ));
         results.push(...batchResults);

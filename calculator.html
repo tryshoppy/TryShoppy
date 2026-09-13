@@ -586,15 +586,20 @@ async function confirmOrder(){
         : '-';
       const dimensions='Package: '+packageDims+' | Size: '+(item.size||'-')+' | Color: '+(item.color||'-')+' | Notes: '+(item.notes||'-');
       try{
-        const text = await tsSubmitOrderRow({
+        // 🐛→✅ tsSubmitOrderRow بقت بترجع true لو الطلب وصل للسيرفر
+        // فعلاً (مش Response نقرا نصه) — السبب مشروح بالتفصيل جوه
+        // tsPostScript في assets/app.js: Apps Script بيرد بريديركت
+        // لرابط تاني بيرجع أحيانًا 404، وده كان بيخلي الطلب الناجح
+        // يتحسب "فاشل" ويطلع رسالة "جرب تأكيد الطلب تاني" غلط.
+        await tsSubmitOrderRow({
           order:orderNo, customerName:name, phone, email, country, address, governorate,
           link:item.link, quantity:item.qty, usd:(item.usd*item.qty), weight:item.weightGrams,
           dimensions, category:item.category, finalPrice:item.finalPrice,
           suppressEmail: idx>0,                         // إيميل واحد بس للطلب كله
           emailSummary: idx===0 ? emailSummary : '',
           cartTotal: idx===0 ? cartTotal : undefined      // إجمالي السلة الحقيقي
-        }).then(res=>res.text());
-        if(text.indexOf('Error')!==-1){ failed.push(item); } else { succeeded.push({orderNo,item}); }
+        });
+        succeeded.push({orderNo,item});
       }catch(e){ failed.push(item); }
     }
     if(failed.length){
