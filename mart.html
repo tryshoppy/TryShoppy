@@ -24,7 +24,20 @@ src="https://www.facebook.com/tr?id=1562757605584870&ev=PageView&noscript=1"
 <!-- End Meta Pixel Code -->
 
 <link rel="icon" href="assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<meta name="description" content="Selected products already in Egypt, including discounted, outlet, open-box and returned items from previous Try Shoppy orders.">
 <link rel="stylesheet" href="assets/style.css">
+<link rel="canonical" href="https://try-shoppy.com/mart.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Try Shoppy">
+<meta property="og:url" content="https://try-shoppy.com/mart.html">
+<meta property="og:title" content="Try Shoppy Mart — Already in Egypt">
+<meta property="og:description" content="Selected products already in Egypt, including discounted, outlet, open-box and returned items from previous Try Shoppy orders.">
+<meta property="og:image" content="https://try-shoppy.com/assets/logo.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Try Shoppy Mart — Already in Egypt">
+<meta name="twitter:description" content="Selected products already in Egypt, including discounted, outlet, open-box and returned items from previous Try Shoppy orders.">
+<meta name="twitter:image" content="https://try-shoppy.com/assets/logo.png">
 <style>
 /* ═══════════ TRY SHOPPY MART ═══════════
    Products that are already in Egypt. Deliberately a different
@@ -337,6 +350,9 @@ html[lang="ar"] .pcard-tagline{letter-spacing:0;text-transform:none}
 </footer>
 
 <script src="assets/config.js"></script>
+<!-- Google tag — لازم يجي بعد config.js عشان ياخد الـ IDs منه.
+     بيخرج من غير ما يحمّل أي حاجة طالما TS_CONFIG.GOOGLE فاضي. -->
+<script src="assets/gtag.js"></script>
 <script src="assets/i18n.js"></script>
 <script src="assets/app.js"></script>
 <script>
@@ -413,6 +429,9 @@ let LB={imgs:[],idx:0,p:null};
 function openLightbox(id,startIdx){
   const p=pid(id);if(!p)return;
   const imgs=pimgs(p);if(!imgs.length)return;
+  /* 📊 فتح صورة المنتج = اطّلاع فعلي على المنتج، مش مجرد تمرير
+     على الشبكة — بيتسجل كـ view_item زي الوصول من رابط الإعلان */
+  tsGa('view_item',{currency:'EGP',value:p.price,items:[tsGaItem(p,1)]});
   LB={imgs,idx:Math.min(startIdx||0,imgs.length-1),p};
   const name=TS_LANG==='ar'?(p.nameAr||p.nameEn):(p.nameEn||p.nameAr);
   const desc=TS_LANG==='ar'?(p.descAr||p.descEn):(p.descEn||p.descAr);
@@ -536,14 +555,56 @@ function renderMart(){
   applyI18N();
 }
 
+/* ⚡ كاش المنتجات في المتصفح — stale-while-revalidate
+   ---------------------------------------------------------------
+   قياس فعلي: سكريبت Apps Script بياخد لحد 38 ثانية يرد. الزائر
+   اللي جاي من إعلان مش هيستنى كل ده قدام هياكل تحميل فاضية —
+   هيقفل ويمشي، وانت دفعت في النقرة.
+
+   الحل هنا: نرسم آخر نسخة متخزنة فورًا (لو موجودة وعمرها أقل من
+   10 دقايق)، وفي نفس الوقت نجيب النسخة الجديدة في الخلفية ونعيد
+   الرسم لما توصل. يعني الزيارة التانية بتبان فورية، والأسعار
+   والمخزون بيتحدثوا بعدها بثواني من غير ما الصفحة تقف.
+
+   الكاش على السيرفر (CacheService في MartProducts_Code.gs) بيقصّر
+   الانتظار نفسه كمان — الاتنين مع بعض بيحلوا المشكلة للزائر
+   الجديد والراجع. */
+const MART_CACHE_KEY = 'ts_mart_cache_v1';
+const MART_CACHE_MAX_AGE = 10 * 60 * 1000;
+let deepLinkTracked = false;
+
+function applyProducts(products){
+  MART_PRODUCTS=(products||[]).map(p=>({...p,price:parseFloat(p.price)||0,oldPrice:parseFloat(p.oldPrice)||0,stock:parseInt(p.stock)||0}));
+  renderCategoryChips();
+  renderMart();
+  openProductFromUrl();
+}
+
 function loadProducts(){
-  showSkeletons();
+  let painted=false;
+
+  try{
+    const raw=localStorage.getItem(MART_CACHE_KEY);
+    if(raw){
+      const c=JSON.parse(raw);
+      if(c && Array.isArray(c.products) && c.products.length && (Date.now()-c.t) < MART_CACHE_MAX_AGE){
+        applyProducts(c.products);
+        painted=true;
+      }
+    }
+  }catch(e){ /* كاش تالف أو التخزين مقفول — نكمل عادي على الشبكة */ }
+
+  if(!painted) showSkeletons();
+
   tsFetchMartProducts().then(products=>{
-    MART_PRODUCTS=(products||[]).map(p=>({...p,price:parseFloat(p.price)||0,oldPrice:parseFloat(p.oldPrice)||0,stock:parseInt(p.stock)||0}));
-    renderCategoryChips();
-    renderMart();
-    openProductFromUrl();
-  }).catch(err=>{showState('mart_load_error','⚠️', err && err.message ? err.message : '');});
+    if(!Array.isArray(products)) throw new Error('bad payload');
+    try{ localStorage.setItem(MART_CACHE_KEY, JSON.stringify({t:Date.now(), products})); }catch(e){}
+    applyProducts(products);
+  }).catch(err=>{
+    /* لو الشبكة فشلت والصفحة اترسمت من الكاش، سيبها شغالة —
+       أحسن بكتير من رسالة خطأ فوق منتجات موجودة فعلًا */
+    if(!painted) showState('mart_load_error','⚠️', err && err.message ? err.message : '');
+  });
 }
 loadProducts();
 
@@ -565,7 +626,24 @@ function openProductFromUrl(){
   // نبعته بالظبط هنا — لما حد يوصل لمنتج بعينه من رابط مباشر (غالبًا
   // جاي من إعلان كاتالوج نفسه)، عشان فيسبوك يتأكد إن الـ content_id
   // اللي بيتبعت من الـ Pixel فعلًا موجود في نفس الكاتالوج
-  if(typeof fbq!=='undefined') fbq('track','ViewContent',{content_ids:[wanted.id],content_name:wanted.nameEn,content_type:'product',value:wanted.price,currency:'EGP'});
+  /* ⚠️ الصفحة ممكن ترسم مرتين (مرة من الكاش ومرة من الشبكة)، فالقياس
+     بيتبعت مرة واحدة بس — غير كده الزيارة الواحدة هتتحسب زيارتين
+     وتفسد بيانات الحملة. التظليل والتمرير تحت بيتكرروا عادي. */
+  if(!deepLinkTracked){
+    deepLinkTracked = true;
+
+    if(typeof fbq!=='undefined') fbq('track','ViewContent',{content_ids:[wanted.id],content_name:wanted.nameEn,content_type:'product',value:wanted.price,currency:'EGP'});
+
+    /* 📊 Google — ده الحدث اللي بيقفل الدايرة بين إعلان Shopping
+       والمنتج اللي اتضغط عليه: الـ item_id هنا لازم يطابق id في
+       الفييد عشان Google يعرف إن الزيارة دي للمنتج ده. */
+    tsGa('view_item',{currency:'EGP',value:wanted.price,items:[tsGaItem(wanted,1)]});
+  }
+
+  /* 🔖 بيانات مهيكلة للزاحف بتاع Merchant Center — السعر والتوافر
+     بيبقوا مكتوبين صراحةً في الصفحة، مش محمّلين بجافاسكريبت بس.
+     دي بتتحدث مع كل رسم عشان تعكس آخر سعر/مخزون وصل من السيرفر. */
+  tsInjectProductJsonLd(wanted, location.href);
 
   curTab='all'; curCategory='all';
   document.querySelectorAll('#tabRow button').forEach(b=>b.classList.toggle('active', b.dataset.tab==='all'));
@@ -600,6 +678,7 @@ function handleAdd(id){
   // لأي حملة إعلانات "Add to Cart retargeting" أو تحسين لأشخاص
   // شبه اللي بيضيفوا للسلة فعلًا (Lookalike Audience)
   if(typeof fbq!=='undefined') fbq('track','AddToCart',{content_ids:[p.id],content_name:p.nameEn,content_type:'product',value:p.price,currency:'EGP'});
+  tsGa('add_to_cart',{currency:'EGP',value:p.price,items:[tsGaItem(p,1)]});
   tsToast(tsT('mart_added_toast'));openCart();
 }
 
@@ -629,7 +708,12 @@ function renderCartItems(){
   document.getElementById('cartSubtotalValue').textContent=tsCartSubtotal().toLocaleString()+' EGP';
 }
 function chqty(id,qty){tsUpdateCartQty(id,qty);renderCartItems();}
-document.getElementById('cartCheckoutBtn').addEventListener('click',()=>{const s=tsGetSession();if(s){document.getElementById('coName').value=s.name||'';document.getElementById('coPhone').value=s.phone||'';document.getElementById('coEmail').value=s.email||'';document.getElementById('coAddress').value=s.address||'';if(s.governorate){const sel=document.getElementById('coGov');for(const o of sel.options)if(o.value===s.governorate)o.selected=true;}}showStep('checkout');});
+document.getElementById('cartCheckoutBtn').addEventListener('click',()=>{const s=tsGetSession();if(s){document.getElementById('coName').value=s.name||'';document.getElementById('coPhone').value=s.phone||'';document.getElementById('coEmail').value=s.email||'';document.getElementById('coAddress').value=s.address||'';if(s.governorate){const sel=document.getElementById('coGov');for(const o of sel.options)if(o.value===s.governorate)o.selected=true;}}
+  /* 📊 begin_checkout — الفرق بين اللي حط في السلة واللي بدأ يكتب
+     بياناته فعلًا. ده أهم مقياس لتحسين الحملة قبل ما يبقى فيه
+     عدد طلبات كفاية عشان Google يتعلم من الشراء نفسه. */
+  tsGa('begin_checkout',{currency:'EGP',value:tsCartSubtotal(),items:tsGetCart().map(i=>tsGaItem(i,i.qty))});
+  showStep('checkout');});
 
 let lastSummary=null;
 document.getElementById('placeOrderBtn').addEventListener('click',async function(){
@@ -685,6 +769,13 @@ document.getElementById('placeOrderBtn').addEventListener('click',async function
     // الشيت)، مش لحظة الضغط على الزرار، عشان محدش يتحسب "عميل"
     // وهو فعليًا طلبه فشل يتسجل.
     if(typeof fbq!=='undefined') fbq('track','Purchase',{value:tsCartSubtotal(),currency:'EGP',content_ids:orders.map(o=>o.item.id),content_type:'product',num_items:orders.length});
+
+    /* 📊 Google — الحدث اللي Google Ads هيحسّن عليه الميزانية.
+       كل منتج في السلة بيتسجل كصف/طلب لوحده في الشيت، لكن ده
+       عملية شراء واحدة من وجهة نظر العميل والإعلان — فبنبعت حدث
+       purchase واحد بإجمالي السلة، وبناخد أول رقم طلب (TRY + 8
+       أرقام) كـ transaction_id عشان يمنع العد المزدوج. */
+    tsGaPurchase(orders[0].orderNo, tsCartSubtotal(), orders.map(o=>tsGaItem(o.item,o.item.qty)));
 
     /* 📉 تقليل المخزون فعليًا في شيت المارت لكل منتج اتباع —
        وتحديث الأرقام في الذاكرة فورًا عشان لو العميل ضغط

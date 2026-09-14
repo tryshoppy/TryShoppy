@@ -7,9 +7,19 @@
 <meta name="description" content="Send any US store link — Try Shoppy buys it, ships it to Egypt, handles the applicable process, and delivers it to your door.">
 <meta name="theme-color" content="#F9C22E">
 <link rel="icon" href="assets/logo.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="assets/style.css">
+<link rel="canonical" href="https://try-shoppy.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Try Shoppy">
+<meta property="og:url" content="https://try-shoppy.com/">
+<meta property="og:title" content="Try Shoppy — Shop USA, Ship to Egypt">
+<meta property="og:description" content="Send any US store link. We buy it, ship it to Egypt, handle the applicable process, and deliver it to your door.">
+<meta property="og:image" content="https://try-shoppy.com/assets/logo.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Try Shoppy — Shop USA, Ship to Egypt">
+<meta name="twitter:description" content="Send any US store link. We buy it, ship it to Egypt, handle the applicable process, and deliver it to your door.">
+<meta name="twitter:image" content="https://try-shoppy.com/assets/logo.png">
 <style>
 /* ═══════════════════════════════════════════════════════════
    HOME — page-specific composition.
@@ -573,7 +583,46 @@ html[lang="ar"] .mart-tag{letter-spacing:0}
   <a href="track.html" class="btn btn-secondary" data-i18n="hero_cta_track">Track an Order</a>
 </div>
 
+<!-- 🏢 بيانات النشاط المهيكلة — ده اللي Google بيقراه عشان يتعرف
+     على الشركة: الاسم، العنوان، وسائل التواصل، وحسابات التواصل
+     الاجتماعي. مهم لتوثيق هوية المعلن في Google Ads ولـ Merchant
+     Center، وبيخلي بياناتك تظهر موحّدة في نتائج البحث. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "OnlineStore",
+  "name": "Try Shoppy",
+  "url": "https://try-shoppy.com/",
+  "logo": "https://try-shoppy.com/assets/logo.png",
+  "image": "https://try-shoppy.com/assets/logo.png",
+  "description": "Try Shoppy buys products from US stores on behalf of customers in Egypt, ships them to Egypt and delivers them to the door.",
+  "email": "Info@try-shoppy.com",
+  "telephone": "+201005609642",
+  "currenciesAccepted": "EGP",
+  "paymentAccepted": "Cash on Delivery, InstaPay, Visa, Mastercard, PayPal, Bank Transfer",
+  "areaServed": { "@type": "Country", "name": "Egypt" },
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "7th District, Zahraa El Maadi",
+    "addressLocality": "Cairo",
+    "addressCountry": "EG"
+  },
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "customer support",
+    "telephone": "+201005609642",
+    "email": "Info@try-shoppy.com",
+    "availableLanguage": ["ar", "en"]
+  },
+  "sameAs": ["https://www.facebook.com/TryShoppy.eg/"]
+}
+</script>
+
 <script src="assets/config.js"></script>
+<!-- Google tag — الصفحة الرئيسية محتاجاه عشان Merchant Center
+     يقدر يتحقق من ملكية الدومين (try-shoppy.com نفسه، مش /mart.html
+     بس). بيفضل خامد تمامًا لحد ما تتحط الـ IDs في config.js. -->
+<script src="assets/gtag.js"></script>
 <script src="assets/i18n.js"></script>
 <script src="assets/app.js"></script>
 <script>
