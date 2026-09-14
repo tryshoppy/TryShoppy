@@ -3,172 +3,296 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Try Shoppy — Calculate &amp; Confirm Order</title>
+<title>Get a Price — Try Shoppy</title>
+<meta name="description" content="Paste a US store product link and get one final price in EGP — item, applicable shipping and customs included — before you confirm your order.">
+<meta name="theme-color" content="#F9C22E">
 <link rel="icon" href="assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="assets/style.css">
 <style>
-.calc-bg{min-height:calc(100vh - 66px);display:flex;align-items:flex-start;justify-content:center;padding:44px 16px 90px;background:radial-gradient(ellipse 600px 400px at 30% 0%,var(--y0) 0%,transparent 65%)}
-.calc-card{width:100%;max-width:640px;padding:36px}
-.calc-logo{text-align:center;margin-bottom:22px}
-.calc-logo img{height:56px;margin:0 auto 8px}
-.calc-slogan{font-family:var(--fm);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3)}
-.calc-card h2{text-align:center;font-size:1.45rem;font-weight:800;margin:0 0 28px}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:13px}
-.dims{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:22px}
-.country-msg{background:var(--err-bg);color:var(--err);padding:11px 14px;border-radius:var(--r);font-size:13.5px;margin-bottom:14px;text-align:center;border:1px solid rgba(217,91,69,.12)}
-.result-box{background:linear-gradient(135deg,var(--y0) 0%,var(--y1) 100%);border-radius:20px;padding:26px;margin:24px 0;text-align:center;animation:fadeUp .4s ease-out;border:1px solid rgba(245,184,32,.2)}
-.result-price{font-family:var(--fm);font-size:2.6rem;font-weight:700;margin:10px 0;color:var(--ink)}
-.result-note{font-size:13px;color:var(--ok);font-weight:700}
-.weight-basis{font-size:12.5px;color:var(--ink-2);margin-top:6px}
-.shipping-head{font-weight:800;font-size:15px;margin:24px 0 18px;display:flex;align-items:center;gap:8px;color:var(--ink)}
-.sup-box{background:var(--gold-wash);border:1.5px dashed var(--gold);border-radius:var(--r2);padding:18px;margin-bottom:18px}
-.sup-box .sup-title{font-weight:800;font-size:14px;color:var(--gold-deep);margin-bottom:14px;display:flex;align-items:center;gap:7px}
+/* ═══════════ PRICE CALCULATOR ═══════════
+   The calculator is the product, not a form: a clear progress
+   header, grouped sections, a result that reads like a receipt,
+   and a sticky side panel that answers the questions people ask
+   while filling it in. All field IDs and handlers are unchanged. */
+
+.calc-top{background:linear-gradient(160deg,var(--blue-900) 0%,var(--blue-700) 100%);color:#fff;
+  padding:44px 0 92px;position:relative;overflow:hidden}
+.calc-top::before{content:'';position:absolute;width:520px;height:520px;border-radius:50%;
+  background:radial-gradient(circle,rgba(249,194,46,.15) 0%,transparent 62%);top:-240px;inset-inline-end:-150px;pointer-events:none}
+.calc-top .inner{position:relative;z-index:2;text-align:center;max-width:620px;margin:0 auto}
+.calc-top .eyebrow{color:var(--yellow);justify-content:center;display:inline-flex}
+.calc-top h1{font-size:clamp(1.8rem,4.2vw,2.5rem);margin:14px 0 10px;color:#fff}
+.calc-top p{color:#B9C0DA;font-size:1rem;margin:0;line-height:1.7}
+
+/* progress header */
+.calc-steps{display:flex;gap:6px;max-width:520px;margin:26px auto 0;position:relative;z-index:2}
+.cs{flex:1;text-align:center}
+.cs .n{width:26px;height:26px;border-radius:50%;margin:0 auto 7px;display:flex;align-items:center;justify-content:center;
+  font-family:var(--fm);font-size:11px;font-weight:700;background:rgba(255,255,255,.12);color:#8E97B8;
+  border:1.5px solid rgba(255,255,255,.16);transition:.25s}
+.cs .t{font-size:11.5px;font-weight:700;color:#8E97B8;transition:.25s}
+.cs.on .n{background:var(--yellow);color:var(--ink);border-color:var(--yellow)}
+.cs.on .t{color:#fff}
+.cs.done .n{background:var(--ok);color:#fff;border-color:var(--ok)}
+.cs.done .t{color:#C4CADF}
+
+.calc-wrap{max-width:1100px;margin:-70px auto 0;padding:0 18px 70px;position:relative;z-index:5;
+  display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,.85fr);gap:22px;align-items:start}
+.calc-card{background:var(--white);border:1px solid var(--line);border-radius:var(--r4);
+  box-shadow:var(--sh-4);padding:30px}
+
+/* form sections */
+.fsec{margin-bottom:26px}
+.fsec:last-of-type{margin-bottom:0}
+.fsec-head{display:flex;align-items:center;gap:10px;margin:0 0 16px;padding-bottom:11px;border-bottom:1px solid var(--line)}
+.fsec-head .ic{width:28px;height:28px;border-radius:9px;background:var(--blue-50);color:var(--blue-700);
+  display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.fsec-head h3{font-size:14px;font-weight:800;margin:0;color:var(--ink)}
+.fhint{font-size:12.5px;color:var(--ink-3);margin:-9px 0 15px;line-height:1.55}
+
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.dims{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:18px}
+@media(max-width:560px){.row,.dims{grid-template-columns:1fr}}
+/* the placeholder here is itself a URL, so this field stays LTR always */
+#productLink{font-family:var(--fm);font-size:14px;direction:ltr;text-align:left}
+
+.country-msg{background:var(--err-bg);color:var(--err);padding:12px 15px;border-radius:var(--r);
+  font-size:13.5px;margin-bottom:15px;text-align:center;border:1px solid rgba(217,58,58,.18);font-weight:600}
+
+/* result: reads like a receipt total, not a form field */
+.result-box{background:linear-gradient(150deg,var(--blue-900) 0%,var(--blue-700) 100%);border-radius:var(--r3);
+  padding:28px 24px;margin:24px 0 14px;text-align:center;animation:fadeUp .35s ease-out;color:#fff;position:relative;overflow:hidden}
+.result-box::before{content:'';position:absolute;width:320px;height:320px;border-radius:50%;
+  background:radial-gradient(circle,rgba(249,194,46,.2) 0%,transparent 62%);top:-170px;inset-inline-end:-110px;pointer-events:none}
+.result-box>*{position:relative;z-index:2}
+.result-label{font-size:12px;color:#9AA3C4;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+html[lang="ar"] .result-label{letter-spacing:0;text-transform:none}
+.result-price{font-family:var(--fm);font-size:clamp(2rem,7vw,2.7rem);font-weight:700;margin:10px 0 6px;color:var(--yellow);line-height:1.1}
+.weight-basis{font-size:12.5px;color:#9AA3C4;margin-top:4px}
+.result-note{font-size:12.5px;color:#fff;font-weight:600;margin-top:16px;display:flex;align-items:flex-start;gap:8px;
+  background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.15);border-radius:var(--r);
+  padding:11px 14px;text-align:start;line-height:1.55}
+
+.shipping-head{font-weight:800;font-size:16px;margin:0 0 20px;display:flex;align-items:center;gap:9px;color:var(--ink);
+  padding-bottom:12px;border-bottom:1px solid var(--line)}
+
+/* supplements block */
+.sup-box{background:var(--yellow-50);border:1.5px solid var(--yellow-100);border-radius:var(--r2);padding:18px;margin-bottom:18px}
+.sup-box .sup-title{font-weight:800;font-size:13.5px;color:var(--yellow-ink);margin-bottom:14px;display:flex;align-items:center;gap:7px}
 .sup-box .field{margin-bottom:0}
-.sup-note{font-size:12.5px;color:var(--ink-2);margin-top:7px;line-height:1.5}
-.sup-note.warn{color:var(--gold-deep);font-weight:700}
-.shoe-note{font-size:12px;line-height:1.55;color:var(--gold-deep);background:var(--gold-wash);border:1px solid rgba(245,184,32,.28);border-radius:10px;padding:9px 11px;margin-top:8px}
-input:read-only{background:var(--gold-wash);color:var(--gold-deep);font-weight:700;border-color:var(--gold)}
-.hidden{display:none !important}
-/* ---------- cart flow ---------- */
-.cart-item{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:14px;border:1px solid var(--n2);border-radius:var(--r2);margin-bottom:10px;background:#fff}
-.cart-item-cat{font-weight:800;font-size:13.5px;color:var(--ink)}
-.cart-item-link{font-size:12px;color:var(--ink3);margin-top:3px;word-break:break-all}
-.cart-item-link a{color:var(--ink3)}
-.cart-item-meta{font-size:12px;color:var(--ink2);margin-top:4px}
-.cart-item-right{text-align:right;flex-shrink:0}
-.cart-item-price{font-weight:800;font-size:14.5px;color:var(--ink)}
-.cart-item-remove{margin-top:8px;background:none;border:none;color:var(--err);font-size:12px;font-weight:700;cursor:pointer;padding:0}
-.cart-total-row{display:flex;justify-content:space-between;align-items:center;padding:16px 4px;font-weight:800;font-size:16px;border-top:1.5px dashed var(--n2);margin-top:6px;margin-bottom:18px}
+.sup-note{font-size:12.5px;color:var(--ink-2);margin-top:8px;line-height:1.55}
+.sup-note.warn{color:var(--yellow-ink);font-weight:700}
+.shoe-note{font-size:12px;line-height:1.6;color:var(--yellow-ink);background:var(--yellow-50);
+  border:1px solid var(--yellow-100);border-radius:var(--r-sm);padding:10px 12px;margin-top:9px}
+input:read-only{background:var(--yellow-50);color:var(--yellow-ink);font-weight:700;border-color:var(--yellow-100)}
+
+/* cart */
+.cart-item{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;padding:16px;
+  border:1px solid var(--line);border-radius:var(--r2);margin-bottom:10px;background:var(--white)}
+.cart-item-cat{font-weight:800;font-size:14px;color:var(--ink)}
+.cart-item-link{font-size:11.5px;color:var(--ink-3);margin-top:4px;word-break:break-all;direction:ltr}
+.cart-item-link a{color:var(--blue-link)}
+.cart-item-meta{font-size:12.5px;color:var(--ink-2);margin-top:5px}
+.cart-item-right{text-align:end;flex-shrink:0}
+.cart-item-price{font-weight:800;font-size:15px;color:var(--ink);font-family:var(--fm)}
+.cart-item-remove{margin-top:9px;background:none;border:none;color:var(--err);font-size:12px;font-weight:700;cursor:pointer;padding:0}
+.cart-total-row{display:flex;justify-content:space-between;align-items:center;padding:18px 4px;font-weight:800;
+  font-size:17px;border-top:1px dashed var(--line-2);margin:8px 0 20px}
 .cart-total-row span:last-child{color:var(--ok);font-family:var(--fm)}
-@media(max-width:560px){.row,.dims{grid-template-columns:1fr}.calc-card{padding:22px}}
+
+/* success */
+.success-box{background:var(--ok-bg);border:1px solid rgba(14,159,110,.2);border-radius:var(--r3);
+  padding:30px 24px;text-align:center;animation:fadeUp .35s ease-out}
+.success-box .em{font-size:2.4rem;margin-bottom:10px}
+
+/* sticky aside */
+.calc-aside{position:sticky;top:88px;display:grid;gap:14px}
+.aside-card{background:var(--white);border:1px solid var(--line);border-radius:var(--r3);padding:22px}
+.aside-card h4{font-size:13px;font-weight:800;margin:0 0 14px;color:var(--ink);
+  letter-spacing:.06em;text-transform:uppercase}
+html[lang="ar"] .aside-card h4{letter-spacing:0;text-transform:none}
+.aside-list{list-style:none;padding:0;margin:0;display:grid;gap:12px}
+.aside-list li{display:flex;gap:11px;font-size:13px;color:var(--ink-2);line-height:1.55}
+.aside-list li .n{width:22px;height:22px;border-radius:7px;background:var(--blue-50);color:var(--blue-700);
+  font-family:var(--fm);font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.aside-pays{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px}
+.aside-pays span{background:var(--white);border:1px solid var(--line);border-radius:var(--r-xs);
+  height:30px;padding:5px 8px;display:inline-flex;align-items:center}
+.aside-pays img{max-height:16px;max-width:42px;object-fit:contain}
+.aside-note{font-size:12.5px;color:var(--ink-2);line-height:1.6;margin:0}
+.aside-note a{color:var(--blue-link);font-weight:700}
+.aside-help{background:var(--blue-700);border-radius:var(--r3);padding:22px;color:#fff}
+.aside-help h4{color:var(--yellow)}
+.aside-help p{color:#B9C0DA;font-size:13px;line-height:1.6;margin:0 0 14px}
+
+@media(max-width:940px){
+  .calc-wrap{grid-template-columns:1fr;margin-top:-58px}
+  .calc-aside{position:static}
+}
+@media(max-width:560px){
+  .calc-card{padding:22px 18px;border-radius:var(--r3)}
+  .calc-top{padding:32px 0 84px}
+  .cs .t{font-size:10.5px}
+}
+@media(max-width:760px){.site-footer .container{padding-bottom:30px}}
 </style>
 </head>
 <body>
+
 <header class="site-header">
   <div class="nav-row container">
     <a href="index.html" class="brand"><img src="assets/logo.png" alt="Try Shoppy"> Try Shoppy</a>
     <nav class="nav-links">
       <a href="index.html" data-i18n="nav_home">Home</a>
+      <a href="calculator.html" class="active" data-i18n="nav_calc">Get a Price</a>
       <a href="track.html" data-i18n="nav_track">Track Order</a>
       <a href="mart.html" data-i18n="nav_mart">Try Shoppy Mart</a>
     </nav>
     <div class="nav-actions">
-      <button class="btn btn-ghost cart-btn" id="calcCartBtn" onclick="openCartFromAnywhere()" aria-label="Cart">🛒<span class="cart-badge hidden" id="calcCartBadge">0</span></button>
-      <button class="lang-pill">🌐 العربية</button>
+      <button class="btn btn-ghost cart-btn" id="calcCartBtn" type="button" onclick="openCartFromAnywhere()" aria-label="Cart">🛒<span class="cart-badge hidden" id="calcCartBadge">0</span></button>
+      <button class="lang-pill" type="button">🌐 العربية</button>
       <span data-auth-slot="pill"></span>
       <button class="burger btn btn-ghost" aria-label="Menu">☰</button>
     </div>
   </div>
   <div class="mobile-menu">
     <a href="index.html" data-i18n="nav_home">Home</a>
+    <a href="index.html#how" data-i18n="nav_how">How it works</a>
+    <a href="calculator.html" data-i18n="nav_calc">Get a Price</a>
     <a href="track.html" data-i18n="nav_track">Track Order</a>
     <a href="mart.html" data-i18n="nav_mart">Try Shoppy Mart</a>
     <a href="login.html" data-i18n="nav_login">Login / Register</a>
   </div>
 </header>
 
-<div class="calc-bg">
-  <div class="card calc-card animate-in">
-    <div class="calc-logo">
-      <img src="assets/logo.png" alt="Try Shoppy">
-      <div class="calc-slogan" data-i18n="brand_slogan">Your Global Shopping Partner</div>
+<section class="calc-top">
+  <div class="container inner">
+    <span class="eyebrow" data-i18n="calcband_eyebrow">PRICE CALCULATOR</span>
+    <h1 data-i18n="calc_title">Calculate &amp; Confirm Order</h1>
+    <p data-i18n="calc_hero_sub">Item, applicable shipping and customs — one final price in EGP before you commit.</p>
+    <div class="calc-steps" id="calcSteps">
+      <div class="cs" data-step="calc"><div class="n">1</div><div class="t" data-i18n="calc_step_1">Product</div></div>
+      <div class="cs" data-step="cart"><div class="n">2</div><div class="t" data-i18n="calc_step_2">Cart</div></div>
+      <div class="cs" data-step="checkout"><div class="n">3</div><div class="t" data-i18n="calc_step_3">Details</div></div>
+      <div class="cs" data-step="success"><div class="n">4</div><div class="t" data-i18n="calc_step_4">Done</div></div>
     </div>
-    <h2 data-i18n="calc_title">Calculate &amp; Confirm Order</h2>
+  </div>
+</section>
+
+<div class="calc-wrap">
+  <div class="calc-card animate-in">
 
     <!-- ================= STEP 1: product entry + calculate ================= -->
     <div id="stepCalc">
-      <div class="field"><label data-i18n="calc_link_label">Product Link</label><input id="productLink" type="url" placeholder="https://amazon.com/..."></div>
-      <div class="field"><label data-i18n="calc_qty_label">Quantity</label><input id="quantity" type="number" value="1" min="1"></div>
 
-      <div class="row">
+      <div class="fsec">
+        <div class="fsec-head"><span class="ic">🔗</span><h3 data-i18n="calc_sec_product">Product details</h3></div>
         <div class="field">
-          <label data-i18n="calc_country_label">Country</label>
-          <select id="country" onchange="checkCountry()">
-            <option value="USA" data-i18n="calc_country_usa">USA 🇺🇸</option>
-            <option value="OTHER" data-i18n="calc_country_other">Other Countries</option>
-          </select>
+          <label for="productLink" data-i18n="calc_link_label">Product Link</label>
+          <input id="productLink" type="url" inputmode="url" placeholder="https://amazon.com/...">
         </div>
-        <div class="field"><label data-i18n="calc_unit_price_label">Price per item in USD (incl. store shipping) *</label><input id="price" type="number" placeholder="0.00"></div>
-      </div>
+        <p class="fhint" data-i18n="calc_link_hint">Copy the product page link from the US store and paste it here.</p>
 
-      <div id="countryMsg" class="country-msg hidden" data-i18n="calc_country_msg">Sorry, we only serve orders from USA currently.</div>
-
-      <div class="row">
-        <div class="field">
-          <label data-i18n="calc_weight_label">Weight (g) *</label>
-          <input id="weight" type="number" data-i18n-ph="calc_weight_ph" placeholder="e.g. 500">
-          <div id="weightAutoNote" class="sup-note hidden"></div>
-        </div>
-        <div class="field">
-          <label data-i18n="calc_category_label">Category *</label>
-          <select id="category" onchange="onCategoryChange()">
-            <option value="" data-i18n="calc_category_select">Select category...</option>
-            <option value="Clothes (Regular)" data-i18n="cat_clothes">Clothes (Regular)</option>
-            <option value="Jacket or BALTO" data-i18n="cat_jacket">Jacket or BALTO</option>
-            <option value="Electronics" data-i18n="cat_electronics">Electronics</option>
-            <option value="Shoes (Regular)" data-i18n="cat_shoes_regular">Shoes (Regular)</option>
-            <option value="Shoes (Boot)" data-i18n="cat_shoes_boot">Shoes (Boot)</option>
-            <option value="Watches" data-i18n="cat_watches">Watches</option>
-            <option value="Accessories" data-i18n="cat_accessories">Accessories</option>
-            <option value="Cosmetics" data-i18n="cat_cosmetics">Cosmetics</option>
-            <option value="Sunglasses" data-i18n="cat_sunglasses">Sunglasses</option>
-            <option value="Food" data-i18n="cat_food">Food</option>
-            <option value="CarParts" data-i18n="cat_carparts">Car Parts</option>
-            <option value="Vitamin or Supplements" data-i18n="cat_vitamins">Vitamins &amp; Supplements</option>
-            <option value="Shampoo or Conditioner" data-i18n="cat_shampoo">Shampoo or Conditioner</option>
-            <option value="Small Size Hand bag (women)" data-i18n="cat_bag_small">Small Hand Bag (Women)</option>
-            <option value="Back bag (or Lap bag)" data-i18n="cat_bag_back">Back Bag / Laptop Bag</option>
-            <option value="Large Size Hand bag (women)" data-i18n="cat_bag_large">Large Hand Bag (Women)</option>
-            <option value="Stationary" data-i18n="cat_stationary">Stationary</option>
-          </select>
-          <div id="shoeBoxNote" class="shoe-note hidden"></div>
-        </div>
-      </div>
-
-      <label data-i18n="calc_dims_label" style="margin-bottom:8px">Dimensions in CM (optional)</label>
-      <div class="dims">
-        <input id="dimLength" type="number" min="0" step="any" data-i18n-ph="calc_length_ph" placeholder="Length (L)">
-        <input id="dimWidth" type="number" min="0" step="any" data-i18n-ph="calc_width_ph" placeholder="Width (W)">
-        <input id="dimHeight" type="number" min="0" step="any" data-i18n-ph="calc_height_ph" placeholder="Height (H)">
-      </div>
-
-      <div id="supplementBox" class="sup-box hidden">
-        <div class="sup-title">💊 <span data-i18n="calc_sup_title">Vitamins / Supplements Details</span></div>
         <div class="row">
+          <div class="field"><label for="quantity" data-i18n="calc_qty_label">Quantity</label><input id="quantity" type="number" value="1" min="1"></div>
           <div class="field">
-            <label data-i18n="calc_sup_type">Product Type</label>
-            <select id="supplementType" onchange="onSupplementTypeChange()">
-              <option value="capsules" data-i18n="sup_opt_capsules">Capsules</option>
-              <option value="gummies" data-i18n="sup_opt_gummies">Gummies</option>
-              <option value="powder" data-i18n="sup_opt_powder">Powder</option>
-              <option value="liquid" data-i18n="sup_opt_liquid">Liquid</option>
+            <label for="country" data-i18n="calc_country_label">Country</label>
+            <select id="country" onchange="checkCountry()">
+              <option value="USA" data-i18n="calc_country_usa">USA 🇺🇸</option>
+              <option value="OTHER" data-i18n="calc_country_other">Other Countries</option>
             </select>
           </div>
+        </div>
+
+        <div id="countryMsg" class="country-msg hidden" data-i18n="calc_country_msg">Sorry, we only serve orders from USA currently.</div>
+
+        <div class="field"><label for="price" data-i18n="calc_unit_price_label">Price per item in USD (incl. store shipping) *</label><input id="price" type="number" inputmode="decimal" placeholder="0.00"></div>
+      </div>
+
+      <div class="fsec">
+        <div class="fsec-head"><span class="ic">⚖️</span><h3 data-i18n="calc_sec_ship">Shipping basis</h3></div>
+        <div class="row">
           <div class="field">
-            <label data-i18n="calc_sup_pieces">Piece Count</label>
-            <select id="supplementRange" onchange="onSupplementRangeChange()"></select>
-            <div id="manualWeightNote" class="sup-note warn hidden"></div>
+            <label for="weight" data-i18n="calc_weight_label">Weight (g) *</label>
+            <input id="weight" type="number" inputmode="numeric" data-i18n-ph="calc_weight_ph" placeholder="e.g. 500">
+            <div id="weightAutoNote" class="sup-note hidden"></div>
+          </div>
+          <div class="field">
+            <label for="category" data-i18n="calc_category_label">Category *</label>
+            <select id="category" onchange="onCategoryChange()">
+              <option value="" data-i18n="calc_category_select">Select category...</option>
+              <option value="Clothes (Regular)" data-i18n="cat_clothes">Clothes (Regular)</option>
+              <option value="Jacket or BALTO" data-i18n="cat_jacket">Jacket or BALTO</option>
+              <option value="Electronics" data-i18n="cat_electronics">Electronics</option>
+              <option value="Shoes (Regular)" data-i18n="cat_shoes_regular">Shoes (Regular)</option>
+              <option value="Shoes (Boot)" data-i18n="cat_shoes_boot">Shoes (Boot)</option>
+              <option value="Watches" data-i18n="cat_watches">Watches</option>
+              <option value="Accessories" data-i18n="cat_accessories">Accessories</option>
+              <option value="Cosmetics" data-i18n="cat_cosmetics">Cosmetics</option>
+              <option value="Sunglasses" data-i18n="cat_sunglasses">Sunglasses</option>
+              <option value="Food" data-i18n="cat_food">Food</option>
+              <option value="CarParts" data-i18n="cat_carparts">Car Parts</option>
+              <option value="Vitamin or Supplements" data-i18n="cat_vitamins">Vitamins &amp; Supplements</option>
+              <option value="Shampoo or Conditioner" data-i18n="cat_shampoo">Shampoo or Conditioner</option>
+              <option value="Small Size Hand bag (women)" data-i18n="cat_bag_small">Small Hand Bag (Women)</option>
+              <option value="Back bag (or Lap bag)" data-i18n="cat_bag_back">Back Bag / Laptop Bag</option>
+              <option value="Large Size Hand bag (women)" data-i18n="cat_bag_large">Large Hand Bag (Women)</option>
+              <option value="Stationary" data-i18n="cat_stationary">Stationary</option>
+            </select>
+            <div id="shoeBoxNote" class="shoe-note hidden"></div>
+          </div>
+        </div>
+
+        <label data-i18n="calc_dims_label" style="margin-bottom:8px">Dimensions in CM (optional)</label>
+        <div class="dims">
+          <input id="dimLength" type="number" min="0" step="any" inputmode="decimal" data-i18n-ph="calc_length_ph" placeholder="Length (L)">
+          <input id="dimWidth" type="number" min="0" step="any" inputmode="decimal" data-i18n-ph="calc_width_ph" placeholder="Width (W)">
+          <input id="dimHeight" type="number" min="0" step="any" inputmode="decimal" data-i18n-ph="calc_height_ph" placeholder="Height (H)">
+        </div>
+
+        <div id="supplementBox" class="sup-box hidden">
+          <div class="sup-title">💊 <span data-i18n="calc_sup_title">Vitamins / Supplements Details</span></div>
+          <div class="row">
+            <div class="field">
+              <label data-i18n="calc_sup_type">Product Type</label>
+              <select id="supplementType" onchange="onSupplementTypeChange()">
+                <option value="capsules" data-i18n="sup_opt_capsules">Capsules</option>
+                <option value="gummies" data-i18n="sup_opt_gummies">Gummies</option>
+                <option value="powder" data-i18n="sup_opt_powder">Powder</option>
+                <option value="liquid" data-i18n="sup_opt_liquid">Liquid</option>
+              </select>
+            </div>
+            <div class="field">
+              <label data-i18n="calc_sup_pieces">Piece Count</label>
+              <select id="supplementRange" onchange="onSupplementRangeChange()"></select>
+              <div id="manualWeightNote" class="sup-note warn hidden"></div>
+            </div>
           </div>
         </div>
       </div>
 
-      <label data-i18n="calc_desc_label" style="margin-bottom:8px">Additional Description (optional)</label>
-      <div class="dims">
-        <input id="length" type="text" data-i18n-ph="calc_size_ph" placeholder="Size">
-        <input id="width" type="text" data-i18n-ph="calc_color_ph" placeholder="Color">
-        <input id="height" type="text" data-i18n-ph="calc_notes_ph" placeholder="Other Notes">
+      <div class="fsec">
+        <div class="fsec-head"><span class="ic">📝</span><h3 data-i18n="calc_sec_extra">Optional details</h3></div>
+        <label data-i18n="calc_desc_label" style="margin-bottom:8px">Additional Description (optional)</label>
+        <div class="dims">
+          <input id="length" type="text" data-i18n-ph="calc_size_ph" placeholder="Size">
+          <input id="width" type="text" data-i18n-ph="calc_color_ph" placeholder="Color">
+          <input id="height" type="text" data-i18n-ph="calc_notes_ph" placeholder="Other Notes">
+        </div>
       </div>
 
-      <button class="btn btn-primary btn-block" onclick="calculatePrice()" data-i18n="calc_btn_calculate">Calculate Price</button>
+      <button class="btn btn-primary btn-lg btn-block" type="button" onclick="calculatePrice()" data-i18n="calc_btn_calculate">Calculate Price</button>
 
       <div id="resultArea" class="hidden">
         <div class="result-box">
-          <div style="font-size:13px;color:var(--ink2)" data-i18n="calc_result_total_label">Total Cost (Shipping &amp; Customs included)</div>
+          <div class="result-label" data-i18n="calc_result_total_label">Total Cost (Shipping &amp; Customs included)</div>
           <div id="priceDetails" class="result-price">— EGP</div>
           <div id="weightBasisMsg" class="weight-basis"></div>
-          <div class="result-note" data-i18n="calc_result_cod_note">Cash on Delivery up to 10,000 EGP ✓</div>
+          <div class="result-note">✓ <span data-i18n="calc_result_cod_note">Cash on Delivery up to 10,000 EGP ✓</span></div>
         </div>
-        <button class="btn btn-dark btn-block" onclick="addCurrentToCart()" data-i18n="calc_btn_addcart">➕ Add to Cart</button>
+        <button class="btn btn-dark btn-lg btn-block" type="button" onclick="addCurrentToCart()" data-i18n="calc_btn_addcart">➕ Add to Cart</button>
       </div>
     </div>
 
@@ -180,20 +304,20 @@ input:read-only{background:var(--gold-wash);color:var(--gold-deep);font-weight:7
         <span data-i18n="calc_cart_total">Total</span>
         <span id="cartTotalDisplay">0 EGP</span>
       </div>
-      <button class="btn btn-ghost btn-block" onclick="backToAddItem()" data-i18n="calc_btn_additem">➕ Add Another Item</button>
-      <button class="btn btn-dark btn-block" style="margin-top:10px" onclick="goToCheckout()" data-i18n="calc_btn_checkout">✅ Checkout</button>
+      <button class="btn btn-dark btn-lg btn-block" type="button" onclick="goToCheckout()" data-i18n="calc_btn_checkout">✅ Checkout</button>
+      <button class="btn btn-ghost btn-block" type="button" style="margin-top:10px" onclick="backToAddItem()" data-i18n="calc_btn_additem">➕ Add Another Item</button>
     </div>
 
     <!-- ================= STEP 3: checkout (customer info) ================= -->
     <div id="stepCheckout" class="hidden">
       <div class="shipping-head">📍 <span data-i18n="calc_shipping_title">Shipping Details</span></div>
 
-      <div class="field"><label data-i18n="calc_name_label">Full Name</label><input id="customerName" data-i18n-ph="calc_name_ph" placeholder="Enter your full name"></div>
-      <div class="field"><label data-i18n="lbl_email_optional">Email (optional — for order confirmation)</label><input id="customerEmail" type="email" placeholder="name@example.com"></div>
+      <div class="field"><label for="customerName" data-i18n="calc_name_label">Full Name</label><input id="customerName" data-i18n-ph="calc_name_ph" placeholder="Enter your full name"></div>
+      <div class="field"><label for="customerEmail" data-i18n="lbl_email_optional">Email (optional — for order confirmation)</label><input id="customerEmail" type="email" inputmode="email" placeholder="name@example.com"></div>
       <div class="row">
-        <div class="field"><label data-i18n="calc_phone_label">Phone Number</label><input id="phone" placeholder="01xxxxxxxxx"></div>
+        <div class="field"><label for="phone" data-i18n="calc_phone_label">Phone Number</label><input id="phone" type="tel" inputmode="tel" placeholder="01xxxxxxxxx"></div>
         <div class="field">
-          <label data-i18n="calc_gov_label">Governorate</label>
+          <label for="governorate" data-i18n="calc_gov_label">Governorate</label>
           <select id="governorate">
             <option value="" data-i18n="calc_gov_select">Select governorate...</option>
             <option value="القاهرة" data-i18n="gov_cairo">Cairo</option>
@@ -226,39 +350,76 @@ input:read-only{background:var(--gold-wash);color:var(--gold-deep);font-weight:7
           </select>
         </div>
       </div>
-      <div class="field"><label data-i18n="calc_address_label">Detailed Address</label><textarea id="address" rows="2" data-i18n-ph="calc_address_ph" placeholder="Building number, street name, apartment..."></textarea></div>
+      <div class="field"><label for="address" data-i18n="calc_address_label">Detailed Address</label><textarea id="address" rows="2" data-i18n-ph="calc_address_ph" placeholder="Building number, street name, apartment..."></textarea></div>
 
-      <button id="confirmBtn" class="btn btn-dark btn-block" onclick="confirmOrder()" data-i18n="calc_btn_confirm_all">Confirm All Orders</button>
-      <button class="btn btn-ghost btn-block" style="margin-top:10px" onclick="showStep('cart')" data-i18n="calc_btn_back_cart">← Back to Cart</button>
+      <button id="confirmBtn" class="btn btn-primary btn-lg btn-block" type="button" onclick="confirmOrder()" data-i18n="calc_btn_confirm_all">Confirm All Orders</button>
+      <button class="btn btn-ghost btn-block" type="button" style="margin-top:10px" onclick="showStep('cart')" data-i18n="calc_btn_back_cart">← Back to Cart</button>
     </div>
 
     <!-- ================= STEP 4: success ================= -->
     <div id="stepSuccess" class="hidden">
-      <div class="result-box">
-        <div style="font-size:2.2rem;margin-bottom:6px">🎉</div>
+      <div class="success-box">
+        <div class="em">🎉</div>
         <div class="stamp green" data-i18n="calc_success_title">Orders Confirmed!</div>
-        <div id="successEmailNote" class="hidden" style="font-size:12.5px;color:var(--ink2);margin-top:12px" data-i18n="order_email_note">A confirmation email is on its way to you.</div>
-        <div id="successOrderNos" style="margin-top:10px;font-family:var(--fm);font-size:13px;color:var(--ink2);word-break:break-word"></div>
+        <div id="successEmailNote" class="hidden" style="font-size:13px;color:var(--ink-2);margin-top:14px" data-i18n="order_email_note">A confirmation email is on its way to you.</div>
+        <div id="successOrderNos" style="margin-top:12px;font-family:var(--fm);font-size:13.5px;font-weight:700;color:var(--ink);word-break:break-word"></div>
       </div>
-      <div style="font-size:12px;color:var(--ink3);text-align:center;margin:16px 0 10px" data-i18n="order_wa_optional">You can also confirm on WhatsApp (optional):</div>
-      <button id="whatsappBtn" class="btn btn-whatsapp btn-block" onclick="sendWhatsApp()" data-i18n="mart_cart_whatsapp_btn">Send WhatsApp Confirmation (optional)</button>
+      <div style="font-size:12.5px;color:var(--ink-3);text-align:center;margin:18px 0 10px" data-i18n="order_wa_optional">You can also confirm on WhatsApp (optional):</div>
+      <button id="whatsappBtn" class="btn btn-whatsapp btn-block" type="button" onclick="sendWhatsApp()" data-i18n="mart_cart_whatsapp_btn">Send WhatsApp Confirmation (optional)</button>
+      <button class="btn btn-secondary btn-block" type="button" style="margin-top:10px" onclick="window.location.href='track.html'">🔍 <span data-i18n="calc_btn_track">Track Your Order</span></button>
+    </div>
+  </div>
+
+  <!-- ── sticky helper column ── -->
+  <aside class="calc-aside">
+    <div class="aside-card">
+      <h4 data-i18n="how_eyebrow">FOUR STEPS</h4>
+      <ul class="aside-list">
+        <li><span class="n">01</span><span data-i18n="how1_t">Send the link</span></li>
+        <li><span class="n">02</span><span data-i18n="how2_t">We calculate everything</span></li>
+        <li><span class="n">03</span><span data-i18n="how3_t">You confirm</span></li>
+        <li><span class="n">04</span><span data-i18n="how4_t">We buy, ship &amp; deliver</span></li>
+      </ul>
     </div>
 
-    <button class="btn btn-ghost btn-block" style="margin-top:20px" onclick="window.location.href='track.html'">🔍 <span data-i18n="calc_btn_track">Track Your Order</span></button>
-  </div>
+    <div class="aside-card">
+      <h4 data-i18n="foot_payments_t">Accepted Payments</h4>
+      <div class="aside-pays">
+        <span><img src="assets/payments/cod.png" alt="Cash on Delivery" loading="lazy"></span>
+        <span><img src="assets/payments/instapay.png" alt="InstaPay" loading="lazy"></span>
+        <span><img src="assets/payments/visa.png" alt="Visa" loading="lazy"></span>
+        <span><img src="assets/payments/mastercard.png" alt="Mastercard" loading="lazy"></span>
+        <span><img src="assets/payments/paypal.png" alt="PayPal" loading="lazy"></span>
+      </div>
+      <p class="aside-note" style="margin-top:12px"><span data-i18n="pay_bank">Bank Transfer</span> · <span data-i18n="calc_result_cod_note">Cash on Delivery up to 10,000 EGP ✓</span></p>
+    </div>
+
+    <div class="aside-card">
+      <h4 data-i18n="foot_restricted">Restricted Items</h4>
+      <p class="aside-note" data-i18n="faq_a6">Yes — some categories cannot be shipped for compliance reasons. Please check the <a href="restricted-items.html">Restricted Items</a> list before ordering.</p>
+    </div>
+
+    <div class="aside-help">
+      <h4 data-i18n="trk_helpQuestion">Have a question about your order?</h4>
+      <p data-i18n="calc_help_d">Our team is on WhatsApp if you need a hand with a link, a category or a price.</p>
+      <a class="btn btn-whatsapp btn-block btn-sm" href="https://wa.me/201005609642" target="_blank" rel="noopener" data-i18n="foot_whatsapp">Chat on WhatsApp</a>
+    </div>
+  </aside>
 </div>
 
 <script src="assets/function_calc.js"></script>
+
 <footer class="site-footer">
   <div class="container">
     <div class="foot-grid">
       <div><div class="foot-brand"><img src="assets/logo.png" alt=""> Try Shoppy</div><p data-i18n="foot_about_d">Try Shoppy buys, consolidates and ships products from US stores straight to your door in Egypt.</p></div>
-      <div><h4 data-i18n="foot_links_t">Quick Links</h4><p><a href="calculator.html" data-i18n="nav_calc">Get a Price</a></p><p><a href="track.html" data-i18n="nav_track">Track Order</a></p><p><a href="mart.html" data-i18n="nav_mart">Try Shoppy Mart</a></p><p><a href="login.html" data-i18n="nav_login">Login / Register</a></p></div>
+      <div><h4 data-i18n="foot_links_t">Quick Links</h4><p><a href="calculator.html" data-i18n="nav_calc">Get a Price</a></p><p><a href="track.html" data-i18n="nav_track">Track Order</a></p><p><a href="mart.html" data-i18n="nav_mart">Try Shoppy Mart</a></p><p><a href="index.html#how" data-i18n="nav_how">How it works</a></p><p><a href="login.html" data-i18n="nav_login">Login / Register</a></p></div>
       <div><h4 data-i18n="foot_legal_t">Legal</h4><p><a href="privacy.html" data-i18n="foot_privacy">Privacy Policy</a></p><p><a href="terms.html" data-i18n="foot_terms">Terms &amp; Conditions</a></p><p><a href="shipping-policy.html" data-i18n="foot_shipping">Shipping Policy</a></p><p><a href="returns-policy.html" data-i18n="foot_returns">Returns &amp; Refunds</a></p><p><a href="cancellation-policy.html" data-i18n="foot_cancellation">Cancellation Policy</a></p><p><a href="restricted-items.html" data-i18n="foot_restricted">Restricted Items</a></p></div>
       <div><h4 data-i18n="foot_support_t">Support</h4><p><a href="https://wa.me/201005609642" target="_blank" data-i18n="foot_whatsapp">Chat on WhatsApp</a></p><p><a href="https://www.facebook.com/TryShoppy.eg/" target="_blank" rel="noopener" class="foot-social-link"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="vertical-align:-2.5px;margin-inline-end:5px"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.51 1.49-3.9 3.77-3.9 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.44 2.91h-2.34V22c4.78-.76 8.44-4.92 8.44-9.94z"/></svg><span data-i18n="foot_facebook">Follow us on Facebook</span></a></p></div>
       <div><h4 data-i18n="foot_payments_t">Payments</h4><p data-i18n="pay_cod">Cash on Delivery</p><p data-i18n="pay_instapay">InstaPay</p><p data-i18n="pay_card">Visa &amp; Mastercard</p><p data-i18n="pay_paypal">PayPal</p><p data-i18n="pay_bank">Bank Transfer</p></div>
+      <div><h4 data-i18n="foot_contact_t">Contact Us</h4><p><a href="mailto:Info@try-shoppy.com">Info@try-shoppy.com</a></p><p><a href="https://wa.me/201005609642" target="_blank" data-i18n="foot_whatsapp">Chat on WhatsApp</a></p></div>
     </div>
-    <div class="foot-bottom"><span data-i18n="foot_rights">© 2026 Try Shoppy. All rights reserved.</span><span>Made for shoppers in Egypt 🇪🇬</span></div>
+    <div class="foot-bottom"><span data-i18n="foot_rights">© 2026 Try Shoppy. All rights reserved.</span><span data-i18n="foot_made">Made for shoppers in Egypt 🇪🇬</span></div>
   </div>
 </footer>
 <script src="assets/config.js"></script>
@@ -660,6 +821,48 @@ function sendWhatsApp(){
 
   window.open('https://wa.me/'+TS_CONFIG.SUPPORT_PHONE+'?text='+encodeURIComponent(msg));
 }
+</script>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   v5 redesign — presentation only. Everything that decides a
+   price, builds an order number or talks to the backend lives
+   in the script above and in assets/function_calc.js, untouched.
+   ═══════════════════════════════════════════════════════════ */
+
+/* 1) progress header follows the step that is already being shown */
+(function(){
+  const ORDER = ['calc','cart','checkout','success'];
+  function markStep(step){
+    const at = ORDER.indexOf(step);
+    document.querySelectorAll('#calcSteps .cs').forEach(el=>{
+      const i = ORDER.indexOf(el.dataset.step);
+      el.classList.toggle('on', i === at);
+      el.classList.toggle('done', at > -1 && i < at);
+    });
+  }
+  const original = showStep;
+  showStep = function(step){ original(step); markStep(step); };
+  /* the page may already have jumped to the cart on load (saved items) */
+  const shown = ['calc','cart','checkout','success'].find(s=>{
+    const el = document.getElementById('step' + s.charAt(0).toUpperCase() + s.slice(1));
+    return el && !el.classList.contains('hidden');
+  });
+  markStep(shown || 'calc');
+})();
+
+/* 2) accept a link handed over from the home page (index.html?link=…)
+      — saves retyping the URL; the calculator still validates and
+      prices it exactly as if it had been typed here. */
+(function(){
+  const link = new URLSearchParams(location.search).get('link');
+  if(!link) return;
+  const field = document.getElementById('productLink');
+  if(field && !field.value){
+    field.value = link;
+    field.scrollIntoView({ behavior:'smooth', block:'center' });
+  }
+})();
 </script>
 </body>
 </html>

@@ -4,22 +4,62 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Login / Register — Try Shoppy</title>
+<meta name="description" content="Log in to your Try Shoppy account to follow every order and keep your delivery details ready.">
+<meta name="theme-color" content="#F9C22E">
 <link rel="icon" href="assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="assets/style.css">
 <style>
-.auth-bg{min-height:calc(100vh - 66px);display:flex;align-items:center;justify-content:center;padding:40px 16px;background:radial-gradient(ellipse 700px 500px at 70% 0%,var(--y0) 0%,transparent 70%)}
-.auth-card{width:100%;max-width:420px;padding:36px;background:var(--card);border-radius:28px;box-shadow:var(--sh3);border:1px solid rgba(232,219,194,.35)}
-.auth-logo{text-align:center;margin-bottom:20px}
-.auth-logo img{height:52px;margin:0 auto 10px}
-.auth-card h1{text-align:center;font-size:1.45rem;margin:4px 0 5px;font-weight:800}
-.auth-sub{text-align:center;color:var(--ink2);font-size:14px;margin-bottom:24px}
-.tabs{display:flex;background:var(--n1);border-radius:var(--rpill);padding:4px;gap:4px;margin-bottom:24px}
-.tabs button{flex:1;padding:10px;border:none;background:transparent;font-family:var(--f);font-weight:700;font-size:14px;border-radius:var(--rpill);cursor:pointer;color:var(--ink2);transition:background .18s,color .18s,box-shadow .18s}
-.tabs button.active{background:var(--card);color:var(--ink);box-shadow:var(--sh1)}
-.err-line{background:var(--err-bg);color:var(--err);padding:11px 14px;border-radius:var(--r);font-size:13.5px;margin-bottom:14px;text-align:center;display:none;border:1px solid rgba(217,91,69,.15)}
+/* ═══════════ LOGIN / REGISTER ═══════════
+   Split surface: the brand side explains what an account is for,
+   the form side stays focused. All field IDs and the auth script
+   below are unchanged. */
+
+.auth-bg{min-height:calc(100vh - 67px);display:grid;grid-template-columns:1fr 1fr;align-items:stretch}
+
+.auth-side{background:linear-gradient(160deg,var(--blue-900) 0%,var(--blue-700) 100%);color:#fff;
+  padding:56px 48px;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden}
+.auth-side::before{content:'';position:absolute;width:520px;height:520px;border-radius:50%;
+  background:radial-gradient(circle,rgba(249,194,46,.16) 0%,transparent 62%);bottom:-250px;inset-inline-start:-140px;pointer-events:none}
+.auth-side .inner{position:relative;z-index:2;max-width:400px;margin-inline:auto;width:100%}
+.auth-side .eyebrow{color:var(--yellow)}
+.auth-side h2{font-size:1.9rem;color:#fff;margin:16px 0 14px}
+.auth-side p{color:#B9C0DA;font-size:.98rem;line-height:1.75;margin:0 0 28px}
+.auth-side ul{list-style:none;padding:0;margin:0;display:grid;gap:14px}
+.auth-side li{display:flex;align-items:flex-start;gap:12px;color:#D7DBEA;font-size:14px;line-height:1.55}
+.auth-side li .ic{width:26px;height:26px;border-radius:8px;background:rgba(249,194,46,.16);color:var(--yellow);
+  display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;font-weight:800}
+.auth-side .back{margin-top:34px;font-size:13.5px;color:#8E97B8;font-weight:700;display:inline-flex;align-items:center;gap:7px}
+.auth-side .back:hover{color:var(--yellow)}
+
+.auth-main{display:flex;align-items:center;justify-content:center;padding:48px 24px;background:var(--page)}
+.auth-card{width:100%;max-width:430px}
+.auth-logo{text-align:center;margin-bottom:18px}
+.auth-logo img{height:54px;width:54px;border-radius:16px;margin:0 auto 12px;box-shadow:var(--sh-2)}
+.auth-card h1{text-align:center;font-size:1.5rem;margin:6px 0 6px}
+.auth-sub{text-align:center;color:var(--ink-2);font-size:14px;margin-bottom:26px}
+
+.tabs{display:flex;background:var(--surface-2);border-radius:var(--r2);padding:5px;gap:5px;margin-bottom:24px}
+.tabs button{flex:1;padding:11px;border:none;background:transparent;font-family:inherit;font-weight:700;
+  font-size:14px;border-radius:var(--r-sm);cursor:pointer;color:var(--ink-2);
+  transition:background .18s,color .18s,box-shadow .18s;min-height:44px}
+.tabs button.active{background:var(--white);color:var(--ink);box-shadow:var(--sh-2)}
+
+.err-line{background:var(--err-bg);color:var(--err);padding:12px 15px;border-radius:var(--r);
+  font-size:13.5px;margin-bottom:16px;text-align:center;display:none;border:1px solid rgba(217,58,58,.18);font-weight:600}
 .err-line.show{display:block;animation:fadeUp .25s ease-out}
-.auth-switch{text-align:center;margin-top:16px;font-size:13.5px;color:var(--ink2)}
-.auth-switch a{color:var(--y4);font-weight:700}
+.auth-switch{text-align:center;margin:14px 0 0;font-size:13.5px;color:var(--ink-2)}
+.auth-switch a{color:var(--blue-link);font-weight:700}
+.otp-box{background:var(--yellow-50);border:1.5px solid var(--yellow-100);border-radius:var(--r2);padding:16px;margin-bottom:16px}
+.link-btn{background:none;border:none;color:var(--blue-link);font-size:12.5px;font-weight:700;cursor:pointer;padding:0}
+
+@media(max-width:900px){
+  .auth-bg{grid-template-columns:1fr}
+  .auth-side{order:2;padding:44px 24px}
+  .auth-side h2{font-size:1.5rem}
+  .auth-main{padding:36px 20px}
+}
 </style>
 </head>
 <body>
@@ -28,17 +68,19 @@
   <div class="nav-row container">
     <a href="index.html" class="brand"><img src="assets/logo.png" alt="Try Shoppy"> Try Shoppy</a>
     <nav class="nav-links">
+      <a href="index.html" data-i18n="nav_home">Home</a>
       <a href="calculator.html" data-i18n="nav_calc">Get a Price</a>
       <a href="track.html" data-i18n="nav_track">Track Order</a>
       <a href="mart.html" data-i18n="nav_mart">Try Shoppy Mart</a>
     </nav>
     <div class="nav-actions">
-      <button class="lang-pill">🌐 العربية</button>
+      <button class="lang-pill" type="button">🌐 العربية</button>
       <button class="burger btn btn-ghost" aria-label="Menu">☰</button>
     </div>
   </div>
   <div class="mobile-menu">
     <a href="index.html" data-i18n="nav_home">Home</a>
+    <a href="index.html#how" data-i18n="nav_how">How it works</a>
     <a href="calculator.html" data-i18n="nav_calc">Get a Price</a>
     <a href="track.html" data-i18n="nav_track">Track Order</a>
     <a href="mart.html" data-i18n="nav_mart">Try Shoppy Mart</a>
@@ -46,115 +88,133 @@
 </header>
 
 <div class="auth-bg">
-  <div class="auth-card animate-in">
-    <div class="auth-logo"><img src="assets/logo.png" alt="Try Shoppy"></div>
-    <span class="eyebrow" style="justify-content:center;display:flex;margin-bottom:8px" data-i18n="auth_eyebrow">MY ACCOUNT</span>
-    <h1 data-i18n="auth_title">Welcome to Try Shoppy</h1>
-    <p class="auth-sub" data-i18n="auth_sub">Log in to track every order in one place.</p>
 
-    <div class="tabs">
-      <button id="tabLoginBtn" class="active" data-i18n="tab_login">Log In</button>
-      <button id="tabRegisterBtn" data-i18n="tab_register">Create Account</button>
+  <div class="auth-main">
+    <div class="auth-card animate-in">
+      <div class="auth-logo"><img src="assets/logo.png" alt="Try Shoppy"></div>
+      <span class="eyebrow" style="justify-content:center;display:flex;margin-bottom:10px" data-i18n="auth_eyebrow">MY ACCOUNT</span>
+      <h1 data-i18n="auth_title">Welcome to Try Shoppy</h1>
+      <p class="auth-sub" data-i18n="auth_sub">Log in to track every order in one place.</p>
+
+      <div class="tabs">
+        <button id="tabLoginBtn" type="button" class="active" data-i18n="tab_login">Log In</button>
+        <button id="tabRegisterBtn" type="button" data-i18n="tab_register">Create Account</button>
+      </div>
+
+      <div id="errLine" class="err-line"></div>
+
+      <form id="loginForm">
+        <div class="field">
+          <label for="loginIdentifier" data-i18n="lbl_identifier">Phone or Email</label>
+          <input id="loginIdentifier" type="text" autocomplete="username" data-i18n-ph="lbl_identifier" required>
+        </div>
+        <div class="field">
+          <label for="loginPassword" data-i18n="lbl_password">Password</label>
+          <input id="loginPassword" type="password" autocomplete="current-password" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg btn-block" id="loginSubmitBtn" data-i18n="btn_login">Log In</button>
+        <p class="auth-switch"><a href="#" id="goForgot" data-i18n="auth_forgot_link">Forgot your password?</a></p>
+        <p class="auth-switch"><a href="#" id="goRegister" data-i18n="auth_switch_to_register">New here? Create an account</a></p>
+      </form>
+
+      <!-- FORGOT PASSWORD -->
+      <form id="forgotForm" class="hidden">
+        <h2 style="font-size:1.1rem;font-weight:800;text-align:center;margin:0 0 8px" data-i18n="fp_title">Reset your password</h2>
+        <p class="auth-sub" id="fpSub" data-i18n="fp_step1_sub">Enter your phone, email or username and we'll email you a 6-digit code.</p>
+
+        <div id="fpStep1">
+          <div class="field">
+            <label for="fpIdentifier" data-i18n="fp_identifier_lbl">Phone / Email / Username</label>
+            <input id="fpIdentifier" type="text" required>
+          </div>
+          <button type="button" class="btn btn-primary btn-lg btn-block" id="fpSendBtn" data-i18n="fp_send_code_btn">Send Reset Code</button>
+        </div>
+
+        <div id="fpStep2" class="hidden">
+          <div class="field">
+            <label for="fpCode" data-i18n="fp_code_lbl">6-digit code</label>
+            <input id="fpCode" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code">
+          </div>
+          <div class="field">
+            <label for="fpNewPw" data-i18n="fp_new_pw_lbl">New Password</label>
+            <input id="fpNewPw" type="password" minlength="6" autocomplete="new-password">
+          </div>
+          <div class="field">
+            <label for="fpConfirmPw" data-i18n="fp_confirm_pw_lbl">Confirm New Password</label>
+            <input id="fpConfirmPw" type="password" minlength="6" autocomplete="new-password">
+          </div>
+          <button type="button" class="btn btn-primary btn-lg btn-block" id="fpResetBtn" data-i18n="fp_reset_btn">Change Password</button>
+          <button type="button" id="fpResendBtn" class="link-btn" style="margin-top:12px;display:block;margin-inline:auto" data-i18n="fp_resend">Resend code</button>
+        </div>
+
+        <p class="auth-switch"><a href="#" id="fpBackLogin" data-i18n="fp_back_login">← Back to login</a></p>
+      </form>
+
+      <form id="registerForm" class="hidden">
+        <div class="field">
+          <label for="regPhone" data-i18n="lbl_phone">Phone Number</label>
+          <input id="regPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="01xxxxxxxxx" required>
+        </div>
+        <div class="field">
+          <label for="regEmail" data-i18n="lbl_email_req">Email</label>
+          <input id="regEmail" type="email" inputmode="email" autocomplete="email" required>
+        </div>
+        <div class="field">
+          <label for="regUsername" data-i18n="lbl_username">Username</label>
+          <input id="regUsername" type="text" autocomplete="username" required>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="regPassword" data-i18n="lbl_password">Password</label>
+            <input id="regPassword" type="password" minlength="6" autocomplete="new-password" required>
+          </div>
+          <div class="field">
+            <label for="regConfirm" data-i18n="lbl_confirm">Confirm</label>
+            <input id="regConfirm" type="password" minlength="6" autocomplete="new-password" required>
+          </div>
+        </div>
+        <div id="regOtpStep" class="hidden otp-box">
+          <p style="font-size:12.5px;font-weight:700;margin:0 0 12px;line-height:1.6" data-i18n="reg_code_sent">We sent a 6-digit code to your email. Enter it to confirm your account.</p>
+          <div class="field" style="margin-bottom:10px">
+            <label for="regOtpCode" data-i18n="fp_code_lbl">6-digit code</label>
+            <input id="regOtpCode" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code">
+          </div>
+          <button type="button" id="regOtpResend" class="link-btn" data-i18n="fp_resend">Resend code</button>
+          <span style="color:var(--ink-3);font-size:12px"> · </span>
+          <button type="button" id="regOtpChange" class="link-btn" data-i18n="reg_change_email">Change email</button>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg btn-block" id="registerSubmitBtn" data-i18n="btn_register">Create My Account</button>
+        <p class="auth-switch"><a href="#" id="goLogin" data-i18n="auth_switch_to_login">Already have an account? Log in</a></p>
+      </form>
     </div>
-
-    <div id="errLine" class="err-line"></div>
-
-    <form id="loginForm">
-      <div class="field">
-        <label data-i18n="lbl_identifier">Phone or Email</label>
-        <input id="loginIdentifier" type="text" data-i18n-ph="lbl_identifier" required>
-      </div>
-      <div class="field">
-        <label data-i18n="lbl_password">Password</label>
-        <input id="loginPassword" type="password" required>
-      </div>
-      <button type="submit" class="btn btn-primary btn-block" id="loginSubmitBtn" data-i18n="btn_login">Log In</button>
-      <p class="auth-switch"><a href="#" id="goForgot" data-i18n="auth_forgot_link">Forgot your password?</a></p>
-      <p class="auth-switch"><a href="#" id="goRegister" data-i18n="auth_switch_to_register">New here? Create an account</a></p>
-    </form>
-
-    <!-- FORGOT PASSWORD -->
-    <form id="forgotForm" class="hidden">
-      <h2 style="font-size:1.05rem;font-weight:800;text-align:center;margin:0 0 6px" data-i18n="fp_title">Reset your password</h2>
-      <p class="auth-sub" id="fpSub" data-i18n="fp_step1_sub">Enter your phone, email or username and we'll email you a 6-digit code.</p>
-
-      <div id="fpStep1">
-        <div class="field">
-          <label data-i18n="fp_identifier_lbl">Phone / Email / Username</label>
-          <input id="fpIdentifier" type="text" required>
-        </div>
-        <button type="button" class="btn btn-primary btn-block" id="fpSendBtn" data-i18n="fp_send_code_btn">Send Reset Code</button>
-      </div>
-
-      <div id="fpStep2" class="hidden">
-        <div class="field">
-          <label data-i18n="fp_code_lbl">6-digit code</label>
-          <input id="fpCode" type="text" inputmode="numeric" maxlength="6">
-        </div>
-        <div class="field">
-          <label data-i18n="fp_new_pw_lbl">New Password</label>
-          <input id="fpNewPw" type="password" minlength="6">
-        </div>
-        <div class="field">
-          <label data-i18n="fp_confirm_pw_lbl">Confirm New Password</label>
-          <input id="fpConfirmPw" type="password" minlength="6">
-        </div>
-        <button type="button" class="btn btn-primary btn-block" id="fpResetBtn" data-i18n="fp_reset_btn">Change Password</button>
-        <button type="button" id="fpResendBtn" style="background:none;border:none;color:var(--y4);font-size:12.5px;font-weight:700;cursor:pointer;margin-top:10px;padding:0;display:block;margin-inline:auto" data-i18n="fp_resend">Resend code</button>
-      </div>
-
-      <p class="auth-switch"><a href="#" id="fpBackLogin" data-i18n="fp_back_login">← Back to login</a></p>
-    </form>
-
-    <form id="registerForm" class="hidden">
-      <div class="field">
-        <label data-i18n="lbl_phone">Phone Number</label>
-        <input id="regPhone" type="tel" placeholder="01xxxxxxxxx" required>
-      </div>
-      <div class="field">
-        <label data-i18n="lbl_email_req">Email</label>
-        <input id="regEmail" type="email" required>
-      </div>
-      <div class="field">
-        <label data-i18n="lbl_username">Username</label>
-        <input id="regUsername" type="text" required>
-      </div>
-      <div class="row2">
-        <div class="field">
-          <label data-i18n="lbl_password">Password</label>
-          <input id="regPassword" type="password" minlength="6" required>
-        </div>
-        <div class="field">
-          <label data-i18n="lbl_confirm">Confirm</label>
-          <input id="regConfirm" type="password" minlength="6" required>
-        </div>
-      </div>
-      <div id="regOtpStep" class="hidden" style="background:var(--cream-2);border:1px solid var(--sand);border-radius:14px;padding:14px 16px;margin-bottom:14px">
-        <p style="font-size:12.5px;font-weight:700;margin:0 0 10px" data-i18n="reg_code_sent">We sent a 6-digit code to your email. Enter it to confirm your account.</p>
-        <div class="field" style="margin-bottom:10px">
-          <label data-i18n="fp_code_lbl">6-digit code</label>
-          <input id="regOtpCode" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code">
-        </div>
-        <button type="button" id="regOtpResend" style="background:none;border:none;color:var(--y4);font-size:12px;font-weight:700;cursor:pointer;padding:0" data-i18n="fp_resend">Resend code</button>
-        <span style="color:var(--ink-3);font-size:12px"> · </span>
-        <button type="button" id="regOtpChange" style="background:none;border:none;color:var(--y4);font-size:12px;font-weight:700;cursor:pointer;padding:0" data-i18n="reg_change_email">Change email</button>
-      </div>
-      <button type="submit" class="btn btn-primary btn-block" id="registerSubmitBtn" data-i18n="btn_register">Create My Account</button>
-      <p class="auth-switch"><a href="#" id="goLogin" data-i18n="auth_switch_to_login">Already have an account? Log in</a></p>
-    </form>
   </div>
+
+  <aside class="auth-side">
+    <div class="inner">
+      <span class="eyebrow" data-i18n="hero_eyebrow">USA → EGYPT SHOPPING &amp; SHIPPING</span>
+      <h2 data-i18n="auth_side_t">Your orders, in one place</h2>
+      <p data-i18n="foot_about_d">Try Shoppy buys, consolidates and ships products from US stores straight to your door in Egypt.</p>
+      <ul>
+        <li><span class="ic">✓</span><span data-i18n="auth_side_1">Track every order with its TRY number</span></li>
+        <li><span class="ic">✓</span><span data-i18n="auth_side_2">Save your delivery details for faster checkout</span></li>
+        <li><span class="ic">✓</span><span data-i18n="auth_side_3">See your full order history any time</span></li>
+      </ul>
+      <a href="index.html" class="back">← <span data-i18n="auth_back_home">Back to home</span></a>
+    </div>
+  </aside>
 </div>
 
 <footer class="site-footer">
   <div class="container">
     <div class="foot-grid">
       <div><div class="foot-brand"><img src="assets/logo.png" alt=""> Try Shoppy</div><p data-i18n="foot_about_d">Try Shoppy buys, consolidates and ships products from US stores straight to your door in Egypt.</p></div>
-      <div><h4 data-i18n="foot_links_t">Quick Links</h4><p><a href="calculator.html" data-i18n="nav_calc">Get a Price</a></p><p><a href="track.html" data-i18n="nav_track">Track Order</a></p><p><a href="mart.html" data-i18n="nav_mart">Try Shoppy Mart</a></p><p><a href="login.html" data-i18n="nav_login">Login / Register</a></p></div>
+      <div><h4 data-i18n="foot_links_t">Quick Links</h4><p><a href="calculator.html" data-i18n="nav_calc">Get a Price</a></p><p><a href="track.html" data-i18n="nav_track">Track Order</a></p><p><a href="mart.html" data-i18n="nav_mart">Try Shoppy Mart</a></p><p><a href="index.html#how" data-i18n="nav_how">How it works</a></p><p><a href="login.html" data-i18n="nav_login">Login / Register</a></p></div>
       <div><h4 data-i18n="foot_legal_t">Legal</h4><p><a href="privacy.html" data-i18n="foot_privacy">Privacy Policy</a></p><p><a href="terms.html" data-i18n="foot_terms">Terms &amp; Conditions</a></p><p><a href="shipping-policy.html" data-i18n="foot_shipping">Shipping Policy</a></p><p><a href="returns-policy.html" data-i18n="foot_returns">Returns &amp; Refunds</a></p><p><a href="cancellation-policy.html" data-i18n="foot_cancellation">Cancellation Policy</a></p><p><a href="restricted-items.html" data-i18n="foot_restricted">Restricted Items</a></p></div>
       <div><h4 data-i18n="foot_support_t">Support</h4><p><a href="https://wa.me/201005609642" target="_blank" data-i18n="foot_whatsapp">Chat on WhatsApp</a></p><p><a href="https://www.facebook.com/TryShoppy.eg/" target="_blank" rel="noopener" class="foot-social-link"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="vertical-align:-2.5px;margin-inline-end:5px"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.51 1.49-3.9 3.77-3.9 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.44 2.91h-2.34V22c4.78-.76 8.44-4.92 8.44-9.94z"/></svg><span data-i18n="foot_facebook">Follow us on Facebook</span></a></p></div>
       <div><h4 data-i18n="foot_payments_t">Payments</h4><p data-i18n="pay_cod">Cash on Delivery</p><p data-i18n="pay_instapay">InstaPay</p><p data-i18n="pay_card">Visa &amp; Mastercard</p><p data-i18n="pay_paypal">PayPal</p><p data-i18n="pay_bank">Bank Transfer</p></div>
+      <div><h4 data-i18n="foot_contact_t">Contact Us</h4><p><a href="mailto:Info@try-shoppy.com">Info@try-shoppy.com</a></p><p><a href="https://wa.me/201005609642" target="_blank" data-i18n="foot_whatsapp">Chat on WhatsApp</a></p></div>
     </div>
-    <div class="foot-bottom"><span data-i18n="foot_rights">© 2026 Try Shoppy. All rights reserved.</span><span>Made for shoppers in Egypt 🇪🇬</span></div>
+    <div class="foot-bottom"><span data-i18n="foot_rights">© 2026 Try Shoppy. All rights reserved.</span><span data-i18n="foot_made">Made for shoppers in Egypt 🇪🇬</span></div>
   </div>
 </footer>
 <script src="assets/config.js"></script>

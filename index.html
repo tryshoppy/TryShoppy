@@ -4,201 +4,242 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Try Shoppy — Shop USA, Ship to Egypt</title>
-<meta name="description" content="Send any US store link — Try Shoppy buys it, clears customs, and delivers it to your door in Egypt.">
-
-<!-- Meta Pixel Code -->
-<script>
-!function(f,b,e,v,n,t,s)
-{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-n.queue=[];t=b.createElement(e);t.async=!0;
-t.src=v;s=b.getElementsByTagName(e)[0];
-s.parentNode.insertBefore(t,s)}(window, document,'script',
-'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '1562757605584870');
-fbq('track', 'PageView');
-</script>
-<noscript><img height="1" width="1" style="display:none"
-src="https://www.facebook.com/tr?id=1562757605584870&ev=PageView&noscript=1"
-/></noscript>
-<!-- End Meta Pixel Code -->
-
+<meta name="description" content="Send any US store link — Try Shoppy buys it, ships it to Egypt, handles the applicable process, and delivers it to your door.">
+<meta name="theme-color" content="#F9C22E">
 <link rel="icon" href="assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="assets/style.css">
 <style>
-/* ── Global Enhancements ── */
-html { scroll-behavior: smooth; }
-body { background-color: #FAFAFA; overflow-x: hidden; }
-.bg-dim { background-color: #F4F2EE; position: relative; z-index: 1; }
+/* ═══════════════════════════════════════════════════════════
+   HOME — page-specific composition.
+   Shared components (buttons, cards, nav, footer, forms) all
+   live in assets/style.css. Only layout that exists once, on
+   this page, is defined here.
+   ═══════════════════════════════════════════════════════════ */
 
-/* ── hero section (Playful & Animated) ── */
-.hero { padding: 80px 0 100px; position: relative; overflow: hidden; background: linear-gradient(180deg, #FFFFFF 0%, #FFF8E7 100%); }
-.hero::before { content: ''; position: absolute; width: 800px; height: 800px; border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; background: var(--gold-pale); top: -200px; right: -150px; opacity: 0.6; animation: morphBlob 15s ease-in-out infinite alternate; pointer-events: none; }
-@keyframes morphBlob { 0% { border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; transform: rotate(0deg) scale(1); } 100% { border-radius: 60% 40% 30% 70% / 60% 40% 50% 50%; transform: rotate(10deg) scale(1.05); } }
+/* ── hero ── */
+.hero{position:relative;padding:72px 0 0;overflow:hidden;background:
+  radial-gradient(900px 460px at 82% -8%,var(--yellow-50) 0%,transparent 62%),
+  linear-gradient(180deg,#FFFFFF 0%,var(--page) 100%)}
+.hero::after{content:'';position:absolute;inset-inline-start:-140px;top:120px;width:380px;height:380px;
+  border-radius:50%;background:var(--blue-50);opacity:.8;pointer-events:none}
+.hero-inner{position:relative;z-index:2;display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;padding-bottom:76px}
+.hero h1{font-size:clamp(2.25rem,5.2vw,3.6rem);font-weight:800;line-height:1.08;margin:18px 0 20px}
+.hero h1 .hl{position:relative;white-space:nowrap;display:inline-block;color:var(--blue-700)}
+.hero h1 .hl::after{content:'';position:absolute;inset-inline:-2px;bottom:6px;height:14px;
+  background:var(--yellow);z-index:-1;border-radius:3px;opacity:.85}
+.hero .lead{font-size:1.06rem;color:var(--ink-2);line-height:1.75;max-width:520px;margin:0 0 28px}
 
-.hero-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; position: relative; z-index: 2; }
-.hero h1 { font-size: 3.5rem; font-weight: 900; line-height: 1.1; letter-spacing: -0.03em; margin: 16px 0 24px; color: var(--ink); }
-.hero h1 .hl { position: relative; white-space: nowrap; display: inline-block; }
-.hero h1 .hl::after { content: ''; position: absolute; left: -4px; right: -4px; bottom: 8px; height: 16px; background: var(--gold); z-index: -1; border-radius: 8px; opacity: 0.8; transform: rotate(-1deg); }
-.hero p.lead { font-size: 1.1rem; color: var(--ink-2); line-height: 1.8; max-width: 500px; }
-.hero-ctas { display: flex; gap: 16px; margin: 32px 0 24px; flex-wrap: wrap; }
-.hero-ctas .btn { border-radius: 100px; padding: 14px 28px; font-weight: 700; transition: transform 0.2s, box-shadow 0.2s; }
-.hero-ctas .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(245, 184, 32, 0.4); }
-.hero-trust { font-size: 14px; color: var(--ink-2); display: flex; align-items: center; gap: 10px; font-weight: 600; background: rgba(255,255,255,0.6); padding: 8px 16px; border-radius: 100px; width: fit-content; border: 1px solid rgba(245, 184, 32, 0.3); }
-.hero-trust::before { content: '✓'; width: 22px; height: 22px; border-radius: 50%; background: var(--ok-bg); color: var(--ok); display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+/* paste-a-link launcher: the single most important action on the site,
+   pre-fills the calculator so the first step is never re-typed */
+.link-launch{display:flex;gap:10px;background:var(--white);border:1.5px solid var(--line);
+  border-radius:16px;padding:8px;box-shadow:var(--sh-3);max-width:540px;transition:border-color .18s,box-shadow .18s}
+.link-launch:focus-within{border-color:var(--blue-link);box-shadow:0 0 0 4px rgba(47,75,196,.12),var(--sh-3)}
+.link-launch input{border:0;box-shadow:none!important;background:transparent;min-height:44px;padding:10px 12px;font-size:15px;text-align:start}
+/* the placeholder reads naturally in Arabic; a real URL flips to LTR */
+.link-launch input:not(:placeholder-shown){direction:ltr;text-align:left;font-family:var(--fm);font-size:13.5px}
+.link-launch input:focus{border:0}
+.link-launch .btn{flex-shrink:0}
+@media(max-width:560px){.link-launch{flex-direction:column;padding:10px}.link-launch .btn{width:100%}}
 
-/* Floating Label Card Concept */
-.hero-graphic-wrapper { position: relative; perspective: 1000px; }
-.label-card { background: var(--white); border-radius: 32px; padding: 32px; box-shadow: 0 24px 48px rgba(0,0,0,0.08); border: 2px solid #FFF8E7; position: relative; z-index: 2; animation: floatCard 6s ease-in-out infinite; transform-style: preserve-3d; }
-@keyframes floatCard { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-15px) rotate(1deg); } }
+.hero-ctas{display:flex;gap:12px;flex-wrap:wrap;margin:18px 0 22px}
+.hero-trust{display:inline-flex;align-items:center;gap:10px;font-size:13.5px;color:var(--ink-2);font-weight:600;
+  background:var(--white);border:1px solid var(--line);padding:9px 16px;border-radius:var(--pill);box-shadow:var(--sh-1)}
+.hero-trust .tick{width:20px;height:20px;border-radius:50%;background:var(--ok-bg);color:var(--ok);
+  display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0}
 
-/* Decorative Floating Elements */
-.float-box { position: absolute; width: 48px; height: 48px; background: var(--white); border-radius: 12px; box-shadow: 0 12px 24px rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center; font-size: 24px; animation: floatEl 5s ease-in-out infinite; border: 1px solid var(--sand); z-index: 1; }
-.fb-1 { top: -20px; left: -20px; animation-delay: 0.5s; }
-.fb-2 { bottom: 40px; right: -30px; animation-delay: 1.2s; font-size: 28px; }
-@keyframes floatEl { 0%, 100% { transform: translateY(0) rotate(-10deg); } 50% { transform: translateY(-20px) rotate(10deg); } }
+/* ── hero order card (crafted, not stock) ── */
+.hero-visual{position:relative}
+.order-card{background:var(--white);border:1px solid var(--line);border-radius:var(--r4);
+  box-shadow:var(--sh-4);padding:24px;position:relative;z-index:2}
+.oc-head{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.oc-head .live{display:inline-flex;align-items:center;gap:6px;color:var(--ok)}
+.oc-head .live i{width:7px;height:7px;border-radius:50%;background:var(--ok);display:inline-block}
+.oc-link{font-family:var(--fm);font-size:12.5px;background:var(--blue-50);border:1px dashed var(--line-2);
+  border-radius:10px;padding:12px 14px;margin:14px 0 18px;word-break:break-all;color:var(--blue-700);direction:ltr;text-align:start}
+.oc-route{display:flex;align-items:center;gap:10px;margin-bottom:18px;direction:ltr}
+.oc-node{display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;width:44px}
+.oc-node .dot{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:15px;background:var(--blue-700);color:#fff;box-shadow:var(--sh-2)}
+.oc-node.end .dot{background:var(--yellow);color:var(--ink)}
+.oc-node small{font-family:var(--fm);font-size:9.5px;font-weight:700;color:var(--ink-3);letter-spacing:.06em}
+.oc-line{flex:1;height:2px;background:repeating-linear-gradient(90deg,var(--line-2) 0 6px,transparent 6px 12px);position:relative}
+.oc-line span{position:absolute;top:-9px;left:0;font-size:14px;animation:ocMove 4.5s linear infinite}
+@keyframes ocMove{0%{left:0}100%{left:calc(100% - 14px)}}
+.oc-rows{border-top:1px solid var(--line);padding-top:14px;display:grid;gap:9px;font-size:13px}
+.oc-rows div{display:flex;justify-content:space-between;gap:10px;color:var(--ink-2)}
+.oc-rows div b{color:var(--ink);font-weight:700}
+.oc-total{margin-top:14px;padding-top:14px;border-top:1px dashed var(--line-2);display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
+.oc-total .lbl{font-size:12px;font-weight:700;color:var(--ink-2)}
+.oc-total .val{font-family:var(--fm);font-size:2rem;font-weight:700;line-height:1;color:var(--ink)}
+.oc-total .cur{font-size:12px;font-weight:700;color:var(--ink-3);margin-inline-start:4px}
+.oc-foot{margin-top:16px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  background:var(--blue-50);border-radius:12px;padding:11px 14px}
+.oc-foot .onum{font-family:var(--fm);font-size:13px;font-weight:700;color:var(--blue-700);letter-spacing:.02em;direction:ltr}
+.oc-chip{position:absolute;z-index:3;background:var(--white);border:1px solid var(--line);border-radius:14px;
+  padding:10px 14px;box-shadow:var(--sh-3);display:flex;align-items:center;gap:9px;font-size:12.5px;font-weight:700}
+.oc-chip .ic{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px}
+.oc-chip.c1{top:-18px;inset-inline-start:-22px}
+.oc-chip.c1 .ic{background:var(--yellow-100)}
+.oc-chip.c2{bottom:34px;inset-inline-end:-26px}
+.oc-chip.c2 .ic{background:var(--ok-bg)}
+@media(max-width:1020px){
+  .hero-inner{grid-template-columns:1fr;gap:40px;padding-bottom:56px}
+  .hero .lead,.link-launch{max-width:none}
+  .hero-visual{max-width:460px;margin:0 auto;width:100%}
+  .oc-chip{display:none}
+}
 
-.lc-top { display: flex; justify-content: space-between; font-family: var(--fm); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); font-weight: 800; }
-.lc-link { font-family: var(--fm); font-size: 13px; background: #F8F9FA; border-radius: 12px; padding: 12px 16px; margin: 16px 0 20px; word-break: break-all; color: var(--ink); border: 1px dashed #D1CFC8; }
-.lc-route { margin: 10px 0 24px; background: #FFFDF8; padding: 16px; border-radius: 20px; }
-.lc-route svg { width: 100%; height: auto; display: block; overflow: visible; }
-.route-dash { stroke-dasharray: 8 8; animation: routeFlow 1s linear infinite; }
-@keyframes routeFlow { to { stroke-dashoffset: -16; } }
-.lc-price { text-align: center; padding: 20px 0 10px; border-top: 2px dashed #EAE6DF; }
-.lc-price .num { font-family: var(--fm); font-size: 2.8rem; font-weight: 800; display: block; line-height: 1; color: var(--ink); }
-.lc-price .cur { font-size: 11px; color: var(--ink-3); font-weight: 800; letter-spacing: 0.1em; margin-top: 8px; display: block; font-family: var(--fm); background: var(--gold-pale); padding: 4px 12px; border-radius: 100px; display: inline-block; }
-.lc-stampline { text-align: center; margin-top: -10px; position: absolute; right: 20px; bottom: 20px; }
-.lc-stampline .stamp { animation: stampIn .6s cubic-bezier(.2,.8,.2,1.2) .5s both; background: var(--ok-bg); color: var(--ok); padding: 8px 14px; border-radius: 12px; font-weight: 800; border: 2px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: inline-block; transform: rotate(-5deg); }
-@media(max-width:920px) { .hero-inner { grid-template-columns: 1fr; } .hero h1 { font-size: 2.5rem; } .hero-graphic-wrapper { max-width: 440px; margin: 0 auto; } .float-box { display: none; } }
+/* ── trust strip ── */
+.trust-strip{position:relative;z-index:3;background:var(--white);border:1px solid var(--line);
+  border-radius:var(--r3);box-shadow:var(--sh-3);display:grid;grid-template-columns:repeat(4,1fr);
+  overflow:hidden;margin-bottom:-46px}
+.ts-item{padding:22px 20px;display:flex;gap:13px;align-items:flex-start;border-inline-end:1px solid var(--line)}
+.ts-item:last-child{border-inline-end:0}
+.ts-item .ic{width:38px;height:38px;border-radius:11px;background:var(--blue-50);color:var(--blue-700);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ts-item .ic svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ts-item b{display:block;font-size:14px;font-weight:800;margin-bottom:2px}
+.ts-item span{font-size:12.5px;color:var(--ink-2);line-height:1.5}
+@media(max-width:900px){.trust-strip{grid-template-columns:1fr 1fr}.ts-item:nth-child(2){border-inline-end:0}
+  .ts-item:nth-child(1),.ts-item:nth-child(2){border-bottom:1px solid var(--line)}}
+@media(max-width:520px){.trust-strip{grid-template-columns:1fr;margin-bottom:-30px}
+  .ts-item{border-inline-end:0;border-bottom:1px solid var(--line);padding:17px 18px}
+  .ts-item:last-child{border-bottom:0}}
 
-/* ── steps section (Journey Concept) ── */
-#how { padding: 100px 0; overflow: hidden; }
-.steps-wrapper { position: relative; margin-top: 40px; }
-/* Connecting Line */
-.steps-line { position: absolute; top: 48px; left: 10%; right: 10%; height: 3px; background: linear-gradient(90deg, var(--gold) 50%, transparent 50%); background-size: 20px 3px; z-index: 0; animation: march 1s linear infinite; opacity: 0.5; }
-@keyframes march { from { background-position: 20px 0; } to { background-position: 0 0; } }
+/* ── how it works ── */
+#how{padding-top:120px}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;position:relative}
+.steps::before{content:'';position:absolute;top:34px;inset-inline:60px;height:2px;
+  background:repeating-linear-gradient(90deg,var(--line-2) 0 7px,transparent 7px 14px);z-index:0}
+.step-card{position:relative;z-index:1;background:var(--white);border:1px solid var(--line);
+  border-radius:var(--r3);padding:26px 22px;transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease}
+.step-card:hover{transform:translateY(-4px);box-shadow:var(--sh-3);border-color:var(--line-2)}
+.step-badge{width:44px;height:44px;border-radius:14px;background:var(--blue-700);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:14px;font-weight:700;
+  margin-bottom:18px;box-shadow:var(--sh-2)}
+.step-card:nth-child(4) .step-badge{background:var(--yellow);color:var(--ink);box-shadow:var(--sh-yellow)}
+.step-card h3{font-size:16.5px;margin:0 0 8px}
+.step-card p{font-size:13.8px;color:var(--ink-2);margin:0;line-height:1.65}
+@media(max-width:900px){.steps{grid-template-columns:1fr 1fr}.steps::before{display:none}}
+@media(max-width:520px){.steps{grid-template-columns:1fr;gap:14px}
+  .step-card{display:grid;grid-template-columns:44px 1fr;gap:16px;align-items:start;padding:20px}
+  .step-badge{margin-bottom:0}}
 
-.steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; position: relative; z-index: 1; }
-.step-card { padding: 32px 24px; background: var(--white); border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 2px solid transparent; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); text-align: center; position: relative; }
-.step-card:hover { border-color: var(--gold); transform: translateY(-10px); box-shadow: 0 20px 40px rgba(245, 184, 32, 0.15); }
-.step-num { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; font-family: var(--fm); font-size: 12px; font-weight: 800; padding: 6px 14px; border-radius: 20px; border: 3px solid #FAFAFA; }
-.step-icon { width: 70px; height: 70px; border-radius: 22px; background: var(--gold-pale); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; position: relative; transition: 0.3s; box-shadow: inset 0 0 0 4px #FFF; }
-.step-card:hover .step-icon { background: var(--gold); transform: scale(1.1) rotate(5deg); box-shadow: inset 0 0 0 4px rgba(255,255,255,0.5); }
-.step-icon svg { width: 32px; height: 32px; stroke: var(--ink); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.step-card h3 { font-size: 17px; font-weight: 800; margin: 0 0 10px; color: var(--ink); }
-.step-card p { font-size: 14px; color: var(--ink-2); margin: 0; line-height: 1.6; }
-@media(max-width:920px) { .steps { grid-template-columns: 1fr 1fr; gap: 30px; } .steps-line { display: none; } }
-@media(max-width:560px) { .steps { grid-template-columns: 1fr; } }
+/* ── calculator band ── */
+.calc-band{background:var(--blue-700);border-radius:var(--r4);padding:52px;color:#fff;position:relative;overflow:hidden;
+  display:grid;grid-template-columns:1fr .85fr;gap:48px;align-items:center}
+.calc-band::before{content:'';position:absolute;width:460px;height:460px;border-radius:50%;
+  background:radial-gradient(circle,rgba(249,194,46,.16) 0%,transparent 65%);top:-160px;inset-inline-end:-120px;pointer-events:none}
+.calc-band .eyebrow{color:var(--yellow)}
+.calc-band h2{font-size:clamp(1.5rem,3vw,2.1rem);color:#fff;margin:14px 0 12px}
+.calc-band p{color:#B9C0DA;line-height:1.75;max-width:440px;font-size:1rem}
+.calc-fields{display:grid;gap:12px;position:relative;z-index:2}
+.cf-row{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:14px;
+  padding:14px 16px;display:flex;align-items:center;gap:12px}
+.cf-row .ic{width:32px;height:32px;border-radius:9px;background:rgba(249,194,46,.16);color:var(--yellow);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.cf-row b{font-size:13.5px;font-weight:700;display:block;color:#fff}
+.cf-row span{font-size:12px;color:#9AA3C4}
+.cf-out{background:var(--yellow);color:var(--ink);border-color:transparent}
+.cf-out .ic{background:rgba(23,28,48,.12);color:var(--ink)}
+.cf-out b,.cf-out span{color:var(--ink)}
+.cf-out span{opacity:.72}
+@media(max-width:900px){.calc-band{grid-template-columns:1fr;padding:38px 26px;gap:30px}.calc-band p{max-width:none}}
 
-/* Playful SVGs Animations */
-.step-card:nth-child(1) .step-icon svg { animation: floatIcon 3s ease-in-out infinite; }
-@keyframes floatIcon { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
-.step-card:nth-child(2) .step-icon svg { animation: pulseIcon 2s infinite; }
-@keyframes pulseIcon { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-.step-card:nth-child(3) .step-icon svg { stroke-dasharray: 30; animation: drawCheck 2s infinite; }
-@keyframes drawCheck { 0% { stroke-dashoffset: 30; } 50%, 100% { stroke-dashoffset: 0; } }
-.step-card:nth-child(4) .step-icon svg { animation: bounceBox 2s infinite; }
-@keyframes bounceBox { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-6px); } 60% { transform: translateY(-3px); } }
+/* ── mart band ── */
+.mart-band{background:linear-gradient(140deg,var(--blue-900) 0%,var(--blue-700) 100%);
+  border-radius:var(--r4);padding:52px;display:grid;grid-template-columns:1.05fr .95fr;gap:44px;
+  align-items:center;position:relative;overflow:hidden;box-shadow:var(--sh-4)}
+.mart-band::before{content:'';position:absolute;width:520px;height:520px;border-radius:50%;
+  background:radial-gradient(circle,rgba(249,194,46,.18) 0%,transparent 62%);bottom:-240px;inset-inline-start:-140px;pointer-events:none}
+.mart-tag{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:800;letter-spacing:.12em;
+  color:var(--ink);background:var(--yellow);border-radius:var(--pill);padding:6px 14px;box-shadow:var(--sh-yellow)}
+html[lang="ar"] .mart-tag{letter-spacing:0}
+.mart-band h2{color:#fff;font-size:clamp(1.5rem,3vw,2.1rem);margin:16px 0 12px}
+.mart-band p{color:#B9C0DA;line-height:1.75;max-width:450px;font-size:1rem}
+.mart-points{list-style:none;padding:0;margin:22px 0 28px;display:grid;gap:10px}
+.mart-points li{display:flex;align-items:flex-start;gap:10px;color:#D7DBEA;font-size:13.8px;line-height:1.55}
+.mart-points li::before{content:'';width:18px;height:18px;border-radius:50%;background:rgba(249,194,46,.18);
+  flex-shrink:0;margin-top:2px;background-image:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%23F9C22E' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:center}
+.mart-tiles{display:grid;grid-template-columns:1fr 1fr;gap:14px;position:relative;z-index:2}
+.mart-tile{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.12);border-radius:18px;
+  padding:20px 18px;transition:background .22s ease,transform .22s ease,border-color .22s ease}
+.mart-tile:hover{background:rgba(255,255,255,.1);transform:translateY(-3px);border-color:rgba(249,194,46,.5)}
+.mart-tile .t{color:var(--yellow);font-weight:800;font-size:15px;line-height:1.3}
+.mart-tile .s{color:#8E97B8;font-size:12px;margin-top:5px;font-weight:600}
+@media(max-width:900px){.mart-band{grid-template-columns:1fr;padding:38px 26px;gap:30px}.mart-band p{max-width:none}}
 
-/* ── mart band (Glowing & Magical) ── */
-#mart-feature { padding: 40px 0; }
-.mart-band { background: linear-gradient(135deg, var(--ink) 0%, #1A150E 100%); border-radius: 40px; padding: 60px; display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 40px; align-items: center; position: relative; overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.05); }
-.mart-band::before { content: ''; position: absolute; width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(245,184,32,0.15) 0%, transparent 60%); top: -150px; right: -100px; pointer-events: none; animation: pulseGlow 4s alternate infinite; }
-@keyframes pulseGlow { from { transform: scale(1); opacity: 0.8; } to { transform: scale(1.1); opacity: 1; } }
-
-.mart-new-tag { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 900; letter-spacing: 0.15em; color: var(--ink); background: linear-gradient(90deg, var(--gold) 0%, #FFF2C8 50%, var(--gold) 100%); background-size: 200% 100%; animation: badgeShine 2s linear infinite; border-radius: 100px; padding: 8px 16px; box-shadow: 0 8px 20px rgba(245,184,32,0.4); }
-@keyframes badgeShine { to { background-position: -200% 0; } }
-
-.mart-band h2 { color: #fff; font-size: 2.2rem; margin: 16px 0 12px; letter-spacing: -0.02em; }
-.mart-band p { color: #C2BBAC; line-height: 1.7; max-width: 440px; font-size: 1.05rem; }
-.mart-tags { display: flex; gap: 10px; flex-wrap: wrap; margin: 24px 0 32px; }
-.mart-tags span { font-size: 12px; font-weight: 700; background: rgba(255,255,255,0.08); color: #FFF; padding: 8px 16px; border-radius: 100px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(5px); }
-.mart-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; position: relative; z-index: 2; }
-.mart-tile { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 24px; transition: 0.3s cubic-bezier(0.2,0.8,0.2,1); backdrop-filter: blur(10px); }
-.mart-tile:hover { background: rgba(255,255,255,0.08); transform: translateY(-8px) scale(1.02) !important; border-color: var(--gold); box-shadow: 0 15px 30px rgba(0,0,0,0.2); }
-.mart-tile .pct { font-family: var(--fm); color: var(--gold); font-weight: 900; font-size: 1.6rem; text-shadow: 0 2px 10px rgba(245,184,32,0.3); }
-/* 🆕 tile content is now short phrases ("Brand New", "Heavily
-   Discounted") instead of stats ("-30%") — the original 1.6rem
-   stat-sized font overflowed these tiles, so we scale it down and
-   allow wrapping while keeping the same visual weight/feel */
-.mart-tile .pct { font-size: 1.05rem; line-height: 1.25; }
-.mart-tile .lbl { color: #A89C8A; font-size: 13px; margin-top: 6px; font-weight: 600; }
-
-.mart-float { position: absolute; font-size: 32px; opacity: 0.8; pointer-events: none; animation: floaty 6s ease-in-out infinite; z-index: 0; }
-.mart-float.f1 { top: 40px; right: 45%; animation-delay: 0s; }
-.mart-float.f2 { bottom: 50px; left: 45%; animation-delay: 1.5s; font-size: 28px; }
-.mart-float.f3 { top: 30%; right: 20px; animation-delay: 3s; font-size: 24px; }
-@media(max-width:920px) { .mart-band { grid-template-columns: 1fr; padding: 40px 24px; border-radius: 30px; text-align: center; } .mart-tags { justify-content: center; } .mart-float { display: none; } }
+/* ── why grid ── */
+.why-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.why-card{background:var(--white);border:1px solid var(--line);border-radius:var(--r3);padding:28px 24px;
+  transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease}
+.why-card:hover{transform:translateY(-4px);box-shadow:var(--sh-3);border-color:var(--line-2)}
+.why-icon{width:48px;height:48px;border-radius:14px;background:var(--yellow-50);border:1px solid var(--yellow-100);
+  display:flex;align-items:center;justify-content:center;margin-bottom:18px}
+.why-icon svg{width:22px;height:22px;stroke:var(--yellow-ink);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.why-card h3{font-size:16px;margin:0 0 8px}
+.why-card p{font-size:13.8px;color:var(--ink-2);margin:0;line-height:1.65}
+@media(max-width:900px){.why-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.why-grid{grid-template-columns:1fr}}
 
 /* ── stores ── */
-.brand-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; max-width: 960px; margin: 40px auto 0; }
-.brand-card { background: var(--white); border: 2px solid transparent; border-radius: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); min-height: 64px; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 16px; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-.brand-card:hover { transform: translateY(-6px) scale(1.05); box-shadow: 0 16px 32px rgba(0,0,0,0.08); border-color: var(--gold-light); }
-.brand-card .bicon { width: 24px; height: 24px; flex-shrink: 0; border-radius: 6px; object-fit: contain; }
-.brand-card .bname { font-family: var(--fm); font-weight: 800; font-size: 13px; color: var(--ink-2); letter-spacing: 0.02em; }
-.brand-more { text-align: center; color: var(--ink-3); font-size: 14px; font-weight: 600; margin-top: 32px; }
-@media(max-width:920px) { .brand-grid { grid-template-columns: repeat(3, 1fr); } }
-@media(max-width:560px) { .brand-grid { grid-template-columns: repeat(2, 1fr); } }
-
-/* ── why grid (Staggered Layout) ── */
-.why-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-top: 40px; }
-.why-card { padding: 32px 24px; background: var(--white); border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); transition: 0.3s; text-align: center; }
-.why-card:nth-child(even) { transform: translateY(20px); } /* Bouncy layout */
-.why-card:hover { box-shadow: 0 20px 40px rgba(245,184,32,0.12); border-color: var(--gold); }
-.why-icon { width: 64px; height: 64px; border-radius: 20px; background: var(--gold-pale); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; transition: 0.3s; }
-.why-card:hover .why-icon { background: var(--gold); border-radius: 50%; transform: rotate(-10deg); }
-.why-icon svg { width: 28px; height: 28px; stroke: var(--ink); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.why-card h3 { font-size: 16px; font-weight: 800; margin: 0 0 10px; }
-.why-card p { font-size: 14px; color: var(--ink-2); margin: 0; line-height: 1.6; }
-@media(max-width:920px) { .why-grid { grid-template-columns: 1fr 1fr; } .why-card:nth-child(even) { transform: none; } }
-@media(max-width:560px) { .why-grid { grid-template-columns: 1fr; } }
+.brand-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;max-width:960px;margin:0 auto}
+.brand-card{background:var(--white);border:1px solid var(--line);border-radius:14px;min-height:62px;
+  display:flex;align-items:center;justify-content:center;gap:10px;padding:14px 12px;
+  transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
+.brand-card:hover{transform:translateY(-3px);box-shadow:var(--sh-2);border-color:var(--line-2)}
+.brand-card .bicon{width:22px;height:22px;flex-shrink:0;border-radius:5px;object-fit:contain}
+.brand-card .bname{font-weight:700;font-size:12.5px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand-note{text-align:center;color:var(--ink-3);font-size:12.5px;margin-top:24px;max-width:620px;margin-inline:auto;line-height:1.6}
+@media(max-width:900px){.brand-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:520px){.brand-grid{grid-template-columns:repeat(2,1fr)}}
 
 /* ── payments ── */
-.pay-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-top: 30px; }
-.pay-card { padding: 24px 16px; text-align: center; background: var(--white); border-radius: 24px; box-shadow: 0 6px 16px rgba(0,0,0,0.03); transition: 0.2s; }
-.pay-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.06); }
-.pay-icon { width: 50px; height: 50px; border-radius: 16px; background: #FAFAFA; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; border: 1px solid #EAE6DF; }
-.pay-icon svg { width: 24px; height: 24px; stroke: var(--ink); fill: none; stroke-width: 2; }
-.pay-icon-img { background: #fff; padding: 8px; }
-.pay-icon-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
-.pay-icon-duo { gap: 4px; padding: 8px; }
-.pay-icon-duo img { width: 45%; height: 100%; object-fit: contain; }
-.pay-card span { font-weight: 800; font-size: 13px; display: block; color: var(--ink-2); }
-@media(max-width:920px) { .pay-grid { grid-template-columns: repeat(3, 1fr); } }
-@media(max-width:560px) { .pay-grid { grid-template-columns: repeat(2, 1fr); } }
+.pay-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+.pay-card{padding:22px 14px;text-align:center;background:var(--white);border:1px solid var(--line);
+  border-radius:var(--r2);transition:transform .2s ease,box-shadow .2s ease}
+.pay-card:hover{transform:translateY(-3px);box-shadow:var(--sh-2)}
+.pay-icon{width:52px;height:38px;border-radius:9px;background:var(--white);border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 12px;padding:6px}
+.pay-icon img{max-width:100%;max-height:100%;object-fit:contain}
+.pay-icon svg{width:20px;height:20px;stroke:var(--blue-700);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pay-card span{font-weight:700;font-size:12.5px;display:block;color:var(--ink-2);line-height:1.4}
+@media(max-width:900px){.pay-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:520px){.pay-grid{grid-template-columns:repeat(2,1fr)}}
+
+/* ── faq ── */
+.faq-wrap{max-width:780px;margin:0 auto}
+.faq-item{background:var(--white);border:1px solid var(--line);border-radius:var(--r2);margin-bottom:10px;overflow:hidden;transition:border-color .2s,box-shadow .2s}
+.faq-item[open]{border-color:var(--line-2);box-shadow:var(--sh-2)}
+.faq-item summary{list-style:none;cursor:pointer;padding:18px 22px;font-weight:700;font-size:15px;
+  display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:60px}
+.faq-item summary::-webkit-details-marker{display:none}
+.faq-item summary::after{content:'';width:11px;height:11px;flex-shrink:0;
+  border-inline-end:2.5px solid var(--ink-3);border-bottom:2.5px solid var(--ink-3);
+  transform:rotate(45deg);transition:transform .22s ease;margin-top:-4px}
+.faq-item[open] summary::after{transform:rotate(-135deg);margin-top:3px}
+.faq-item summary:hover{background:var(--blue-50)}
+.faq-a{padding:0 22px 20px;color:var(--ink-2);font-size:14px;line-height:1.75}
+.faq-a a{color:var(--blue-link);font-weight:700;text-decoration:underline;text-underline-offset:2px}
+.faq-more{text-align:center;margin-top:28px;font-size:14px;color:var(--ink-2)}
+.faq-more a{color:var(--blue-link);font-weight:700}
 
 /* ── final cta ── */
-.final-cta { text-align: center; padding: 100px 0; background: linear-gradient(0deg, #FFFFFF 0%, #FFFBF2 100%); }
-.final-cta h2 { font-size: 2.5rem; margin: 16px 0 12px; font-weight: 900; letter-spacing: -0.02em; color: var(--ink); }
-.final-cta p { color: var(--ink-2); margin-bottom: 32px; font-size: 1.1rem; }
-.final-cta .btn { border-radius: 100px; padding: 16px 36px; font-size: 1.1rem; box-shadow: 0 10px 30px rgba(245,184,32,0.3); animation: pulseSoft 2s infinite; }
-@keyframes pulseSoft { 0% { box-shadow: 0 0 0 0 rgba(245,184,32,0.4); } 70% { box-shadow: 0 0 0 15px rgba(245,184,32,0); } 100% { box-shadow: 0 0 0 0 rgba(245,184,32,0); } }
+.final-cta{background:linear-gradient(180deg,var(--page) 0%,var(--yellow-50) 100%);text-align:center;padding:90px 0}
+.final-cta h2{font-size:clamp(1.7rem,3.6vw,2.5rem);margin:16px 0 12px}
+.final-cta p{color:var(--ink-2);font-size:1.05rem;margin:0 auto 30px;max-width:480px}
+.final-cta .cta-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.final-cta .eyebrow{justify-content:center;display:inline-flex;margin-bottom:4px}
 
-/* Headings shared */
-.section-head { text-align: center; margin-bottom: 20px; }
-.section-head .eyebrow { display: inline-flex; justify-content: center; }
-.section-head h2 { font-size: 2.2rem; font-weight: 900; color: var(--ink); margin: 12px 0; letter-spacing: -0.02em; }
-.section-head p { font-size: 1.1rem; color: var(--ink-2); }
-
-/* ── header fix: language pill was overlapping the logo/menu on
-   small screens (likely a leftover absolute/flex-basis rule in
-   style.css that only shows up under ~420px). We force a safe,
-   predictable row layout here regardless of what style.css does,
-   so the pill never overlaps the brand mark again. ── */
-.nav-row { flex-wrap: nowrap !important; gap: 10px; }
-.brand { position: relative; z-index: 1; flex-shrink: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.nav-actions { position: static !important; flex-shrink: 0; display: flex; align-items: center; gap: 8px; }
-.lang-pill { position: static !important; flex-shrink: 0; white-space: nowrap; transform: none !important; }
-@media (max-width: 480px) {
-  .brand { max-width: 42vw; font-size: 0.95rem; }
-  .brand img { width: 22px; height: 22px; }
-  .lang-pill { padding: 6px 10px; font-size: 12px; }
-  .nav-actions { gap: 6px; }
-}
+/* the sticky mobile bar covers the last strip of the page */
+@media(max-width:760px){.site-footer .container{padding-bottom:96px}}
 </style>
 </head>
-<body>
+<body class="has-sticky-bar">
 
 <header class="site-header">
   <div class="nav-row container">
@@ -206,13 +247,13 @@ body { background-color: #FAFAFA; overflow-x: hidden; }
     <nav class="nav-links">
       <a href="index.html" class="active" data-i18n="nav_home">Home</a>
       <a href="index.html#how" data-i18n="nav_how">How it works</a>
-      <a href="calculator.html" data-i18n="nav_calc">Get a Price</a>
       <a href="track.html" data-i18n="nav_track">Track Order</a>
       <a href="mart.html" data-i18n="nav_mart">Try Shoppy Mart</a>
     </nav>
     <div class="nav-actions">
-      <button class="lang-pill">🌐 العربية</button>
+      <button class="lang-pill" type="button">🌐 العربية</button>
       <span data-auth-slot="pill"></span>
+      <a href="calculator.html" class="btn btn-primary btn-sm nav-cta" data-i18n="nav_calc">Get a Price</a>
       <button class="burger btn btn-ghost" aria-label="Menu">☰</button>
     </div>
   </div>
@@ -223,137 +264,174 @@ body { background-color: #FAFAFA; overflow-x: hidden; }
     <a href="track.html" data-i18n="nav_track">Track Order</a>
     <a href="mart.html" data-i18n="nav_mart">Try Shoppy Mart</a>
     <a href="login.html" data-i18n="nav_login">Login / Register</a>
+    <a href="calculator.html" class="mm-cta" data-i18n="hero_cta_price">Calculate My Price</a>
   </div>
 </header>
 
-<!-- HERO -->
+<!-- ══════════════ HERO ══════════════ -->
 <section class="hero">
   <div class="container hero-inner">
     <div class="animate-in">
-      <span class="eyebrow" data-i18n="hero_eyebrow">USA → EGYPT SHOPPING & SHIPPING</span>
+      <span class="eyebrow" data-i18n="hero_eyebrow">USA → EGYPT SHOPPING &amp; SHIPPING</span>
       <h1 data-i18n="hero_title">Send the link.<br>We ship it <span class="hl">home.</span></h1>
-      <p class="lead" data-i18n="hero_sub">Paste a product link from Amazon, eBay, Walmart, iHerb or almost any US store. We buy it, clear customs, and deliver anywhere in Egypt — full cost shown upfront.</p>
+      <p class="lead" data-i18n="hero_sub">Paste a product link from Amazon, eBay, Walmart, iHerb or almost any US store. We buy it, ship it to Egypt, handle the applicable process, and deliver it to you.</p>
+
+      <form class="link-launch" id="linkLaunch" autocomplete="off">
+        <input type="url" id="heroLink" inputmode="url"
+               data-i18n-ph="hero_quick_ph" placeholder="Paste your product link here…"
+               aria-label="Product link">
+        <button class="btn btn-primary" type="submit" data-i18n="hero_cta_price">Calculate My Price</button>
+      </form>
+
       <div class="hero-ctas">
-        <a href="calculator.html" class="btn btn-primary" data-i18n="hero_cta_price">Calculate My Price</a>
-        <a href="track.html" class="btn btn-ghost" data-i18n="hero_cta_track">Track an Order</a>
+        <a href="track.html" class="btn btn-secondary" data-i18n="hero_cta_track">Track an Order</a>
+        <a href="mart.html" class="btn btn-ghost" data-i18n="nav_mart">Try Shoppy Mart</a>
       </div>
-      <div class="hero-trust" data-i18n="hero_trust">No card? No problem — we buy on your behalf.</div>
+
+      <div class="hero-trust"><span class="tick">✓</span><span data-i18n="hero_trust">No card? No problem — we buy on your behalf.</span></div>
     </div>
 
-    <div class="hero-graphic-wrapper animate-in" style="animation-delay:.12s">
-      <!-- Decorative Floating boxes -->
-      <div class="float-box fb-1">📦</div>
-      <div class="float-box fb-2">✨</div>
-      
-      <div class="label-card">
-        <div class="lc-top"><span data-i18n="hero_label_from">FROM</span><span>USA 🇺🇸</span></div>
-        <div class="lc-link">amazon.com/dp/B0CT7H5K9P</div>
-        <div class="lc-route ltr-keep" dir="ltr">
-          <svg viewBox="0 0 320 80" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <!-- Wavy path for a fun journey feel -->
-            <path class="route-dash" d="M24 60 Q 100 -10, 160 40 T 296 60" stroke="#F5B820" stroke-width="3" fill="none" stroke-linecap="round"/>
-            <circle cx="24" cy="60" r="7" fill="#221C13"/>
-            <circle cx="24" cy="60" r="14" fill="none" stroke="#F5B820" stroke-width="2" opacity=".45"/>
-            <circle cx="296" cy="60" r="7" fill="#F5B820"/>
-            <circle cx="296" cy="60" r="14" fill="none" stroke="#F5B820" stroke-width="2" opacity=".45"/>
-            <!-- Moving box -->
-            <g transform="translate(148, 10)">
-              <rect x="0" y="0" width="24" height="20" rx="4" fill="#FFF8E7" stroke="#221C13" stroke-width="2.5"/>
-              <path d="M0 6 L24 6" stroke="#221C13" stroke-width="2.5"/>
-              <path d="M12 0 L12 20" stroke="#221C13" stroke-width="2.5"/>
-            </g>
-            <text x="24" y="25" font-family="'Space Mono',monospace" font-size="11" fill="#A89C8A" text-anchor="middle" font-weight="800">US</text>
-            <text x="296" y="25" font-family="'Space Mono',monospace" font-size="11" fill="#A89C8A" text-anchor="middle" font-weight="800">EG</text>
-          </svg>
+    <div class="hero-visual animate-in" style="animation-delay:.1s">
+      <div class="oc-chip c1"><span class="ic">🔗</span><span data-i18n="hc_chip_link">Link received</span></div>
+      <div class="oc-chip c2"><span class="ic">📍</span><span data-i18n="hc_chip_track">Tracked to your door</span></div>
+
+      <div class="order-card">
+        <div class="oc-head">
+          <span data-i18n="hc_head">Order preview</span>
+          <span class="live"><i></i><span data-i18n="hc_live">Example</span></span>
         </div>
-        <div class="lc-price">
-          <span class="num">2,450</span>
-          <span class="cur">EGP · ITEM + SHIPPING + CUSTOMS</span>
+        <div class="oc-link">amazon.com/dp/B0CT7H5K9P</div>
+
+        <div class="oc-route" aria-hidden="true">
+          <div class="oc-node"><span class="dot">🇺🇸</span><small>USA</small></div>
+          <div class="oc-line"><span>📦</span></div>
+          <div class="oc-node end"><span class="dot">🇪🇬</span><small>EGYPT</small></div>
         </div>
-        <div class="lc-stampline"><span class="stamp">✓ <span data-i18n="hero_stamp_calc">COST CALCULATED</span></span></div>
+
+        <div class="oc-rows">
+          <div><span data-i18n="hc_row_item">Item price</span><b class="mono">1,420</b></div>
+          <div><span data-i18n="hc_row_ship">Shipping</span><b class="mono">690</b></div>
+          <div><span data-i18n="hc_row_customs">Customs &amp; handling</span><b class="mono">340</b></div>
+        </div>
+
+        <div class="oc-total">
+          <span class="lbl" data-i18n="hc_total">Total in EGP</span>
+          <span><span class="val">2,450</span><span class="cur">EGP</span></span>
+        </div>
+
+        <div class="oc-foot">
+          <span class="onum">TRY12345678</span>
+          <span class="badge green" data-i18n="hc_status">Confirmed</span>
+        </div>
       </div>
     </div>
   </div>
-</section>
 
-<!-- MART — featured, animated -->
-<section id="mart-feature">
   <div class="container">
-    <div class="mart-band reveal">
-      <span class="mart-float f1">🛍️</span><span class="mart-float f2">📦</span><span class="mart-float f3">✨</span>
-      <div>
-        <span class="mart-new-tag"><span class="spark">✦</span> NEW <span class="spark">✦</span></span>
-        <h2 data-i18n="mart_title">Try Shoppy Mart</h2>
-        <p data-i18n="mart_sub">Discounted, outlet and returned items from past Try Shoppy orders — already in Egypt, ready to ship now.</p>
-        <div class="mart-tags">
-          <span data-i18n="mart_tab_highdemand">High Demand</span>
-          <span data-i18n="mart_tab_outlet">Outlet</span>
-          <span data-i18n="mart_tab_all">All Items</span>
-        </div>
-        <a href="mart.html" class="btn btn-primary" data-i18n="mart_cta" style="box-shadow: 0 8px 25px rgba(245,184,32,0.5);">Browse the Mart</a>
+    <div class="trust-strip reveal">
+      <div class="ts-item">
+        <span class="ic"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg></span>
+        <span><b data-i18n="why1_t">No international card needed</b><span data-i18n="tstrip_1">We buy on your behalf.</span></span>
       </div>
-      <div class="mart-tiles">
-        <div class="mart-tile" style="transform: rotate(-2deg);"><div class="pct" data-i18n="lbl_brand_new">Brand New</div><div class="lbl" data-i18n="mart_tab_highdemand">High Demand</div></div>
-        <div class="mart-tile" style="transform: rotate(2deg);"><div class="pct" data-i18n="lbl_open_box">Open Box</div><div class="lbl" data-i18n="mart_tab_outlet">Outlet</div></div>
-        <div class="mart-tile" style="transform: rotate(1deg);"><div class="pct" data-i18n="lbl_heavy_discount">Heavily Discounted</div><div class="lbl" data-i18n="mart_tab_outlet">Outlet</div></div>
-        <div class="mart-tile" style="transform: rotate(-1deg);"><div class="pct" style="color: #fff;">9</div><div class="lbl" data-i18n="mart_tile_categories_sub">categories to browse</div></div>
+      <div class="ts-item">
+        <span class="ic"><svg viewBox="0 0 24 24"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
+        <span><b data-i18n="why2_t">Price shown before you commit</b><span data-i18n="tstrip_2">One clear EGP number.</span></span>
+      </div>
+      <div class="ts-item">
+        <span class="ic"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg></span>
+        <span><b data-i18n="why3_t">Multiple stores, one shipment</b><span data-i18n="tstrip_3">Consolidated where applicable.</span></span>
+      </div>
+      <div class="ts-item">
+        <span class="ic"><svg viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+        <span><b data-i18n="why4_t">Tracked from checkout to your door</b><span data-i18n="tstrip_4">Check anytime with your order number.</span></span>
       </div>
     </div>
   </div>
 </section>
 
-<!-- HOW -->
-<section id="how" class="bg-dim">
+<!-- ══════════════ HOW IT WORKS ══════════════ -->
+<section id="how">
   <div class="container">
     <div class="section-head reveal">
       <span class="eyebrow" data-i18n="how_eyebrow">FOUR STEPS</span>
       <h2 data-i18n="how_title">From product link to your doorstep</h2>
       <p data-i18n="how_sub">One simple route, fully tracked at every checkpoint.</p>
     </div>
-    
-    <div class="steps-wrapper reveal">
-      <div class="steps-line"></div>
-      <div class="steps">
-        <div class="step-card">
-          <div class="step-num">01</div>
-          <div class="step-icon"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7L12 19"/></svg></div>
-          <h3 data-i18n="how1_t">Send the link</h3><p data-i18n="how1_d">Paste the product link, quantity, size or color into our calculator.</p>
-        </div>
-        <div class="step-card">
-          <div class="step-num">02</div>
-          <div class="step-icon"><svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="4"/><path d="M8 6h8M8 10h3M13 10h3M8 14h3M13 14h3M8 18h3M13 18h3"/></svg></div>
-          <h3 data-i18n="how2_t">We calculate everything</h3><p data-i18n="how2_d">Item price, US shipping, our shipping, and customs — one final EGP number.</p>
-        </div>
-        <div class="step-card">
-          <div class="step-num">03</div>
-          <div class="step-icon"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></div>
-          <h3 data-i18n="how3_t">You confirm</h3><p data-i18n="how3_d">Approve the price and choose how you'll pay.</p>
-        </div>
-        <div class="step-card">
-          <div class="step-num">04</div>
-          <div class="step-icon"><svg viewBox="0 0 24 24"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg></div>
-          <h3 data-i18n="how4_t">We buy, ship & deliver</h3><p data-i18n="how4_d">We purchase it abroad, bring it to Egypt, and hand it to you — tracked the whole way.</p>
-        </div>
+    <div class="steps">
+      <div class="step-card reveal">
+        <div class="step-badge">01</div>
+        <div><h3 data-i18n="how1_t">Send the link</h3>
+        <p data-i18n="how1_d">Paste the product link, quantity, size or color into our calculator.</p></div>
+      </div>
+      <div class="step-card reveal reveal-d1">
+        <div class="step-badge">02</div>
+        <div><h3 data-i18n="how2_t">We calculate everything</h3>
+        <p data-i18n="how2_d">Item price, applicable shipping and customs, presented as one clear EGP price.</p></div>
+      </div>
+      <div class="step-card reveal reveal-d2">
+        <div class="step-badge">03</div>
+        <div><h3 data-i18n="how3_t">You confirm</h3>
+        <p data-i18n="how3_d">Approve the price and select the payment method that suits you.</p></div>
+      </div>
+      <div class="step-card reveal reveal-d3">
+        <div class="step-badge">04</div>
+        <div><h3 data-i18n="how4_t">We buy, ship &amp; deliver</h3>
+        <p data-i18n="how4_d">We purchase the product, bring it to Egypt and deliver it to you — tracked the whole way.</p></div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- STORES — brand logos -->
-<section class="bg-dim" style="padding: 60px 0;">
+<!-- ══════════════ PRICE CALCULATOR ══════════════ -->
+<section style="padding-top:0">
   <div class="container">
-    <div class="section-head reveal">
-      <span class="eyebrow" data-i18n="stores_eyebrow">WE SHOP FROM</span>
-      <h2 data-i18n="stores_title">Almost any US store</h2>
-      <p data-i18n="stores_sub">If it ships inside the US, we can bring it to Egypt.</p>
+    <div class="calc-band reveal">
+      <div>
+        <span class="eyebrow" data-i18n="calcband_eyebrow">PRICE CALCULATOR</span>
+        <h2 data-i18n="calcband_title">Know the full EGP price before you commit</h2>
+        <p data-i18n="calcband_sub">Enter the product details and the calculator gives you one final price in Egyptian pounds — item, applicable shipping and customs together. Add several items to one cart, then confirm.</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:28px">
+          <a href="calculator.html" class="btn btn-primary btn-lg" data-i18n="hero_cta_price">Calculate My Price</a>
+          <a href="track.html" class="btn btn-ghost btn-lg" style="color:#D7DBEA;border-color:rgba(255,255,255,.22)" data-i18n="hero_cta_track">Track an Order</a>
+        </div>
+      </div>
+      <div class="calc-fields">
+        <div class="cf-row"><span class="ic">🔗</span><span><b data-i18n="calc_link_label">Product Link</b><span data-i18n="calcband_f1">From any supported US store</span></span></div>
+        <div class="cf-row"><span class="ic">⚖️</span><span><b data-i18n="calcband_f2_t">Quantity, weight &amp; dimensions</b><span data-i18n="calcband_f2">Used to work out shipping</span></span></div>
+        <div class="cf-row"><span class="ic">🏷️</span><span><b data-i18n="calc_category_label">Category</b><span data-i18n="calcband_f3">Clothes, electronics, cosmetics and more</span></span></div>
+        <div class="cf-row cf-out"><span class="ic">✓</span><span><b data-i18n="calcband_out_t">Final price in EGP</b><span data-i18n="calcband_out">Shipping &amp; customs included</span></span></div>
+      </div>
     </div>
-    <div class="brand-grid" id="brandGrid"></div>
-    <p class="brand-more reveal" data-i18n="stores_more">…and hundreds more. Any US store link works.</p>
   </div>
 </section>
 
-<!-- WHY -->
-<section style="padding: 80px 0; background-color: #FAFAFA;">
+<!-- ══════════════ TRY SHOPPY MART ══════════════ -->
+<section style="padding-top:0">
+  <div class="container">
+    <div class="mart-band reveal">
+      <div>
+        <span class="mart-tag" data-i18n="mart_badge">ALREADY IN EGYPT</span>
+        <h2 data-i18n="mart_title">Try Shoppy Mart</h2>
+        <p data-i18n="mart_sub_home">Selected products that are already here in Egypt — including discounted, outlet, open-box and returned items from previous Try Shoppy orders. Browse, order, and get them without the international wait.</p>
+        <ul class="mart-points">
+          <li data-i18n="mart_pt_1">Discounted, outlet, open-box and returned items from earlier orders</li>
+          <li data-i18n="mart_pt_2">Already in Egypt — no international shipping step</li>
+          <li data-i18n="mart_pt_3">Organized by category, with condition and availability on every product</li>
+        </ul>
+        <a href="mart.html" class="btn btn-primary btn-lg" data-i18n="mart_cta">Browse the Mart</a>
+      </div>
+      <div class="mart-tiles">
+        <div class="mart-tile"><div class="t" data-i18n="lbl_brand_new">Brand New</div><div class="s" data-i18n="mart_tab_highdemand">High Demand</div></div>
+        <div class="mart-tile"><div class="t" data-i18n="lbl_open_box">Open Box</div><div class="s" data-i18n="mart_tab_outlet">Outlet</div></div>
+        <div class="mart-tile"><div class="t" data-i18n="lbl_heavy_discount">Heavily Discounted</div><div class="s" data-i18n="mart_tab_outlet">Outlet</div></div>
+        <div class="mart-tile"><div class="t" data-i18n="mart_tab_all">All Items</div><div class="s" data-i18n="mart_tile_categories_sub">categories to browse</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ WHY TRY SHOPPY ══════════════ -->
+<section class="bg-dim">
   <div class="container">
     <div class="section-head reveal">
       <span class="eyebrow" data-i18n="why_eyebrow">WHY TRY SHOPPY</span>
@@ -362,48 +440,108 @@ body { background-color: #FAFAFA; overflow-x: hidden; }
     <div class="why-grid">
       <div class="why-card reveal">
         <div class="why-icon"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg></div>
-        <h3 data-i18n="why1_t">No international card needed</h3><p data-i18n="why1_d">We buy on your behalf — you pay us in Egypt, your way.</p>
+        <h3 data-i18n="why1_t">No international card needed</h3>
+        <p data-i18n="why1_d">We buy on your behalf — you pay us in Egypt, your way.</p>
       </div>
-      <div class="why-card reveal" style="animation-delay: 0.1s;">
-        <div class="why-icon"><svg viewBox="0 0 24 24"><path d="M12 2 2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
-        <h3 data-i18n="why2_t">Price shown before you commit</h3><p data-i18n="why2_d">Item, shipping and customs combined into one clear EGP price.</p>
+      <div class="why-card reveal reveal-d1">
+        <div class="why-icon"><svg viewBox="0 0 24 24"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+        <h3 data-i18n="why2_t">Price shown before you commit</h3>
+        <p data-i18n="why2_d">Item, applicable shipping and customs combined into one clear EGP price.</p>
       </div>
-      <div class="why-card reveal" style="animation-delay: 0.2s;">
-        <div class="why-icon"><svg viewBox="0 0 24 24"><path d="M16.5 9.4 7.55 4.24M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg></div>
-        <h3 data-i18n="why3_t">Multiple stores, one shipment</h3><p data-i18n="why3_d">Ordering from several sites? We consolidate it for you.</p>
+      <div class="why-card reveal reveal-d2">
+        <div class="why-icon"><svg viewBox="0 0 24 24"><path d="M16.5 9.4 7.55 4.24"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg></div>
+        <h3 data-i18n="why3_t">Multiple stores, one shipment</h3>
+        <p data-i18n="why3_d">Ordering from several sites? We consolidate it for you.</p>
       </div>
-      <div class="why-card reveal" style="animation-delay: 0.3s;">
+      <div class="why-card reveal reveal-d3">
         <div class="why-icon"><svg viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
-        <h3 data-i18n="why4_t">Tracked from checkout to your door</h3><p data-i18n="why4_d">Live order status, anytime, with your order number.</p>
+        <h3 data-i18n="why4_t">Tracked from checkout to your door</h3>
+        <p data-i18n="why4_d">Live order status, anytime, with your order number.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- PAYMENTS -->
-<section class="bg-dim" style="padding: 60px 0;">
+<!-- ══════════════ US STORES ══════════════ -->
+<section>
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow" data-i18n="stores_eyebrow">WE SHOP FROM</span>
+      <h2 data-i18n="stores_title">Almost any US store</h2>
+      <p data-i18n="stores_sub">If it ships inside the US, we can bring it to Egypt.</p>
+    </div>
+    <div class="brand-grid" id="brandGrid"></div>
+    <p class="brand-note reveal" data-i18n="stores_disclaimer">Shown as examples of stores our customers shop from. Try Shoppy is not affiliated with, endorsed by, or a partner of these companies. Some products are restricted — see our Restricted Items list.</p>
+  </div>
+</section>
+
+<!-- ══════════════ PAYMENTS ══════════════ -->
+<section class="bg-dim">
   <div class="container">
     <div class="section-head reveal">
       <span class="eyebrow" data-i18n="pay_eyebrow">PAY YOUR WAY</span>
       <h2 data-i18n="pay_title">Flexible payment, all in Egypt</h2>
+      <p data-i18n="pay_sub">Choose the method that suits you when you confirm your order.</p>
     </div>
     <div class="pay-grid">
-      <div class="pay-card reveal"><div class="pay-icon pay-icon-img"><img src="assets/payments/cod.png" alt="Cash on Delivery" loading="lazy"></div><span data-i18n="pay_cod">Cash on Delivery</span></div>
-      <div class="pay-card reveal"><div class="pay-icon pay-icon-img"><img src="assets/payments/instapay.png" alt="InstaPay" loading="lazy"></div><span data-i18n="pay_instapay">InstaPay</span></div>
-      <div class="pay-card reveal"><div class="pay-icon pay-icon-img pay-icon-duo"><img src="assets/payments/visa.png" alt="Visa" loading="lazy"><img src="assets/payments/mastercard.png" alt="Mastercard" loading="lazy"></div><span data-i18n="pay_card">Visa & Mastercard</span></div>
-      <div class="pay-card reveal"><div class="pay-icon pay-icon-img"><img src="assets/payments/paypal.png" alt="PayPal" loading="lazy"></div><span data-i18n="pay_paypal">PayPal</span></div>
-      <div class="pay-card reveal"><div class="pay-icon"><svg viewBox="0 0 24 24"><path d="M3 10 12 4l9 6"/><path d="M5 10v9M19 10v9M9 10v9M15 10v9M3 19h18"/></svg></div><span data-i18n="pay_bank">Bank Transfer</span></div>
+      <div class="pay-card reveal"><div class="pay-icon"><img src="assets/payments/cod.png" alt="Cash on Delivery" loading="lazy"></div><span data-i18n="pay_cod">Cash on Delivery</span></div>
+      <div class="pay-card reveal reveal-d1"><div class="pay-icon"><img src="assets/payments/instapay.png" alt="InstaPay" loading="lazy"></div><span data-i18n="pay_instapay">InstaPay</span></div>
+      <div class="pay-card reveal reveal-d2"><div class="pay-icon"><img src="assets/payments/visa.png" alt="Visa" loading="lazy"></div><span>Visa</span></div>
+      <div class="pay-card reveal reveal-d3"><div class="pay-icon"><img src="assets/payments/mastercard.png" alt="Mastercard" loading="lazy"></div><span>Mastercard</span></div>
+      <div class="pay-card reveal reveal-d4"><div class="pay-icon"><img src="assets/payments/paypal.png" alt="PayPal" loading="lazy"></div><span data-i18n="pay_paypal">PayPal</span></div>
+      <div class="pay-card reveal reveal-d5"><div class="pay-icon"><svg viewBox="0 0 24 24"><path d="M3 10 12 4l9 6"/><path d="M5 10v9M19 10v9M9 10v9M15 10v9M3 19h18"/></svg></div><span data-i18n="pay_bank">Bank Transfer</span></div>
     </div>
   </div>
 </section>
 
-<!-- FINAL CTA -->
+<!-- ══════════════ FAQ ══════════════ -->
+<section>
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow" data-i18n="faq_eyebrow">SUPPORT</span>
+      <h2 data-i18n="faq_title">Frequently asked questions</h2>
+    </div>
+    <div class="faq-wrap">
+      <details class="faq-item reveal">
+        <summary data-i18n="faq_q1">How long does delivery take?</summary>
+        <div class="faq-a" data-i18n="faq_a1">Estimated delivery time is 7–21 days from purchase confirmation, depending on the store, the international carrier schedule, and customs processing. Full details are in our <a href="shipping-policy.html">Shipping Policy</a>.</div>
+      </details>
+      <details class="faq-item reveal">
+        <summary data-i18n="faq_q2">Do I need an international credit card?</summary>
+        <div class="faq-a" data-i18n="faq_a2">No. Try Shoppy buys the product on your behalf and you pay us in Egypt — Cash on Delivery, InstaPay, Visa, Mastercard, PayPal or bank transfer.</div>
+      </details>
+      <details class="faq-item reveal">
+        <summary data-i18n="faq_q3">Does the price include shipping and customs?</summary>
+        <div class="faq-a" data-i18n="faq_a3">Yes. The calculator combines the item price with the applicable shipping and customs into a single EGP price, shown to you before you confirm the order.</div>
+      </details>
+      <details class="faq-item reveal">
+        <summary data-i18n="faq_q4">Where do I find my order number?</summary>
+        <div class="faq-a" data-i18n="faq_a4">Every Try Shoppy order number looks like <b class="mono">TRY12345678</b> — TRY followed by 8 digits. You receive it when your order is confirmed, and you can enter it on the <a href="track.html">Track Order</a> page at any time.</div>
+      </details>
+      <details class="faq-item reveal">
+        <summary data-i18n="faq_q5">Can I cancel an order?</summary>
+        <div class="faq-a" data-i18n="faq_a5">Cancelling before we purchase the item is free of charge. After purchase, the terms in our <a href="cancellation-policy.html">Cancellation Policy</a> apply.</div>
+      </details>
+      <details class="faq-item reveal">
+        <summary data-i18n="faq_q6">Are any products restricted?</summary>
+        <div class="faq-a" data-i18n="faq_a6">Yes — some categories cannot be shipped for compliance reasons. Please check the <a href="restricted-items.html">Restricted Items</a> list before ordering.</div>
+      </details>
+      <p class="faq-more reveal"><span data-i18n="faq_more">Still have a question?</span>
+        <a href="https://wa.me/201005609642" target="_blank" rel="noopener" data-i18n="foot_whatsapp">Chat on WhatsApp</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ FINAL CTA ══════════════ -->
 <section class="final-cta reveal">
   <div class="container">
-    <span class="eyebrow" style="justify-content:center;display:flex" data-i18n="hero_eyebrow">USA → EGYPT SHOPPING & SHIPPING</span>
+    <span class="eyebrow" data-i18n="hero_eyebrow">USA → EGYPT SHOPPING &amp; SHIPPING</span>
     <h2 data-i18n="cta_title">Got a link? Let's price it.</h2>
     <p data-i18n="cta_sub">It takes less than a minute to get your final price.</p>
-    <a href="calculator.html" class="btn btn-primary" data-i18n="cta_btn">Open the Calculator</a>
+    <div class="cta-row">
+      <a href="calculator.html" class="btn btn-primary btn-lg" data-i18n="cta_btn">Open the Calculator</a>
+      <a href="track.html" class="btn btn-secondary btn-lg" data-i18n="hero_cta_track">Track an Order</a>
+    </div>
   </div>
 </section>
 
@@ -411,45 +549,67 @@ body { background-color: #FAFAFA; overflow-x: hidden; }
   <div class="container">
     <div class="foot-grid">
       <div><div class="foot-brand"><img src="assets/logo.png" alt=""> Try Shoppy</div><p data-i18n="foot_about_d">Try Shoppy buys, consolidates and ships products from US stores straight to your door in Egypt.</p></div>
-      <div><h4 data-i18n="foot_links_t">Quick Links</h4><p><a href="calculator.html" data-i18n="nav_calc">Get a Price</a></p><p><a href="track.html" data-i18n="nav_track">Track Order</a></p><p><a href="mart.html" data-i18n="nav_mart">Try Shoppy Mart</a></p><p><a href="login.html" data-i18n="nav_login">Login / Register</a></p></div>
-      <div><h4 data-i18n="foot_legal_t">Legal</h4><p><a href="privacy.html" data-i18n="foot_privacy">Privacy Policy</a></p><p><a href="terms.html" data-i18n="foot_terms">Terms & Conditions</a></p><p><a href="shipping-policy.html" data-i18n="foot_shipping">Shipping Policy</a></p><p><a href="returns-policy.html" data-i18n="foot_returns">Returns & Refunds</a></p><p><a href="cancellation-policy.html" data-i18n="foot_cancellation">Cancellation Policy</a></p><p><a href="restricted-items.html" data-i18n="foot_restricted">Restricted Items</a></p></div>
+      <div><h4 data-i18n="foot_links_t">Quick Links</h4><p><a href="calculator.html" data-i18n="nav_calc">Get a Price</a></p><p><a href="track.html" data-i18n="nav_track">Track Order</a></p><p><a href="mart.html" data-i18n="nav_mart">Try Shoppy Mart</a></p><p><a href="index.html#how" data-i18n="nav_how">How it works</a></p><p><a href="login.html" data-i18n="nav_login">Login / Register</a></p></div>
+      <div><h4 data-i18n="foot_legal_t">Legal</h4><p><a href="privacy.html" data-i18n="foot_privacy">Privacy Policy</a></p><p><a href="terms.html" data-i18n="foot_terms">Terms &amp; Conditions</a></p><p><a href="shipping-policy.html" data-i18n="foot_shipping">Shipping Policy</a></p><p><a href="returns-policy.html" data-i18n="foot_returns">Returns &amp; Refunds</a></p><p><a href="cancellation-policy.html" data-i18n="foot_cancellation">Cancellation Policy</a></p><p><a href="restricted-items.html" data-i18n="foot_restricted">Restricted Items</a></p></div>
       <div><h4 data-i18n="foot_support_t">Support</h4><p><a href="https://wa.me/201005609642" target="_blank" data-i18n="foot_whatsapp">Chat on WhatsApp</a></p><p><a href="https://www.facebook.com/TryShoppy.eg/" target="_blank" rel="noopener" class="foot-social-link"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="vertical-align:-2.5px;margin-inline-end:5px"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.51 1.49-3.9 3.77-3.9 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.44 2.91h-2.34V22c4.78-.76 8.44-4.92 8.44-9.94z"/></svg><span data-i18n="foot_facebook">Follow us on Facebook</span></a></p></div>
-      <div><h4 data-i18n="foot_payments_t">Payments</h4><p data-i18n="pay_cod">Cash on Delivery</p><p data-i18n="pay_instapay">InstaPay</p><p data-i18n="pay_card">Visa & Mastercard</p><p data-i18n="pay_paypal">PayPal</p><p data-i18n="pay_bank">Bank Transfer</p></div>
+      <div><h4 data-i18n="foot_payments_t">Payments</h4><p data-i18n="pay_cod">Cash on Delivery</p><p data-i18n="pay_instapay">InstaPay</p><p data-i18n="pay_card">Visa &amp; Mastercard</p><p data-i18n="pay_paypal">PayPal</p><p data-i18n="pay_bank">Bank Transfer</p></div>
       <div><h4 data-i18n="foot_contact_t">Contact Us</h4><p><a href="mailto:Info@try-shoppy.com">Info@try-shoppy.com</a></p><p><a href="https://wa.me/201005609642" target="_blank" data-i18n="foot_whatsapp">Chat on WhatsApp</a></p></div>
     </div>
-    <div class="foot-bottom"><span data-i18n="foot_rights">© 2026 Try Shoppy. All rights reserved.</span><span>Made for shoppers in Egypt 🇪🇬</span></div>
+    <div class="foot-bottom"><span data-i18n="foot_rights">© 2026 Try Shoppy. All rights reserved.</span><span data-i18n="foot_made">Made for shoppers in Egypt 🇪🇬</span></div>
   </div>
 </footer>
+
+<!-- sticky mobile action bar — primary conversion path always reachable -->
+<div class="sticky-bar">
+  <a href="calculator.html" class="btn btn-primary" data-i18n="hero_cta_price">Calculate My Price</a>
+  <a href="track.html" class="btn btn-secondary" data-i18n="hero_cta_track">Track an Order</a>
+</div>
 
 <script src="assets/config.js"></script>
 <script src="assets/i18n.js"></script>
 <script src="assets/app.js"></script>
-<script>tsInitNav();
+<script>
+tsInitNav();
 
-/* ── brand logo grid: real store logos (Clearbit Logo API), each
-   card links out to the actual store. Fallback chain per logo:
-   Clearbit → Google favicon service → text-only (name still shows,
-   never a broken image icon) ── */
+/* ── hero link launcher ────────────────────────────────────────────
+   Hands the pasted link to the existing calculator via ?link=… — the
+   calculator still owns every pricing rule, this only saves the
+   customer from typing the same URL twice. */
 (function(){
-  const grid=document.getElementById('brandGrid');
+  const form = document.getElementById('linkLaunch');
+  if(!form) return;
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    const v = document.getElementById('heroLink').value.trim();
+    window.location.href = v ? ('calculator.html?link=' + encodeURIComponent(v)) : 'calculator.html';
+  });
+})();
+
+/* ── US store examples ─────────────────────────────────────────────
+   Real store logos (Clearbit → Google favicon → text-only fallback).
+   Presented as examples of where customers shop, not as partners —
+   see the disclaimer under the grid. */
+(function(){
+  const grid = document.getElementById('brandGrid');
   if(!grid) return;
-  const BRANDS=[
+  const BRANDS = [
     ["Amazon","amazon.com"],["eBay","ebay.com"],["Walmart","walmart.com"],["Target","target.com"],["Best Buy","bestbuy.com"],
     ["Sephora","sephora.com"],["Carter's","carters.com"],["GAP","gap.com"],["Nordstrom","nordstrom.com"],["Forever 21","forever21.com"],
     ["SHEIN","shein.com"],["iHerb","iherb.com"],["Bath & Body Works","bathandbodyworks.com"],["Victoria's Secret","victoriassecret.com"],["Etsy","etsy.com"]
   ];
-  grid.innerHTML=BRANDS.map(function(b,i){
-    const domain=b[1];
-    const clearbitSrc='https://logo.clearbit.com/'+domain+'?size=64';
-    const faviconSrc='https://www.google.com/s2/favicons?sz=64&domain='+domain;
-    return '<a class="brand-card reveal reveal-d'+((i%5)+1)+'" href="https://www.'+domain+'" target="_blank" rel="noopener noreferrer">'
-      +'<img class="bicon" src="'+clearbitSrc+'" alt="" loading="lazy" '
-      +'data-fallback="'+faviconSrc+'" '
-      +'onerror="if(this.dataset.fallback){this.src=this.dataset.fallback;this.removeAttribute(\'data-fallback\');}else{this.style.display=\'none\';}">'
-      +'<span class="bname">'+b[0]+'</span>'
-      +'</a>';
+  grid.innerHTML = BRANDS.map(function(b,i){
+    const domain = b[1];
+    const clearbitSrc = 'https://logo.clearbit.com/' + domain + '?size=64';
+    const faviconSrc  = 'https://www.google.com/s2/favicons?sz=64&domain=' + domain;
+    return '<a class="brand-card reveal reveal-d' + ((i % 5) + 1) + '" href="https://www.' + domain + '" target="_blank" rel="noopener noreferrer">'
+      + '<img class="bicon" src="' + clearbitSrc + '" alt="" loading="lazy" '
+      + 'data-fallback="' + faviconSrc + '" '
+      + 'onerror="if(this.dataset.fallback){this.src=this.dataset.fallback;this.removeAttribute(\'data-fallback\');}else{this.style.display=\'none\';}">'
+      + '<span class="bname">' + b[0] + '</span>'
+      + '</a>';
   }).join('');
-  if(typeof tsInitReveal==='function') tsInitReveal();
-})();</script>
+  if(typeof tsInitReveal === 'function') tsInitReveal();
+})();
+</script>
 </body>
 </html>

@@ -26,138 +26,170 @@ src="https://www.facebook.com/tr?id=1562757605584870&ev=PageView&noscript=1"
 <link rel="icon" href="assets/logo.png">
 <link rel="stylesheet" href="assets/style.css">
 <style>
-.mart-hero{padding:56px 0 26px;text-align:center;background:radial-gradient(ellipse 620px 340px at 50% -60px,var(--gold-pale) 0%,transparent 68%)}
-.mart-hero h1{font-size:2.15rem;margin:12px 0 9px;font-weight:900;letter-spacing:-.02em}
-.mart-hero p{max-width:520px;margin:0 auto;color:var(--ink-2);font-size:.96rem}
+/* ═══════════ TRY SHOPPY MART ═══════════
+   Products that are already in Egypt. Deliberately a different
+   surface from the international service — navy hero, product
+   grid, in-Egypt badge — while staying unmistakably Try Shoppy.
+   The rendering JS below is unchanged; only its skin is new. */
 
-/* ── 2-day delivery banner: highlighted, sits right under the Mart
-   description — the whole point is that Mart items are already
-   cleared and in Egypt, so this is the single biggest differentiator
-   vs a regular order, and it needs to visually pop ── */
-.mart-delivery-banner{display:inline-flex;align-items:center;gap:12px;margin:20px auto 0;padding:12px 22px;border-radius:var(--pill);background:linear-gradient(100deg,var(--gold) 0%,var(--gold-light) 100%);box-shadow:var(--sh-gold);max-width:100%}
+.mart-hero{background:linear-gradient(160deg,var(--blue-900) 0%,var(--blue-700) 100%);color:#fff;
+  padding:52px 0 40px;text-align:center;position:relative;overflow:hidden}
+.mart-hero::before{content:'';position:absolute;width:560px;height:560px;border-radius:50%;
+  background:radial-gradient(circle,rgba(249,194,46,.16) 0%,transparent 62%);top:-270px;inset-inline-end:-150px;pointer-events:none}
+.mart-hero .container{position:relative;z-index:2}
+.mart-hero .eyebrow{color:var(--yellow);justify-content:center;display:inline-flex}
+.mart-hero h1{font-size:clamp(1.9rem,4.4vw,2.7rem);margin:14px 0 12px;color:#fff}
+.mart-hero p{max-width:620px;margin:0 auto;color:#B9C0DA;font-size:1rem;line-height:1.75}
+
+/* the single biggest difference vs a normal order: it is already here */
+.mart-delivery-banner{display:inline-flex;align-items:center;gap:13px;margin:24px auto 0;padding:12px 22px;
+  border-radius:var(--r2);background:var(--yellow);box-shadow:var(--sh-yellow);max-width:100%}
 .mart-delivery-banner .mdb-icon{font-size:1.5rem;flex-shrink:0}
 .mart-delivery-banner .mdb-text{display:flex;flex-direction:column;align-items:flex-start;text-align:start;line-height:1.35}
-.mart-delivery-banner .mdb-text strong{font-size:14.5px;font-weight:900;color:var(--ink)}
-.mart-delivery-banner .mdb-text span{font-size:11.5px;font-weight:600;color:rgba(34,28,19,.75)}
-@media(max-width:480px){.mart-delivery-banner{padding:10px 16px;gap:9px}.mart-delivery-banner .mdb-text strong{font-size:13px}.mart-delivery-banner .mdb-text span{font-size:10.5px}}
-.filter-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:0 0 34px}
-.filter-row button{font-family:var(--f);font-size:13px;font-weight:700;border-radius:var(--pill);padding:9px 19px;background:var(--white);cursor:pointer;color:var(--ink-2);box-shadow:var(--sh-1);border:1.5px solid var(--sand);transition:.15s}
-.filter-row button.active{background:var(--ink);color:var(--gold-light);border-color:var(--ink)}
-.filter-row button:hover:not(.active){border-color:var(--sand-2);color:var(--ink)}
+.mart-delivery-banner .mdb-text strong{font-size:14.5px;font-weight:800;color:var(--ink)}
+.mart-delivery-banner .mdb-text span{font-size:11.5px;font-weight:600;color:rgba(23,28,48,.72)}
+@media(max-width:480px){.mart-delivery-banner{padding:11px 16px;gap:10px}
+  .mart-delivery-banner .mdb-text strong{font-size:13px}.mart-delivery-banner .mdb-text span{font-size:10.5px}}
 
-/* ── tabs: the 3 top-level sections (High Demand / Outlet / All Items) —
-   visually heavier than the category chip row underneath, so the
-   hierarchy (tab first, then a category filter within it) reads clearly */
-.tab-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:28px 0 16px}
-.tab-row button{font-family:var(--f);font-size:14.5px;font-weight:800;border-radius:var(--pill);padding:12px 26px;background:var(--white);cursor:pointer;color:var(--ink-2);box-shadow:var(--sh-2);border:2px solid var(--sand);transition:.15s}
-.tab-row button.active{background:var(--gold);color:var(--ink);border-color:var(--gold);box-shadow:var(--sh-gold)}
-.tab-row button:hover:not(.active){border-color:var(--gold-light)}
+/* ── tabs: the three top-level sections ── */
+.tab-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:30px 0 18px}
+.tab-row button{font-family:inherit;font-size:14.5px;font-weight:700;border-radius:var(--r);padding:12px 24px;
+  background:var(--white);cursor:pointer;color:var(--ink-2);border:1.5px solid var(--line);
+  transition:.16s;min-height:46px}
+.tab-row button.active{background:var(--blue-700);color:#fff;border-color:var(--blue-700);box-shadow:var(--sh-blue)}
+.tab-row button:hover:not(.active){border-color:var(--blue-300);background:var(--blue-50);color:var(--ink)}
 
-/* small "Section: Label" line shown only on the All Items tab, and
-   the optional expiry note — both sit under the description */
-.pcard-tagline{font-size:11px;color:var(--ink-3);font-weight:700;margin:0 0 4px}
-.pcard-expiry{font-size:11px;color:var(--err);font-weight:700;margin:0 0 4px;display:flex;align-items:center;gap:4px}
+/* ── category chips, secondary to the tabs ── */
+.filter-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:0 0 32px}
+.filter-row button{font-family:inherit;font-size:13px;font-weight:700;border-radius:var(--pill);padding:8px 16px;
+  background:var(--white);cursor:pointer;color:var(--ink-2);border:1.5px solid var(--line);transition:.16s;min-height:36px}
+.filter-row button.active{background:var(--yellow);color:var(--ink);border-color:var(--yellow)}
+.filter-row button:hover:not(.active){border-color:var(--line-2);color:var(--ink)}
+@media(max-width:560px){
+  .tab-row,.filter-row{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;
+    scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-bottom:4px}
+  .tab-row::-webkit-scrollbar,.filter-row::-webkit-scrollbar{display:none}
+  .tab-row button,.filter-row button{flex-shrink:0}
+  .tab-row button{padding:11px 16px;font-size:13.5px}
+}
+
+/* ── product grid ── */
 .mart-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;padding-bottom:80px;align-items:stretch}
 @media(max-width:1000px){.mart-grid{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:760px){.mart-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:460px){.mart-grid{grid-template-columns:1fr}}
-.pcard{padding:0;overflow:hidden;display:flex;flex-direction:column;height:100%}
-.pcard .prod-img{border-radius:0;aspect-ratio:1/1;background:#fff;position:relative}
-.pcard .prod-img img{object-fit:contain;padding:12px}
-/* ── multi-image arrows + dots ── */
-.img-nav{position:absolute;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;border:none;background:rgba(255,255,255,.92);box-shadow:var(--sh-1);cursor:pointer;font-size:16px;line-height:1;z-index:2;display:flex;align-items:center;justify-content:center;color:var(--ink)}
-.img-nav:hover{background:#fff}
+@media(max-width:760px){.mart-grid{grid-template-columns:repeat(2,1fr);gap:12px}}
+@media(max-width:350px){.mart-grid{grid-template-columns:1fr}}
+
+.pcard{padding:0;overflow:hidden;display:flex;flex-direction:column;height:100%;border-radius:var(--r3)}
+.pcard .prod-img{border-radius:0;aspect-ratio:1/1;background:var(--white);position:relative;border-bottom:1px solid var(--line)}
+.pcard .prod-img img{object-fit:contain;padding:14px;cursor:zoom-in}
+.pcard-tag{position:absolute;top:10px;inset-inline-start:10px;z-index:2;box-shadow:var(--sh-1)}
+
+/* multi-image arrows + dots */
+.img-nav{position:absolute;top:50%;transform:translateY(-50%);width:30px;height:30px;border-radius:50%;border:1px solid var(--line);
+  background:rgba(255,255,255,.95);box-shadow:var(--sh-2);cursor:pointer;font-size:15px;line-height:1;z-index:2;
+  display:flex;align-items:center;justify-content:center;color:var(--ink)}
+.img-nav:hover{background:#fff;border-color:var(--line-2)}
 .img-nav.prev{inset-inline-start:8px}
 .img-nav.next{inset-inline-end:8px}
-.img-dots{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:4px;z-index:2}
-.img-dots i{width:6px;height:6px;border-radius:50%;background:rgba(0,0,0,.25)}
-.img-dots i.on{background:var(--ink)}
-.prod-img img{cursor:zoom-in}
-/* 🔍 magnifier hint on hover */
-.prod-img::after{content:'🔍';position:absolute;top:10px;inset-inline-start:10px;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.94);box-shadow:var(--sh-1);display:flex;align-items:center;justify-content:center;font-size:13px;opacity:0;transform:scale(.7);transition:.2s;pointer-events:none;z-index:2}
+.img-dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:2}
+.img-dots i{width:6px;height:6px;border-radius:50%;background:var(--line-2)}
+.img-dots i.on{background:var(--blue-700)}
+/* magnifier hint on hover */
+.prod-img::after{content:'🔍';position:absolute;top:10px;inset-inline-end:10px;width:30px;height:30px;border-radius:50%;
+  background:rgba(255,255,255,.95);box-shadow:var(--sh-1);display:flex;align-items:center;justify-content:center;
+  font-size:13px;opacity:0;transform:scale(.7);transition:.2s;pointer-events:none;z-index:2}
 .pcard:hover .prod-img::after{opacity:1;transform:scale(1)}
-/* in-lightbox true zoom: click image to magnify 2.2x and pan with cursor */
-.lb-imgwrap img{cursor:zoom-in;transition:transform .25s ease}
-.lb-imgwrap.zoomed img{transform:scale(2.2);cursor:zoom-out}
-.lb-imgwrap.zoomed .img-nav,.lb-imgwrap.zoomed .img-dots{display:none}
-.pcard-desc{font-size:11.5px;color:var(--ink-2);line-height:1.45;margin:3px 0 2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.9em}
-/* ── lightbox (image zoom) ── */
-.lb-overlay{position:fixed;inset:0;background:rgba(20,16,10,.88);z-index:200;display:flex;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(4px)}
-.lb-box{max-width:min(560px,94vw);width:100%;max-height:92vh;background:var(--white);border-radius:20px;overflow:hidden;box-shadow:var(--sh-4);display:flex;flex-direction:column;animation:fadeUp .2s ease-out}
-.lb-imgwrap{position:relative;background:#fff;aspect-ratio:1/1;flex-shrink:1;min-height:0;display:flex;align-items:center;justify-content:center;touch-action:pan-y}
-.lb-imgwrap img{width:100%;height:100%;object-fit:contain;padding:20px;user-select:none;-webkit-user-drag:none}
-.lb-close{position:absolute;top:10px;inset-inline-end:10px;width:32px;height:32px;border-radius:50%;border:none;background:rgba(255,255,255,.92);box-shadow:var(--sh-1);cursor:pointer;font-size:17px;line-height:1;z-index:3;display:flex;align-items:center;justify-content:center;color:var(--ink)}
-.lb-close:hover{background:#fff}
-.lb-info{padding:13px 18px 16px;border-top:1px solid var(--cream-2);overflow-y:auto}
-.lb-name{font-weight:800;font-size:14px}
-.lb-desc{font-size:12.5px;color:var(--ink-2);line-height:1.55;margin-top:5px;white-space:pre-line}
-.lb-price{font-family:var(--fm);font-weight:700;font-size:1rem;margin-top:7px}
-.lb-price .old{font-size:.75rem;color:var(--ink-3);text-decoration:line-through;margin-inline-start:7px;font-weight:400}
-.pcard-tag{position:absolute;top:10px;inset-inline-start:10px;z-index:2}
 
-/* 🆕 توهيج مؤقت للمنتج اللي جاي من رابط مباشر (?product=ID) —
-   حلقة دهبية بتنبض مرتين وتخفت، عشان تلفت النظر من غير ما تبقى
-   مزعجة أو تفضل للأبد */
-.pcard-highlight{animation:pcardPulse 1.3s ease-out 2}
-@keyframes pcardPulse{0%{box-shadow:0 0 0 0 rgba(245,184,32,.65)}70%{box-shadow:0 0 0 14px rgba(245,184,32,0)}100%{box-shadow:0 0 0 0 rgba(245,184,32,0)}}
 .pcard-body{padding:15px 16px 16px;display:flex;flex-direction:column;flex:1}
-.pcard-name{font-weight:700;font-size:13.5px;line-height:1.35;min-height:2.6em;color:var(--ink)}
-.pcard-price{display:flex;align-items:baseline;gap:7px;margin:7px 0 4px;margin-top:auto}
-.pcard-stock{margin-bottom:10px}
-.pcard-now{font-family:var(--fm);font-weight:700;font-size:1.05rem;color:var(--ink)}
-.pcard-old{font-family:var(--fm);font-size:.75rem;color:var(--ink-3);text-decoration:line-through}
-.pcard-stock{font-size:11.5px;color:var(--err);font-weight:700;margin-bottom:10px;min-height:1.2em}
+.pcard-name{font-weight:700;font-size:13.5px;line-height:1.4;min-height:2.8em;color:var(--ink)}
+.pcard-tagline{font-size:10.5px;color:var(--ink-3);font-weight:700;margin:5px 0 4px;letter-spacing:.03em;text-transform:uppercase}
+html[lang="ar"] .pcard-tagline{letter-spacing:0;text-transform:none}
+.pcard-expiry{font-size:11px;color:var(--err);font-weight:700;margin:0 0 4px;display:flex;align-items:center;gap:4px}
+.pcard-desc{font-size:11.5px;color:var(--ink-2);line-height:1.5;margin:3px 0 2px;display:-webkit-box;
+  -webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.9em}
+.pcard-price{display:flex;align-items:baseline;gap:8px;margin:10px 0 5px;margin-top:auto;flex-wrap:wrap}
+.pcard-now{font-family:var(--fm);font-weight:700;font-size:1.08rem;color:var(--ink);font-variant-numeric:tabular-nums}
+.pcard-old{font-family:var(--fm);font-size:.76rem;color:var(--ink-3);text-decoration:line-through}
+.pcard-stock{font-size:11.5px;color:var(--err);font-weight:700;margin-bottom:12px;min-height:1.2em}
 .pcard-stock.ok{color:var(--ok)}
-/* لما فيه تاريخ توفر متوقع، اللون بيبقى معلوماتي (أزرق) بدل التحذيري
-   (أحمر) العادي — عشان يوضح للعميل إن ده مش نهائي، هيتوفر تاني */
+/* an expected restock date is information, not a warning */
 .pcard-restock{color:var(--inf)!important}
-.pcard-body .btn{font-size:13px;padding:10px 14px}
-.state-msg{grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--ink-2)}
-.state-msg .big{font-size:2.4rem;margin-bottom:12px}
-.skeleton{background:linear-gradient(90deg,var(--cream-2) 25%,var(--sand) 50%,var(--cream-2) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:var(--r2);aspect-ratio:3/4}
+.pcard-body .btn{font-size:13.5px;padding:11px 14px;min-height:42px}
+
+/* highlight a product opened from a direct link (?product=ID) */
+.pcard-highlight{animation:pcardPulse 1.3s ease-out 2}
+@keyframes pcardPulse{0%{box-shadow:0 0 0 0 rgba(249,194,46,.6)}70%{box-shadow:0 0 0 14px rgba(249,194,46,0)}100%{box-shadow:0 0 0 0 rgba(249,194,46,0)}}
+
+.state-msg{grid-column:1/-1;text-align:center;padding:70px 20px;color:var(--ink-2)}
+.state-msg .big{font-size:2.4rem;margin-bottom:14px}
+.skeleton{background:linear-gradient(90deg,var(--surface-2) 25%,var(--line) 50%,var(--surface-2) 75%);
+  background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:var(--r3);aspect-ratio:3/4}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-/* drawer */
-.cart-overlay{position:fixed;inset:0;background:rgba(34,28,19,.5);z-index:100;backdrop-filter:blur(3px)}
-.cart-drawer{position:fixed;top:0;inset-inline-end:0;height:100%;width:min(400px,100%);background:var(--white);box-shadow:var(--sh-4);z-index:101;display:flex;flex-direction:column}
+/* ── lightbox ── */
+.lb-overlay{position:fixed;inset:0;background:rgba(21,25,48,.86);z-index:200;display:flex;align-items:center;
+  justify-content:center;padding:18px;backdrop-filter:blur(5px)}
+.lb-box{max-width:min(560px,94vw);width:100%;max-height:92vh;background:var(--white);border-radius:var(--r4);
+  overflow:hidden;box-shadow:var(--sh-4);display:flex;flex-direction:column;animation:fadeUp .2s ease-out}
+.lb-imgwrap{position:relative;background:var(--white);aspect-ratio:1/1;flex-shrink:1;min-height:0;
+  display:flex;align-items:center;justify-content:center;touch-action:pan-y}
+.lb-imgwrap img{width:100%;height:100%;object-fit:contain;padding:20px;user-select:none;-webkit-user-drag:none;
+  cursor:zoom-in;transition:transform .25s ease}
+.lb-imgwrap.zoomed img{transform:scale(2.2);cursor:zoom-out}
+.lb-imgwrap.zoomed .img-nav,.lb-imgwrap.zoomed .img-dots{display:none}
+.lb-close{position:absolute;top:10px;inset-inline-end:10px;width:34px;height:34px;border-radius:50%;
+  border:1px solid var(--line);background:rgba(255,255,255,.95);box-shadow:var(--sh-2);cursor:pointer;
+  font-size:17px;line-height:1;z-index:3;display:flex;align-items:center;justify-content:center;color:var(--ink)}
+.lb-close:hover{background:#fff}
+.lb-info{padding:16px 20px 20px;border-top:1px solid var(--line);overflow-y:auto}
+.lb-name{font-weight:800;font-size:15px}
+.lb-desc{font-size:13px;color:var(--ink-2);line-height:1.6;margin-top:7px;white-space:pre-line}
+.lb-price{font-family:var(--fm);font-weight:700;font-size:1.05rem;margin-top:10px}
+.lb-price .old{font-size:.75rem;color:var(--ink-3);text-decoration:line-through;margin-inline-start:8px;font-weight:400}
+
+/* ── cart drawer ── */
+.cart-overlay{position:fixed;inset:0;background:rgba(21,25,48,.5);z-index:100;backdrop-filter:blur(3px)}
+.cart-drawer{position:fixed;top:0;inset-inline-end:0;height:100%;width:min(420px,100%);background:var(--white);
+  box-shadow:var(--sh-4);z-index:101;display:flex;flex-direction:column}
 [dir="ltr"] .cart-drawer{animation:dLtr .24s cubic-bezier(.2,.8,.2,1)}
 [dir="rtl"] .cart-drawer{animation:dRtl .24s cubic-bezier(.2,.8,.2,1)}
 @keyframes dLtr{from{transform:translateX(100%)}to{transform:translateX(0)}}
 @keyframes dRtl{from{transform:translateX(-100%)}to{transform:translateX(0)}}
-.drawer-head{display:flex;justify-content:space-between;align-items:center;padding:17px 22px;border-bottom:1px solid var(--sand)}
-.drawer-head h3{margin:0;font-size:1rem;font-weight:800}
-.drawer-close{background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--ink-2);line-height:1;padding:4px 8px;border-radius:8px;transition:.15s}
-.drawer-close:hover{background:var(--cream-2);color:var(--ink)}
-.drawer-body{flex:1;overflow-y:auto;padding:14px 22px;display:flex;flex-direction:column}
-.drawer-footer{padding:15px 22px 19px;border-top:1px solid var(--sand)}
-.cart-line{display:flex;gap:11px;align-items:center;padding:11px 0;border-bottom:1px solid var(--cream-2)}
-.ci-img{width:46px;height:46px;border-radius:10px;background:#fff;border:1px solid var(--cream-2);overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.3rem}
-.ci-img img{width:100%;height:100%;object-fit:contain;padding:3px}
+.drawer-head{display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1px solid var(--line)}
+.drawer-head h3{margin:0;font-size:1.05rem;font-weight:800}
+.drawer-close{background:none;border:none;font-size:1.6rem;cursor:pointer;color:var(--ink-2);line-height:1;
+  padding:4px 10px;border-radius:var(--r-xs);transition:.15s}
+.drawer-close:hover{background:var(--surface-2);color:var(--ink)}
+.drawer-body{flex:1;overflow-y:auto;padding:16px 22px;display:flex;flex-direction:column}
+.drawer-footer{padding:16px 22px calc(18px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--white)}
+.cart-line{display:flex;gap:12px;align-items:center;padding:13px 0;border-bottom:1px solid var(--surface-2)}
+.ci-img{width:50px;height:50px;border-radius:var(--r-sm);background:var(--white);border:1px solid var(--line);
+  overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.3rem}
+.ci-img img{width:100%;height:100%;object-fit:contain;padding:4px}
 .ci-info{flex:1;min-width:0}
-.ci-name{font-weight:700;font-size:12.5px}
-.ci-price{font-family:var(--fm);font-size:11.5px;color:var(--ink-2);margin-top:2px}
-.qty-ctrl{display:flex;align-items:center;gap:7px}
-.qty-btn{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--sand-2);background:var(--white);cursor:pointer;font-weight:800;line-height:1;font-size:13px;display:flex;align-items:center;justify-content:center;color:var(--ink);transition:.15s}
-.qty-btn:hover{border-color:var(--ink);background:var(--cream-2)}
-.qty-num{font-family:var(--fm);font-weight:700;min-width:16px;text-align:center;font-size:12.5px}
-.ci-remove{background:none;border:none;color:var(--err);font-size:12px;font-weight:700;cursor:pointer;margin-inline-start:5px;opacity:.65;transition:.15s}
+.ci-name{font-weight:700;font-size:13px;line-height:1.4}
+.ci-price{font-family:var(--fm);font-size:12px;color:var(--ink-2);margin-top:3px}
+.qty-ctrl{display:flex;align-items:center;gap:8px}
+.qty-btn{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--line);background:var(--white);cursor:pointer;
+  font-weight:800;line-height:1;font-size:14px;display:flex;align-items:center;justify-content:center;color:var(--ink);transition:.15s}
+.qty-btn:hover{border-color:var(--blue-300);background:var(--blue-50)}
+.qty-num{font-family:var(--fm);font-weight:700;min-width:18px;text-align:center;font-size:13px}
+.ci-remove{background:none;border:none;color:var(--err);font-size:12px;font-weight:700;cursor:pointer;
+  margin-inline-start:6px;opacity:.7;transition:.15s}
 .ci-remove:hover{opacity:1}
-.subtotal-row{display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:.98rem;margin-bottom:13px}
+.subtotal-row{display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:1rem;margin-bottom:14px}
 .subtotal-val{font-family:var(--fm)}
-.empty-cart{text-align:center;padding:44px 10px;color:var(--ink-2);flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.empty-emoji{font-size:2.2rem;margin-bottom:10px}
-.checkout-form .field{margin-bottom:12px}
-.checkout-form label{font-size:12px;margin-bottom:5px}
-.checkout-form input,.checkout-form select,.checkout-form textarea{padding:10px 13px;font-size:13px}
-.success-view{text-align:center;padding:32px 10px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
-.success-icon{font-size:2.5rem}
+.empty-cart{text-align:center;padding:46px 10px;color:var(--ink-2);flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center}
+.empty-emoji{font-size:2.3rem;margin-bottom:12px}
+.checkout-form .field{margin-bottom:13px}
+.checkout-form label{font-size:12.5px;margin-bottom:6px}
+.success-view{text-align:center;padding:34px 10px;flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:13px}
+.success-icon{font-size:2.6rem}
 
-/* header fix — see index.html for the full explanation */
-.nav-row{flex-wrap:nowrap!important;gap:10px}
-.brand{position:relative;z-index:1;flex-shrink:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.nav-actions{position:static!important;flex-shrink:0;display:flex;align-items:center;gap:8px}
-.lang-pill{position:static!important;flex-shrink:0;white-space:nowrap;transform:none!important}
-@media(max-width:480px){.brand{max-width:34vw;font-size:.95rem}.brand img{width:22px;height:22px}.lang-pill{padding:6px 10px;font-size:12px}.nav-actions{gap:6px}}
+/* the drawer sits above the floating support button */
+.cart-overlay:not(.hidden)~.ts-wa-fab,body:has(.cart-overlay:not(.hidden)) .ts-wa-fab{display:none}
 </style>
 </head>
 <body>
@@ -167,19 +199,21 @@ src="https://www.facebook.com/tr?id=1562757605584870&ev=PageView&noscript=1"
     <a href="index.html" class="brand"><img src="assets/logo.png" alt="Try Shoppy"> Try Shoppy</a>
     <nav class="nav-links">
       <a href="index.html" data-i18n="nav_home">Home</a>
-      <a href="calculator.html" data-i18n="nav_calc">Get a Price</a>
+      <a href="index.html#how" data-i18n="nav_how">How it works</a>
       <a href="track.html" data-i18n="nav_track">Track Order</a>
       <a href="mart.html" class="active" data-i18n="nav_mart">Try Shoppy Mart</a>
     </nav>
     <div class="nav-actions">
-      <button class="lang-pill">🌐 العربية</button>
-      <button class="btn btn-ghost cart-btn" id="openCartBtn" aria-label="Cart">🛒<span class="cart-badge hidden" data-cart-count>0</span></button>
+      <button class="btn btn-ghost cart-btn" id="openCartBtn" type="button" aria-label="Cart">🛒<span class="cart-badge hidden" data-cart-count>0</span></button>
+      <button class="lang-pill" type="button">🌐 العربية</button>
       <span data-auth-slot="pill"></span>
+      <a href="calculator.html" class="btn btn-primary btn-sm nav-cta" data-i18n="nav_calc">Get a Price</a>
       <button class="burger btn btn-ghost" aria-label="Menu">☰</button>
     </div>
   </div>
   <div class="mobile-menu">
     <a href="index.html" data-i18n="nav_home">Home</a>
+    <a href="index.html#how" data-i18n="nav_how">How it works</a>
     <a href="calculator.html" data-i18n="nav_calc">Get a Price</a>
     <a href="track.html" data-i18n="nav_track">Track Order</a>
     <a href="mart.html" data-i18n="nav_mart">Try Shoppy Mart</a>
@@ -189,7 +223,7 @@ src="https://www.facebook.com/tr?id=1562757605584870&ev=PageView&noscript=1"
 
 <div class="mart-hero">
   <div class="container">
-    <span class="eyebrow" style="justify-content:center;display:flex" data-i18n="mart_page_eyebrow">ALREADY IN EGYPT</span>
+    <span class="eyebrow" data-i18n="mart_page_eyebrow">ALREADY IN EGYPT</span>
     <h1 data-i18n="mart_page_title">Try Shoppy Mart</h1>
     <p data-i18n="mart_page_sub">A wide range of our most-requested products, ready to ship at competitive prices — plus a selection of discounted items and Try Shoppy returns or undelivered orders, currently available for delivery.</p>
     <div class="mart-delivery-banner">
@@ -199,6 +233,10 @@ src="https://www.facebook.com/tr?id=1562757605584870&ev=PageView&noscript=1"
         <span data-i18n="mart_delivery_sub">Already cleared and in Egypt — no customs wait</span>
       </div>
     </div>
+    <p style="margin:20px 0 0;font-size:13.5px;color:#8E97B8">
+      <span data-i18n="mart_vs_intl">Looking for something from a US store instead?</span>
+      <a href="calculator.html" style="color:var(--yellow);font-weight:700;text-decoration:underline;text-underline-offset:3px" data-i18n="hero_cta_price">Calculate My Price</a>
+    </p>
   </div>
 </div>
 
@@ -294,7 +332,7 @@ src="https://www.facebook.com/tr?id=1562757605584870&ev=PageView&noscript=1"
       <div><h4 data-i18n="foot_payments_t">Payments</h4><p data-i18n="pay_cod">Cash on Delivery</p><p data-i18n="pay_instapay">InstaPay</p><p data-i18n="pay_card">Visa & Mastercard</p><p data-i18n="pay_paypal">PayPal</p><p data-i18n="pay_bank">Bank Transfer</p></div>
       <div><h4 data-i18n="foot_contact_t">Contact Us</h4><p><a href="mailto:Info@try-shoppy.com">Info@try-shoppy.com</a></p><p><a href="https://wa.me/201005609642" target="_blank" data-i18n="foot_whatsapp">Chat on WhatsApp</a></p></div>
     </div>
-    <div class="foot-bottom"><span data-i18n="foot_rights">© 2026 Try Shoppy. All rights reserved.</span><span>Made for shoppers in Egypt 🇪🇬</span></div>
+    <div class="foot-bottom"><span data-i18n="foot_rights">© 2026 Try Shoppy. All rights reserved.</span><span data-i18n="foot_made">Made for shoppers in Egypt 🇪🇬</span></div>
   </div>
 </footer>
 
