@@ -92,10 +92,15 @@
   .oc-chip{display:none}
 }
 
-/* ── trust strip ── */
-.trust-strip{position:relative;z-index:3;background:var(--white);border:1px solid var(--line);
+/* ── trust strip ──
+   Lives OUTSIDE .hero: the hero clips its decorative blobs with
+   overflow:hidden, so a strip that deliberately hangs past the
+   hero's bottom edge would get its last line of text sliced off.
+   The band below does the overlap instead. */
+.trust-band{position:relative;z-index:5;margin-top:-46px}
+.trust-strip{background:var(--white);border:1px solid var(--line);
   border-radius:var(--r3);box-shadow:var(--sh-3);display:grid;grid-template-columns:repeat(4,1fr);
-  overflow:hidden;margin-bottom:-46px}
+  overflow:hidden}
 .ts-item{padding:22px 20px;display:flex;gap:13px;align-items:flex-start;border-inline-end:1px solid var(--line)}
 .ts-item:last-child{border-inline-end:0}
 .ts-item .ic{width:38px;height:38px;border-radius:11px;background:var(--blue-50);color:var(--blue-700);
@@ -105,7 +110,8 @@
 .ts-item span{font-size:12.5px;color:var(--ink-2);line-height:1.5}
 @media(max-width:900px){.trust-strip{grid-template-columns:1fr 1fr}.ts-item:nth-child(2){border-inline-end:0}
   .ts-item:nth-child(1),.ts-item:nth-child(2){border-bottom:1px solid var(--line)}}
-@media(max-width:520px){.trust-strip{grid-template-columns:1fr;margin-bottom:-30px}
+@media(max-width:520px){.trust-band{margin-top:-30px}
+  .trust-strip{grid-template-columns:1fr}
   .ts-item{border-inline-end:0;border-bottom:1px solid var(--line);padding:17px 18px}
   .ts-item:last-child{border-bottom:0}}
 
@@ -326,7 +332,9 @@ html[lang="ar"] .mart-tag{letter-spacing:0}
       </div>
     </div>
   </div>
+</section>
 
+<div class="trust-band">
   <div class="container">
     <div class="trust-strip reveal">
       <div class="ts-item">
@@ -347,7 +355,7 @@ html[lang="ar"] .mart-tag{letter-spacing:0}
       </div>
     </div>
   </div>
-</section>
+</div>
 
 <!-- ══════════════ HOW IT WORKS ══════════════ -->
 <section id="how">
