@@ -74,6 +74,8 @@ const I18N = {
 
   // ---------- footer: contact ----------
   foot_contact_t:  { en: "Contact Us", ar: "تواصل معنا" },
+  foot_address_t:  { en: "Address", ar: "العنوان" },
+  foot_address:    { en: "7th District, Zahraa El Maadi, Cairo, Egypt", ar: "الشطر السابع، زهراء المعادي، القاهرة، مصر" },
 
   // ---------- payments ----------
   pay_eyebrow:     { en: "PAY YOUR WAY", ar: "ادفع بالطريقة اللي تناسبك" },
@@ -566,7 +568,12 @@ const I18N = {
   auth_side_1:     { en: "Track every order with its TRY number", ar: "تابع كل طلب برقم TRY بتاعه" },
   auth_side_2:     { en: "Save your delivery details for faster checkout", ar: "احفظ بيانات التوصيل عشان الطلب يبقى أسرع" },
   auth_side_3:     { en: "See your full order history any time", ar: "شوف سجل طلباتك كامل في أي وقت" },
-  auth_back_home:  { en: "Back to home", ar: "الرجوع للرئيسية" }
+  auth_back_home:  { en: "Back to home", ar: "الرجوع للرئيسية" },
+
+  // ---------- 404 ----------
+  nf_title:        { en: "This page doesn't exist", ar: "الصفحة دي مش موجودة" },
+  nf_sub:          { en: "The link may be old, or the product may no longer be available. Everything else is still here.", ar: "يمكن الرابط قديم، أو المنتج مبقاش متاح. كل حاجة تانية لسه في مكانها." },
+  nf_home:         { en: "Back to home", ar: "الرجوع للرئيسية" }
 };
 
 let TS_LANG = localStorage.getItem('ts_lang') || 'en';

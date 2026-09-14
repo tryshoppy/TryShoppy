@@ -142,6 +142,7 @@ function tsInitNav(){
   /* the NEW badge on the Mart tab is pure CSS (::after in style.css),
      so nothing here — it can never be wiped by applyI18N re-renders. */
   tsInjectPayStrip();
+  tsInjectContactInfo();
   tsInjectWhatsAppFab();
   tsInitReveal();
   setTimeout(tsInitReveal, 50);
@@ -188,6 +189,65 @@ function tsInjectPayStrip(){
     '<span class="pay-chip img-chip"><img src="assets/payments/paypal.png" alt="PayPal"></span>'+
     '<span class="pay-chip img-chip"><img src="assets/payments/cod.png" alt="Cash on Delivery"></span>';
   h.parentElement.appendChild(d);
+}
+
+/* 📍 بيانات التواصل في الفوتر — عنوان + إيميل + واتساب على كل صفحة
+   ---------------------------------------------------------------
+   بيتحقن من هنا مش متكتب في الـ HTML، عشان يظهر في كل الصفحات
+   (13 فوتر) من مكان واحد، وأي صفحة جديدة تاخده تلقائيًا.
+
+   ليه العنوان مهم مش مجرد تحسين: Google Ads بيطلب توثيق هوية
+   المعلن (advertiser identity verification)، وMerchant Center
+   بيطلب بيانات تواصل يقدر يتحقق منها فعليًا على الموقع. من غير
+   عنوان ظاهر، دي بتتأخر أو بترفض.
+
+   العناصر بتتحط بـ data-i18n عشان زرار اللغة يترجمها زي أي نص
+   تاني، والنص بيتحط بالقيمة الصح من أول لحظة لو applyI18N كانت
+   اشتغلت خلاص قبل النداء ده. */
+function tsInjectContactInfo(){
+  const grid = document.querySelector('.site-footer .foot-grid');
+  if(!grid || grid.querySelector('[data-ts-contact]')) return;
+
+  const hasI18n = typeof tsT === 'function';
+  const t = (key, fallback) => hasI18n ? tsT(key) : fallback;
+  const phone = (typeof TS_CONFIG !== 'undefined' && TS_CONFIG.SUPPORT_PHONE) ? TS_CONFIG.SUPPORT_PHONE : '201005609642';
+
+  /* لو الصفحة فيها عمود "تواصل معنا" أصلاً، بنضيف العنوان جواه.
+     لو مش موجود (صفحات السياسات مثلًا)، بنعمل العمود كامل. */
+  let col = null;
+  const existing = grid.querySelector('[data-i18n="foot_contact_t"]');
+  if(existing){
+    col = existing.parentElement;
+  } else {
+    col = document.createElement('div');
+    const h = document.createElement('h4');
+    h.setAttribute('data-i18n', 'foot_contact_t');
+    h.textContent = t('foot_contact_t', 'Contact Us');
+    col.appendChild(h);
+
+    const mail = document.createElement('p');
+    mail.innerHTML = '<a href="mailto:Info@try-shoppy.com">Info@try-shoppy.com</a>';
+    col.appendChild(mail);
+
+    const wa = document.createElement('p');
+    const waLink = document.createElement('a');
+    waLink.href = 'https://wa.me/' + phone;
+    waLink.target = '_blank';
+    waLink.rel = 'noopener';
+    waLink.setAttribute('data-i18n', 'foot_whatsapp');
+    waLink.textContent = t('foot_whatsapp', 'Chat on WhatsApp');
+    wa.appendChild(waLink);
+    col.appendChild(wa);
+
+    grid.appendChild(col);
+  }
+
+  const addr = document.createElement('p');
+  addr.setAttribute('data-ts-contact', 'address');
+  addr.style.marginTop = '10px';
+  addr.innerHTML = '<span style="opacity:.75">📍 </span><span data-i18n="foot_address"></span>';
+  addr.querySelector('[data-i18n]').textContent = t('foot_address', '7th District, Zahraa El Maadi, Cairo, Egypt');
+  col.appendChild(addr);
 }
 
 /* 🎞️ scroll-reveal: any element with class="reveal" fades up when it enters view */

@@ -13,7 +13,10 @@
    the new palette automatically. Never delete an alias.
    ========================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+/* ⚡ الخطوط اتنقلت لـ <link> في <head> كل صفحة.
+   @import جوه CSS بيخلي المتصفح يستنى تحميل الملف ده وتحليله
+   الأول قبل ما يبدأ يطلب الخط أصلاً — تأخير متسلسل بيأثر على
+   LCP، وبالتالي على Quality Score وسعر النقرة في الإعلانات. */
 
 :root{
   /* ── brand: yellow ── */
@@ -107,10 +110,17 @@ p{margin:0 0 1em}
 .mono,.num{font-family:var(--fm);font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
 
 /* ═══════════════ header / nav ═══════════════ */
+/* ⚠️ الهيدر خلفيته صلبة عن قصد — مفيش backdrop-filter.
+   النسخة الزجاجية (rgba + blur) كانت بتتكسر على Safari في iOS:
+   منطقة الـ blur بتتقص وبيبان خط/حافة واضحة بين الهيدر والقسم
+   اللي تحته، خصوصًا فوق أي تدرج لوني. وكمان الـ blur بيتحسب مع كل
+   فريم أثناء التمرير، وده بياكل من سلاسة الصفحة على الموبايل —
+   واللي هو أهم جهاز هنا، وأغلى زيارة لما تيجي من إعلان مدفوع.
+   الأبيض الصلب + ظل خفيف عند التمرير بيدّي نفس الإحساس من غير
+   أي من ده. */
 .site-header{
   position:sticky;top:0;z-index:60;
-  background:rgba(255,255,255,.82);
-  backdrop-filter:saturate(180%) blur(18px);-webkit-backdrop-filter:saturate(180%) blur(18px);
+  background:var(--white);
   border-bottom:1px solid var(--line);
   transition:box-shadow .25s ease,border-color .25s ease;
 }
@@ -151,6 +161,12 @@ p{margin:0 0 1em}
 .burger,.btn.burger{display:none;width:42px;height:42px;padding:0;font-size:18px;border-radius:var(--r)}
 @media(max-width:1000px){
   .nav-links{display:none}
+  /* 🐛→✅ الروابط بتتخفي هنا، فالقاعدة اللي فوق (.nav-links +
+     .nav-actions{margin-inline-start:0}) كانت بتفضل شغالة وتلغي
+     الدفع لليمين — النتيجة إن اللوجو وزرار اللغة والقائمة كانوا
+     بيتجمعوا كلهم على الشمال وتفضل فجوة بيضا فاضية (١٠١ بكسل على
+     شاشة ٣٧٥) على اليمين. لازم نرجّع الـ auto لما الروابط تختفي. */
+  .nav-links + .nav-actions{margin-inline-start:auto}
   .burger,.btn.burger{display:inline-flex}
   /* the account pill lives in the mobile sheet instead — the action row
      has to stay one uncrowded line down to 320px */
