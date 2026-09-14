@@ -1,191 +1,389 @@
 /* =========================================================
-   TRY SHOPPY — design system v4 "Honey Route"
-   Professional, calm, warm. Brand: honey gold + warm ink
-   on soft cream. Receipt/label vernacular via Space Mono
-   for numbers only. Generous air, diffused depth.
+   TRY SHOPPY — design system v5 "Route"
+   Brand: Try Shoppy yellow (#F9C22E) + Try Shoppy navy (#2D3250)
+   sampled from the logo. Yellow is used strategically (primary
+   actions, highlights, brand accents); navy carries trust,
+   structure and navigation. Cool neutrals, restrained radii,
+   soft navy-tinted depth.
+
+   ⚠️ IMPORTANT — token names from v3/v4 are all still defined
+   below (--gold*, --cream*, --sand*, --ink*, --y0..--y4,
+   --n0..--n4, --sh0..--sh3, --rpill, --card ...). Pages that
+   were not touched by the redesign keep working and pick up
+   the new palette automatically. Never delete an alias.
    ========================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
 :root{
-  /* brand */
-  --gold:#F5B820; --gold-light:#FFD966; --gold-pale:#FFF3D1; --gold-wash:#FFFAEC; --gold-deep:#B9860B;
+  /* ── brand: yellow ── */
+  --yellow:#F9C22E;
+  --yellow-hover:#FFD054;
+  --yellow-strong:#EDB011;
+  --yellow-ink:#8A6200;          /* yellow that is readable as text on light */
+  --yellow-100:#FDEFC6;
+  --yellow-50:#FFF9E9;
 
-  /* legacy v3 aliases (older page CSS may still reference these) */
-  --y0:var(--gold-wash); --y1:var(--gold-pale); --y2:var(--gold-light); --y3:var(--gold); --y4:var(--gold-deep);
-  --n0:var(--cream); --n1:var(--cream-2); --n2:var(--sand); --n3:var(--sand-2); --n4:#C4B698;
-  --ink2:var(--ink-2); --ink3:var(--ink-3);
-  --rpill:var(--pill);
-  --sh0:var(--sh-1); --sh1:var(--sh-2); --sh2:var(--sh-3); --sh3:var(--sh-4); --shy:var(--sh-gold);
-  --ink:#221C13; --ink-2:#6E6355; --ink-3:#A89C8A;
-  --cream:#FFFDF7; --cream-2:#FAF5E9; --sand:#F0E8D6; --sand-2:#E2D7BE;
+  /* ── brand: navy blue ── */
+  --blue:#2D3250;                /* logo navy */
+  --blue-900:#151930;
+  --blue-800:#1F2440;
+  --blue-700:#2D3250;
+  --blue-600:#3C4368;
+  --blue-500:#525B86;
+  --blue-300:#9AA1C0;
+  --blue-100:#E4E7F3;
+  --blue-50:#F2F4FB;
+  --blue-link:#2F4BC4;
+
+  /* ── neutrals ── */
   --white:#FFFFFF;
-  --ok:#178F5F; --ok-bg:#E5F6EE;
-  --err:#D4543E; --err-bg:#FBEEE9;
-  --inf:#2B6FA8; --inf-bg:#E9F2F9;
+  --page:#F6F7FC;                /* off-white page ground */
+  --surface:#FFFFFF;
+  --surface-2:#EFF1F9;
+  --line:#E4E7F2;
+  --line-2:#CFD4E6;
+  --ink:#171C30;
+  --ink-2:#5A6280;
+  --ink-3:#8B93AC;
 
-  --f:'Cairo',sans-serif;
-  --fm:'Space Mono',monospace;
-  --maxw:1160px;
-  --r:14px; --r2:22px; --r3:32px; --pill:999px;
+  /* ── semantic ── */
+  --ok:#0E9F6E;   --ok-bg:#E6F7F1;
+  --err:#D93A3A;  --err-bg:#FDECEC;
+  --warn:#B4770A; --warn-bg:#FEF3D4;
+  --inf:#2F4BC4;  --inf-bg:#EBEFFC;
 
-  --sh-1:0 1px 2px rgba(34,28,19,.05);
-  --sh-2:0 3px 10px rgba(34,28,19,.06);
-  --sh-3:0 10px 30px rgba(34,28,19,.09);
-  --sh-4:0 24px 60px rgba(34,28,19,.13);
-  --sh-gold:0 8px 24px rgba(245,184,32,.30);
+  /* ── type ── */
+  --f:'Plus Jakarta Sans','Cairo',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --f-ar:'Cairo','Plus Jakarta Sans',system-ui,sans-serif;
+  --fm:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+
+  /* ── metrics ── */
+  --maxw:1200px;
+  --r-xs:8px; --r-sm:10px; --r:12px; --r2:16px; --r3:22px; --r4:28px; --pill:999px;
+
+  /* ── elevation (navy-tinted, never grey mush) ── */
+  --sh-1:0 1px 2px rgba(23,28,48,.05);
+  --sh-2:0 2px 8px rgba(23,28,48,.06),0 1px 2px rgba(23,28,48,.04);
+  --sh-3:0 10px 28px rgba(23,28,48,.08),0 2px 6px rgba(23,28,48,.04);
+  --sh-4:0 24px 60px rgba(23,28,48,.14),0 4px 12px rgba(23,28,48,.06);
+  --sh-yellow:0 6px 20px rgba(249,194,46,.38);
+  --sh-blue:0 8px 24px rgba(45,50,80,.22);
+
+  /* ── legacy aliases — do not remove ── */
+  --gold:var(--yellow); --gold-light:var(--yellow-hover); --gold-pale:var(--yellow-100);
+  --gold-wash:var(--yellow-50); --gold-deep:var(--yellow-ink);
+  --y0:var(--yellow-50); --y1:var(--yellow-100); --y2:var(--yellow-hover); --y3:var(--yellow); --y4:var(--yellow-ink);
+  --cream:var(--page); --cream-2:var(--surface-2); --sand:var(--line); --sand-2:var(--line-2);
+  --n0:var(--page); --n1:var(--surface-2); --n2:var(--line); --n3:var(--line-2); --n4:var(--blue-300);
+  --ink2:var(--ink-2); --ink3:var(--ink-3);
+  --card:var(--surface);
+  --rpill:var(--pill);
+  --sh0:var(--sh-1); --sh1:var(--sh-2); --sh2:var(--sh-3); --sh3:var(--sh-4);
+  --shy:var(--sh-yellow); --sh-gold:var(--sh-yellow);
 }
 
+/* ═══════════════ base ═══════════════ */
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{scroll-behavior:smooth}
-body{margin:0;font-family:var(--f);background:var(--cream);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.6;font-size:15px}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  margin:0;font-family:var(--f);background:var(--page);color:var(--ink);
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  line-height:1.6;font-size:15.5px;overflow-x:hidden;
+}
+html[lang="ar"] body,html[dir="rtl"] body{font-family:var(--f-ar);line-height:1.75}
 img{max-width:100%;display:block}
 a{color:inherit;text-decoration:none}
-.container{max-width:var(--maxw);margin:0 auto;padding:0 24px}
-@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
-:focus-visible{outline:2.5px solid var(--gold);outline-offset:2px;border-radius:4px}
+h1,h2,h3,h4{letter-spacing:-.022em;line-height:1.2;font-weight:800;margin:0}
+html[lang="ar"] h1,html[lang="ar"] h2,html[lang="ar"] h3{letter-spacing:0;line-height:1.35}
+p{margin:0 0 1em}
+.container{max-width:var(--maxw);margin:0 auto;padding:0 24px;width:100%}
+@media(max-width:560px){.container{padding:0 18px}}
+:focus-visible{outline:2.5px solid var(--blue-link);outline-offset:2px;border-radius:6px}
+::selection{background:var(--yellow-100);color:var(--ink)}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto}}
 
-/* ── nav ── */
-.site-header{position:sticky;top:0;z-index:60;background:rgba(255,253,247,.86);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--sand)}
-.nav-row{display:flex;align-items:center;justify-content:space-between;padding:12px 24px;gap:14px}
-.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:16.5px;letter-spacing:-.2px}
-.brand img{height:36px;width:36px;border-radius:10px}
-.nav-links{display:flex;align-items:center;gap:22px;font-weight:600;font-size:14px}
-.nav-links a{color:var(--ink-2);transition:color .15s;padding:5px 2px;position:relative}
-.nav-links a:hover,.nav-links a.active{color:var(--ink)}
-.nav-links a.active::after{content:'';position:absolute;left:2px;right:2px;bottom:-2px;height:2px;background:var(--gold);border-radius:2px}
-.nav-actions{display:flex;align-items:center;gap:8px}
-.lang-pill{font-family:var(--f);font-size:12.5px;font-weight:700;padding:8px 14px;border-radius:var(--pill);border:1.5px solid var(--sand-2);background:var(--white);cursor:pointer;display:flex;align-items:center;gap:5px;transition:.15s;color:var(--ink)}
-.lang-pill:hover{border-color:var(--gold);background:var(--gold-wash)}
-.burger{display:none}
-@media(max-width:920px){.nav-links{display:none}.burger{display:flex}}
-.mobile-menu{display:none;flex-direction:column;background:var(--white);border-top:1px solid var(--sand)}
-.mobile-menu.open{display:flex;animation:mmIn .18s ease-out}
-.mobile-menu a{padding:15px 24px;font-weight:600;font-size:15px;border-bottom:1px solid var(--cream-2);color:var(--ink)}
-@keyframes mmIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+/* number/price rendering: tabular so columns never dance */
+.mono,.num{font-family:var(--fm);font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
 
-/* ── footer ── */
-.site-footer{background:var(--ink);color:#F1EBDF;margin-top:96px;border-radius:36px 36px 0 0}
-.site-footer .container{padding:56px 24px 26px}
-.foot-grid{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr 1fr;gap:26px}
-.foot-grid h4{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-light);margin:0 0 13px;font-weight:700}
-.foot-grid a,.foot-grid p{color:#BBB2A2;font-size:13.5px;line-height:2.1;margin:0}
-.foot-grid a:hover{color:var(--gold-light)}
-.foot-brand{display:flex;align-items:center;gap:9px;font-weight:800;font-size:16.5px;color:#fff;margin-bottom:10px}
-.foot-brand img{height:32px;width:32px;border-radius:9px}
-.foot-bottom{border-top:1px solid rgba(255,255,255,.08);margin-top:38px;padding-top:18px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:12px;color:#7E7566}
-@media(max-width:900px){.foot-grid{grid-template-columns:1fr 1fr 1fr}}
-@media(max-width:760px){.foot-grid{grid-template-columns:1fr 1fr}}
+/* ═══════════════ header / nav ═══════════════ */
+.site-header{
+  position:sticky;top:0;z-index:60;
+  background:rgba(255,255,255,.82);
+  backdrop-filter:saturate(180%) blur(18px);-webkit-backdrop-filter:saturate(180%) blur(18px);
+  border-bottom:1px solid var(--line);
+  transition:box-shadow .25s ease,border-color .25s ease;
+}
+.site-header.scrolled{box-shadow:var(--sh-2);border-color:transparent}
+.nav-row{display:flex;align-items:center;gap:14px;padding:11px 24px;flex-wrap:nowrap}
+@media(max-width:560px){.nav-row{padding:10px 18px;gap:8px}}
 
-/* ── buttons ── */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;font-family:var(--f);font-weight:700;font-size:14px;padding:12px 24px;border-radius:var(--pill);border:none;cursor:pointer;transition:transform .16s ease,box-shadow .16s ease,background .16s;white-space:nowrap;line-height:1.2}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:16.5px;letter-spacing:-.02em;color:var(--ink);flex-shrink:0;min-width:0}
+.brand img{height:38px;width:38px;border-radius:11px;flex-shrink:0}
+.brand span,.brand{white-space:nowrap}
+@media(max-width:480px){.brand{font-size:15px;max-width:44vw;overflow:hidden;text-overflow:ellipsis}.brand img{height:32px;width:32px;border-radius:9px}}
+
+.nav-links{display:flex;align-items:center;gap:4px;font-weight:600;font-size:14.5px;margin-inline:auto}
+.nav-links a{
+  color:var(--ink-2);padding:9px 14px;border-radius:var(--r);position:relative;
+  transition:color .16s ease,background .16s ease;white-space:nowrap;
+}
+.nav-links a:hover{color:var(--ink);background:var(--blue-50)}
+.nav-links a.active{color:var(--blue-700);background:var(--blue-50)}
+.nav-links a.active::after{
+  content:'';position:absolute;inset-inline:14px;bottom:4px;height:2.5px;
+  background:var(--yellow);border-radius:2px;
+}
+
+.nav-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;margin-inline-start:auto}
+.nav-links + .nav-actions{margin-inline-start:0}
+
+.lang-pill{
+  font-family:inherit;font-size:13px;font-weight:700;padding:8px 13px;border-radius:var(--r);
+  border:1.5px solid var(--line);background:var(--white);cursor:pointer;color:var(--ink-2);
+  display:inline-flex;align-items:center;gap:6px;transition:.16s;white-space:nowrap;line-height:1;
+}
+.lang-pill:hover{border-color:var(--blue-300);color:var(--ink);background:var(--blue-50)}
+@media(max-width:480px){.lang-pill{padding:7px 10px;font-size:12px}}
+
+/* .btn is declared later in this file, so the burger's own display rule
+   has to out-specify it — otherwise the hamburger shows on desktop too */
+.burger,.btn.burger{display:none;width:42px;height:42px;padding:0;font-size:18px;border-radius:var(--r)}
+@media(max-width:1000px){
+  .nav-links{display:none}
+  .burger,.btn.burger{display:inline-flex}
+  /* the account pill lives in the mobile sheet instead — the action row
+     has to stay one uncrowded line down to 320px */
+  [data-auth-slot="pill"]{display:none}
+}
+/* below ~640px the brand + language + CTA + burger no longer fit on one
+   line; the sticky bottom bar carries the primary CTA there instead.
+   (.btn is declared later, so this needs .btn.nav-cta to win.) */
+@media(max-width:640px){.nav-cta,.btn.nav-cta,.nav-logout,.btn.nav-logout{display:none}}
+
+/* mobile menu — slides down as a real panel, large touch targets */
+.mobile-menu{display:none;flex-direction:column;background:var(--white);border-top:1px solid var(--line);padding:8px 0 14px;box-shadow:var(--sh-3)}
+.mobile-menu.open{display:flex;animation:mmIn .2s cubic-bezier(.2,.8,.2,1)}
+.mobile-menu a{
+  padding:15px 24px;font-weight:700;font-size:15.5px;color:var(--ink);
+  border-bottom:1px solid var(--surface-2);display:flex;align-items:center;gap:10px;min-height:54px;
+}
+.mobile-menu a:last-child{border-bottom:0}
+.mobile-menu a:active{background:var(--blue-50)}
+.mobile-menu .mm-cta{margin:12px 24px 0;border:0;border-radius:var(--r);justify-content:center;background:var(--yellow);color:var(--ink);font-weight:800;box-shadow:var(--sh-yellow)}
+@keyframes mmIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ═══════════════ buttons ═══════════════ */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  font-family:inherit;font-weight:700;font-size:14.5px;line-height:1.2;
+  padding:13px 22px;border-radius:var(--r);border:1.5px solid transparent;cursor:pointer;
+  transition:transform .16s ease,box-shadow .16s ease,background .16s ease,border-color .16s ease,color .16s ease;
+  white-space:nowrap;min-height:46px;text-align:center;
+}
 .btn:hover{transform:translateY(-1px)}
 .btn:active{transform:translateY(0) scale(.99)}
-.btn-primary{background:var(--gold);color:var(--ink);box-shadow:var(--sh-gold)}
-.btn-primary:hover{background:var(--gold-light);box-shadow:0 10px 28px rgba(245,184,32,.4)}
-.btn-secondary{background:var(--white);color:var(--ink);box-shadow:var(--sh-2);border:1.5px solid var(--sand)}
-.btn-secondary:hover{border-color:var(--sand-2);box-shadow:var(--sh-3)}
-.btn-ghost{background:transparent;color:var(--ink-2);border:1.5px solid var(--sand)}
-.btn-ghost:hover{background:var(--cream-2);color:var(--ink)}
-.btn-dark{background:var(--ink);color:var(--gold-light);box-shadow:var(--sh-3)}
-.btn-dark:hover{box-shadow:var(--sh-4)}
-.btn-whatsapp{background:#22C15E;color:#fff;box-shadow:0 8px 20px rgba(34,193,94,.3)}
-.btn-danger{background:var(--err-bg);color:var(--err)}
+.btn-primary{background:var(--yellow);color:var(--ink);box-shadow:var(--sh-yellow)}
+.btn-primary:hover{background:var(--yellow-hover);box-shadow:0 10px 26px rgba(249,194,46,.45)}
+.btn-secondary{background:var(--white);color:var(--ink);border-color:var(--line);box-shadow:var(--sh-1)}
+.btn-secondary:hover{border-color:var(--blue-300);background:var(--blue-50)}
+.btn-ghost{background:transparent;color:var(--ink-2);border-color:var(--line)}
+.btn-ghost:hover{background:var(--blue-50);color:var(--ink);border-color:var(--blue-300)}
+.btn-dark{background:var(--blue-700);color:#fff;box-shadow:var(--sh-blue)}
+.btn-dark:hover{background:var(--blue-600);box-shadow:0 12px 28px rgba(45,50,80,.3)}
+.btn-whatsapp{background:#1FB955;color:#fff;box-shadow:0 6px 18px rgba(31,185,85,.3)}
+.btn-whatsapp:hover{background:#25CE5F}
+.btn-danger{background:var(--err-bg);color:var(--err);border-color:rgba(217,58,58,.2)}
+.btn-danger:hover{background:#FBDDDD}
 .btn-block{width:100%}
-.btn-sm{padding:8px 16px;font-size:13px}
-.btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-sm{padding:9px 15px;font-size:13px;min-height:38px;border-radius:var(--r-sm)}
+.btn-lg{padding:16px 30px;font-size:16px;min-height:54px;border-radius:14px}
+.btn:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
 
-/* ── surfaces ── */
-.card{background:var(--white);border-radius:var(--r2);padding:26px;box-shadow:var(--sh-2);border:1px solid var(--sand);transition:box-shadow .2s ease,transform .2s ease}
+/* ═══════════════ surfaces ═══════════════ */
+.card{
+  background:var(--surface);border-radius:var(--r3);padding:26px;
+  box-shadow:var(--sh-2);border:1px solid var(--line);
+  transition:box-shadow .22s ease,transform .22s ease,border-color .22s ease;
+}
 .card:hover{box-shadow:var(--sh-3)}
-.card.lift:hover{transform:translateY(-3px)}
+.card.lift:hover{transform:translateY(-3px);border-color:var(--line-2)}
+.bg-dim{background:var(--surface-2)}
+.bg-blue{background:var(--blue-700);color:#fff}
 
-/* ── forms ── */
-input,select,textarea{width:100%;font-family:var(--f);padding:12px 15px;border:1.5px solid var(--sand);border-radius:var(--r);font-size:14px;background:var(--white);color:var(--ink);transition:border-color .16s,box-shadow .16s;outline:none}
+/* ═══════════════ forms ═══════════════ */
+input,select,textarea{
+  width:100%;font-family:inherit;font-size:15px;padding:13px 15px;
+  border:1.5px solid var(--line);border-radius:var(--r);background:var(--white);color:var(--ink);
+  transition:border-color .16s,box-shadow .16s,background .16s;outline:none;min-height:48px;
+}
+textarea{min-height:84px;resize:vertical;line-height:1.6}
+select{
+  appearance:none;-webkit-appearance:none;cursor:pointer;
+  background-image:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235A6280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 15px center;padding-inline-end:40px;
+}
+[dir="rtl"] select{background-position:left 15px center}
 input::placeholder,textarea::placeholder{color:var(--ink-3)}
-input:focus,select:focus,textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3.5px rgba(245,184,32,.15)}
-label{display:block;font-weight:700;font-size:12.5px;margin-bottom:6px;color:var(--ink-2)}
-.field{margin-bottom:15px}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+input:hover,select:hover,textarea:hover{border-color:var(--line-2)}
+input:focus,select:focus,textarea:focus{border-color:var(--blue-link);box-shadow:0 0 0 3.5px rgba(47,75,196,.14);background:var(--white)}
+input:disabled,select:disabled,textarea:disabled{background:var(--surface-2);color:var(--ink-3);cursor:not-allowed}
+label{display:block;font-weight:700;font-size:13px;margin-bottom:7px;color:var(--ink-2)}
+.field{margin-bottom:16px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media(max-width:600px){.row2{grid-template-columns:1fr}}
+/* iOS zooms on focus when font-size < 16px */
+@media(max-width:760px){input,select,textarea{font-size:16px}}
 
-/* ── badges ── */
-.badge{display:inline-block;padding:4px 12px;border-radius:var(--pill);font-size:11px;font-weight:700;letter-spacing:.02em}
-.badge.gray,.badge.b-gray{background:var(--cream-2);color:var(--ink-2)}
-.badge.orange,.badge.b-orange{background:#FDF1DE;color:#B9781A}
+/* ═══════════════ badges, chips, stamps ═══════════════ */
+.badge{
+  display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:var(--pill);
+  font-size:11.5px;font-weight:700;letter-spacing:.01em;line-height:1.4;white-space:nowrap;
+}
+.badge.gray,.badge.b-gray{background:var(--surface-2);color:var(--ink-2)}
+.badge.orange,.badge.b-orange{background:var(--warn-bg);color:var(--warn)}
 .badge.blue,.badge.b-blue{background:var(--inf-bg);color:var(--inf)}
 .badge.green,.badge.b-green{background:var(--ok-bg);color:var(--ok)}
 .badge.red,.badge.b-red{background:var(--err-bg);color:var(--err)}
-.badge.yellow,.badge.b-yellow{background:var(--gold-pale);color:#A0770B}
+.badge.yellow,.badge.b-yellow{background:var(--yellow-100);color:var(--yellow-ink)}
 
-/* ── eyebrow / mono accents ── */
-.eyebrow{font-family:var(--fm);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);display:inline-flex;align-items:center;gap:8px;font-weight:700}
-.eyebrow::before{content:'';width:14px;height:2px;border-radius:2px;background:var(--gold);display:inline-block}
-.mono{font-family:var(--fm)}
-.stamp{display:inline-flex;align-items:center;gap:6px;font-family:var(--f);font-size:12px;font-weight:700;padding:6px 14px;border-radius:var(--pill);background:var(--cream-2);color:var(--ink);white-space:nowrap}
+.stamp{
+  display:inline-flex;align-items:center;gap:7px;font-family:inherit;font-size:13px;font-weight:700;
+  padding:8px 15px;border-radius:var(--pill);background:var(--surface-2);color:var(--ink);white-space:nowrap;
+}
 .stamp.green{background:var(--ok-bg);color:var(--ok)}
-.stamp.yellow{background:var(--gold-pale);color:#A0770B}
+.stamp.yellow{background:var(--yellow-100);color:var(--yellow-ink)}
+.stamp.blue{background:var(--inf-bg);color:var(--inf)}
 
-/* ── sections ── */
-section{padding:84px 0}
-.section-head{text-align:center;max-width:600px;margin:0 auto 46px}
-.section-head h2{font-size:2rem;margin:13px 0 9px;font-weight:800;line-height:1.22;letter-spacing:-.02em}
-.section-head p{color:var(--ink-2);font-size:.98rem;line-height:1.65}
-.bg-dim{background:var(--cream-2)}
+.eyebrow{
+  font-family:var(--f);font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--blue-500);display:inline-flex;align-items:center;gap:9px;font-weight:800;
+}
+.eyebrow::before{content:'';width:18px;height:2.5px;border-radius:2px;background:var(--yellow);display:inline-block;flex-shrink:0}
+html[lang="ar"] .eyebrow{letter-spacing:0}
 
-/* ── toast ── */
-.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--gold-pale);font-weight:700;font-size:13.5px;padding:13px 22px;border-radius:var(--pill);opacity:0;pointer-events:none;transition:all .28s cubic-bezier(.2,.8,.2,1);z-index:300;box-shadow:var(--sh-4);max-width:90vw;text-align:center}
+/* ═══════════════ sections ═══════════════ */
+section{padding:88px 0}
+@media(max-width:760px){section{padding:60px 0}}
+.section-head{text-align:center;max-width:640px;margin:0 auto 48px}
+.section-head .eyebrow{display:inline-flex;justify-content:center}
+.section-head h2{font-size:clamp(1.65rem,3.4vw,2.35rem);margin:14px 0 10px;font-weight:800}
+.section-head p{color:var(--ink-2);font-size:1.02rem;line-height:1.7;margin:0}
+
+/* ═══════════════ footer ═══════════════ */
+.site-footer{background:var(--blue-900);color:#DCE0EE;margin-top:0;border-radius:32px 32px 0 0}
+.site-footer .container{padding:60px 24px 28px}
+.foot-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr 1fr 1fr;gap:28px}
+.foot-grid h4{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--yellow);margin:0 0 14px;font-weight:800}
+html[lang="ar"] .foot-grid h4{letter-spacing:0}
+.foot-grid a,.foot-grid p{color:#A3AAC6;font-size:13.5px;line-height:2.05;margin:0}
+.foot-grid a{transition:color .15s}
+.foot-grid a:hover{color:var(--yellow)}
+.foot-brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:17px;color:#fff;margin-bottom:12px}
+.foot-brand img{height:34px;width:34px;border-radius:10px}
+.foot-bottom{
+  border-top:1px solid rgba(255,255,255,.09);margin-top:40px;padding-top:20px;
+  display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:12.5px;color:#6D7699;
+}
+@media(max-width:1100px){.foot-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:700px){.foot-grid{grid-template-columns:repeat(2,1fr);gap:22px}}
+@media(max-width:420px){.foot-grid{grid-template-columns:1fr}}
+
+/* ═══════════════ toast ═══════════════ */
+.toast{
+  position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--blue-900);color:#fff;font-weight:700;font-size:14px;padding:14px 22px;
+  border-radius:var(--r2);opacity:0;pointer-events:none;transition:all .28s cubic-bezier(.2,.8,.2,1);
+  z-index:300;box-shadow:var(--sh-4);max-width:calc(100vw - 32px);text-align:center;
+}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-/* ── motion ── */
-@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+/* ═══════════════ motion ═══════════════ */
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.animate-in{animation:fadeUp .55s cubic-bezier(.2,.8,.2,1) both}
-::selection{background:var(--gold-pale)}
-.hidden{display:none!important}
-.ltr-keep{direction:ltr}
-
-/* ── cart badge ── */
-.cart-btn{position:relative}
-.cart-badge{position:absolute;top:-7px;inset-inline-end:-7px;background:var(--err);color:#fff;font-family:var(--fm);font-size:10px;font-weight:700;border-radius:var(--pill);min-width:17px;height:17px;display:flex;align-items:center;justify-content:center;padding:0 3px}
-
-/* ── product image frame (shared: mart + admin) ── */
-.prod-img{aspect-ratio:1/1;border-radius:var(--r);overflow:hidden;background:linear-gradient(145deg,var(--gold-wash),var(--cream-2));display:flex;align-items:center;justify-content:center;position:relative}
-.prod-img img{width:100%;height:100%;object-fit:cover}
-.prod-img .ph{font-size:2.6rem;opacity:.75}
-
-/* ── show/hide password toggle ── */
-.pw-wrap{position:relative;display:block}
-.pw-wrap input{width:100%;padding-inline-end:44px}
-.pw-toggle{position:absolute;top:50%;transform:translateY(-50%);inset-inline-end:8px;background:none;border:none;cursor:pointer;font-size:16px;line-height:1;padding:6px;border-radius:8px;opacity:.75;transition:.15s}
-.pw-toggle:hover{opacity:1;background:rgba(0,0,0,.05)}
-
-/* ═══════ NEW ✨ badge on the Mart nav tab (pure CSS — survives any
-   applyI18N text rewrite because pseudo-elements aren't part of textContent) ═══════ */
-.nav-links a[href$="mart.html"]::after,
-.mobile-menu a[href$="mart.html"]::after{
-  content:'NEW';
-  display:inline-block;font-size:8.5px;font-weight:900;letter-spacing:.08em;color:var(--ink);
-  background:linear-gradient(110deg,var(--gold) 0%,#ffe9a8 45%,var(--gold) 90%);background-size:200% 100%;
-  border-radius:6px;padding:2px 6px;margin-inline-start:6px;vertical-align:super;line-height:1;
-  animation:badgeShine 2.2s linear infinite;
-  box-shadow:0 0 0 1px rgba(0,0,0,.06),0 2px 6px rgba(245,184,32,.45)}
-html[lang="ar"] .nav-links a[href$="mart.html"]::after,
-html[lang="ar"] .mobile-menu a[href$="mart.html"]::after{content:'جديد';letter-spacing:0}
-@keyframes badgeShine{to{background-position:-200% 0}}
-
-/* ═══════ payment method chips in the footer (site-wide, injected by app.js) ═══════ */
-.pay-strip{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-.pay-chip.img-chip{background:#fff;border:1px solid var(--sand);border-radius:8px;padding:6px 9px;line-height:1;display:inline-flex;align-items:center;justify-content:center;box-shadow:var(--sh-1);height:30px}
-.pay-chip.img-chip img{max-height:16px;max-width:44px;object-fit:contain}
-
-/* ═══════ scroll-reveal animation (site-wide; add class="reveal" to any element) ═══════ */
-.reveal{opacity:0;transform:translateY(26px);transition:opacity .6s ease,transform .6s cubic-bezier(.2,.8,.2,1)}
+.animate-in{animation:fadeUp .5s cubic-bezier(.2,.8,.2,1) both}
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .6s ease,transform .6s cubic-bezier(.2,.8,.2,1)}
 .reveal.in{opacity:1;transform:none}
-.reveal-d1{transition-delay:.08s}.reveal-d2{transition-delay:.16s}.reveal-d3{transition-delay:.24s}
-.reveal-d4{transition-delay:.32s}.reveal-d5{transition-delay:.4s}
+.reveal-d1{transition-delay:.07s}.reveal-d2{transition-delay:.14s}.reveal-d3{transition-delay:.21s}
+.reveal-d4{transition-delay:.28s}.reveal-d5{transition-delay:.35s}
 @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
 
-/* ── footer: facebook / social link ── */
+/* ═══════════════ utilities ═══════════════ */
+.hidden{display:none!important}
+.ltr-keep{direction:ltr}
+.text-center{text-align:center}
+
+/* ═══════════════ cart badge ═══════════════ */
+.cart-btn{position:relative;width:42px;height:42px;padding:0;font-size:17px;border-radius:var(--r)}
+.cart-badge{
+  position:absolute;top:-6px;inset-inline-end:-6px;background:var(--err);color:#fff;
+  font-family:var(--fm);font-size:10px;font-weight:700;border-radius:var(--pill);
+  min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;padding:0 4px;
+  border:2px solid var(--white);
+}
+
+/* ═══════════════ product image frame (mart + admin) ═══════════════ */
+.prod-img{
+  aspect-ratio:1/1;border-radius:var(--r2);overflow:hidden;background:var(--white);
+  display:flex;align-items:center;justify-content:center;position:relative;
+}
+.prod-img img{width:100%;height:100%;object-fit:cover}
+.prod-img .ph{font-size:2.6rem;opacity:.7}
+
+/* ═══════════════ password toggle ═══════════════ */
+.pw-wrap{position:relative;display:block}
+.pw-wrap input{width:100%;padding-inline-end:46px}
+.pw-toggle{
+  position:absolute;top:50%;transform:translateY(-50%);inset-inline-end:8px;
+  background:none;border:none;cursor:pointer;font-size:16px;line-height:1;padding:8px;
+  border-radius:var(--r-xs);opacity:.7;transition:.15s;
+}
+.pw-toggle:hover{opacity:1;background:var(--surface-2)}
+
+/* ═══════════════ NEW badge on the Try Shoppy Mart nav tab ═══════════════
+   Pure CSS pseudo-element so it survives every applyI18N() text rewrite. */
+.nav-links a[href$="mart.html"]::after,
+.mobile-menu a[href$="mart.html"]::after{
+  content:'NEW';position:static;
+  display:inline-block;font-size:8.5px;font-weight:800;letter-spacing:.06em;color:var(--ink);
+  background:var(--yellow);border-radius:5px;padding:2px 5px;margin-inline-start:6px;
+  vertical-align:super;line-height:1;box-shadow:0 1px 4px rgba(249,194,46,.5);
+  width:auto;height:auto;inset:auto;
+}
+html[lang="ar"] .nav-links a[href$="mart.html"]::after,
+html[lang="ar"] .mobile-menu a[href$="mart.html"]::after{content:'جديد';letter-spacing:0}
+
+/* ═══════════════ footer payment chips (injected by app.js) ═══════════════ */
+.pay-strip{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.pay-chip.img-chip{
+  background:#fff;border:1px solid rgba(255,255,255,.14);border-radius:var(--r-xs);padding:6px 9px;
+  line-height:1;display:inline-flex;align-items:center;justify-content:center;height:30px;
+}
+.pay-chip.img-chip img{max-height:16px;max-width:44px;object-fit:contain}
+
+/* ═══════════════ footer social ═══════════════ */
 .foot-social-link{display:inline-flex;align-items:center;color:inherit;transition:.15s}
-.foot-social-link:hover{color:var(--gold-light)}
+.foot-social-link:hover{color:var(--yellow)}
+
+/* ═══════════════ floating WhatsApp support button (app.js) ═══════════════ */
+.ts-wa-fab{
+  position:fixed;inset-inline-end:18px;bottom:18px;z-index:90;
+  width:54px;height:54px;border-radius:50%;background:#1FB955;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 8px 24px rgba(31,185,85,.42);transition:transform .18s ease,box-shadow .18s ease;
+}
+.ts-wa-fab:hover{transform:scale(1.06);box-shadow:0 12px 30px rgba(31,185,85,.5)}
+.ts-wa-fab svg{width:26px;height:26px;color:#fff}
+@media(max-width:760px){.ts-wa-fab{width:50px;height:50px;bottom:16px;inset-inline-end:14px}}
+/* pages with a sticky mobile action bar push the FAB up */
+body.has-sticky-bar .ts-wa-fab{bottom:84px}
+
+/* ═══════════════ sticky mobile action bar (mobile-first conversion) ═══════════════ */
+.sticky-bar{
+  display:none;position:fixed;inset-inline:0;bottom:0;z-index:85;
+  background:rgba(255,255,255,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom));
+  box-shadow:0 -4px 20px rgba(23,28,48,.07);
+}
+.sticky-bar .btn{flex:1}
+@media(max-width:760px){.sticky-bar{display:flex;gap:10px}}

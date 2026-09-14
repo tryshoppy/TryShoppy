@@ -114,8 +114,23 @@ function tsInitNav(){
   const burger = document.querySelector('.burger');
   const menu = document.querySelector('.mobile-menu');
   if(burger && menu){
-    burger.addEventListener('click', ()=> menu.classList.toggle('open'));
+    burger.setAttribute('aria-expanded', 'false');
+    const setOpen = (open)=>{
+      menu.classList.toggle('open', open);
+      burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+      burger.innerHTML = open ? '✕' : '☰';
+    };
+    burger.addEventListener('click', (e)=>{ e.stopPropagation(); setOpen(!menu.classList.contains('open')); });
+    /* tapping a destination, tapping outside, or pressing Esc closes the
+       sheet — on a phone the menu covering the page with no way back is
+       the single most common navigation dead end */
+    menu.addEventListener('click', (e)=>{ if(e.target.closest('a')) setOpen(false); });
+    document.addEventListener('click', (e)=>{
+      if(menu.classList.contains('open') && !menu.contains(e.target) && e.target !== burger) setOpen(false);
+    });
+    document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') setOpen(false); });
   }
+  tsInitHeaderScroll();
   if(typeof toggleLang === 'function'){
     document.querySelectorAll('.lang-pill').forEach(btn=>{
       btn.addEventListener('click', toggleLang);
@@ -127,8 +142,36 @@ function tsInitNav(){
   /* the NEW badge on the Mart tab is pure CSS (::after in style.css),
      so nothing here — it can never be wiped by applyI18N re-renders. */
   tsInjectPayStrip();
+  tsInjectWhatsAppFab();
   tsInitReveal();
   setTimeout(tsInitReveal, 50);
+}
+
+/* 🪄 header gets a shadow once the page scrolls, so it reads as a real
+   layer above the content instead of a flat strip */
+function tsInitHeaderScroll(){
+  const header = document.querySelector('.site-header');
+  if(!header) return;
+  const onScroll = ()=> header.classList.toggle('scrolled', window.scrollY > 8);
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+}
+
+/* 💬 floating WhatsApp support button — support is the main help channel
+   here, and on mobile it was previously only reachable from the footer */
+function tsInjectWhatsAppFab(){
+  if(document.querySelector('.ts-wa-fab')) return;
+  if(document.body.hasAttribute('data-no-wa-fab')) return;
+  const phone = (typeof TS_CONFIG !== 'undefined' && TS_CONFIG.SUPPORT_PHONE) ? TS_CONFIG.SUPPORT_PHONE : '201005609642';
+  const a = document.createElement('a');
+  a.className = 'ts-wa-fab';
+  a.href = 'https://wa.me/' + phone;
+  a.target = '_blank';
+  a.rel = 'noopener';
+  a.setAttribute('aria-label', (typeof tsT === 'function') ? tsT('foot_whatsapp') : 'Chat on WhatsApp');
+  a.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+    + '<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>';
+  document.body.appendChild(a);
 }
 
 /* 💳 payment chips under the footer "Payments" column (all pages)
