@@ -271,7 +271,7 @@ function tsWaMessage(opts){
   if(!toCustomer){
     parts.push('');
     if(name)           parts.push('👤 الاسم: ' + name);
-    if(o.phone)        parts.push('📞 الموبايل: ' + o.phone);
+    if(o.phone)        parts.push('📞 الموبايل: ' + tsDisplayPhone(o.phone));
     if(o.governorate)  parts.push('📍 المحافظة: ' + o.governorate);
     if(o.address)      parts.push('🏠 العنوان: ' + o.address);
   }
@@ -525,8 +525,38 @@ function tsRequireAuth(){
   if(!s){ window.location.href = 'login.html'; }
   return s;
 }
+/* ⚠️ دي للمطابقة والتخزين — بتشيل الصفر وكود الدولة عشان نفس
+   العميل يتلاقى سواء كتب 010… أو 2010… أو 10…. ممنوع تتغير:
+   مفاتيح الجلسات ومطابقة الطلبات في الشيت كلها معتمدة عليها.
+   للعرض استخدم tsDisplayPhone تحت. */
 function tsNormalizePhone(phone){
   return String(phone || '').replace(/\D/g, '').replace(/^2/, '').replace(/^0/, '');
+}
+
+/* 📞 الرقم بشكله الكامل للعرض: 01012345678
+   ---------------------------------------------------------------
+   الرقم بيتخزن في الشيت من غير الصفر (1012345678) عشان المطابقة،
+   فكان بيظهر كده للعميل في الواتساب والإيميل — ناقص ورقمه مش
+   مفهوم. الدالة دي بتصلّح العرض بس، من غير ما تلمس المخزّن.
+
+   بتتعامل مع كل الأشكال من غير ما تكرر الصفر:
+     1012345678      → 01012345678
+     01012345678     → زي ما هو
+     201012345678    → 01012345678   (كود مصر)
+     00201012345678  → 01012345678   (بادئة دولية)
+     +20 101 234 5678→ 01012345678
+   وأي شكل غير متوقع (أرضي، رقم ناقص، نص) بيرجع زي ما هو بالظبط
+   بدل ما نضيفله صفر بالغلط. */
+function tsDisplayPhone(v){
+  const raw = String(v == null ? '' : v).trim();
+  if(!raw) return '';
+  let d = raw.replace(/\D/g, '');
+  if(!d) return raw;                                             // مفيش أرقام خالص
+  if(d.length > 12 && d.slice(0, 2) === '00') d = d.slice(2);     // بادئة دولية
+  if(d.length === 12 && d.slice(0, 3) === '201') d = d.slice(2);  // كود مصر
+  if(d.length === 11 && d.slice(0, 2) === '01') return d;         // مظبوط أصلاً
+  if(d.length === 10 && d[0] === '1') return '0' + d;             // ناقص الصفر
+  return raw;                                                     // شكل مش متوقع — منلمسوش
 }
 
 /* ---------- Users API (Google Apps Script) ---------- */
