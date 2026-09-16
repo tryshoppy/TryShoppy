@@ -9,6 +9,8 @@
 :root{
   --primary:#2563eb; --bg:#f4f7fe; --white:#fff; --text:#1e293b; --border:#cbd5e1;
   --success:#16a34a; --warning:#d97706; --danger:#dc2626; --gray:#64748b;
+  /* 💛💙 هوية البحث: أصفر + أزرق غامق */
+  --accent:#facc15; --accent-dark:#eab308; --accent-ink:#1e3a8a;
 }
 *{box-sizing:border-box;}
 body{font-family:'Cairo',sans-serif;background:var(--bg);margin:0;padding:20px;color:var(--text);}
@@ -26,6 +28,30 @@ button:active{transform:scale(.98);}
 .btn-success{background:var(--success);}
 .btn-warning{background:var(--warning);}
 .btn-danger{background:var(--danger);}
+/* 💛💙 زرار البحث — أصفر بنص أزرق غامق وإطار أزرق */
+.btn-search{background:var(--accent);color:var(--accent-ink);border:2px solid var(--primary);
+  box-shadow:0 3px 0 0 var(--primary);font-weight:900;}
+.btn-search:hover{background:var(--accent-dark);opacity:1;}
+.btn-search:active{transform:translateY(2px);box-shadow:0 1px 0 0 var(--primary);}
+/* شريط البحث نفسه ياخد نفس الهوية عشان يبان إنهم وحدة واحدة */
+.search-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:stretch;
+  background:linear-gradient(90deg,rgba(250,204,21,.16),rgba(37,99,235,.10));
+  border:1.5px solid var(--accent);border-radius:14px;padding:10px;}
+.search-bar input{flex:1;min-width:150px;border-color:var(--primary);background:#fff;}
+.search-bar button{flex:0 0 auto;min-width:112px;}
+/* على الموبايل: الحقل سطر لوحده، والزرارين تحته جنب بعض بدل ما
+   زرار المسح ينزل لوحده في سطر فاضي */
+@media(max-width:480px){
+  .search-bar{padding:8px;}
+  .search-bar input{flex:1 1 100%;min-width:0;}
+  .search-bar button{flex:1 1 0;min-width:0;}
+}
+/* شرايط فلترة سريعة (أزرار مختصرة بدل ما تفتح القايمة المنسدلة) */
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.chip{flex:0 0 auto;min-width:0;padding:8px 14px;font-size:12.5px;min-height:38px;border-radius:999px;
+  background:#eff6ff;color:var(--primary);border:1.5px solid #bfdbfe;font-weight:800;}
+.chip:hover{opacity:1;background:#dbeafe;}
+.chip.active{background:var(--accent);color:var(--accent-ink);border-color:var(--primary);}
 .hidden{display:none !important;}
 .row{display:flex;gap:10px;flex-wrap:wrap;}
 .row>*{flex:1;min-width:120px;}
@@ -160,9 +186,13 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{
   <div class="stats-grid" id="statsGrid"></div>
 
   <div class="card">
-    <div class="row">
-      <input id="searchInput" placeholder="🔍 دوّر باسم المنتج أو اللينك أو موعد الوصول..." oninput="debouncedRenderList()">
+    <div class="search-bar">
+      <input id="searchInput" placeholder="🔍 دوّر باسم المنتج أو اللينك أو موعد الوصول..."
+             oninput="debouncedRenderList()" onkeydown="if(event.key==='Enter')doSearch()">
+      <button class="btn-search" id="searchBtn" onclick="doSearch()">🔍 بحث</button>
+      <button class="btn-ghost" style="flex:0 0 auto;min-width:0;padding:13px 14px;" onclick="clearSearch()" title="مسح البحث">✖️</button>
     </div>
+    <div class="chips" id="quickChips"></div>
     <div class="row" style="margin-top:10px;">
       <select id="filterStatus" onchange="renderList()">
         <option value="">📋 كل الحالات</option>
@@ -215,6 +245,26 @@ function safeUrl(u){
   return /^https?:\/\//i.test(s) ? s : "";
 }
 
+/* 🐞 كان بيتحط الـid الخام جوه onclick="fn('...')" — أي id فيه
+   علامة تنصيص/شرطة مايلة بيكسر الـhandler كله (SyntaxError) والزرار
+   بيبقى ميّت. jsAttr بتهرّب للـJS الأول وبعدين للـHTML، بالترتيب
+   العكسي اللي المتصفح بيفك بيه (HTML ← JS) */
+function jsAttr(v){
+  return escapeHtml(String(v == null ? "" : v).replace(/\\/g, "\\\\").replace(/'/g, "\\'"));
+}
+/* 🐞 وكمان ${p.staffEgp} كان بيتحط كرقم جوه الـhandler — لو العمود
+   فاضي بيطلع updateQtyPreview('5', ) وده SyntaxError كمان. دلوقتي
+   أي قيمة مش رقم بتبقى 0 */
+function numAttr(v){
+  const n = parseFloat(v);
+  return isFinite(n) ? n : 0;
+}
+// عرض رقم بشكل آدمي — من غير "NaN" لو العمود فاضي
+function fmtNum(v){
+  const n = parseFloat(v);
+  return (isFinite(n) ? n : 0).toLocaleString();
+}
+
 // 🕑 الجلسة بقت باقية يومين بدل ما تتقفل كل ما تقفل المتصفح —
 // localStorage بيفضل موجود حتى بعد إغلاق التاب/المتصفح (بعكس
 // sessionStorage اللي كان بيتمسح كل مرة)، وبنحط تاريخ انتهاء
@@ -257,6 +307,11 @@ async function doLogin(){
     document.getElementById("mainContent").classList.remove("hidden");
     errBox.classList.add("hidden");
     renderCart();
+    renderQuickChips();
+    // 🐞 loadProducts اشتغلت وإحنا لسه مخبّيين mainContent، فالرسم
+    // حصل على عناصر مخفية — نرسم تاني دلوقتي بعد ما بانت
+    renderList();
+    startAutoRefresh();
   } else if(result === "unauthorized"){
     clearPasscode();
     errBox.textContent = "❌ كلمة المرور غلط";
@@ -273,23 +328,10 @@ async function doLogin(){
 // جلسة سابقة محفوظة (خلال آخر يومين)؟ منوريش التطبيق غير بعد ما
 // نتأكد إن الباسورد المحفوظ لسه صحيح (ممكن يكون اتغيّر من عند
 // الفريق من وقتها)
-(async function initSession(){
-  if(!getPasscode()) return;
-  document.getElementById("loginScreen").classList.add("hidden");
-  document.getElementById("mainContent").classList.remove("hidden");
-  renderCart();
-  const result = await loadProducts();
-  if(result === "unauthorized"){
-    clearPasscode();
-    document.getElementById("mainContent").classList.add("hidden");
-    document.getElementById("loginScreen").classList.remove("hidden");
-    const errBox = document.getElementById("loginError");
-    errBox.textContent = "⚠️ انتهت صلاحية جلستك — سجّل دخول تاني";
-    errBox.classList.remove("hidden");
-  }
-  // لو "network": سيبنا الصفحة زي ما هي، loadProducts نفسها بتعرض
-  // رسالة خطأ الاتصال جوه productsList
-})();
+// ⚠️ جسم initSession() اتنقل لآخر السكريبت خالص — كان بينده على
+// دوال بتستخدم متغيرات (allProducts / lastDataHash / STATUS_META)
+// متعرّفة بـlet/const تحت في الملف، وده TDZ ReferenceError بيكسر
+// التحميل كله. الدوال بتتعمل لها hoisting، المتغيرات لأ
 
 function setBtnLoading(btn, text){
   if(!btn || btn.dataset.loading==='1') return;
@@ -316,18 +358,26 @@ async function fetchProduct(){
   if(!link){ alert("الصق رابط المنتج الأول"); return; }
   const btn = document.getElementById("fetchBtn");
   if(btn.dataset.loading==='1') return; // شغال أصلاً، متضاعفش الطلبات لو داس تاني
-  const MAX_ATTEMPTS = 15;
+  // 🐞 كانت 15 محاولة ورا بعض من غير أي مهلة لكل محاولة — لو
+  // السيرفر بيهنّج، الزرار كان بيفضل "بيحمّل" لدقايق من غير أي
+  // طريقة توقّفه. دلوقتي 6 محاولات، لكل واحدة سقف 12 ثانية
+  const MAX_ATTEMPTS = 6;
+  const ATTEMPT_TIMEOUT = 12000;
   let data = null;
 
   setBtnLoading(btn, `جاري الجلب... (1/${MAX_ATTEMPTS})`);
   for(let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++){
     btn.innerHTML = `<span class="spinner"></span> جاري الجلب... (${attempt}/${MAX_ATTEMPTS})`;
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), ATTEMPT_TIMEOUT);
     try{
-      const res = await fetch(SCRIPT_URL, { method:"POST", body: JSON.stringify({ action:"fetchProductInfo", link }) });
+      const res = await fetch(SCRIPT_URL, { method:"POST", signal: ctrl.signal, body: JSON.stringify({ action:"fetchProductInfo", link }) });
       data = await res.json();
       if(data && data.success) break; // نجحت المحاولة دي، منكملش تاني
     }catch(e){
       data = null; // مشكلة شبكة في المحاولة دي بالذات — نجرب تاني لو لسه فيه فرصة
+    } finally {
+      clearTimeout(t);
     }
     if(attempt < MAX_ATTEMPTS) await sleep(350); // فاصل بسيط قبل المحاولة الجاية، مش ضربة واحدة على السيرفر
   }
@@ -335,7 +385,13 @@ async function fetchProduct(){
   clearBtnLoading(btn);
   if(data && data.success){
     fetchedInfo = { productName: data.productName, imageUrl: data.imageUrl, suggestedUsdPrice: data.suggestedUsdPrice };
-    document.getElementById("previewImg").src = safeUrl(data.imageUrl);
+    // 🐞 كان بيحط src="" لما الصورة مش موجودة — المتصفح ساعتها
+    // بيعتبرها رابط الصفحة نفسها ويعيد تحميلها كصورة (طلب زيادة
+    // + أيقونة صورة مكسورة). دلوقتي بنخفي الصورة أصلاً
+    const prevImg = document.getElementById("previewImg");
+    const imgUrl = safeUrl(data.imageUrl);
+    if(imgUrl){ prevImg.src = imgUrl; prevImg.classList.remove("hidden"); }
+    else { prevImg.removeAttribute("src"); prevImg.classList.add("hidden"); }
     let previewText = escapeHtml(data.productName || "(بدون اسم — اكتبه يدويًا)");
     if(data.suggestedUsdPrice){
       previewText += ` <span style="color:var(--gray);font-weight:700;">— 💵 السعر على الموقع تقريبًا: $${escapeHtml(String(data.suggestedUsdPrice))}</span>`;
@@ -406,21 +462,32 @@ async function sendAllCart(){
   const btn = document.getElementById("sendAllBtn");
   setBtnLoading(btn, "جاري إرسال " + cart.length + " منتج...");
 
+  // 🐞 كان بيستخدم Promise.all: أول منتج يفشل في الشبكة بيرمي،
+  // فالباقي كله بيتحسب فاشل ومفيش أي واحد بيتسجّل. وأخطر من كده،
+  // في الحالة الناجحة جزئيًا كان بيعمل saveCart([]) على طول —
+  // يعني المنتجات اللي فشلت كانت بتتمسح من السلة خالص وتضيع،
+  // ومكانش قدامك أي طريقة ترجّعها غير إنك تلصق اللينك من الأول.
+  // allSettled بتخلي كل منتج مستقل، والفاشلين بس بيفضلوا في السلة
   try{
-    const results = await Promise.all(cart.map(item =>
+    const results = await Promise.allSettled(cart.map(item =>
       fetch(SCRIPT_URL, { method:"POST", body: JSON.stringify({
         action:"addLink", passcode:getPasscode(), link:item.link,
         productName:item.productName, imageUrl:item.imageUrl, notes:item.notes || ""
       })}).then(r=>r.json())
     ));
     clearBtnLoading(btn);
-    const successCount = results.filter(r => r.success).length;
-    if(results.some(r => !r.success)){
-      alert(`⚠️ ${successCount} من ${cart.length} اتبعتوا، والباقي فشل — راجع القائمة وحاول تاني للي فشل`);
-    }
-    saveCart([]);
+
+    const failedItems = cart.filter((item, i) =>
+      !(results[i].status === "fulfilled" && results[i].value && results[i].value.success));
+    const successCount = cart.length - failedItems.length;
+
+    saveCart(failedItems); // ✅ اللي فشل بس هو اللي بيفضل في السلة
     renderCart();
     loadProducts();
+
+    if(failedItems.length){
+      alert(`⚠️ ${successCount} من ${cart.length} اتبعتوا بنجاح.\nالـ${failedItems.length} الباقيين لسه في السلة — دوس "إرسال" تاني للي فيها.`);
+    }
     if(successCount > 0) showOrderSentModal(successCount);
   }catch(e){
     clearBtnLoading(btn);
@@ -445,33 +512,39 @@ let confirmedThisSessionCount = 0; // لعداد "أكّدت X منتج" وقت 
 
 // منع طلبين متزامنين (مثلاً لو دوس تحديث وهو لسه بيحمّل من نفسه)
 // — بيرجّع نفس الـpromise الشغالة بدل ما يبدأ طلب جديد فوقه
+// 🐞 أخطر باج كان هنا: لو loadProductsInner رمت استثناء (مش مجرد
+// رجّعت خطأ)، السطر اللي بيصفّر loadingInProgress مكانش بيتنفّذ
+// خالص، فالمتغير بيفضل ماسك promise مرفوضة للأبد — وكل تحديث بعد
+// كده (يدوي أو تلقائي أو بعد أي أكشن) بيرجّع نفس المرفوضة من غير
+// ما يعمل أي طلب. ده اللي كان بيخلي الصفحة "تقف" فجأة وتفضل واقفة
+// لحد ما تعمل Refresh كامل. finally بتضمن التصفير في كل الحالات
 async function loadProducts(){
   if(loadingInProgress) return loadingInProgress;
-  loadingInProgress = loadProductsInner();
-  const result = await loadingInProgress;
-  loadingInProgress = null;
-  return result;
+  loadingInProgress = loadProductsInner().catch(e => {
+    console.error("loadProducts crashed:", e);
+    return "network"; // مهما حصل، مش هنرمي على اللي نادى علينا
+  });
+  try{
+    return await loadingInProgress;
+  } finally {
+    loadingInProgress = null;
+  }
 }
 
 async function loadProductsInner(retrying){
+  let data;
+  // 🐞 الجلب والرسم كانوا جوه نفس الـtry — فأي خطأ في الرسم كان
+  // بيتحسب "فشل شبكة"، يعمل طلب تاني كامل من غير داعي، ويوري رسالة
+  // "تعذر الاتصال" والنت شغال. دلوقتي كل واحد لوحده
   try{
     const ctrl = new AbortController();
     const timeout = setTimeout(() => ctrl.abort(), 15000); // سقف 15 ثانية بدل ما يفضل معلّق للأبد
-    const res = await fetch(SCRIPT_URL + "?scope=client&passcode=" + encodeURIComponent(getPasscode()), { signal: ctrl.signal });
-    clearTimeout(timeout);
-    const data = await res.json(); // لو السيرفر رجع HTML/نص مش JSON، هيقع هنا وننزل على catch تحت
-    if(!Array.isArray(data)){
-      // السيرفر دلوقتي بيرفض من غير باسورد صحيح ({success:false,...})
-      // بدل ما يرجع كل البيانات لأي حد — ده الفرق بين "باسورد غلط"
-      // و"مشكلة شبكة" اللي بنميزها في catch تحت
-      console.warn("loadProducts: unauthorized or unexpected response", data);
-      return "unauthorized";
+    try{
+      const res = await fetch(SCRIPT_URL + "?scope=client&passcode=" + encodeURIComponent(getPasscode()), { signal: ctrl.signal });
+      data = await res.json(); // لو السيرفر رجع HTML/نص مش JSON، هيقع هنا وننزل على catch تحت
+    } finally {
+      clearTimeout(timeout); // 🐞 كان بيتنسى على مسار الخطأ فيفضل تايمر معلّق
     }
-    allProducts = data;
-    renderNotifBadge(); // ⚠️ دايمًا بيعكس كل المنتجات، بغض النظر عن الفلتر — عشان محدش يفوّته رد لازم يبعته
-    renderList();
-    updateLastRefreshLabel();
-    return "ok";
   }catch(e){
     console.error("loadProducts failed:", e);
     // 🔁 أول فشل شبكة، بنجرب تاني تلقائي بصمت مرة واحدة قبل ما
@@ -483,7 +556,102 @@ async function loadProductsInner(retrying){
     else showToast("⚠️ تعذر تحديث البيانات — هنجرب تاني", "error");
     return "network";
   }
+
+  if(!Array.isArray(data)){
+    // السيرفر دلوقتي بيرفض من غير باسورد صحيح ({success:false,...})
+    // بدل ما يرجع كل البيانات لأي حد — ده الفرق بين "باسورد غلط"
+    // و"مشكلة شبكة" اللي بنميزها في catch فوق
+    console.warn("loadProducts: unauthorized or unexpected response", data);
+    return "unauthorized";
+  }
+
+  applyProducts(data, true);
+  return "ok";
 }
+
+/* ⚡ رسم البيانات + حفظها كنسخة محلية.
+   - fromServer=true → نحفظ نسخة في المتصفح عشان الفتحة الجاية
+     تبان فورًا من غير انتظار الشبكة.
+   - لو البيانات مااتغيرتش عن آخر مرة، مابنعملش إعادة رسم خالص —
+     ده اللي بيخلي التحديث التلقائي مايمسحش الكمية اللي بتكتبها
+     ولا يقفل المربعات المفتوحة تحت إيدك */
+let lastDataHash = "";
+let pendingRefresh = false;
+// إنت بتكتب دلوقتي في حقل جوه القايمة (كمية / سعر مقترح)؟
+function isEditingList(){
+  const a = document.activeElement;
+  return !!(a && (a.tagName === "INPUT" || a.tagName === "SELECT")
+    && a.closest && a.closest("#productsList"));
+}
+function applyProducts(data, fromServer){
+  const hash = JSON.stringify(data);
+  allProducts = data;
+  if(fromServer){
+    try{ localStorage.setItem("rmaProductsCache", hash); }catch(e){ /* التخزين ممتلئ — مش مشكلة */ }
+  }
+  if(hash === lastDataHash){ updateLastRefreshLabel(); return false; }
+
+  // 🔒 فيه جديد بس إنت بتكتب الكمية أو سعرك المقترح — نستنى ما
+  // تخلص بدل ما إعادة الرسم تمسح اللي تحت إيدك
+  if(isEditingList()){
+    if(!pendingRefresh){
+      pendingRefresh = true;
+      showToast("🔔 فيه تحديث جديد — هيتطبّق أول ما تخلص", "success");
+    }
+    return false;
+  }
+
+  pendingRefresh = false;
+  lastDataHash = hash;
+  renderNotifBadge(); // ⚠️ دايمًا بيعكس كل المنتجات، بغض النظر عن الفلتر — عشان محدش يفوّته رد لازم يبعته
+  renderList();
+  updateLastRefreshLabel();
+  return true;
+}
+// أول ما تسيب الحقل، بنطبّق التحديث المؤجّل
+document.addEventListener("focusout", () => {
+  if(!pendingRefresh) return;
+  setTimeout(() => { if(!isEditingList()) applyProducts(allProducts, false); }, 150);
+});
+
+// ⚡ أول رسم من النسخة المحفوظة في المتصفح — بيبان في أقل من جزء من
+// الثانية بدل ما تستنى رد Google Script (اللي بياخد ثواني)، وبعدها
+// البيانات الحقيقية بتنزل في الخلفية وتستبدلها لو فيه جديد
+function renderFromCache(){
+  try{
+    const raw = localStorage.getItem("rmaProductsCache");
+    if(!raw) return false;
+    const data = JSON.parse(raw);
+    if(!Array.isArray(data) || !data.length) return false;
+    applyProducts(data, false);
+    const lbl = document.getElementById("lastRefreshLbl");
+    if(lbl) lbl.textContent = "نسخة محفوظة — بيتم التحديث...";
+    return true;
+  }catch(e){ return false; }
+}
+
+/* 🔄 تحديث تلقائي كل 30 ثانية — بس وإنت فاتح التاب فعلاً.
+   قبل كده مكانش فيه أي تحديث تلقائي خالص: لو الفريق سعّر منتج،
+   مكنتش تشوفه غير لما تدوس 🔄 بإيدك أو تعمل Refresh للصفحة.
+   بنوقف المؤقّت وإنت مش شايف الصفحة عشان مانضربش على السيرفر
+   ببلاش، وبنحدّث فورًا أول ما ترجع للتاب */
+const AUTO_REFRESH_MS = 30000;
+let autoRefreshTimer = null;
+function startAutoRefresh(){
+  stopAutoRefresh();
+  autoRefreshTimer = setInterval(() => {
+    if(document.visibilityState !== "visible" || !getPasscode()) return;
+    // احتياطي لو رسم مؤجّل فضل معلّق من غير focusout
+    if(pendingRefresh && !isEditingList()) applyProducts(allProducts, false);
+    loadProducts();
+  }, AUTO_REFRESH_MS);
+}
+function stopAutoRefresh(){
+  if(autoRefreshTimer){ clearInterval(autoRefreshTimer); autoRefreshTimer = null; }
+}
+document.addEventListener("visibilitychange", () => {
+  if(document.visibilityState === "visible" && getPasscode()) loadProducts();
+});
 
 // 🔄 تحديث يدوي — من غير ما يأثر على شكل الصفحة، بس أيقونة الزرار
 // بتلف وهي بتحمّل عشان تحس إنها فعلاً بتحصل
@@ -534,7 +702,7 @@ function renderStats(items, paymentsTotal, statusF){
   ` : "";
 
   document.getElementById("statsGrid").innerHTML = `
-    <div class="stat-box"><div class="num">${items.length}</div><div class="lbl">📦 إجمالي المنتجات${items.length!==allProducts.length ? ' (مفلترة)' : ''}</div></div>
+    <div class="stat-box"><div class="num">${items.length}</div><div class="lbl">📦 إجمالي المنتجات${items.length !== allProducts.filter(p=>p.status!=="Payment").length ? ' (مفلترة)' : ''}</div></div>
     <div class="stat-box"><div class="num">${totalQty.toLocaleString()}</div><div class="lbl">🔢 إجمالي الكمية (قطعة)</div></div>
     <div class="stat-box"><div class="num">${confirmedLike.length}</div><div class="lbl">✅ مؤكدة</div></div>
     <div class="stat-box"><div class="num">${deliveredCount}</div><div class="lbl">🎉 تم التسليم</div></div>
@@ -596,6 +764,7 @@ function renderList(){
 
   renderStats(items, paymentsTotal, statusF); // ← نفس المجموعة المفلترة اللي هتتعرض تحت
   renderProducts(items);
+  renderQuickChips(); // الشرايح السريعة تفضل مزامنة مع الفلتر والأعداد
 }
 
 // 0 = محتاج ردك دلوقتي (بانتظار موافقتك)، 1 = الباقي
@@ -605,55 +774,68 @@ function needsActionRank(p){
 
 function renderProducts(items){
   const box = document.getElementById("productsList");
-  if(!items.length){ box.innerHTML = '<div class="card empty-hint">🗂️ مفيش منتجات مضافة لسه</div>'; return; }
+  if(!items.length){
+    // 🐞 كانت بتقول "مفيش منتجات مضافة لسه" حتى وإنت بتدوّر أو
+    // مفلتر — فكنت تفتكر إن طلباتك اتمسحت. دلوقتي بتفرّق بين
+    // "مفيش نتايج للبحث ده" و"مفيش منتجات أصلاً"
+    const filtering = !!(document.getElementById("searchInput").value.trim()
+      || document.getElementById("filterStatus").value
+      || document.getElementById("filterArrival").value);
+    box.innerHTML = filtering
+      ? `<div class="card empty-hint">🔍 مفيش نتايج مطابقة<br><button class="btn-search" style="margin-top:12px;" onclick="clearSearch();applyQuickFilter('')">↩️ امسح البحث والفلاتر</button></div>`
+      : '<div class="card empty-hint">🗂️ مفيش منتجات مضافة لسه</div>';
+    return;
+  }
 
   box.innerHTML = items.map(p => {
     const meta = STATUS_META[p.status] || { label:p.status, cls:"b-gray" };
     let actionsHtml = "";
 
+    const jid = jsAttr(p.id); // آمن جوه '...' في الـhandlers
+
     if(p.status === "PendingApproval"){
       actionsHtml = `
-        <div class="price-tag">${Number(p.staffEgp).toLocaleString()} EGP <span style="font-size:11px;color:#94a3b8;font-weight:700;">/ للقطعة</span></div>
+        <div class="price-tag">${fmtNum(p.staffEgp)} EGP <span style="font-size:11px;color:#94a3b8;font-weight:700;">/ للقطعة</span></div>
         <div class="action-box">
           <div class="row">
-            <input type="number" class="mini-input" id="qty-${p.id}" placeholder="🔢 الكمية" value="1" min="1" oninput="updateQtyPreview('${p.id}', ${p.staffEgp})">
+            <input type="number" class="mini-input" id="qty-${escapeHtml(p.id)}" placeholder="🔢 الكمية" value="1" min="1" oninput="updateQtyPreview('${jid}', ${numAttr(p.staffEgp)})">
           </div>
-          <div class="meta-line" id="qtyPreview-${p.id}" style="font-weight:800;color:var(--primary);margin-top:4px;"></div>
+          <div class="meta-line" id="qtyPreview-${escapeHtml(p.id)}" style="font-weight:800;color:var(--primary);margin-top:4px;"></div>
           <div class="row" style="margin-top:8px;">
-            <button class="mini-btn btn-success" style="flex:1;min-width:96px;padding:9px 6px;" onclick="confirmProduct('${p.id}')">✅ موافق</button>
-            <button class="mini-btn btn-ghost" style="flex:1;min-width:96px;padding:9px 6px;" onclick="toggleCounter('${p.id}')">💬 سعر تاني</button>
-            <button class="mini-btn btn-danger" style="flex:1;min-width:96px;padding:9px 6px;" onclick="rejectProduct('${p.id}')">❌ إلغاء</button>
+            <button class="mini-btn btn-success" style="flex:1;min-width:96px;padding:9px 6px;" onclick="confirmProduct('${jid}')">✅ موافق</button>
+            <button class="mini-btn btn-ghost" style="flex:1;min-width:96px;padding:9px 6px;" onclick="toggleCounter('${jid}')">💬 سعر تاني</button>
+            <button class="mini-btn btn-danger" style="flex:1;min-width:96px;padding:9px 6px;" onclick="rejectProduct('${jid}')">❌ إلغاء</button>
           </div>
-          <div id="counterBox-${p.id}" class="hidden" style="margin-top:8px;">
+          <div id="counterBox-${escapeHtml(p.id)}" class="hidden" style="margin-top:8px;">
             <div class="row">
-              <input type="number" class="mini-input" id="counter-${p.id}" placeholder="💵 سعرك المقترح (EGP للقطعة)">
-              <button class="mini-btn btn-warning" onclick="sendCounter('${p.id}')">📤 إرسال العرض</button>
+              <input type="number" class="mini-input" id="counter-${escapeHtml(p.id)}" placeholder="💵 سعرك المقترح (EGP للقطعة)">
+              <button class="mini-btn btn-warning" onclick="sendCounter('${jid}')">📤 إرسال العرض</button>
             </div>
           </div>
         </div>`;
     } else if(p.status === "PendingReview"){
-      actionsHtml = `<div class="meta-line">💬 عرضك: ${Number(p.clientCounterEgp).toLocaleString()} EGP للقطعة × ${p.quantity} — مستني رد الفريق</div>`;
+      actionsHtml = `<div class="meta-line">💬 عرضك: ${fmtNum(p.clientCounterEgp)} EGP للقطعة × ${escapeHtml(p.quantity || 1)} — مستني رد الفريق</div>`;
     } else if(p.status === "Rejected"){
       actionsHtml = `<div class="meta-line" style="color:var(--danger);">🚫 ${escapeHtml(p.notes || "المنتج غير متاح حاليًا")}</div>`;
     } else if(["Confirmed","Placed","Delayed","Delivered"].includes(p.status)){
       actionsHtml = `
-        <div class="meta-line">💰 سعر القطعة: ${Number(p.staffEgp||0).toLocaleString()} EGP</div>
-        <div class="meta-line">🔢 العدد: ${p.quantity||1}</div>
-        <div class="price-tag">💵 الإجمالي: ${Number(p.finalEgp||0).toLocaleString()} EGP</div>
-        <div class="meta-line">📅 موعد الوصول: ${p.arrivalDate || "—"}</div>
-        <div class="meta-line">💰 العربون: ${Number(p.deposit||0).toLocaleString()} EGP — المتبقي: ${Math.max(0, (parseFloat(p.finalEgp)||0) - (parseFloat(p.deposit)||0)).toLocaleString()} EGP</div>
-        <button class="mini-btn btn-ghost" style="margin-top:8px;" onclick="reorderProduct('${p.id}', this)">🔁 إعادة طلب نفس المنتج</button>`;
+        <div class="meta-line">💰 سعر القطعة: ${fmtNum(p.staffEgp)} EGP</div>
+        <div class="meta-line">🔢 العدد: ${escapeHtml(p.quantity || 1)}</div>
+        <div class="price-tag">💵 الإجمالي: ${fmtNum(p.finalEgp)} EGP</div>
+        <div class="meta-line">📅 موعد الوصول: ${escapeHtml(p.arrivalDate || "—")}</div>
+        <div class="meta-line">💰 العربون: ${fmtNum(p.deposit)} EGP — المتبقي: ${Math.max(0, (parseFloat(p.finalEgp)||0) - (parseFloat(p.deposit)||0)).toLocaleString()} EGP</div>
+        <button class="mini-btn btn-ghost" style="margin-top:8px;" onclick="reorderProduct('${jid}', this)">🔁 إعادة طلب نفس المنتج</button>`;
     }
 
     const img = safeUrl(p.imageUrl);
     const link = safeUrl(p.link);
     return `<div class="card">
       <div class="product-card">
-        ${img ? `<img class="product-img" src="${escapeHtml(img)}">` : `<div class="product-img"></div>`}
+        ${img ? `<img class="product-img" src="${escapeHtml(img)}" loading="lazy" alt="">` : `<div class="product-img"></div>`}
         <div class="product-body">
           <span class="badge ${meta.cls}">${meta.label}</span>
-          <div class="product-name">${escapeHtml(p.productName || "منتج بدون اسم")}</div>
-          <a class="product-link-btn" href="${escapeHtml(link || "#")}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(p.link)}">🔗 رابط المنتج</a>
+          <div class="product-name" title="${escapeHtml(p.productName || "")}">${escapeHtml(p.productName || "منتج بدون اسم")}</div>
+          <a class="product-link-btn" href="${escapeHtml(link || "#")}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(p.link || "")}">🔗 رابط المنتج</a>
           ${actionsHtml}
         </div>
       </div>
@@ -666,7 +848,11 @@ function renderProducts(items){
 }
 
 function toggleCounter(id){
-  document.getElementById("counterBox-"+id).classList.toggle("hidden");
+  const box = requireEl("counterBox-"+id); // 🐞 كان بيرمي null error لو الكارت اتبدّل
+  if(!box) return;
+  box.classList.toggle("hidden");
+  const input = document.getElementById("counter-"+id);
+  if(input && !box.classList.contains("hidden")) input.focus();
 }
 
 // 🔢 معاينة حية للإجمالي وإنت بتغيّر الكمية — بتوريك "الكمية ×
@@ -680,9 +866,28 @@ function updateQtyPreview(id, unitPrice){
   previewEl.textContent = `= ${qty} × ${Number(unitPrice).toLocaleString()} = ${total.toLocaleString()} EGP إجمالي`;
 }
 
+/* 🐞 كل الدوال دي كانت بتقرا .value من عنصر من غير ما تتأكد إنه
+   لسه موجود. أي إعادة رسم للقايمة (تحديث/بعد أكشن تاني) بتبدّل
+   الكروت، فالعنصر القديم بيختفي و getElementById بترجع null →
+   "Cannot read properties of null" والزرار بيموت لحد ما تعمل
+   Refresh. دلوقتي بنتأكد الأول وبنطلب تحديث بدل ما نضرب */
+function requireEl(id, msg){
+  const el = document.getElementById(id);
+  if(!el){ showToast(msg || "⚠️ القائمة اتحدّثت — جرّب تاني", "error"); loadProducts(); return null; }
+  return el;
+}
+// 🐞 الـselector ده كان بيتبني بالـid الخام — id فيه " أو ] بيرمي
+// SyntaxError من querySelector نفسها. CSS.escape بتأمّنه
+function findActionBtn(fn, id){
+  const sel = `button[onclick="${fn}('${String(id).replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/"/g,'&quot;')}')"]`;
+  try{ return document.querySelector(sel); }catch(e){ return null; }
+}
+
 async function confirmProduct(id){
-  const qty = parseInt(document.getElementById("qty-"+id).value) || 1;
-  const btn = document.querySelector(`button[onclick="confirmProduct('${id}')"]`);
+  const qtyEl = requireEl("qty-"+id);
+  if(!qtyEl) return;
+  const qty = Math.max(1, parseInt(qtyEl.value) || 1);
+  const btn = findActionBtn("confirmProduct", id);
   setBtnLoading(btn, "جاري التأكيد...");
   try{
     const res = await fetch(SCRIPT_URL, { method:"POST", body: JSON.stringify({ action:"clientConfirm", passcode:getPasscode(), id, quantity:qty }) });
@@ -706,7 +911,7 @@ async function confirmProduct(id){
 // تاني كطلب مفتوح. فيه تأكيد قبل الإرسال عشان مايتعملش بالغلط
 async function rejectProduct(id){
   if(!confirm("متأكد إنك عايز تلغي طلب المنتج ده؟")) return;
-  const btn = document.querySelector(`button[onclick="rejectProduct('${id}')"]`);
+  const btn = findActionBtn("rejectProduct", id);
   setBtnLoading(btn, "جاري الإلغاء...");
   try{
     const res = await fetch(SCRIPT_URL, { method:"POST", body: JSON.stringify({ action:"clientReject", passcode:getPasscode(), id }) });
@@ -720,10 +925,13 @@ async function rejectProduct(id){
 }
 
 async function sendCounter(id){
-  const qty = parseInt(document.getElementById("qty-"+id).value) || 1;
-  const counterEgp = parseFloat(document.getElementById("counter-"+id).value);
-  if(!counterEgp){ alert("اكتب السعر المقترح"); return; }
-  const btn = document.querySelector(`button[onclick="sendCounter('${id}')"]`);
+  const qtyEl = requireEl("qty-"+id);
+  const counterEl = document.getElementById("counter-"+id);
+  if(!qtyEl || !counterEl) return;
+  const qty = Math.max(1, parseInt(qtyEl.value) || 1);
+  const counterEgp = parseFloat(counterEl.value);
+  if(!counterEgp || counterEgp <= 0){ alert("اكتب السعر المقترح (رقم أكبر من صفر)"); return; }
+  const btn = findActionBtn("sendCounter", id);
   setBtnLoading(btn, "جاري الإرسال...");
   try{
     const res = await fetch(SCRIPT_URL, { method:"POST", body: JSON.stringify({ action:"clientCounter", passcode:getPasscode(), id, quantity:qty, counterEgp }) });
@@ -892,7 +1100,7 @@ function openPaymentsModal(){
           <div style="font-size:12px;color:var(--gray);font-weight:800;margin-bottom:6px;">سجل الدفعات:</div>
           ${b.payments.map(p => `
             <div style="font-size:12.5px;margin-bottom:6px;">
-              <div>${Number(p.deposit).toLocaleString()} EGP${p.notes ? " — " + escapeHtml(p.notes) : ""}</div>
+              <div>${fmtNum(p.deposit)} EGP${p.notes ? " — " + escapeHtml(p.notes) : ""}</div>
               <div style="font-size:11px;color:var(--gray);margin-top:2px;">🕒 ${formatPaymentDate(p.createdDate)}</div>
             </div>
           `).join("")}
@@ -913,8 +1121,16 @@ function openPaymentsModal(){
    فيها فعليًا (بيانات ناقصة، إلخ)
    --------------------------------------------------------- */
 function showToast(msg, type){
-  const box = document.getElementById("toastBox");
-  if(!box) return;
+  // 🐞 #toastBox متكتوب في الـHTML *بعد* السكريبت، فأي toast بيتنده
+  // عليه أثناء التحميل الأول كان بيلاقيه null ويختفي في صمت (رسائل
+  // فشل الاتصال الأولى كانت بتضيع كده). دلوقتي بنعمله لو مش موجود
+  let box = document.getElementById("toastBox");
+  if(!box){
+    box = document.createElement("div");
+    box.id = "toastBox";
+    box.style.cssText = "position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:60;display:flex;flex-direction:column;gap:8px;align-items:center;";
+    document.body.appendChild(box);
+  }
   const el = document.createElement("div");
   el.textContent = msg;
   const isError = type === "error";
@@ -922,6 +1138,92 @@ function showToast(msg, type){
   box.appendChild(el);
   setTimeout(() => { el.style.opacity = "0"; setTimeout(() => el.remove(), 300); }, 3500);
 }
+
+/* ---------------------------------------------------------
+   🔍 زرار البحث + فلاتر سريعة
+   البحث بقى ليه زرار صريح (أصفر بنص أزرق) غير الكتابة الحية —
+   بيشتغل كمان بـEnter، وبيلغي أي تأخير debounce فيدوّر على طول،
+   وبينزلك على أول نتيجة. وبيوريك عدد النتائج
+   --------------------------------------------------------- */
+function doSearch(){
+  const input = document.getElementById("searchInput");
+  if(!input) return;
+  renderList(); // فورًا، من غير انتظار الـ250ms بتاعة الكتابة الحية
+  const q = input.value.trim();
+  if(q){
+    showToast(lastRenderedItems.length
+      ? `🔍 ${lastRenderedItems.length} نتيجة لـ"${q}"`
+      : `🔍 مفيش نتايج لـ"${q}"`, lastRenderedItems.length ? "success" : "error");
+  }
+  const list = document.getElementById("productsList");
+  if(list) list.scrollIntoView({ behavior:"smooth", block:"start" });
+}
+
+function clearSearch(){
+  const input = document.getElementById("searchInput");
+  if(input){ input.value = ""; input.focus(); }
+  renderList();
+}
+
+/* ⚡ فلاتر سريعة بضغطة واحدة بدل ما تفتح القايمة المنسدلة وتدوّر.
+   عدد المنتجات جوه كل فلتر بيبان على الشريحة نفسها، فتعرف فيه إيه
+   مستنيك من غير ما تضغط أصلاً */
+const QUICK_FILTERS = [
+  { key:"",                label:"📋 الكل" },
+  { key:"PendingApproval", label:"🔔 محتاج ردك" },
+  { key:"PendingPrice",    label:"⏳ بانتظار السعر" },
+  { key:"Confirmed",       label:"✅ مؤكدة" },
+  { key:"Delivered",       label:"🎉 اتسلّمت" }
+];
+
+function renderQuickChips(){
+  const box = document.getElementById("quickChips");
+  if(!box) return;
+  const current = (document.getElementById("filterStatus") || {}).value || "";
+  box.innerHTML = QUICK_FILTERS.map(f => {
+    const n = f.key ? allProducts.filter(p => p.status === f.key).length
+                    : allProducts.filter(p => p.status !== "Payment").length;
+    return `<button class="chip${f.key === current ? " active" : ""}" onclick="applyQuickFilter('${jsAttr(f.key)}')">${f.label}${n ? ` (${n})` : ""}</button>`;
+  }).join("");
+}
+
+function applyQuickFilter(key){
+  const sel = document.getElementById("filterStatus");
+  if(sel) sel.value = key;
+  const arrival = document.getElementById("filterArrival");
+  if(arrival) arrival.value = "";
+  renderList();
+  window.scrollTo({ top:0, behavior:"smooth" });
+}
+
+/* ---------------------------------------------------------
+   🚀 بدء الجلسة — لازم يفضل آخر حاجة في السكريبت خالص عشان كل
+   المتغيرات (let/const) اللي فوق تكون اتعرّفت فعلاً قبل ما ننده
+   على أي دالة بتستخدمها
+   --------------------------------------------------------- */
+(async function initSession(){
+  if(!getPasscode()) return;
+  document.getElementById("loginScreen").classList.add("hidden");
+  document.getElementById("mainContent").classList.remove("hidden");
+  renderCart();
+  renderFromCache(); // ⚡ البيانات بتبان فورًا من نسخة المتصفح قبل ما الشبكة ترد
+  renderQuickChips();
+  const result = await loadProducts();
+  if(result === "unauthorized"){
+    clearPasscode();
+    stopAutoRefresh();
+    try{ localStorage.removeItem("rmaProductsCache"); }catch(e){}
+    document.getElementById("mainContent").classList.add("hidden");
+    document.getElementById("loginScreen").classList.remove("hidden");
+    const errBox = document.getElementById("loginError");
+    errBox.textContent = "⚠️ انتهت صلاحية جلستك — سجّل دخول تاني";
+    errBox.classList.remove("hidden");
+  } else {
+    startAutoRefresh();
+  }
+  // لو "network": سيبنا الصفحة زي ما هي، loadProducts نفسها بتعرض
+  // رسالة خطأ الاتصال جوه productsList (والنسخة المحفوظة ظاهرة أصلاً)
+})();
 </script><div id="appModal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:50;display:flex;align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)closeModal()">
   <div class="card" style="max-width:380px;width:100%;text-align:center;" id="appModalContent"></div>
 </div>

@@ -9,6 +9,8 @@
 :root{
   --primary:#2563eb; --bg:#f4f7fe; --white:#fff; --text:#1e293b; --border:#cbd5e1;
   --success:#16a34a; --warning:#d97706; --danger:#dc2626; --gray:#64748b;
+  /* 💛💙 هوية البحث: أصفر + أزرق غامق */
+  --accent:#facc15; --accent-dark:#eab308; --accent-ink:#1e3a8a;
 }
 *{box-sizing:border-box;}
 body{font-family:'Cairo',sans-serif;background:var(--bg);margin:0;padding:20px;color:var(--text);}
@@ -25,6 +27,27 @@ button:active{transform:scale(.98);}
 .btn-ghost{background:#f1f5f9;color:var(--text);}
 .btn-success{background:var(--success);}
 .btn-danger{background:var(--danger);}
+/* 💛💙 زرار البحث — أصفر بنص أزرق غامق وإطار أزرق */
+.btn-search{background:var(--accent);color:var(--accent-ink);border:2px solid var(--primary);
+  box-shadow:0 3px 0 0 var(--primary);font-weight:900;}
+.btn-search:hover{background:var(--accent-dark);opacity:1;}
+.btn-search:active{transform:translateY(2px);box-shadow:0 1px 0 0 var(--primary);}
+.search-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:stretch;
+  background:linear-gradient(90deg,rgba(250,204,21,.16),rgba(37,99,235,.10));
+  border:1.5px solid var(--accent);border-radius:14px;padding:10px;}
+.search-bar input{flex:1;min-width:150px;border-color:var(--primary);background:#fff;}
+.search-bar button{flex:0 0 auto;min-width:112px;}
+/* على الموبايل: الحقل سطر لوحده، والزرارين تحته جنب بعض */
+@media(max-width:480px){
+  .search-bar{padding:8px;}
+  .search-bar input{flex:1 1 100%;min-width:0;}
+  .search-bar button{flex:1 1 0;min-width:0;}
+}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.chip{flex:0 0 auto;min-width:0;padding:8px 14px;font-size:12.5px;min-height:36px;border-radius:999px;
+  background:#eff6ff;color:var(--primary);border:1.5px solid #bfdbfe;font-weight:800;}
+.chip:hover{opacity:1;background:#dbeafe;}
+.chip.active{background:var(--accent);color:var(--accent-ink);border-color:var(--primary);}
 .hidden{display:none !important;}
 .row{display:flex;gap:10px;flex-wrap:wrap;}
 .row>*{flex:1;min-width:120px;}
@@ -126,9 +149,13 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   <div class="stats-grid" id="statsGrid"></div>
 
   <div class="card">
-    <div class="row">
-      <input id="searchInput" placeholder="🔍 دوّر باسم المنتج أو اللينك أو موعد الوصول..." oninput="debouncedRenderList()">
+    <div class="search-bar">
+      <input id="searchInput" placeholder="🔍 دوّر باسم المنتج أو اللينك أو موعد الوصول..."
+             oninput="debouncedRenderList()" onkeydown="if(event.key==='Enter')doSearch()">
+      <button class="btn-search" id="searchBtn" onclick="doSearch()">🔍 بحث</button>
+      <button class="btn-ghost" style="flex:0 0 auto;min-width:0;padding:12px 14px;" onclick="clearSearch()" title="مسح البحث">✖️</button>
     </div>
+    <div class="chips" id="quickChips"></div>
     <div class="row" style="margin-top:10px;">
       <select id="filterStatus" onchange="renderList()">
         <option value="">📋 كل الحالات</option>
@@ -201,6 +228,33 @@ function safeUrl(u){
   return /^https?:\/\//i.test(s) ? s : "";
 }
 
+/* 🐞 الـid كان بيتحط خام جوه onclick="fn('...')" — أي id فيه علامة
+   تنصيص/شرطة مايلة بيكسر الـhandler كله (SyntaxError) والزرار يبقى
+   ميّت من غير أي رسالة. jsAttr بتهرّب للـJS الأول وبعدين للـHTML،
+   بالترتيب العكسي اللي المتصفح بيفك بيه (HTML ← JS) */
+function jsAttr(v){
+  return escapeHtml(String(v == null ? "" : v).replace(/\\/g, "\\\\").replace(/'/g, "\\'"));
+}
+// عرض رقم بشكل آدمي — من غير "NaN" لو العمود فاضي في الشيت
+function fmtNum(v){
+  const n = parseFloat(v);
+  return (isFinite(n) ? n : 0).toLocaleString();
+}
+// 🐞 بناء selector بالـid الخام كان بيرمي SyntaxError من
+// querySelector نفسها لو الـid فيه " أو ]
+function findActionBtn(fn, id){
+  const sel = `button[onclick="${fn}('${String(id).replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/"/g,'&quot;')}')"]`;
+  try{ return document.querySelector(sel); }catch(e){ return null; }
+}
+// 🐞 كل الدوال تحت كانت بتقرا .value من عنصر من غير التأكد إنه لسه
+// موجود — أي إعادة رسم للقايمة بتبدّل الكروت فـgetElementById ترجع
+// null و"Cannot read properties of null" توقّف الزرار خالص
+function requireEl(id, msg){
+  const el = document.getElementById(id);
+  if(!el){ showToast(msg || "⚠️ القائمة اتحدّثت — جرّب تاني", "error"); loadProducts(); return null; }
+  return el;
+}
+
 function getStaffToken(){ return localStorage.getItem("rmaStaffToken") || ""; }
 
 function setBtnLoading(btn, text){
@@ -224,8 +278,20 @@ function checkSession(){
   // صح من الأول
   return !!(t && (Date.now()-t < SESSION_TIME) && getStaffToken() && localStorage.getItem("rmaStaffUser"));
 }
-function showLogin(){ document.getElementById("loginScreen").classList.remove("hidden"); document.getElementById("mainContent").classList.add("hidden"); }
-function showMain(){ document.getElementById("loginScreen").classList.add("hidden"); document.getElementById("mainContent").classList.remove("hidden"); applyRoleVisibility(); loadProducts(); }
+function showLogin(){
+  stopAutoRefresh();
+  document.getElementById("loginScreen").classList.remove("hidden");
+  document.getElementById("mainContent").classList.add("hidden");
+}
+function showMain(){
+  document.getElementById("loginScreen").classList.add("hidden");
+  document.getElementById("mainContent").classList.remove("hidden");
+  applyRoleVisibility();
+  renderFromCache();   // ⚡ بيبان فورًا من نسخة المتصفح قبل ما الشبكة ترد
+  renderQuickChips();
+  loadProducts();
+  startAutoRefresh();
+}
 
 // 👤 هيثم بس هو اللي شايف كل حاجة (الهيدر بالأرقام/الحسابات،
 // تصدير CSV، والطلبات اللي خلصت إجراءها). أي حد تاني بيشوف بس
@@ -265,7 +331,11 @@ async function doLogin(){
   }
 }
 function doLogout(){
+  stopAutoRefresh();
   localStorage.removeItem("rmaLoginTime"); localStorage.removeItem("rmaStaffToken"); localStorage.removeItem("rmaStaffUser");
+  // النسخة المحفوظة فيها بيانات عملاء — متسبهاش بعد الخروج
+  try{ localStorage.removeItem("rmaAdminCache"); }catch(e){}
+  lastDataHash = ""; allProducts = []; selectedIds.clear();
   showLogin();
 }
 
@@ -274,26 +344,44 @@ function doLogout(){
 // (TDZ error لأنها متعرّفة بـlet مش hoisted زي الدوال)
 let loadingInProgress = null;
 
-if(checkSession()) showMain(); else showLogin();
+// ⚠️ سطر بدء الجلسة (checkSession) اتنقل لآخر السكريبت خالص — كان
+// بينده على showMain() اللي بتستخدم متغيرات (lastDataHash /
+// AUTO_REFRESH_MS) متعرّفة بـlet/const تحت في الملف، وده TDZ
+// ReferenceError بيكسر التحميل كله. الدوال بيتعملها hoisting،
+// المتغيرات لأ
 
 // منع طلبين متزامنين (مثلاً لو دوس تحديث وهو لسه بيحمّل من نفسه)
 // — بيرجّع نفس الـpromise الشغالة بدل ما يبدأ طلب جديد فوقه
+// 🐞 أخطر باج كان هنا: لو loadProductsInner رمت استثناء (مثلاً خطأ
+// جوه renderList اللي كان برّه الـtry خالص)، السطر اللي بيصفّر
+// loadingInProgress مكانش بيتنفّذ، فالمتغير يفضل ماسك promise
+// مرفوضة للأبد — وبعدها أي تحديث (يدوي أو بعد أي أكشن) بيرجّع نفس
+// المرفوضة من غير ما يعمل طلب أصلاً. ده اللي كان بيخلي اللوحة
+// "تقف" فجأة وتفضل واقفة لحد Refresh كامل. finally بتضمن التصفير
 async function loadProducts(){
   if(loadingInProgress) return loadingInProgress;
-  loadingInProgress = loadProductsInner();
-  const result = await loadingInProgress;
-  loadingInProgress = null;
-  return result;
+  loadingInProgress = loadProductsInner().catch(e => {
+    console.error("loadProducts crashed:", e);
+    return "network"; // مهما حصل، مش هنرمي على اللي نادى علينا
+  });
+  try{
+    return await loadingInProgress;
+  } finally {
+    loadingInProgress = null;
+  }
 }
 
 async function loadProductsInner(retrying){
-  let res, data;
+  let data;
   try{
     const ctrl = new AbortController();
     const timeout = setTimeout(() => ctrl.abort(), 15000); // سقف 15 ثانية بدل ما يفضل معلّق للأبد
-    res = await fetch(RMA_SCRIPT_URL + "?scope=staff&staffToken=" + encodeURIComponent(getStaffToken()), { signal: ctrl.signal });
-    clearTimeout(timeout);
-    data = await res.json(); // لو السيرفر رجع HTML/نص مش JSON (مشكلة نشر مثلًا)، هيقع هنا
+    try{
+      const res = await fetch(RMA_SCRIPT_URL + "?scope=staff&staffToken=" + encodeURIComponent(getStaffToken()), { signal: ctrl.signal });
+      data = await res.json(); // لو السيرفر رجع HTML/نص مش JSON (مشكلة نشر مثلًا)، هيقع هنا
+    } finally {
+      clearTimeout(timeout); // 🐞 كان بيتنسى على مسار الخطأ فيفضل تايمر معلّق
+    }
   }catch(e){
     console.error("loadProducts failed:", e);
     // 🔁 أول فشل شبكة، بنجرب تاني تلقائي بصمت مرة واحدة قبل ما
@@ -301,14 +389,115 @@ async function loadProductsInner(retrying){
     // بتتصلح لوحدها من غير أي إجراء منك
     if(!retrying) return loadProductsInner(true);
     showToast("⚠️ تعذر الاتصال بالسيرفر — تأكد من الإنترنت", "error");
-    return;
+    return "network";
   }
-  if(!Array.isArray(data)){ alert("⚠️ الجلسة انتهت — سجّل دخول تاني"); doLogout(); return; }
+
+  if(!Array.isArray(data)){
+    // 🐞 قبل كده أي رد مش مصفوفة كان بيعمل logout فوري — يعني أي
+    // تهنيجة لحظية في Google Script (بترجع {success:false} أو صفحة
+    // خطأ) كانت بتطلّعك برّه وسط الشغل وتضيّع اللي كنت بتكتبه.
+    // دلوقتي بنطلّعك بس لو السيرفر قال صراحةً إن التوكن مرفوض
+    const unauthorized = data && data.success === false &&
+      /unauthor/i.test(String(data.message || data.code || ""));
+    if(unauthorized){
+      alert("⚠️ الجلسة انتهت — سجّل دخول تاني");
+      doLogout();
+      return "unauthorized";
+    }
+    console.warn("loadProducts: unexpected response", data);
+    showToast("⚠️ رد غير متوقع من السيرفر — هنجرب تاني", "error");
+    return "network";
+  }
+
+  applyProducts(data, true);
+  return "ok";
+}
+
+/* ⚡ رسم البيانات + حفظ نسخة محلية.
+   - fromServer=true → نحفظ نسخة عشان الفتحة الجاية تبان فورًا.
+   - لو البيانات مااتغيرتش، مابنعملش إعادة رسم خالص.
+   - ولو اتغيرت وإنت *بتكتب* في حقل جوه القايمة (سعر/عربون/موعد)،
+     بنأجّل الرسم لحد ما تخلص بدل ما نمسح اللي تحت إيدك — ده كان
+     هيبقى أسوأ باج مع التحديث التلقائي */
+let lastDataHash = "";
+let pendingRefresh = false;
+function isEditingList(){
+  const a = document.activeElement;
+  return !!(a && (a.tagName === "INPUT" || a.tagName === "SELECT" || a.tagName === "TEXTAREA")
+    && a.closest && a.closest("#productsList"));
+}
+function applyProducts(data, fromServer){
+  const hash = JSON.stringify(data);
   allProducts = data;
+  // 🐞 selectedIds كانت بتفضل ماسكة ids اتشالت من الشيت — فعداد
+  // "X منتج محدد" يبان غلط، والتحديث الجماعي يبعت ids مش موجودة
+  if(selectedIds.size){
+    const live = new Set(data.map(p => p.id));
+    selectedIds.forEach(id => { if(!live.has(id)) selectedIds.delete(id); });
+  }
+  if(fromServer){
+    try{ localStorage.setItem("rmaAdminCache", hash); }catch(e){ /* التخزين ممتلئ — مش مشكلة */ }
+  }
+  if(hash === lastDataHash){ updateLastRefreshLabel(); return false; }
+
+  if(isEditingList()){
+    // فيه جديد بس إنت بتكتب — نستناك
+    if(!pendingRefresh){
+      pendingRefresh = true;
+      showToast("🔔 فيه تحديث جديد — هيتطبّق أول ما تخلص الحقل ده", "success");
+    }
+    return false;
+  }
+
+  pendingRefresh = false;
+  lastDataHash = hash;
   renderNotifBadge(); // ⚠️ التنبيه دايمًا بيعكس *كل* البيانات، بغض النظر عن الفلتر الحالي — عشان محدش ينسى منتج محتاج مراجعة لمجرد إنه فلتر على حاجة تانية
   renderList();
   updateLastRefreshLabel();
+  return true;
 }
+// أول ما تسيب الحقل اللي كنت بتكتب فيه، بنطبّق التحديث المؤجّل
+document.addEventListener("focusout", () => {
+  if(!pendingRefresh) return;
+  setTimeout(() => { if(!isEditingList()) applyProducts(allProducts, false); }, 150);
+});
+
+// ⚡ أول رسم من النسخة المحفوظة — بيبان فورًا بدل ما تستنى رد
+// Google Script (بياخد ثواني)، وبعدها الحقيقي بينزل في الخلفية
+function renderFromCache(){
+  try{
+    const raw = localStorage.getItem("rmaAdminCache");
+    if(!raw) return false;
+    const data = JSON.parse(raw);
+    if(!Array.isArray(data) || !data.length) return false;
+    applyProducts(data, false);
+    const lbl = document.getElementById("lastRefreshLbl");
+    if(lbl) lbl.textContent = "نسخة محفوظة — بيتم التحديث...";
+    return true;
+  }catch(e){ return false; }
+}
+
+/* 🔄 تحديث تلقائي كل 30 ثانية وإنت فاتح التاب. قبل كده مكانش فيه
+   أي تحديث تلقائي: لو العميل وافق على سعر أو بعت عرض، مكنتش تشوفه
+   غير لما تدوس 🔄 بإيدك */
+const AUTO_REFRESH_MS = 30000;
+let autoRefreshTimer = null;
+function startAutoRefresh(){
+  stopAutoRefresh();
+  autoRefreshTimer = setInterval(() => {
+    if(document.visibilityState !== "visible" || !checkSession()) return;
+    // احتياطي: لو فيه رسم مؤجّل وخلصت كتابة من غير ما يتولّد
+    // focusout (غيّرت تاب مثلاً)، بنطبّقه هنا
+    if(pendingRefresh && !isEditingList()) applyProducts(allProducts, false);
+    loadProducts();
+  }, AUTO_REFRESH_MS);
+}
+function stopAutoRefresh(){
+  if(autoRefreshTimer){ clearInterval(autoRefreshTimer); autoRefreshTimer = null; }
+}
+document.addEventListener("visibilitychange", () => {
+  if(document.visibilityState === "visible" && checkSession()) loadProducts();
+});
 
 // 🔄 تحديث يدوي — من غير ما يأثر على شكل الصفحة، بس أيقونة الزرار
 // بتلف وهي بتحمّل عشان تحس إنها فعلاً بتحصل
@@ -368,7 +557,7 @@ function renderStats(items, paymentsTotal, statusF){
   ` : "";
 
   document.getElementById("statsGrid").innerHTML = `
-    <div class="stat-box"><div class="num">${items.length}</div><div class="lbl">📦 إجمالي المنتجات${items.length!==allProducts.length ? ' (مفلترة)' : ''}</div></div>
+    <div class="stat-box"><div class="num">${items.length}</div><div class="lbl">📦 إجمالي المنتجات${items.length !== allProducts.filter(p=>p.status!=="Payment").length ? ' (مفلترة)' : ''}</div></div>
     <div class="stat-box"><div class="num">${totalQty.toLocaleString()}</div><div class="lbl">🔢 إجمالي الكمية (قطعة)</div></div>
     <div class="stat-box"><div class="num">${confirmedCount}</div><div class="lbl">✅ مؤكدة</div></div>
     <div class="stat-box"><div class="num">${deliveredCount}</div><div class="lbl">🎉 تم التسليم</div></div>
@@ -458,70 +647,82 @@ function renderList(){
   renderStats(items, paymentsTotal, statusF); // ← نفس المجموعة المفلترة اللي هتتعرض تحت
 
   const box = document.getElementById("productsList");
-  if(!items.length){ box.innerHTML = '<div class="card empty-hint">🔍 مفيش نتائج مطابقة</div>'; return; }
+  if(!items.length){
+    const filtering = !!(q || statusF || arrivalF);
+    box.innerHTML = filtering
+      ? `<div class="card empty-hint">🔍 مفيش نتائج مطابقة<br><button class="btn-search" style="margin-top:12px;" onclick="clearSearch();applyQuickFilter('')">↩️ امسح البحث والفلاتر</button></div>`
+      : '<div class="card empty-hint">🗂️ مفيش منتجات لسه</div>';
+    // 🐞 الـreturn المبكر ده كان بيتخطى updateBulkBar — فشريط
+    // "X منتج محدد" كان بيفضل ظاهر بعداد قديم على قايمة فاضية
+    updateBulkBar();
+    renderQuickChips();
+    return;
+  }
 
   box.innerHTML = items.map(p=>{
     const meta = STATUS_META[p.status] || {label:p.status,cls:"b-gray"};
     let actionsHtml = "";
+    const jid = jsAttr(p.id); // آمن جوه '...' في الـhandlers
+    const eid = escapeHtml(p.id); // آمن كقيمة id في الـHTML
 
     if(p.status === "PendingPrice"){
       actionsHtml = `
       ${p.notes ? `<div class="meta-line" style="color:var(--success);">💡 ${escapeHtml(p.notes)} — راجعه على الموقع الأصلي قبل ما تعتمده</div>` : ""}
       <div class="action-box">
         <div class="row">
-          <select id="type-${p.id}" onchange="onTypeChange('${p.id}')">
+          <select id="type-${eid}" onchange="onTypeChange('${jid}')">
             <option value="capsules">💊 كبسولات</option>
             <option value="gummies">🍬 جميز</option>
             <option value="powder">🥄 بودر</option>
             <option value="liquid">💧 سائل</option>
           </select>
         </div>
-        <div class="row" id="pieceRow-${p.id}" style="margin-top:8px;">
-          <select id="range-${p.id}"></select>
+        <div class="row" id="pieceRow-${eid}" style="margin-top:8px;">
+          <select id="range-${eid}" onchange="calcPreview('${jid}')"></select>
         </div>
-        <div class="row hidden" id="weightRow-${p.id}" style="margin-top:8px;">
-          <input type="number" id="manualWeight-${p.id}" placeholder="⚖️ الوزن الفعلي (جرام)">
+        <div class="row hidden" id="weightRow-${eid}" style="margin-top:8px;">
+          <input type="number" id="manualWeight-${eid}" placeholder="⚖️ الوزن الفعلي (جرام)" oninput="calcPreview('${jid}')">
         </div>
         <div class="row" style="margin-top:8px;">
-          <input type="number" id="usd-${p.id}" placeholder="💵 السعر بالدولار" oninput="calcPreview('${p.id}')">
-          <div id="preview-${p.id}" style="align-self:center;font-weight:800;color:var(--success);"></div>
+          <input type="number" id="usd-${eid}" placeholder="💵 السعر بالدولار" oninput="calcPreview('${jid}')">
+          <div id="preview-${eid}" style="align-self:center;font-weight:800;color:var(--success);"></div>
         </div>
         <div class="row" style="margin-top:8px;align-items:center;">
-          <input type="number" id="customPrice-${p.id}" placeholder="✏️ سعر مخصص (اختياري — يتجاوز الحاسبة)" oninput="calcPreview('${p.id}')">
+          <input type="number" id="customPrice-${eid}" placeholder="✏️ سعر مخصص (اختياري — يتجاوز الحاسبة)" oninput="calcPreview('${jid}')">
           <div style="font-size:11px;color:var(--gray);flex:0 0 auto;">لو اتكتب، هيستخدم بدل حساب الحاسبة</div>
         </div>
-        <button class="btn-block btn-success" style="margin-top:8px;" onclick="submitPrice('${p.id}')">📤 إرسال السعر للعميل</button>
-        <button class="btn-block btn-ghost" style="margin-top:8px;color:var(--danger);" onclick="markUnavailable('${p.id}', this)">🚫 المنتج غير متاح</button>
+        <button class="btn-block btn-success" style="margin-top:8px;" onclick="submitPrice('${jid}')">📤 إرسال السعر للعميل</button>
+        <button class="btn-block btn-ghost" style="margin-top:8px;color:var(--danger);" onclick="markUnavailable('${jid}', this)">🚫 المنتج غير متاح</button>
       </div>`;
     } else if(p.status === "PendingApproval"){
-      actionsHtml = `<div class="price-tag" style="font-weight:900;color:var(--primary);">${Number(p.staffEgp).toLocaleString()} EGP / قطعة</div><div class="meta-line">⏳ مستني رد العميل...</div>`;
+      actionsHtml = `<div class="price-tag" style="font-weight:900;color:var(--primary);">${fmtNum(p.staffEgp)} EGP / قطعة</div><div class="meta-line">⏳ مستني رد العميل...</div>`;
     } else if(p.status === "PendingReview"){
       actionsHtml = `
-        <div class="meta-line" style="font-size:13.5px;">سعرك: <b>${Number(p.staffEgp).toLocaleString()}</b> EGP — عرض العميل: <b style="color:var(--warning)">${Number(p.clientCounterEgp).toLocaleString()}</b> EGP × ${p.quantity}</div>
+        <div class="meta-line" style="font-size:13.5px;">سعرك: <b>${fmtNum(p.staffEgp)}</b> EGP — عرض العميل: <b style="color:var(--warning)">${fmtNum(p.clientCounterEgp)}</b> EGP × ${escapeHtml(p.quantity || 1)}</div>
         <div class="action-box row" style="margin-top:8px;">
-          <button class="btn-success" onclick="resolveCounter('${p.id}', true, this)">✅ موافقة على عرض العميل</button>
-          <button class="btn-danger" onclick="resolveCounter('${p.id}', false, this)">↩️ رفض والرجوع لسعري</button>
+          <button class="btn-success" onclick="resolveCounter('${jid}', true, this)">✅ موافقة على عرض العميل</button>
+          <button class="btn-danger" onclick="resolveCounter('${jid}', false, this)">↩️ رفض والرجوع لسعري</button>
         </div>`;
     } else {
       actionsHtml = `
-        <div class="meta-line">💰 سعر القطعة: ${Number(p.staffEgp||0).toLocaleString()} EGP</div>
-        <div class="meta-line">🔢 العدد: ${p.quantity||1}</div>
-        <div class="price-tag" style="font-weight:900;color:var(--primary);">💵 الإجمالي: ${Number(p.finalEgp||0).toLocaleString()} EGP</div>
+        <div class="meta-line">💰 سعر القطعة: ${fmtNum(p.staffEgp)} EGP</div>
+        <div class="meta-line">🔢 العدد: ${escapeHtml(p.quantity || 1)}</div>
+        <div class="price-tag" style="font-weight:900;color:var(--primary);">💵 الإجمالي: ${fmtNum(p.finalEgp)} EGP</div>
         <div class="action-box">
           <div class="row">
-            <select id="status-${p.id}">
+            <select id="status-${eid}">
               <option value="Confirmed" ${p.status==='Confirmed'?'selected':''}>✅ Confirmed</option>
               <option value="Placed" ${p.status==='Placed'?'selected':''}>📦 Placed</option>
               <option value="Delayed" ${p.status==='Delayed'?'selected':''}>⏱️ Delayed</option>
               <option value="Delivered" ${p.status==='Delivered'?'selected':''}>🎉 Delivered</option>
             </select>
-            <input type="text" id="arrival-${p.id}" placeholder="📅 موعد الوصول" value="${p.arrivalDate||''}">
+            <input type="text" id="arrival-${eid}" placeholder="📅 موعد الوصول" value="${escapeHtml(p.arrivalDate||'')}">
           </div>
           <div class="row" style="margin-top:8px;">
-            <input type="number" id="deposit-${p.id}" placeholder="💰 العربون" value="${p.deposit||''}">
+            <input type="number" id="deposit-${eid}" placeholder="💰 العربون" value="${escapeHtml(p.deposit||'')}">
             <div style="align-self:center;font-size:12.5px;color:var(--gray);">المتبقي: ${Math.max(0, (parseFloat(p.finalEgp)||0) - (parseFloat(p.deposit)||0)).toLocaleString()} EGP</div>
           </div>
-          <button class="btn-block" style="margin-top:8px;" onclick="saveStatus('${p.id}')">💾 حفظ</button>
+          <button class="btn-block" style="margin-top:8px;" onclick="saveStatus('${jid}')">💾 حفظ</button>
         </div>`;
     }
 
@@ -529,12 +730,12 @@ function renderList(){
     const link = safeUrl(p.link);
     return `<div class="card">
       <div class="product-card">
-        <input type="checkbox" class="bulk-check" data-id="${p.id}" ${selectedIds.has(p.id)?'checked':''} onchange="toggleSelect('${p.id}', this.checked)" style="width:20px;height:20px;flex-shrink:0;margin-top:2px;cursor:pointer;">
-        ${img ? `<img class="product-img" src="${escapeHtml(img)}">` : `<div class="product-img"></div>`}
+        <input type="checkbox" class="bulk-check" data-id="${eid}" ${selectedIds.has(p.id)?'checked':''} onchange="toggleSelect('${jid}', this.checked)" style="width:20px;height:20px;flex-shrink:0;margin-top:2px;cursor:pointer;">
+        ${img ? `<img class="product-img" src="${escapeHtml(img)}" loading="lazy" alt="">` : `<div class="product-img"></div>`}
         <div class="product-body">
           <span class="badge ${meta.cls}">${meta.label}</span>
-          <div class="product-name">${escapeHtml(p.productName || "منتج بدون اسم")}</div>
-          <a class="product-link-btn" href="${escapeHtml(link || "#")}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(p.link)}">🔗 رابط المنتج</a>
+          <div class="product-name" title="${escapeHtml(p.productName || "")}">${escapeHtml(p.productName || "منتج بدون اسم")}</div>
+          <a class="product-link-btn" href="${escapeHtml(link || "#")}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(p.link || "")}">🔗 رابط المنتج</a>
           ${actionsHtml}
         </div>
       </div>
@@ -544,6 +745,7 @@ function renderList(){
   // نبني قوائم الكبسولات/الجميز لأي منتج PendingPrice ظاهر دلوقتي
   items.filter(p=>p.status==="PendingPrice").forEach(p => onTypeChange(p.id));
   updateBulkBar();
+  renderQuickChips(); // الشرايح السريعة تفضل مزامنة مع الفلتر والأعداد
 }
 
 // ✅ تحديد متعدد — بنحدّث الـ Set + شريط التحديد بس من غير ما نعمل
@@ -592,55 +794,78 @@ async function applyBulkStatus(){
 
   const btn = document.querySelector('#bulkBar button.btn-success');
   setBtnLoading(btn, "جاري التحديث...");
+  // 🐞 كان Promise.all: أول منتج يفشل في الشبكة بيرمي، فالكاتش
+  // بيقول "تعذر الاتصال" والباقي كله بيتحسب فاشل — مع إن ناس منهم
+  // اتحدّثت فعلاً. وكمان selectedIds.clear() كان بيتنفّذ دايمًا،
+  // فاللي فشل كان بيتشال من التحديد وتضيع منك مين محتاج إعادة.
+  // allSettled بتخلي كل منتج مستقل، والفاشلين بس بيفضلوا متحددين
   try{
     const ids = Array.from(selectedIds);
-    const results = await Promise.all(ids.map(id =>
+    const results = await Promise.allSettled(ids.map(id =>
       fetch(RMA_SCRIPT_URL, { method:"POST", body: JSON.stringify({ action:"updateStatus", staffToken:getStaffToken(), id, status }) })
         .then(r => r.json())
     ));
     clearBtnLoading(btn);
-    const failed = results.filter(r => !r.success).length;
-    logActivity("🔄 تحديث جماعي", `${ids.length} منتج`, status);
-    selectedIds.clear();
-    if(failed) alert(`تم التحديث، لكن ${failed} منتج فشل — راجعهم يدويًا`);
-    loadProducts();
+    const failedIds = ids.filter((id, i) =>
+      !(results[i].status === "fulfilled" && results[i].value && results[i].value.success));
+    const okCount = ids.length - failedIds.length;
+
+    selectedIds = new Set(failedIds); // ✅ اللي فشل بس يفضل متحدد عشان تعيد عليه
+    if(okCount) logActivity("🔄 تحديث جماعي", `${okCount} منتج`, status);
+    if(failedIds.length){
+      alert(`تم تحديث ${okCount} من ${ids.length}.\nالـ${failedIds.length} الباقيين لسه متحددين — دوس "تطبيق" تاني.`);
+    } else {
+      showToast(`✅ اتحدّث ${okCount} منتج`, "success");
+    }
+    await loadProducts();
   }catch(e){
     clearBtnLoading(btn);
     alert("تعذر الاتصال بالسيرفر");
   }
 }
 
+// 🐞 الدوال التلاتة دي كانت بتفترض إن كل عناصر نموذج التسعير
+// موجودة. أي إعادة رسم (تحديث/أكشن تاني) بتشيلهم، فـ.value على
+// null بترمي وتوقف نموذج التسعير كله لحد Refresh
 function onTypeChange(id){
-  const type = document.getElementById("type-"+id).value;
+  const typeEl = document.getElementById("type-"+id);
   const pieceRow = document.getElementById("pieceRow-"+id);
   const weightRow = document.getElementById("weightRow-"+id);
+  if(!typeEl || !pieceRow || !weightRow) return;
+  const type = typeEl.value;
   if(type==="powder" || type==="liquid"){
     pieceRow.classList.add("hidden"); weightRow.classList.remove("hidden");
   } else {
     weightRow.classList.add("hidden"); pieceRow.classList.remove("hidden");
-    const ranges = tryShoppyGetSupplementRanges(type);
+    const ranges = tryShoppyGetSupplementRanges(type) || [];
     const sel = document.getElementById("range-"+id);
-    sel.innerHTML = ranges.map((r,i)=>`<option value="${i}">من ${r.min} إلى ${r.max} حبة</option>`).join("");
+    if(sel) sel.innerHTML = ranges.map((r,i)=>`<option value="${i}">من ${r.min} إلى ${r.max} حبة</option>`).join("");
   }
   calcPreview(id);
 }
 
 function resolveWeight(id){
-  const type = document.getElementById("type-"+id).value;
+  const typeEl = document.getElementById("type-"+id);
+  if(!typeEl) return 0;
+  const type = typeEl.value;
   if(type==="powder" || type==="liquid"){
-    return parseFloat(document.getElementById("manualWeight-"+id).value) || 0;
+    const w = document.getElementById("manualWeight-"+id);
+    return w ? (parseFloat(w.value) || 0) : 0;
   }
-  const ranges = tryShoppyGetSupplementRanges(type);
-  const idx = parseInt(document.getElementById("range-"+id).value) || 0;
+  const ranges = tryShoppyGetSupplementRanges(type) || [];
+  const rangeEl = document.getElementById("range-"+id);
+  const idx = rangeEl ? (parseInt(rangeEl.value) || 0) : 0;
   return (ranges[idx] && ranges[idx].weight) || 0;
 }
 
 function calcPreview(id){
   const preview = document.getElementById("preview-"+id);
+  if(!preview) return;
   const customEl = document.getElementById("customPrice-"+id);
   const custom = customEl ? parseFloat(customEl.value) : NaN;
   if(custom){ preview.textContent = "✏️ سعر مخصص: " + custom.toLocaleString() + " EGP / قطعة"; return; }
-  const usd = parseFloat(document.getElementById("usd-"+id).value);
+  const usdEl = document.getElementById("usd-"+id);
+  const usd = usdEl ? parseFloat(usdEl.value) : NaN;
   const weight = resolveWeight(id);
   if(!usd || !weight){ preview.textContent = ""; return; }
   const { finalPrice } = tryShoppyCalculatePrice({ usd, category:"Vitamin or Supplements", weightGrams:weight, quantity:1 });
@@ -648,11 +873,14 @@ function calcPreview(id){
 }
 
 async function submitPrice(id){
+  const typeEl = requireEl("type-"+id);
+  if(!typeEl) return;
   const customEl = document.getElementById("customPrice-"+id);
   const custom = customEl ? parseFloat(customEl.value) : NaN;
-  const usd = parseFloat(document.getElementById("usd-"+id).value);
+  const usdEl = document.getElementById("usd-"+id);
+  const usd = usdEl ? parseFloat(usdEl.value) : NaN;
   const weight = resolveWeight(id);
-  const type = document.getElementById("type-"+id).value;
+  const type = typeEl.value;
 
   if(!weight){ alert("اختار نوع ووزن/كمية المنتج الأول"); return; }
   if(!custom && !usd){ alert("أدخل السعر بالدولار، أو اكتب سعر مخصص بالجنيه"); return; }
@@ -666,10 +894,21 @@ async function submitPrice(id){
   } else {
     ({ finalPrice } = tryShoppyCalculatePrice({ usd, category:"Vitamin or Supplements", weightGrams:weight, quantity:1 }));
   }
-  const pieceOrWeight = (type==="powder"||type==="liquid") ? (weight+" جم") : document.getElementById("range-"+id).selectedOptions[0].textContent;
+  // 🐞 كان: document.getElementById("range-"+id).selectedOptions[0].textContent
+  // لو القائمة لسه فاضية (مفيش اختيار) selectedOptions[0] بتبقى
+  // undefined و.textContent بترمي — والسعر مابيتبعتش وبيبان كأن
+  // الزرار مش شغال
+  let pieceOrWeight;
+  if(type==="powder" || type==="liquid"){
+    pieceOrWeight = weight + " جم";
+  } else {
+    const rangeEl = document.getElementById("range-"+id);
+    const opt = rangeEl && rangeEl.selectedOptions && rangeEl.selectedOptions[0];
+    pieceOrWeight = opt ? opt.textContent : (weight + " جم");
+  }
 
   const p = allProducts.find(x => String(x.id) === String(id));
-  const btn = document.querySelector(`button[onclick="submitPrice('${id}')"]`);
+  const btn = findActionBtn("submitPrice", id);
   setBtnLoading(btn, "جاري الإرسال...");
   try{
     const res = await fetch(RMA_SCRIPT_URL, { method:"POST", body: JSON.stringify({
@@ -711,11 +950,15 @@ async function resolveCounter(id, approve, btn){
 }
 
 async function saveStatus(id){
-  const status = document.getElementById("status-"+id).value;
-  const arrivalDate = document.getElementById("arrival-"+id).value;
-  const deposit = document.getElementById("deposit-"+id).value;
+  const statusEl = requireEl("status-"+id);
+  if(!statusEl) return;
+  const status = statusEl.value;
+  const arrivalEl = document.getElementById("arrival-"+id);
+  const depositEl = document.getElementById("deposit-"+id);
+  const arrivalDate = arrivalEl ? arrivalEl.value : "";
+  const deposit = depositEl ? depositEl.value : "";
   const p = allProducts.find(x => String(x.id) === String(id));
-  const btn = document.querySelector(`button[onclick="saveStatus('${id}')"]`);
+  const btn = findActionBtn("saveStatus", id);
   setBtnLoading(btn, "جاري الحفظ...");
   try{
     const res = await fetch(RMA_SCRIPT_URL, { method:"POST", body: JSON.stringify({ action:"updateStatus", staffToken:getStaffToken(), id, status, arrivalDate, deposit }) });
@@ -931,10 +1174,10 @@ function openPaymentsModal(){
           ${b.payments.map(p => `
             <div style="display:flex;justify-content:space-between;align-items:flex-start;font-size:12.5px;margin-bottom:6px;">
               <div>
-                <div>${Number(p.deposit).toLocaleString()} EGP${p.notes ? " — " + escapeHtml(p.notes) : ""}</div>
+                <div>${fmtNum(p.deposit)} EGP${p.notes ? " — " + escapeHtml(p.notes) : ""}</div>
                 <div style="font-size:11px;color:var(--gray);margin-top:2px;">🕒 ${formatPaymentDate(p.createdDate)}</div>
               </div>
-              <button style="background:none;border:none;color:var(--danger);cursor:pointer;padding:2px 6px;font-size:12px;flex-shrink:0;" onclick="deletePaymentEntry('${p.id}', this)">🗑</button>
+              <button style="background:none;border:none;color:var(--danger);cursor:pointer;padding:2px 6px;font-size:12px;flex-shrink:0;" onclick="deletePaymentEntry('${jsAttr(p.id)}', this)">🗑</button>
             </div>
           `).join("")}
         </div>` : ""
@@ -950,9 +1193,15 @@ function openPaymentsModal(){
 }
 
 async function submitPayment(i, btn){
+  // 🐞 كان بيقرا من currentBatches[i] و payAmount-i على طول — لو
+  // النافذة اتعادت رسمتها (بعد تحديث) الفهرس ممكن يكون بقى بره
+  // المصفوفة، فـbatch.arrivalDate ترمي على undefined
   const batch = currentBatches[i];
-  const amount = parseFloat(document.getElementById("payAmount-"+i).value);
-  const note = document.getElementById("payNote-"+i).value.trim();
+  const amountEl = document.getElementById("payAmount-"+i);
+  const noteEl = document.getElementById("payNote-"+i);
+  if(!batch || !amountEl){ showToast("⚠️ اقفل النافذة وافتحها تاني", "error"); return; }
+  const amount = parseFloat(amountEl.value);
+  const note = noteEl ? noteEl.value.trim() : "";
   if(!amount || amount <= 0){ alert("اكتب مبلغ صحيح"); return; }
 
   setBtnLoading(btn, "جاري التسجيل...");
@@ -1087,8 +1336,15 @@ function exportCSV(){
    فيها فعليًا (باسورد غلط، بيانات ناقصة، إلخ)
    --------------------------------------------------------- */
 function showToast(msg, type){
-  const box = document.getElementById("toastBox");
-  if(!box) return;
+  // 🐞 #toastBox متكتوب في الـHTML *بعد* السكريبت، فأي toast بيتنده
+  // عليه أثناء التحميل الأول كان بيلاقيه null ويختفي في صمت
+  let box = document.getElementById("toastBox");
+  if(!box){
+    box = document.createElement("div");
+    box.id = "toastBox";
+    box.style.cssText = "position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:60;display:flex;flex-direction:column;gap:8px;align-items:center;";
+    document.body.appendChild(box);
+  }
   const el = document.createElement("div");
   el.textContent = msg;
   const isError = type === "error";
@@ -1096,6 +1352,91 @@ function showToast(msg, type){
   box.appendChild(el);
   setTimeout(() => { el.style.opacity = "0"; setTimeout(() => el.remove(), 300); }, 3500);
 }
+
+/* ---------------------------------------------------------
+   🔍 زرار البحث + فلاتر سريعة
+   البحث بقى ليه زرار صريح (أصفر بنص أزرق) غير الكتابة الحية —
+   بيشتغل كمان بـEnter، وبيلغي تأخير الـdebounce فيدوّر على طول،
+   وبيوريك عدد النتائج
+   --------------------------------------------------------- */
+function doSearch(){
+  const input = document.getElementById("searchInput");
+  if(!input) return;
+  renderList(); // فورًا، من غير انتظار الـ250ms بتاعة الكتابة الحية
+  const q = input.value.trim();
+  if(q){
+    showToast(lastRenderedItems.length
+      ? `🔍 ${lastRenderedItems.length} نتيجة لـ"${q}"`
+      : `🔍 مفيش نتايج لـ"${q}"`, lastRenderedItems.length ? "success" : "error");
+  }
+  const list = document.getElementById("productsList");
+  if(list) list.scrollIntoView({ behavior:"smooth", block:"start" });
+}
+
+function clearSearch(){
+  const input = document.getElementById("searchInput");
+  if(input){ input.value = ""; input.focus(); }
+  renderList();
+}
+
+/* ⚡ فلاتر سريعة بضغطة واحدة بدل القايمة المنسدلة، والعدد بيبان
+   على الشريحة نفسها فتعرف فيه كام مستنيك من غير ما تضغط */
+const QUICK_FILTERS = [
+  { key:"",             label:"📋 الكل" },
+  { key:"NeedsAction",  label:"🔔 محتاج إجراء مني" },
+  { key:"PendingPrice", label:"⏳ بانتظار السعر" },
+  { key:"PendingReview",label:"💬 عروض عملاء" },
+  { key:"PendingApproval", label:"👤 بانتظار العميل" },
+  { key:"Confirmed",    label:"✅ مؤكدة" }
+];
+
+// ⚠️ لازم تطبّق *نفس* فلتر الصلاحيات بتاع renderList بالظبط —
+// من غير كده أي حد غير هيثم كان هيشوف على الشريحة عدد الطلبات
+// المؤكدة/المتسلّمة (وهي مش المفروض تظهرله أصلاً)، وأول ما يدوس
+// عليها القايمة تطلع فاضية لأن renderList بتشيلهم
+function visibleBase(){
+  let base = allProducts.filter(p => p.status !== "Payment");
+  if(!isHaitham()){
+    base = base.filter(p => !["Confirmed","Placed","Delayed","Delivered"].includes(p.status));
+  }
+  return base;
+}
+
+function countFor(key){
+  const base = visibleBase();
+  if(!key) return base.length;
+  if(key === "NeedsAction") return base.filter(p => p.status==="PendingPrice" || p.status==="PendingReview").length;
+  return base.filter(p => p.status === key).length;
+}
+
+function renderQuickChips(){
+  const box = document.getElementById("quickChips");
+  if(!box) return;
+  const current = (document.getElementById("filterStatus") || {}).value || "";
+  // الشرايح اللي مالهاش أي معنى للدور الحالي بتتشال خالص بدل ما
+  // تفضل ظاهرة وهي دايمًا صفر
+  const visible = QUICK_FILTERS.filter(f => isHaitham() || f.key !== "Confirmed");
+  box.innerHTML = visible.map(f => {
+    const n = countFor(f.key);
+    return `<button class="chip${f.key === current ? " active" : ""}" onclick="applyQuickFilter('${jsAttr(f.key)}')">${f.label}${n ? ` (${n})` : ""}</button>`;
+  }).join("");
+}
+
+function applyQuickFilter(key){
+  const sel = document.getElementById("filterStatus");
+  if(sel) sel.value = key;
+  const arrival = document.getElementById("filterArrival");
+  if(arrival) arrival.value = "";
+  renderList();
+  window.scrollTo({ top:0, behavior:"smooth" });
+}
+
+/* ---------------------------------------------------------
+   🚀 بدء الجلسة — لازم يفضل آخر حاجة في السكريبت خالص عشان كل
+   المتغيرات (let/const) اللي فوق تكون اتعرّفت قبل ما ننده على أي
+   دالة بتستخدمها
+   --------------------------------------------------------- */
+if(checkSession()) showMain(); else showLogin();
 </script><div id="appModal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:50;display:flex;align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)closeModal()">
   <div class="card" style="max-width:380px;width:100%;text-align:center;" id="appModalContent"></div>
 </div>
