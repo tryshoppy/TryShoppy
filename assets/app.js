@@ -131,6 +131,29 @@ function tsWaArrival(date){
   return d ? d : 'يتم تحديده بعد تأكيد الطلب';
 }
 
+/* 🚦 حالة الطلب بالعربي.
+   ---------------------------------------------------------------
+   نفس الصياغة المستخدمة في صفحة التتبع (track.html) بالحرف —
+   العميل بيشوف نفس الكلام في رسالة الواتساب وفي الصفحة لما يتابع
+   بالرقم، فمايحصلش لخبطة إن "Placed" في مكان و"تم الطلب" في مكان
+   تاني. أي حالة مش في القائمة بتتعرض زي ما هي من غير ما تختفي. */
+const TS_STATUS_AR = {
+  'Pending Review':   'قيد المراجعة',
+  'Confirmed Via Try':'تم التأكيد',
+  'Processing':       'جاري التجهيز',
+  'Placed':           'تم الطلب',
+  'Arrived Cairo HUB':'وصل القاهرة',
+  'Shipped To You':   'في الطريق إليك',
+  'Delivered':        'تم التسليم',
+  'Canceled':         'ملغي',
+  'Delayed':          'متأخر'
+};
+function tsStatusLabel(s){
+  const k = String(s == null ? '' : s).trim();
+  if(!k) return '';
+  return TS_STATUS_AR[k] || k;
+}
+
 /* 📅 تاريخ من الشيت → YYYY-MM-DD بتوقيت القاهرة.
    ---------------------------------------------------------------
    خلية التاريخ في جوجل شيت بترجع من Apps Script كـ Date، وبتتحول
@@ -187,8 +210,8 @@ function tsWaItemBlock(item){
      تحديده بعد تأكيد الطلب" — تناقض قدام العميل. */
   if(!item.hideArrival) rows.push('موعد الوصول: ' + tsWaArrival(tsFormatSheetDate(item.arrivalDate)));
 
-  const status = String(item.status == null ? '' : item.status).trim();
-  if(status) rows.push('الحالة: ' + status);
+  const status = tsStatusLabel(item.status);
+  if(status) rows.push('🚦 الحالة: *' + status + '*');
 
   return rows.join('\n');
 }
