@@ -408,12 +408,12 @@ function normalizePhone(phone){
 }
 
 // دا يخلي العرض دايمًا يبدأ بـ 0
+/* بقت بتنادي الدالة المشتركة في assets/app.js عشان الرقم يظهر بنفس
+   الشكل في كل مكان. النسخة القديمة كانت بتحط صفر لو الرقم مش بادئ
+   بصفر — يعني 201012345678 كانت بتفضل غلط، والأرضي كان بياخد صفر
+   زيادة. tsDisplayPhone بتتعامل مع كل الحالات دي. */
 function formatPhone(phone){
-  let p = String(phone || "").replace(/\D/g,'');
-  if(!p.startsWith("0")){
-    return "0" + p;
-  }
-  return p;
+  return tsDisplayPhone(phone);
 }
 
 function renderCards(data, append = false){
@@ -462,7 +462,7 @@ function renderCards(data, append = false){
 📍 3 أيام عمل للمحافظات
 
 📍 العنوان: ${o.address || "غير متوفر"}
-📞 التليفون: ${o.phone || "غير متوفر"}
+📞 التليفون: ${tsDisplayPhone(o.phone) || "غير متوفر"}
 
 📦 التفاصيل:\n`;
 
@@ -898,7 +898,7 @@ function generateInvoice(order){
       <style>body{font-family:Arial;padding:20px;} h2{margin-bottom:5px;} table{width:100%;border-collapse:collapse;margin-top:20px;} th,td{border:1px solid #ddd;padding:10px;text-align:center;} th{background:#f5f5f5;}</style>
     </head><body>
       <h2>TRY SHOPPY</h2><p>Zahraa Maadi Cairo Egypt</p><p>201094112666</p><hr>
-      <h3>بيانات العميل</h3><p>الاسم: ${tsEscapeHtml(order.customerName || "-")}</p><p>العنوان: ${tsEscapeHtml(order.address || "-")}</p><p>التليفون: ${tsEscapeHtml(order.phone || "-")}</p><hr>
+      <h3>بيانات العميل</h3><p>الاسم: ${tsEscapeHtml(order.customerName || "-")}</p><p>العنوان: ${tsEscapeHtml(order.address || "-")}</p><p>التليفون: ${tsEscapeHtml(tsDisplayPhone(order.phone) || "-")}</p><hr>
       <h3>تفاصيل المنتجات</h3><table><tr><th>المنتج</th><th>الرابط</th><th>السعر</th></tr>${itemsHTML}</table>
       <h3 style="margin-top:20px;">Total for personal imported items: ${total.toLocaleString()} ج.م</h3>
     </body></html>

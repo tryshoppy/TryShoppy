@@ -685,7 +685,7 @@ function createRowHTML(o) {
     const safeOrderJs = tsJsAttr(printOrder);
     const safePhoneJs = tsJsAttr(printPhone);
     const safeCustomerName = tsEscapeHtml(o.customerName || "—");
-    const safePhone = tsEscapeHtml(o.phone || "");
+    const safePhone = tsEscapeHtml(tsDisplayPhone(o.phone) || "");
     const safeDims = tsEscapeHtml(dims);
     const safeArrival = tsEscapeHtml(o.arrivaldate || '');
     const safeUser = tsEscapeHtml(o.user || '');

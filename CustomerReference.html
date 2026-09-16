@@ -300,7 +300,7 @@ function showNameSearchWarning(groups){
   groups.forEach((group, index) => {
     const latest = [...group.orders].sort((a,b) => new Date(b.date || 0) - new Date(a.date || 0))[0];
     const name = escapeHtml(latest.customerName || "بدون اسم");
-    const phone = escapeHtml(latest.phone || "بدون رقم");
+    const phone = escapeHtml(tsDisplayPhone(latest.phone) || "بدون رقم");
     const details = [latest.governorate, latest.address].filter(Boolean).map(escapeHtml).join(' • ');
     h += '<button class="customer-choice" onclick="showCustomerCandidate(' + index + ')">👤 ' + name + ' — 📞 ' + phone +
       '<small>' + (details || 'عدد الطلبات: ' + group.orders.length) + '</small></button>';
@@ -386,7 +386,7 @@ function renderCustomer(orders){
   let h = '<div class="card">';
   h += '<div class="cust-head"><div>';
   h += '<div class="cust-name">👤 ' + escapeHtml(latest.customerName || "—") + '</div>';
-  h += '<div class="cust-sub">📞 ' + escapeHtml(latest.phone || "—") + (latest.governorate ? ' &nbsp;•&nbsp; 📍 ' + escapeHtml(latest.governorate) : '') + '</div>';
+  h += '<div class="cust-sub">📞 ' + escapeHtml(tsDisplayPhone(latest.phone) || "—") + (latest.governorate ? ' &nbsp;•&nbsp; 📍 ' + escapeHtml(latest.governorate) : '') + '</div>';
   if(latest.address) h += '<div class="cust-sub">🏠 ' + escapeHtml(latest.address) + '</div>';
   h += '</div></div>';
 
