@@ -703,10 +703,14 @@ function applyFilters(){
         groups[key]={
           ...o,
           order:o.order,
-          items: [{link: o.link, price: o.finalPrice, qty: parseInt(o.quantity)||1, status: o.status || "", arrivaldate: o.arrivaldate || "", order: o.order || ""}]
+          /* deposit و dimensions لازم يتنقلوا على مستوى الصنف كمان
+             مش على مستوى المجموعة بس — رسالة "ملخص الطلبات غير
+             المستلمة" بتشتغل على الأصناف واحد واحد، فمن غيرهم
+             العربون بيتحسب صفر وسطر المواصفات بيطلع فاضي. */
+          items: [{link: o.link, price: o.finalPrice, qty: parseInt(o.quantity)||1, status: o.status || "", arrivaldate: o.arrivaldate || "", order: o.order || "", deposit: parseFloat(o.deposit)||0, dimensions: o.dimensions || ""}]
         };
       }else{
-        groups[key].items.push({link: o.link, price: o.finalPrice, qty: parseInt(o.quantity)||1, status: o.status || "", arrivaldate: o.arrivaldate || "", order: o.order || ""}); 
+        groups[key].items.push({link: o.link, price: o.finalPrice, qty: parseInt(o.quantity)||1, status: o.status || "", arrivaldate: o.arrivaldate || "", order: o.order || "", deposit: parseFloat(o.deposit)||0, dimensions: o.dimensions || ""});
         groups[key].quantity = (parseInt(groups[key].quantity)||0) + (parseInt(o.quantity)||1);
         groups[key].weight = (parseFloat(groups[key].weight)||0) + (parseFloat(o.weight)||0);
         groups[key].finalPrice = (parseFloat(groups[key].finalPrice)||0) + (parseFloat(o.finalPrice)||0);
@@ -1080,6 +1084,7 @@ function sendDupWhatsApp() {
         lineTotal: finalEGP,
         specs: d.dimensions || "",
         arrivalDate: d.arrivaldate || "",
+        status: d.status || "",
         extraLines: [
           "سعر القطعة (دولار): " + d.newUsd + " USD",
           "إجمالي القطعة (دولار): " + usdTotal + " USD"
@@ -1109,7 +1114,8 @@ function sendDupCustomerSummary() {
         unitPrice: piecePrice,
         lineTotal: total,
         specs: d.dimensions || "",
-        arrivalDate: d.arrivaldate || ""
+        arrivalDate: d.arrivaldate || "",
+        status: d.status || ""
       }],
       total: total,
       deposit: d.deposit

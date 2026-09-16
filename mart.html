@@ -831,7 +831,8 @@ document.getElementById('cartWhatsAppBtn').addEventListener('click',()=>{
       specs: lbl ? (TS_LANG==='ar'?lbl.ar:lbl.en) : '',
       /* منتجات المارت موجودة في مصر أصلاً، فموعدها بيتحدد بعد
          تأكيد الطلب زي أي طلب تاني — من غير انتظار شحن دولي */
-      arrivalDate:''
+      arrivalDate:'',
+      status:'Pending Review'   // نفس الحالة اللي بتتسجل في الشيت فوق
     };
   });
 

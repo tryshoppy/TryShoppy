@@ -649,7 +649,8 @@ function quickOrderWaItems() {
       /* حقل dimensions هو اللي بيتخزن فيه المقاس واللون والملاحظات،
          فاسمه للعميل "المواصفات" مش "الأبعاد" */
       specs: item.dimensions || "",
-      arrivalDate: item.arrivaldate || ""
+      arrivalDate: item.arrivaldate || "",
+      status: "Pending Review"   // كل طلب جديد بيبدأ بالحالة دي
     };
   });
 }

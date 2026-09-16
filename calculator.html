@@ -844,7 +844,8 @@ function sendWhatsApp(){
         (item.dimLength && item.dimWidth && item.dimHeight)
           ? 'الأبعاد: '+item.dimLength+' × '+item.dimWidth+' × '+item.dimHeight+' سم' : ''
       ]),
-      arrivalDate: item.arrivaldate || ''  // لسه فاضي وقت الإنشاء
+      arrivalDate: item.arrivaldate || '', // لسه فاضي وقت الإنشاء
+      status: 'Pending Review'             // كل طلب جديد بيبدأ بالحالة دي
     };
   });
 

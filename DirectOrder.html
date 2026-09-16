@@ -759,7 +759,8 @@ function directOrderWaItems() {
         item.color ? "اللون: " + item.color   : "",
         item.notes ? "ملاحظات: " + item.notes : ""
       ]),
-      arrivalDate: item.arrivaldate || ""
+      arrivalDate: item.arrivaldate || "",
+      status: "Pending Review"   // كل طلب جديد بيبدأ بالحالة دي
     };
   });
 }
