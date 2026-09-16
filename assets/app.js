@@ -94,6 +94,198 @@ function tsOpenHtmlDoc(html){
   return win;
 }
 
+/* ═══════════════════════════════════════════════════════════
+   📱 رسائل واتساب — قالب موحّد لكل الموقع
+   ═══════════════════════════════════════════════════════════
+   كانت فيه 9 رسائل واتساب متفرقة في 5 ملفات، كل واحدة بشكل
+   وترتيب مختلف — بعضها إنجليزي وبعضها عربي، وبعضها ناقصه سعر
+   القطعة أو المواصفات أو موعد الوصول. العميل ممكن يستقبل رسالتين
+   من موظفين مختلفين فيبانوا كأنهم من شركتين.
+
+   كل الرسائل دلوقتي بتتبني من هنا، فأي تعديل في الشكل بيطبق على
+   التسعة مرة واحدة ومستحيل يختلفوا تاني.
+
+   كل صنف بيعرض دايمًا: رقم الطلب · المنتج · العدد · سعر القطعة ·
+   إجمالي القطعة · موعد الوصول. والمواصفات والحالة بيظهروا لو
+   ليهم قيمة بس.
+
+   التنسيق بـ *نجمة* = خط عريض في واتساب. الإيموجي محصور في
+   العناوين والمراسي بس، مش على كل سطر — عشان الرسالة تفضل
+   مقروءة ومريحة للعين مهما كان عدد الأصناف.
+   ═══════════════════════════════════════════════════════════ */
+
+const TS_TRACK_URL = 'https://try-shoppy.com/track.html';
+const TS_WA_RULE = '━━━━━━━━━━━━━━━';
+
+/* رقم بصيغة العملة المصرية */
+function tsWaMoney(v){
+  const n = parseFloat(v) || 0;
+  return n.toLocaleString('en-US', { maximumFractionDigits: 2 }) + ' ج.م';
+}
+
+/* موعد الوصول بيتقرا من الشيت (عمود arrivaldate). وقت إنشاء الطلب
+   الموعد لسه مش موجود — الطلب بيبقى "قيد المراجعة" — فبنكتب
+   للعميل الحقيقة بدل ما نسيب السطر فاضي أو نخترع تاريخ. */
+function tsWaArrival(date){
+  const d = String(date == null ? '' : date).trim();
+  return d ? d : 'يتم تحديده بعد تأكيد الطلب';
+}
+
+/* 📅 تاريخ من الشيت → YYYY-MM-DD بتوقيت القاهرة.
+   ---------------------------------------------------------------
+   خلية التاريخ في جوجل شيت بترجع من Apps Script كـ Date، وبتتحول
+   لنص ISO كامل بالساعة: "2029-01-31T22:00:00.000Z".
+
+   ⚠️ قص أول 10 حروف بيطلع تاريخ غلط بيوم كامل: الخلية اللي فيها
+   1 فبراير بتترجع 31 يناير 22:00 بتوقيت UTC (مصر UTC+2)، فالقص
+   الساذج بيديك 31 يناير. لازم التحويل يبقى بتوقيت القاهرة.       */
+function tsFormatSheetDate(v){
+  const s = String(v == null ? '' : v).trim();
+  if(!s) return '';
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;   // متخزن صح أصلاً
+  const d = new Date(s);
+  if(isNaN(d.getTime())) return s;              // مش تاريخ — نسيبه زي ما هو
+  try{
+    return d.toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
+  }catch(e){
+    return s.slice(0, 10);
+  }
+}
+
+/* بلوك صنف واحد.
+   item = { orderNo, link, name, qty, unitPrice, lineTotal, specs,
+            arrivalDate, status, extraLines[], index, hideArrival }
+   لو unitPrice مش متبعت، بتتحسب من الإجمالي ÷ العدد.
+   index → بيرقّم المنتجات (منتج 1: / منتج 2:) في الرسائل اللي
+   فيها أكتر من صنف، عشان العميل يقدر يشاور على واحد بعينه. */
+function tsWaItemBlock(item){
+  const qty  = parseInt(item.qty, 10) || 1;
+  const line = parseFloat(item.lineTotal) || 0;
+  const unit = (item.unitPrice !== undefined && item.unitPrice !== null && item.unitPrice !== '')
+    ? (parseFloat(item.unitPrice) || 0)
+    : (qty > 0 ? line / qty : line);
+
+  const rows = [];
+  const label = item.index ? 'منتج ' + item.index + ': ' : '';
+  if(item.orderNo) rows.push('🔖 *' + item.orderNo + '*');
+  if(item.link)    rows.push('🔗 ' + label + item.link);
+  else if(item.name) rows.push('🔗 ' + label + item.name);
+  if(item.link && item.name) rows.push('الصنف: ' + item.name);
+
+  rows.push('العدد: *' + qty + '*');
+  rows.push('سعر القطعة: *' + tsWaMoney(unit) + '*');
+  rows.push('إجمالي القطعة: *' + tsWaMoney(line) + '*');
+
+  const specs = String(item.specs == null ? '' : item.specs).trim();
+  if(specs) rows.push('المواصفات: ' + specs);
+
+  (item.extraLines || []).forEach(l => { if(l) rows.push(l); });
+
+  /* hideArrival: للرسائل اللي الأوردر فيها وصل مصر فعلاً، أو اللي
+     الموعد مكتوب في عنوان المجموعة فوق. من غيرها كانت رسالة
+     "طلبك وصل وجاهز للتسليم" هتقول تحتيها "موعد الوصول: يتم
+     تحديده بعد تأكيد الطلب" — تناقض قدام العميل. */
+  if(!item.hideArrival) rows.push('موعد الوصول: ' + tsWaArrival(tsFormatSheetDate(item.arrivalDate)));
+
+  const status = String(item.status == null ? '' : item.status).trim();
+  if(status) rows.push('الحالة: ' + status);
+
+  return rows.join('\n');
+}
+
+/* الرسالة الكاملة.
+   opts = {
+     to: 'customer' | 'shop',
+     customerName, phone, governorate, address,
+     items: [...], total,
+     intro, outro, extraTotals[]
+   }
+   to:'shop'     → رسالة للفريق، بتتضمن بيانات تواصل العميل
+   to:'customer' → رسالة للعميل، بتتضمن لينك التتبع            */
+function tsWaMessage(opts){
+  const o = opts || {};
+  const toCustomer = o.to !== 'shop';
+  const items = o.items || [];
+  const name = String(o.customerName || '').trim();
+
+  const parts = [];
+
+  if(o.intro){
+    parts.push(o.intro);
+  } else if(toCustomer){
+    parts.push('السلام عليكم ' + (name ? 'أ/ ' + name : 'حضرتك') + ' 👋');
+    parts.push('تم تسجيل طلبك في Try Shoppy ✅');
+  } else {
+    parts.push('🛒 طلب جديد — Try Shoppy');
+  }
+
+  parts.push('');
+  items.forEach(it => {
+    parts.push(TS_WA_RULE);
+    parts.push(tsWaItemBlock(it));
+  });
+  if(items.length) parts.push(TS_WA_RULE);
+
+  const total = (o.total !== undefined && o.total !== null)
+    ? parseFloat(o.total) || 0
+    : items.reduce((s, i) => s + (parseFloat(i.lineTotal) || 0), 0);
+
+  parts.push('');
+  parts.push('💰 *الإجمالي الكلي: ' + tsWaMoney(total) + '*');
+
+  /* 💵 العربون — بيظهر بس لو فيه مبلغ مدفوع فعلاً. في الطلبات
+     الجديدة العربون لسه ما اتحصّلش، فسطر "المدفوع مقدمًا: 0"
+     هيبقى ضوضاء. ولما يبقى فيه عربون، الرقم اللي العميل محتاجه
+     فعلاً هو المتبقي عند الاستلام مش الإجمالي. */
+  const deposit = parseFloat(o.deposit) || 0;
+  if(deposit > 0){
+    parts.push('💵 المدفوع مقدمًا: ' + tsWaMoney(deposit));
+    parts.push('📌 *المطلوب عند الاستلام: ' + tsWaMoney(total - deposit) + '*');
+  }
+
+  (o.extraTotals || []).forEach(l => { if(l) parts.push(l); });
+
+  if(!toCustomer){
+    parts.push('');
+    if(name)           parts.push('👤 الاسم: ' + name);
+    if(o.phone)        parts.push('📞 الموبايل: ' + o.phone);
+    if(o.governorate)  parts.push('📍 المحافظة: ' + o.governorate);
+    if(o.address)      parts.push('🏠 العنوان: ' + o.address);
+  }
+
+  parts.push('');
+  if(o.outro){
+    parts.push(o.outro);
+  } else if(toCustomer){
+    parts.push('تابع طلبك في أي وقت من هنا:');
+    parts.push(TS_TRACK_URL);
+    parts.push('');
+    parts.push('لأي استفسار إحنا معاك 🙏');
+  } else {
+    parts.push('مستني تأكيدكم 🙏');
+  }
+
+  return parts.join('\n');
+}
+
+/* فتح واتساب برقم معيّن. من غير رقم بيروح لرقم الدعم. */
+function tsWaOpen(phone, message){
+  const support = (typeof TS_CONFIG !== 'undefined' && TS_CONFIG.SUPPORT_PHONE) ? TS_CONFIG.SUPPORT_PHONE : '201005609642';
+  let target = String(phone || '').replace(/\D/g, '');
+  if(!target){
+    target = support;
+  } else {
+    target = target.replace(/^0/, '');              // 01xxxxxxxxx → 1xxxxxxxxx
+    if(!/^20/.test(target)) target = '20' + target; // كود مصر
+  }
+  window.open('https://wa.me/' + target + '?text=' + encodeURIComponent(message));
+}
+
+/* بيجمّع المقاس واللون والملاحظات في سطر مواصفات واحد */
+function tsWaSpecs(parts){
+  return (parts || []).filter(Boolean).join(' | ');
+}
+
 /* ---------- toast ---------- */
 function tsToast(msg){
   let el = document.getElementById('ts-toast');
@@ -429,15 +621,19 @@ function tsPostScript(url, payload){
   }).then(() => true);
 }
 
-/* يُستخدم من الحاسبة والمارت — نفس الرابط، ونفس صيغة رقم الطلب
-   بالظبط (TRYxxxxxxxx — 8 أرقام بعد TRY، من غير أي شرطة أو سنة أو
-   بادئة تانية) في كل مصادر الطلبات على الموقع كله. */
+/* يُستخدم من الحاسبة والمارت — نفس الرابط لكل مصادر الطلبات.
+
+   📋 صيغتين لأرقام الطلبات:
+     • الخدمة الدولية (الحاسبة/الطلبات المباشرة) → TRY + 8 أرقام
+     • Try Shoppy Mart                          → MART + 6 أرقام
+   الاتنين بيتسجلوا في نفس شيت الطلبات وبيتتبعوا من نفس الصفحة —
+   البادئة بتفرّق نوع الطلب من أول نظرة على الرقم من غير ما تفتحه. */
 function tsSubmitOrderRow(payload){
   return tsPostScript(TS_CONFIG.ORDERS_SCRIPT_URL, payload);
 }
 
 function tsGenerateMartOrderNumber(){
-  return "TRY" + Math.floor(10000000 + Math.random() * 90000000);
+  return "MART" + Math.floor(100000 + Math.random() * 900000);
 }
 
 /* ---------- Mart products — شيت وسكريبت منفصلين تمامًا عن الطلبات ----------
