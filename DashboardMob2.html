@@ -468,42 +468,40 @@ function renderCards(data, append = false){
 
 let totalQty = 0;
 
+/* نفس بلوك الصنف المستخدم في كل رسائل الموقع (assets/app.js).
+   موعد الوصول متشال هنا عن قصد — الأوردر وصل مصر فعلاً، والرسالة
+   نفسها بتقول مدة التسليم فوق. */
 if (isGrouped && o.items) {
   o.items.forEach((item, i) => {
-    const itemTotal = parseFloat(item.price || 0);
-    const itemQty = parseInt(item.qty || 1);
-    const piecePrice = itemQty > 0 ? itemTotal / itemQty : itemTotal;
-    totalQty += itemQty;
-
-    message += `---
-🔗 منتج ${i + 1}: ${item.link}
-📦 العدد: ${itemQty}
-💵 السعر للقطعة: ${piecePrice.toLocaleString()} ج.م
-💰 السعرالاجمالي : ${itemTotal.toLocaleString()} ج.م
-`;
+    totalQty += parseInt(item.qty || 1);
+    message += TS_WA_RULE + "\n" + tsWaItemBlock({
+      index: o.items.length > 1 ? i + 1 : 0,   // الترقيم يبان بس لما يكون فيه أكتر من منتج
+      link: item.link || "",
+      qty: item.qty || 1,
+      lineTotal: item.price || 0,
+      specs: item.dimensions || "",
+      hideArrival: true
+    }) + "\n";
   });
 } else {
-  const itemTotal = parseFloat(o.finalPrice || 0);
-  const itemQty = parseInt(o.quantity || 1);
-  const piecePrice = itemQty > 0 ? itemTotal / itemQty : itemTotal;
-  totalQty = itemQty;
-
-  message += `🔗 المنتج: ${o.link}
-📦 العدد: ${itemQty}
-💵 السعر للقطعة: ${piecePrice.toLocaleString()} ج.م
-💰 السعرالاجمالي: ${itemTotal.toLocaleString()} ج.م
-`;
+  totalQty = parseInt(o.quantity || 1);
+  message += TS_WA_RULE + "\n" + tsWaItemBlock({
+    link: o.link || "",
+    qty: o.quantity || 1,
+    lineTotal: o.finalPrice || 0,
+    specs: o.dimensions || "",
+    hideArrival: true
+  }) + "\n";
 }
 
-message += `
-━━━━━━━━━━━━
-📦 إجمالي عدد المنتجات: ${totalQty}
-💰 إجمالي الحساب: ${total.toLocaleString()} ج.م
-🚚 الشحن الداخلي: هدية مننا لحضرتك 🎁✨
+message += TS_WA_RULE + `
+📦 إجمالي عدد المنتجات: *${totalQty}*
+💰 إجمالي الحساب: *${total.toLocaleString()} ج.م*
+🚚 الشحن الداخلي: هدية مننا لحضرتك 🎁
 💵 المدفوع مقدمًا: ${dep.toLocaleString()} ج.م
 📌 المطلوب عند الاستلام: *${net.toLocaleString()} ج.م*
 
-📞 برجاء تأكيد تواجد حضرتك للاستلام 🙏`;
+برجاء تأكيد تواجد حضرتك للاستلام 🙏`;
 
 let summaryBtn = "";
 
@@ -922,13 +920,17 @@ function generateUndeliveredSummary(o) {
   // تجميع كل المنتجات (تدعم العرض المجمّع والمفرد)
   let allItems = [];
   if (o.items && o.items.length) {
+    /* dimensions و deposit لازم يتنقلوا هنا — من غيرهم سطر
+       المواصفات في الرسالة بيطلع فاضي والعربون مش بيتحسب */
     allItems = o.items.map(it => ({
       order: it.order || "",
       link: it.link || "",
       price: parseFloat(it.price || 0),
       qty: parseInt(it.qty || 1) || 1,
       status: it.status || o.status || "",
-      arrivaldate: (it.arrivaldate || "").toString().trim()
+      arrivaldate: (it.arrivaldate || "").toString().trim(),
+      dimensions: it.dimensions || "",
+      deposit: parseFloat(it.deposit || 0)
     }));
   } else {
     allItems = [{
@@ -937,7 +939,9 @@ function generateUndeliveredSummary(o) {
       price: parseFloat(o.finalPrice || 0),
       qty: parseInt(o.quantity || 1) || 1,
       status: o.status || "",
-      arrivaldate: (o.arrivaldate || "").toString().trim()
+      arrivaldate: (o.arrivaldate || "").toString().trim(),
+      dimensions: o.dimensions || "",
+      deposit: parseFloat(o.deposit || 0)
     }];
   }
 
@@ -977,24 +981,35 @@ function generateUndeliveredSummary(o) {
     message += `\n━━━━━━━━━━━━\n📅👇ملخص طلبات موعد وصولها: ${dateKey === NO_DATE_KEY ? dateKey.replace("📌 ", "") : dateKey}\n━━━━━━━━━━━━\n`;
 
     items.forEach(it => {
-      const piecePrice = it.qty > 0 ? (it.price / it.qty) : it.price;
       groupTotal += it.price;
-
-      message += `\n🔖 أوردر: ${it.order || "-"}`;
-      if (it.link) message += `\n🔗 المنتج: ${it.link}`;
-      message += `\n📦 العدد: ${it.qty}
-💵 سعر القطعة: ${piecePrice.toLocaleString()} ج.م
-💰 إجمالي القطعة: ${it.price.toLocaleString()} ج.م
-🚦 الحالة الحالية: ${it.status || "—"}\n`;
+      /* نفس بلوك الصنف المستخدم في كل رسائل الموقع (assets/app.js).
+         موعد الوصول متشال من هنا لأنه مكتوب في عنوان المجموعة
+         فوق — مفيش داعي يتكرر على كل صنف تحته. */
+      message += "\n" + tsWaItemBlock({
+        orderNo: it.order || "-",
+        link: it.link || "",
+        qty: it.qty,
+        lineTotal: it.price,
+        specs: it.dimensions || "",
+        arrivalDate: dateKey === NO_DATE_KEY ? "" : dateKey,
+        status: it.status || "—"
+      }) + "\n";
     });
 
     grandTotal += groupTotal;
-    message += `\n📌☝🏻 إجمالي طلبات هذا الموعد: ${groupTotal.toLocaleString()} ج.م\n`;
+    message += `\n📌 إجمالي طلبات هذا الموعد: *${groupTotal.toLocaleString()} ج.م*\n`;
   });
 
-  message += `\n═══════════════\n💰 الإجمالي الكلي لكل الطلبات غير المستلمة: ${grandTotal.toLocaleString()} ج.م\n═══════════════\n\n📞 لو حضرتك عندك أي استفسار، تواصل معنا في  أي وقت 🙏وممكن نتتبع الطلبات من هنا في اي وقت: https://tryshoppy.github.io/TryShoppy/track`;
+  const grandDeposit = pendingItems.reduce((s, it) => s + (parseFloat(it.deposit) || 0), 0);
 
-  window.open(`https://wa.me/20${phone}?text=${encodeURIComponent(message)}`);
+  message += `\n═══════════════\n💰 *الإجمالي الكلي لكل الطلبات غير المستلمة: ${grandTotal.toLocaleString()} ج.م*`;
+  if (grandDeposit > 0) {
+    message += `\n💵 المدفوع مقدمًا: ${grandDeposit.toLocaleString()} ج.م`;
+    message += `\n📌 *المطلوب عند الاستلام: ${(grandTotal - grandDeposit).toLocaleString()} ج.م*`;
+  }
+  message += `\n═══════════════\n\nتابع طلباتك في أي وقت من هنا:\n${TS_TRACK_URL}\n\nلأي استفسار إحنا معاك 🙏`;
+
+  tsWaOpen(phone, message);
 }
 
 // ==========================================
@@ -1051,22 +1066,30 @@ function sendDupWhatsApp() {
     const usdTotal = (parseFloat(d.newUsd || 0) * parseInt(d.quantity || 1)).toFixed(2);
     const finalEGP = parseFloat(d.newEgp || 0) * parseInt(d.quantity || 1);
 
-    const msg = `TRY SHOPPY Order
-Order No: ${d.newOrder}
-Name: ${d.customerName}
-Phone: ${d.phone}
-Governorate: ${d.governorate || ""}
-Address: ${d.address || ""}
-Quantity: ${d.quantity || 1}
-Unit Price USD: ${d.newUsd} USD
-Unit Price EGP: ${d.newEgp} EGP
+    /* القالب الموحّد (assets/app.js) — مع الاحتفاظ بسطور الدولار
+       اللي الفريق بيحتاجها في المتابعة الداخلية */
+    const msg = tsWaMessage({
+      to: "shop",
+      customerName: d.customerName, phone: d.phone,
+      governorate: d.governorate || "", address: d.address || "",
+      items: [{
+        orderNo: d.newOrder,
+        link: d.newLink || "",
+        qty: d.quantity || 1,
+        unitPrice: d.newEgp,
+        lineTotal: finalEGP,
+        specs: d.dimensions || "",
+        arrivalDate: d.arrivaldate || "",
+        extraLines: [
+          "سعر القطعة (دولار): " + d.newUsd + " USD",
+          "إجمالي القطعة (دولار): " + usdTotal + " USD"
+        ]
+      }],
+      total: finalEGP,
+      deposit: d.deposit
+    });
 
-Total USD: ${usdTotal} USD
-Total Price: ${finalEGP.toLocaleString()} EGP
-Product: ${d.newLink}
-SPCS: ${d.dimensions || ""}`;
-
-    window.open(`https://wa.me/201005609642?text=${encodeURIComponent(msg)}`);
+    tsWaOpen("201005609642", msg);
 }
 
 function sendDupCustomerSummary() {
@@ -1075,23 +1098,24 @@ function sendDupCustomerSummary() {
     const qty = parseInt(d.quantity || 1);
     const piecePrice = parseFloat(d.newEgp || 0);
     const total = piecePrice * qty;
-    const specsLine = d.dimensions && d.dimensions.trim() ? `📝 المواصفات: ${d.dimensions.trim()}\n` : "";
 
-    const msg = `السلام عليكم ${d.customerName ? "أ/ " + d.customerName : "حضرتك"} 👋
-تم تسجيل طلب حضرتك بنجاح في TRY SHOPPY ✅
+    const msg = tsWaMessage({
+      to: "customer",
+      customerName: d.customerName,
+      items: [{
+        orderNo: d.newOrder,
+        link: d.newLink || "",
+        qty: qty,
+        unitPrice: piecePrice,
+        lineTotal: total,
+        specs: d.dimensions || "",
+        arrivalDate: d.arrivaldate || ""
+      }],
+      total: total,
+      deposit: d.deposit
+    });
 
-🔖 رقم الطلب: ${d.newOrder}
-🔗 المنتج: ${d.newLink}
-📦 العدد: ${qty}
-${specsLine}💵 سعر القطعة: ${piecePrice.toLocaleString()} ج.م
-💰 الإجمالي: ${total.toLocaleString()} ج.م
-
-🚚 يمكنك تتبع هذا المنتج في أي وقت من هنا برقم الطلب:
-🔗 https://tryshoppy.github.io/TryShoppy/track
-
-📞 لأي استفسار، تواصل معنا في أي وقت 🙏`;
-
-    window.open(`https://wa.me/20${phone}?text=${encodeURIComponent(msg)}`);
+    tsWaOpen(phone, msg);
 }
 
 function submitDuplicate() {

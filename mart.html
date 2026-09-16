@@ -574,7 +574,17 @@ const MART_CACHE_MAX_AGE = 10 * 60 * 1000;
 let deepLinkTracked = false;
 
 function applyProducts(products){
-  MART_PRODUCTS=(products||[]).map(p=>({...p,price:parseFloat(p.price)||0,oldPrice:parseFloat(p.oldPrice)||0,stock:parseInt(p.stock)||0}));
+  /* التواريخ بتتنضّف هنا كمان مش في السيرفر بس — عشان تظهر صح
+     على طول من غير انتظار نشر نسخة جديدة من Apps Script، ولو رجع
+     تاريخ كامل بالساعة من أي مصدر تاني يفضل معروض صح.
+     tsFormatSheetDate بتحوّل بتوقيت القاهرة (شوف app.js). */
+  MART_PRODUCTS=(products||[]).map(p=>({...p,
+    price:parseFloat(p.price)||0,
+    oldPrice:parseFloat(p.oldPrice)||0,
+    stock:parseInt(p.stock)||0,
+    expiryDate:tsFormatSheetDate(p.expiryDate),
+    restockDate:tsFormatSheetDate(p.restockDate)
+  }));
   renderCategoryChips();
   renderMart();
   openProductFromUrl();
@@ -805,9 +815,34 @@ document.getElementById('placeOrderBtn').addEventListener('click',async function
 document.getElementById('cartWhatsAppBtn').addEventListener('click',()=>{
   if(!lastSummary)return;
   const s=lastSummary;
-  const lines=s.orders.map(o=>o.orderNo+' — '+((o.item.name&&o.item.name.en)||'')+' x'+o.item.qty+' ('+(o.item.price*o.item.qty).toLocaleString()+' EGP)').join('\n');
-  const msg='TRY SHOPPY MART Order\nName: '+s.name+'\nPhone: '+s.phone+'\nGov: '+s.gov+'\nAddress: '+s.addr+'\n\nItems:\n'+lines+'\n\nTotal: '+s.total.toLocaleString()+' EGP';
-  window.open('https://wa.me/'+TS_CONFIG.SUPPORT_PHONE+'?text='+encodeURIComponent(msg));
+  /* نفس القالب الموحّد بتاع باقي الموقع (app.js). رسالة المارت
+     كانت الوحيدة اللي كلها إنجليزي ومن غير سعر قطعة ولا مواصفات. */
+  const items=s.orders.map(o=>{
+    const p=pid(o.item.id);
+    const lbl=p&&LABEL_META[p.label];
+    return {
+      orderNo:o.orderNo,
+      name:(o.item.name&&(TS_LANG==='ar'?(o.item.name.ar||o.item.name.en):o.item.name.en))||'',
+      qty:o.item.qty,
+      unitPrice:o.item.price,
+      lineTotal:o.item.price*o.item.qty,
+      /* حالة المنتج أهم معلومة في الأوتليت — العميل لازم يعرف إنه
+         عبوة مفتوحة أو مرتجع قبل ما يستلم، مش بعدها */
+      specs: lbl ? (TS_LANG==='ar'?lbl.ar:lbl.en) : '',
+      /* منتجات المارت موجودة في مصر أصلاً، فموعدها بيتحدد بعد
+         تأكيد الطلب زي أي طلب تاني — من غير انتظار شحن دولي */
+      arrivalDate:''
+    };
+  });
+
+  const msg=tsWaMessage({
+    to:'shop',
+    intro:'🛒 طلب جديد — Try Shoppy Mart',
+    customerName:s.name, phone:s.phone, governorate:s.gov, address:s.addr,
+    items:items, total:s.total
+  });
+
+  tsWaOpen(TS_CONFIG.SUPPORT_PHONE, msg);
 });
 document.getElementById('continueShoppingBtn').addEventListener('click',closeCart);
 tsInitNav();

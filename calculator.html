@@ -828,32 +828,34 @@ function sendWhatsApp(){
   const addr=document.getElementById('address').value;
   const total=lastOrders.reduce((s,o)=>s+o.item.finalPrice,0);
 
-  const itemsLines = lastOrders.map(o=>{
+  /* القالب الموحّد في app.js — نفس شكل وترتيب كل رسائل الموقع */
+  const items = lastOrders.map(o=>{
     const item=o.item;
-    const specs=[];
-    if(item.size) specs.push('Size: '+item.size);
-    if(item.color) specs.push('Color: '+item.color);
-    if(item.notes) specs.push('Notes: '+item.notes);
-    if(item.dimLength && item.dimWidth && item.dimHeight){
-      specs.push('Dimensions: '+item.dimLength+' × '+item.dimWidth+' × '+item.dimHeight+' cm');
-    }
-    const specsLine = specs.length ? ' ('+specs.join(' | ')+')' : '';
-    const productLine = item.link ? item.link : (item.category||'');
-    return '🔖 '+o.orderNo+'\n🔗 '+productLine+'\n📦 Qty: '+item.qty+specsLine+'\n💰 '+item.finalPrice.toLocaleString()+' EGP';
-  }).join('\n\n');
+    return {
+      orderNo: o.orderNo,
+      link: item.link || '',
+      name: item.link ? '' : (item.category||''),
+      qty: item.qty,
+      lineTotal: item.finalPrice,          // محسوب أصلاً × الكمية
+      specs: tsWaSpecs([
+        item.size  ? 'المقاس: '+item.size   : '',
+        item.color ? 'اللون: '+item.color   : '',
+        item.notes ? 'ملاحظات: '+item.notes : '',
+        (item.dimLength && item.dimWidth && item.dimHeight)
+          ? 'الأبعاد: '+item.dimLength+' × '+item.dimWidth+' × '+item.dimHeight+' سم' : ''
+      ]),
+      arrivalDate: item.arrivaldate || ''  // لسه فاضي وقت الإنشاء
+    };
+  });
 
-  const msg =
-    'مرحبًا Try Shoppy 👋\n'+
-    'عايز أأكد الطلب ده:\n\n'+
-    itemsLines+'\n\n'+
-    '💰 الإجمالي: '+total.toLocaleString()+' جنيه\n\n'+
-    '👤 الاسم: '+name+'\n'+
-    '📞 الموبايل: '+phone+'\n'+
-    '📍 المحافظة: '+gov+'\n'+
-    '🏠 العنوان: '+addr+'\n\n'+
-    'مستني تأكيدكم 🙏';
+  const msg = tsWaMessage({
+    to: 'shop',
+    intro: 'مرحبًا Try Shoppy 👋\nعايز أأكد الطلب ده:',
+    customerName: name, phone: phone, governorate: gov, address: addr,
+    items: items, total: total
+  });
 
-  window.open('https://wa.me/'+TS_CONFIG.SUPPORT_PHONE+'?text='+encodeURIComponent(msg));
+  tsWaOpen(TS_CONFIG.SUPPORT_PHONE, msg);
 }
 </script>
 

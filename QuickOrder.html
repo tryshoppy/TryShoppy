@@ -636,52 +636,46 @@ function checkoutAll(){
   });
 }
 
-function sendWhatsApp() {
-  const itemsLines = lastOrders.map(o => {
+/* القالب الموحّد لكل رسائل واتساب موجود في assets/app.js */
+function quickOrderWaItems() {
+  return lastOrders.map(o => {
     const item = o.item;
-    const specsLine = item.dimensions ? "\n📝 SPCS: " + item.dimensions : "";
-    return "🔖 " + o.orderNo + "\n🔗 " + item.link + "\n📦 Qty: " + item.qty + specsLine +
-      "\n💵 سعر القطعة (EGP): " + item.unitEgp.toLocaleString() + " ج.م" +
-      "\n💰 الإجمالي (EGP): " + item.totalEgp.toLocaleString() + " ج.م";
-  }).join("\n\n");
+    return {
+      orderNo: o.orderNo,
+      link: item.link || "",
+      qty: item.qty,
+      unitPrice: item.unitEgp,
+      lineTotal: item.totalEgp,
+      /* حقل dimensions هو اللي بيتخزن فيه المقاس واللون والملاحظات،
+         فاسمه للعميل "المواصفات" مش "الأبعاد" */
+      specs: item.dimensions || "",
+      arrivalDate: item.arrivaldate || ""
+    };
+  });
+}
+
+function sendWhatsApp() {
   const total = lastOrders.reduce((s,o)=>s+(o.item.totalEgp||0), 0);
   const c = selectedCustomer || {};
-  const msg =
-    "مرحبًا Try Shoppy 👋\n" +
-    "عايز أأكد الطلب ده:\n\n" +
-    itemsLines + "\n\n" +
-    "💰 الإجمالي الكلي: " + total.toLocaleString() + " ج.م\n\n" +
-    "👤 الاسم: " + (c.customerName||"") + "\n" +
-    "📞 الموبايل: " + (c.phone||"") + "\n" +
-    "📍 المحافظة: " + (c.governorate||"") + "\n" +
-    "🏠 العنوان: " + (c.address||"") + "\n\n" +
-    "مستني تأكيدكم 🙏";
-  window.open(`https://wa.me/201005609642?text=${encodeURIComponent(msg)}`);
+  const msg = tsWaMessage({
+    to: "shop",
+    intro: "مرحبًا Try Shoppy 👋\nعايز أأكد الطلب ده:",
+    customerName: c.customerName || "", phone: c.phone || "",
+    governorate: c.governorate || "", address: c.address || "",
+    items: quickOrderWaItems(), total: total
+  });
+  tsWaOpen("201005609642", msg);
 }
 
 function sendCustomerSummary() {
   const c = selectedCustomer || {};
-  const phone = String(c.phone || "").replace(/\D/g, "").replace(/^0/, "");
-  const itemsLines = lastOrders.map(o => {
-    const item = o.item;
-    const specsLine = item.dimensions ? `📝 المواصفات: ${item.dimensions}\n` : "";
-    return `🔖 ${o.orderNo}\n🔗 ${item.link}\n📦 العدد: ${item.qty}\n${specsLine}💵 سعر القطعة: ${item.unitEgp.toLocaleString()} ج.م\n💰 الإجمالي: ${item.totalEgp.toLocaleString()} ج.م`;
-  }).join("\n\n");
   const total = lastOrders.reduce((s,o)=>s+(o.item.totalEgp||0), 0);
-
-  const msg = `السلام عليكم ${c.customerName ? "أ/ " + c.customerName : "حضرتك"} 👋
-تم تسجيل طلباتك بنجاح في TRY SHOPPY ✅
-
-${itemsLines}
-
-💰 الإجمالي الكلي: ${total.toLocaleString()} ج.م
-
-🚚 يمكنك تتبع كل منتج في أي وقت من هنا برقم الطلب الخاص به:
-🔗 https://tryshoppy.github.io/TryShoppy/track
-
-📞 لأي استفسار، تواصل معنا في أي وقت 🙏`;
-
-  window.open(`https://wa.me/20${phone}?text=${encodeURIComponent(msg)}`);
+  const msg = tsWaMessage({
+    to: "customer",
+    customerName: c.customerName || "",
+    items: quickOrderWaItems(), total: total
+  });
+  tsWaOpen(c.phone, msg);
 }
 </script>
 </body>
