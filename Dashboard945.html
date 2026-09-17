@@ -104,6 +104,81 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .kpi.k-cnt::before{background:var(--blue)}
 .kpi.k-usd::before{background:var(--navy-3)}
 .kpi.k-pf::before{background:var(--ok)}
+.kpi.k-25::before{background:var(--gold)}
+
+/* 💰 شريط إظهار/إخفاء الحسابات */
+.kpibar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.kpitoggle{
+  display:inline-flex;align-items:center;gap:7px;cursor:pointer;
+  font-family:inherit;font-size:12.5px;font-weight:700;color:var(--ink-2);
+  background:var(--panel);border:1px solid var(--line);border-radius:9px;
+  padding:7px 14px;transition:.15s;
+}
+.kpitoggle::before{content:'👁';font-size:13px;line-height:1}
+.kpitoggle:hover{border-color:var(--gold);color:var(--ink)}
+.kpitoggle.on{background:var(--gold);border-color:var(--gold);color:#171C30}
+.kpitoggle.on::before{content:'🙈'}
+.kpiscope{font-size:12px;color:var(--ink-2)}
+.kpiscope b{color:var(--ink);font-weight:700}
+.kpis.is-hidden{display:none}
+
+/* ═══ ➕ نافذة إضافة طلب ═══ */
+.tbtn.add{background:var(--ok);border-color:var(--ok);color:#fff}
+.tbtn.add:hover{filter:brightness(1.08)}
+.ao-overlay{display:none;position:fixed;inset:0;background:rgba(16,27,51,.6);z-index:80;
+  align-items:flex-start;justify-content:center;padding:24px 14px;overflow-y:auto}
+.ao-overlay.show{display:flex}
+.ao-box{background:var(--panel);border:1px solid var(--line);border-radius:16px;
+  width:100%;max-width:720px;box-shadow:0 24px 60px rgba(0,0,0,.4);margin:auto}
+.ao-head{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:16px 20px;border-bottom:1px solid var(--line)}
+.ao-head h3{margin:0;font-size:16px;font-weight:800}
+.ao-x{background:none;border:none;font-size:26px;line-height:1;cursor:pointer;
+  color:var(--ink-2);padding:2px 8px;border-radius:8px}
+.ao-x:hover{background:var(--paper);color:var(--ink)}
+.ao-body{padding:18px 20px;max-height:calc(100vh - 220px);overflow-y:auto}
+.ao-sec{font-size:11.5px;font-weight:800;letter-spacing:.06em;color:var(--gold);
+  margin:16px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.ao-sec:first-child{margin-top:0}
+.ao-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.ao-f{margin-bottom:12px}
+.ao-f label{display:block;font-size:12px;font-weight:700;color:var(--ink-2);margin-bottom:5px}
+.ao-f input,.ao-f select,.ao-f textarea{width:100%;font-family:inherit;font-size:13.5px;
+  padding:9px 11px;border:1px solid var(--line);border-radius:9px;
+  background:var(--paper);color:var(--ink);outline:none}
+.ao-f input:focus,.ao-f select:focus,.ao-f textarea:focus{border-color:var(--gold)}
+.ao-f input[readonly]{opacity:.65;cursor:not-allowed}
+.ao-chk{display:flex;align-items:flex-start;gap:10px;cursor:pointer;
+  background:var(--paper);border:1px solid var(--line);border-radius:10px;
+  padding:11px 13px;margin-bottom:9px}
+.ao-chk input{width:17px;height:17px;flex-shrink:0;margin-top:2px;accent-color:var(--gold);cursor:pointer}
+.ao-chk b{display:block;font-size:13px;font-weight:700}
+.ao-chk small{display:block;font-size:11.5px;color:var(--ink-2);margin-top:2px}
+.ao-search{position:relative}
+.ao-res{position:absolute;z-index:5;inset-inline:0;top:100%;margin-top:4px;
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  box-shadow:0 10px 28px rgba(15,23,42,.14);max-height:230px;overflow:auto;display:none}
+.ao-res.show{display:block}
+.ao-res-item{padding:9px 12px;cursor:pointer;border-bottom:1px solid var(--line)}
+.ao-res-item:last-child{border-bottom:0}
+.ao-res-item:hover,.ao-res-item.on{background:var(--paper)}
+.ao-res-item b{display:block;font-size:13px;font-weight:700}
+.ao-res-item small{display:block;font-size:11.5px;color:var(--ink-2);margin-top:2px;direction:ltr;text-align:right}
+.ao-res-none{padding:10px 12px;font-size:12.5px;color:var(--ink-2)}
+.ao-hide{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.ao-hide-list{display:flex;flex-wrap:wrap;gap:8px}
+.ao-hide-empty{font-size:12px;color:var(--ink-2)}
+.ao-hide-item{display:inline-flex;align-items:center;gap:7px;cursor:pointer;
+  background:var(--panel);border:1px solid var(--line);border-radius:999px;
+  padding:6px 11px;font-size:12.5px;font-weight:600}
+.ao-hide-item input{width:15px;height:15px;accent-color:var(--gold);cursor:pointer}
+.ao-msg{font-size:13px;font-weight:700;margin-top:12px;min-height:1em}
+.ao-msg.err{color:var(--dead)}
+.ao-msg.ok{color:var(--ok)}
+.ao-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  flex-wrap:wrap;padding:14px 20px;border-top:1px solid var(--line)}
+.ao-num{font-family:var(--fm);font-size:13px;font-weight:700;color:var(--gold);letter-spacing:.04em}
+@media(max-width:560px){.ao-grid{grid-template-columns:1fr}.ao-body{max-height:calc(100vh - 200px)}}
 .kpi h3{margin:0 0 5px;font-size:11.5px;font-weight:700;color:var(--ink-2)}
 .kpi .value{font-family:var(--fm);font-variant-numeric:tabular-nums;font-size:20px;font-weight:600;letter-spacing:-.02em}
 
@@ -250,6 +325,112 @@ body.sb-open{overflow:hidden}
 
 <!-- ═══ العمود الجانبي ═══ -->
 <div class="sb-overlay" id="sbOverlay" onclick="closeSb()"></div>
+
+<!-- ═══ ➕ نافذة إضافة طلب — نفس مبدأ QuickOrder ═══ -->
+<div class="ao-overlay" id="aoOverlay" onclick="if(event.target===this)closeAddOrder()">
+  <div class="ao-box" role="dialog" aria-modal="true" aria-labelledby="aoTitle">
+    <div class="ao-head">
+      <h3 id="aoTitle">➕ إضافة طلب</h3>
+      <button class="ao-x" onclick="closeAddOrder()" aria-label="إغلاق">&times;</button>
+    </div>
+
+    <div class="ao-body">
+      <div class="ao-sec">بيانات العميل</div>
+
+      <!-- 🔎 دوّر على عميل قديم بالاسم أو الموبايل — البحث محلي في
+           الطلبات اللي محمّلة في الشاشة أصلاً، فمفيش نداء سيرفر
+           ولا انتظار. اختيار العميل بيملّي بياناته بس — الموظف
+           يقدر يعدّلها عادي بعد كده. -->
+      <div class="ao-f ao-search">
+        <label>دوّر على عميل موجود</label>
+        <input id="aoSearch" type="text" autocomplete="off"
+               placeholder="اكتب اسم أو رقم موبايل…"
+               oninput="aoSearchCustomer()" onfocus="aoSearchCustomer()">
+        <div class="ao-res" id="aoResults"></div>
+      </div>
+
+      <div class="ao-grid">
+        <div class="ao-f"><label>الاسم *</label><input id="aoName" type="text"></div>
+        <div class="ao-f"><label>الموبايل *</label><input id="aoPhone" type="tel" inputmode="tel" placeholder="01xxxxxxxxx"></div>
+        <div class="ao-f"><label>الإيميل (اختياري)</label><input id="aoEmail" type="email" placeholder="name@example.com"></div>
+        <div class="ao-f"><label>المحافظة</label><select id="aoGov"></select></div>
+      </div>
+      <div class="ao-f"><label>العنوان</label><textarea id="aoAddress" rows="2"></textarea></div>
+
+      <div class="ao-sec">بيانات المنتج</div>
+      <div class="ao-f"><label>رابط المنتج</label><input id="aoLink" type="url" dir="ltr" placeholder="https://amazon.com/..."></div>
+      <div class="ao-grid">
+        <div class="ao-f"><label>الكمية</label><input id="aoQty" type="number" min="1" value="1"></div>
+        <div class="ao-f"><label>التكلفة (USD)</label><input id="aoUsd" type="number" step="any" placeholder="0.00"></div>
+        <div class="ao-f"><label>السعر النهائي (EGP) *</label><input id="aoPrice" type="number" step="any" placeholder="0"></div>
+      </div>
+      <div class="ao-f"><label>المواصفات والملاحظات</label><input id="aoDims" type="text" placeholder="المقاس / اللون / ملاحظات"></div>
+
+      <div class="ao-sec">بيانات التشغيل</div>
+      <div class="ao-grid">
+        <!-- ⚠️ نص مش type="date" عن قصد — عمود موعد الوصول في الشيت
+             بيتكتب فيه نص حر (خانة التعديل في الجدول نفسه وفي
+             DashboardMob2 الاتنين type="text"). لو خليناه date كنا
+             هنجبر الموظف على تاريخ كامل بصيغة واحدة، والفلتر
+             وتجميع الشحنات بيشتغلوا على النص زي ما هو. -->
+        <div class="ao-f"><label>موعد الوصول</label>
+          <input id="aoArrival" type="text" list="aoArrivalList" placeholder="زي: 18 Sep 2026">
+          <datalist id="aoArrivalList"></datalist>
+        </div>
+        <div class="ao-f"><label>العربون المدفوع (EGP)</label><input id="aoDeposit" type="number" step="any" placeholder="0"></div>
+        <div class="ao-f">
+          <label>حالة الطلب</label>
+          <!-- ⚠️ الـ value لازم يفضل بالإنجليزي زي ما هو متخزن في الشيت
+               بالظبط — دي القيمة اللي tsStatusLabel والسيرفر بيقارنوا
+               بيها. العربي هنا عرض بس (كان بالإنجليزي كمان فطال وكان
+               بيتقص في عرض العمود) -->
+          <select id="aoStatus">
+            <option value="Pending Review">قيد المراجعة</option>
+            <option value="Confirmed Via Try">تم التأكيد</option>
+            <option value="Processing">جاري التجهيز</option>
+            <option value="Placed">تم الطلب</option>
+            <option value="Arrived Cairo HUB">وصل القاهرة</option>
+            <option value="Shipped To You">في الطريق إليك</option>
+            <option value="Delivered">تم التسليم</option>
+            <option value="Delayed">متأخر</option>
+            <option value="Canceled">ملغي</option>
+          </select>
+        </div>
+        <div class="ao-f"><label>مسجّل باسم</label><input id="aoUser" type="text" readonly></div>
+      </div>
+
+      <!-- 🙈 "مخفي عن" — نفس فكرة عمود hiddenFrom في الشيت: أسماء
+           يوزرز الموظفين اللي الطلب ده مايظهرش عندهم. السكشن ده
+           بيتخفى تمامًا لغير الأدمن، والسيرفر كمان بيتجاهل القيمة
+           لو التوكن مش بتاع أدمن — فالإخفاء هنا مش هو الحماية. -->
+      <div class="ao-sec" id="aoHideSec" style="display:none">مخفي عن</div>
+      <div class="ao-hide" id="aoHideBox" style="display:none">
+        <div id="aoHideList" class="ao-hide-list"><span class="ao-hide-empty">⏳ جاري تحميل قائمة الموظفين...</span></div>
+      </div>
+
+      <!-- 📧 التحكم في الإيميلات — إيميل العميل وإشعار الفريق منفصلين -->
+      <div class="ao-sec">الإشعارات</div>
+      <label class="ao-chk">
+        <input type="checkbox" id="aoNotifyStaff" checked>
+        <span><b>ابعت إشعار للموظفين</b><small>إيميل للفريق إن فيه طلب جديد اتسجل</small></span>
+      </label>
+      <label class="ao-chk">
+        <input type="checkbox" id="aoNotifyCustomer" checked>
+        <span><b>ابعت تأكيد للعميل</b><small>محتاج إيميل العميل يكون متكتوب فوق</small></span>
+      </label>
+
+      <div class="ao-msg" id="aoMsg"></div>
+    </div>
+
+    <div class="ao-foot">
+      <span class="ao-num" id="aoOrderNo">—</span>
+      <div class="sp">
+        <button class="tbtn" onclick="closeAddOrder()">إلغاء</button>
+        <button class="tbtn gold" id="aoSave" onclick="submitAddOrder()">حفظ الطلب</button>
+      </div>
+    </div>
+  </div>
+</div>
 <aside class="sb" id="sb">
   <div class="sb-brand">
     <div class="lg">TS</div>
@@ -337,16 +518,30 @@ body.sb-open{overflow:hidden}
       <button class="tbtn" onclick="loadData()"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> تحديث</button>
       <button class="tbtn" onclick="exportCSV()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> تصدير CSV</button>
       <button class="tbtn gold" onclick="printAllDisplayed()"><svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> طباعة الكل</button>
+      <button class="tbtn add" onclick="openAddOrder()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> إضافة طلب</button>
     </div>
   </div>
 
-  <div class="kpis">
+  <!-- 💰 شريط التحكم في الحسابات — الأرقام مخفية أول ما الداشبورد
+       تفتح عشان متبقاش مكشوفة قدام أي حد بيعدي على الشاشة. بتظهر
+       تلقائيًا أول ما تعمل أي فلتر، وتقدر تفتحها يدويًا من الزرار. -->
+  <div class="kpibar">
+    <button id="kpiToggle" class="kpitoggle" onclick="toggleKpis()">
+      <span id="kpiToggleTxt">إظهار الحسابات</span>
+    </button>
+    <span class="kpiscope" id="kpiScope">كل الطلبات — من غير فلتر</span>
+  </div>
+
+  <div class="kpis is-hidden" id="kpis">
     <div class="kpi k-egp"><h3>إجمالي المبيعات (EGP)</h3><div id="totalEGP" class="value">0</div></div>
     <div class="kpi k-dep"><h3>إجمالي العربون المحصّل</h3><div id="totalDeposit" class="value" style="color:var(--warn)">0</div></div>
     <div class="kpi k-net"><h3>صافي التحصيل (End Price)</h3><div id="totalNet" class="value" style="color:var(--ok)">0</div></div>
     <div class="kpi k-cnt"><h3>عدد الشحنات</h3><div id="totalCount" class="value">0</div></div>
     <div class="kpi k-usd"><h3>التكلفة (USD)</h3><div id="totalUSD" class="value">0</div></div>
     <div class="kpi k-pf"><h3>أرباح الطلبات (Profit)</h3><div id="totalProfit" class="value" style="color:var(--ok)">0</div></div>
+    <!-- 🆕 نسبة الـ 25% — عرض فقط، محسوبة لحظيًا من الأرباح المعروضة.
+         مش متخزنة في الشيت ولا بتتبعت لأي حد، وبتتبع نفس الفلتر. -->
+    <div class="kpi k-25"><h3>25% من الأرباح</h3><div id="totalShare25" class="value" style="color:var(--gold)">0</div></div>
   </div>
 
   <div class="bulkbar">
@@ -862,11 +1057,62 @@ return dateMatch && searchMatch && statusMatch && arrivalMatch && userMatch;
     document.getElementById("totalDeposit").innerText = Math.round(totalDeposit).toLocaleString() + " ج.م";
     document.getElementById("totalNet").innerText = Math.round(totalNet).toLocaleString() + " ج.م";
     document.getElementById("totalProfit").innerText = Math.round(totalProfit).toLocaleString() + " ج.م";
+    // 🆕 25% من الأرباح — عرض فقط، مش بيتخزن ولا بيتبعت لأي حد
+    document.getElementById("totalShare25").innerText = Math.round(totalProfit * 0.25).toLocaleString() + " ج.م";
     document.getElementById("totalCount").innerText = filtered.length;
     document.getElementById("activeUser").innerText = userFilter || "كل الموظفين";
+
+    /* 💰 الحسابات بتظهر لوحدها أول ما يتطبق أي فلتر، وترجع تتخفي
+       لما ترجّع الفلاتر كلها فاضية — إلا لو المستخدم فتحها بإيده
+       من الزرار (kpiPinned)، ساعتها بتفضل مفتوحة. */
+    const activeFilters = [
+      search && "بحث",
+      status && "حالة: " + status,
+      userFilter && "موظف: " + userFilter,
+      (arrivalPick || arrivalSearch) && "موعد وصول",
+      (from || to) && "تاريخ",
+      srcFilter && (srcFilter === "rama" ? "RAMA" : "طلبات الموقع")
+    ].filter(Boolean);
+    updateKpiVisibility(activeFilters);
     
     currentFilteredData = filtered; 
     renderTable(filtered);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   💰 إظهار / إخفاء الحسابات
+   ═══════════════════════════════════════════════════════════
+   الأرقام مخفية أول ما الداشبورد تفتح. ليه؟ الشاشة دي بتتفتح
+   قدام ناس كتير في الشغل، ومفيش داعي إن إجمالي الأرباح ونسبة
+   الـ 25% يبقوا مكشوفين لمجرد إن حد فتح الطلبات.
+
+   بتظهر في حالتين:
+     • أول ما تطبّق أي فلتر (الأرقام وقتها بتخص الفلتر ده بس)
+     • أو لما تضغط الزرار بنفسك — وساعتها بتفضل مفتوحة (kpiPinned)
+       لحد ما تقفلها، حتى لو مسحت الفلاتر.
+   ═══════════════════════════════════════════════════════════ */
+let kpiPinned = false;
+
+function setKpiOpen(open){
+  document.getElementById("kpis").classList.toggle("is-hidden", !open);
+  const btn = document.getElementById("kpiToggle");
+  btn.classList.toggle("on", open);
+  document.getElementById("kpiToggleTxt").innerText = open ? "إخفاء الحسابات" : "إظهار الحسابات";
+}
+
+function toggleKpis(){
+  const nowHidden = document.getElementById("kpis").classList.contains("is-hidden");
+  kpiPinned = nowHidden;          // فتحها بإيده = تفضل مفتوحة
+  setKpiOpen(nowHidden);
+}
+
+/* بينده من applyFilters بعد ما الأرقام تتحدّث */
+function updateKpiVisibility(activeFilters){
+  const hasFilter = activeFilters.length > 0;
+  setKpiOpen(hasFilter || kpiPinned);
+  document.getElementById("kpiScope").innerHTML = hasFilter
+    ? 'الأرقام دي بتخص: <b>' + activeFilters.join(" · ") + '</b>'
+    : 'كل الطلبات — من غير فلتر';
 }
 
 function toggleGrouping() {
@@ -1099,6 +1345,7 @@ function logout(){
   localStorage.removeItem("currentUserLabel");
   localStorage.removeItem("loginTime");
   localStorage.removeItem("staffToken");
+  localStorage.removeItem("isAdmin");
   location.reload();
 }
 
@@ -1320,6 +1567,10 @@ async function doLogin() {
     localStorage.setItem("currentUserLabel", res.label || u);
     localStorage.setItem("loginTime", new Date().getTime());
     localStorage.setItem("staffToken", res.token || "");
+    /* 🆕 صلاحية الأدمن للواجهة بس (إظهار قسم "مخفي عن") — نفس المفتاح
+       المستخدم في DashboardMob2. الحماية الحقيقية في التوكن الموقّع
+       نفسه، فتغييرها من المتصفح مش بيدي أي صلاحية على السيرفر. */
+    localStorage.setItem("isAdmin", res.isAdmin ? "1" : "0");
     document.getElementById("loginError").style.display = "none";
     showDashboard();
   } else {
@@ -1339,11 +1590,286 @@ function checkSession() {
     localStorage.removeItem("currentUserLabel");
     localStorage.removeItem("loginTime");
     localStorage.removeItem("staffToken");
+  localStorage.removeItem("isAdmin");
     showLoginScreen();
   }
 }
 checkSession();
 
+
+/* ═══════════════════════════════════════════════════════════
+   ➕ إضافة طلب من لوحة الطلبات — نفس مبدأ QuickOrder
+   ═══════════════════════════════════════════════════════════
+   بيستخدم نفس نداء tsPostScript على نفس رابط الطلبات بالظبط،
+   ونفس صيغة رقم الطلب (TRY + 8 أرقام). الفرق الوحيد إن الشاشة
+   دي بتسمح كمان بموعد الوصول والعربون وحالة الطلب من أول لحظة
+   بدل ما تتسجل Pending Review وتتعدّل بعدين.
+   ═══════════════════════════════════════════════════════════ */
+
+const AO_GOVS = ["القاهرة","الجيزة","الإسكندرية","الدقهلية","الشرقية","الغربية","المنوفية",
+  "القليوبية","البحيرة","كفر الشيخ","دمياط","بورسعيد","الإسماعيلية","السويس","الفيوم",
+  "بني سويف","المنيا","أسيوط","سوهاج","قنا","الأقصر","أسوان","البحر الأحمر","الوادي الجديد",
+  "مطروح","شمال سيناء","جنوب سيناء"];
+
+function aoGenOrderNo(){ return "TRY" + Math.floor(10000000 + Math.random() * 90000000); }
+
+/* ───────────────────────────────────────────────────────────
+   🔎 البحث عن عميل موجود
+   بيشتغل على ordersData المحمّلة في الشاشة (مفيش نداء سيرفر).
+   بنجمّع العملاء بالموبايل الموحّد عشان العميل اللي عنده 10
+   طلبات يظهر مرة واحدة، وبناخد أحدث صف عنده عشان العنوان
+   والإيميل يكونوا آخر حاجة مسجّلة مش أقدم واحدة.
+   ─────────────────────────────────────────────────────────── */
+let AO_RESULTS = [];
+
+function aoCustomerIndex(){
+  const byPhone = new Map();
+  // ordersData مرتّبة من السيرفر بالأقدم الأول، فآخر صف = أحدث طلب
+  ordersData.forEach(o => {
+    const name = String(o.customerName || "").trim();
+    const key  = normPhoneD(o.phone);
+    if(!key && !name) return;
+    // 🙈 صفوف الـ opex مصاريف شحنة مش عملاء
+    if(/opex/i.test(name)) return;
+    const prev = byPhone.get(key || name.toLowerCase()) || { count: 0 };
+    byPhone.set(key || name.toLowerCase(), {
+      name:  name        || prev.name  || "",
+      phone: o.phone     || prev.phone || "",
+      // القيم الفاضية في الطلب الأحدث مبتمسحش القديمة المفيدة
+      email: String(o.email || "").trim()       || prev.email || "",
+      gov:   String(o.governorate || "").trim() || prev.gov   || "",
+      addr:  String(o.address || "").trim()     || prev.addr  || "",
+      count: prev.count + 1
+    });
+  });
+  return [...byPhone.values()];
+}
+
+function aoSearchCustomer(){
+  const box = document.getElementById("aoResults");
+  const q   = document.getElementById("aoSearch").value.trim();
+  if(q.length < 2){ box.className = "ao-res"; box.innerHTML = ""; AO_RESULTS = []; return; }
+
+  const qDigits = q.replace(/\D/g, "");
+  const qLower  = q.toLowerCase();
+  AO_RESULTS = aoCustomerIndex().filter(c => {
+    // رقم: بنطابق على الصيغة الموحّدة عشان 0101… و201… و101… كلهم يلاقوا
+    if(qDigits.length >= 3 && normPhoneD(c.phone).indexOf(normPhoneD(qDigits)) !== -1) return true;
+    return c.name.toLowerCase().indexOf(qLower) !== -1;
+  })
+  .sort((a,b) => b.count - a.count)   // الأكتر طلبات الأول
+  .slice(0, 8);                        // القايمة مبتطولش
+
+  box.className = "ao-res show";
+  box.innerHTML = AO_RESULTS.length
+    ? AO_RESULTS.map((c,i) =>
+        '<div class="ao-res-item" onclick="aoPickCustomer(' + i + ')">' +
+          '<b>' + tsEscapeHtml(c.name || "(بدون اسم)") + '</b>' +
+          '<small>' + tsEscapeHtml(tsDisplayPhone(c.phone)) +
+            (c.gov ? ' — ' + tsEscapeHtml(c.gov) : '') +
+            ' — ' + c.count + (c.count > 1 ? ' طلبات' : ' طلب') +
+          '</small>' +
+        '</div>').join("")
+    : '<div class="ao-res-none">مفيش عميل بالاسم أو الرقم ده — اكتب البيانات يدوي.</div>';
+}
+
+function aoPickCustomer(i){
+  const c = AO_RESULTS[i];
+  if(!c) return;
+  document.getElementById("aoName").value  = c.name;
+  // 📞 بيتحط بشكله الكامل (01…) — tsNormalizePhone في السيرفر
+  // بترجّعه لصيغة التخزين، فمفيش خطر تكرار الصفر
+  document.getElementById("aoPhone").value = tsDisplayPhone(c.phone);
+  document.getElementById("aoEmail").value = c.email;
+  document.getElementById("aoAddress").value = c.addr;
+  const gov = document.getElementById("aoGov");
+  // المحافظة بتتحط بس لو موجودة فعلاً في الليستة
+  if(c.gov && [...gov.options].some(op => op.value === c.gov)) gov.value = c.gov;
+  document.getElementById("aoResults").className = "ao-res";
+  document.getElementById("aoSearch").value = "";
+  document.getElementById("aoLink").focus();
+}
+
+/* 📅 اقتراحات مواعيد الوصول — نفس المواعيد المستخدمة فعلاً في
+   الطلبات، عشان الموظف يكتبها بنفس الصيغة بالظبط بدل ما يعمل
+   مجموعة شحن جديدة بالغلط من اختلاف حرف أو مسافة */
+function aoFillArrivalSuggestions(){
+  const dl = document.getElementById("aoArrivalList");
+  const seen = [...new Set(ordersData.map(o => String(o.arrivaldate || "").trim()).filter(Boolean))];
+  dl.innerHTML = seen.slice(0, 40).map(v => '<option value="' + tsEscapeHtml(v) + '">').join("");
+}
+
+/* 🙈 قسم "مخفي عن" — أدمن بس. نفس مصدر القايمة المستخدم في
+   DashboardMob2 (tsListStaff من staff-auth.js، عنده كاش محلي
+   فمش بيأخّر فتح الشاشة). لو القايمة لسه بتتحمّل الشاشة بتفتح
+   عادي والليستة بتترسم أول ما توصل. */
+let AO_STAFF = [];
+
+function aoIsAdmin(){ return localStorage.getItem("isAdmin") === "1"; }
+
+function aoRenderHideList(){
+  const box = document.getElementById("aoHideList");
+  if(!AO_STAFF.length){
+    box.innerHTML = '<span class="ao-hide-empty">⏳ جاري تحميل قائمة الموظفين...</span>';
+    return;
+  }
+  /* ⚠️ اليوزرنيم مش الليبل — getCurrentUser() بيرجّع الاسم المعروض
+     ("هيثم") وده مش بيطابق s.username ("haitham") */
+  const me = String(localStorage.getItem("currentUser") || "").toLowerCase();
+  box.innerHTML = AO_STAFF
+    // مالكش لازمة تخفي الطلب عن نفسك وانت بتسجّله
+    .filter(s => String(s.username).toLowerCase() !== me)
+    .map(s => '<label class="ao-hide-item"><input type="checkbox" class="ao-hide-cb" value="' +
+      tsEscapeHtml(s.username) + '"><span>' + tsEscapeHtml(s.label || s.username) + '</span></label>')
+    .join("") || '<span class="ao-hide-empty">مفيش موظفين تانيين.</span>';
+}
+
+function aoSetupHideSection(){
+  const sec = document.getElementById("aoHideSec");
+  const box = document.getElementById("aoHideBox");
+  if(!aoIsAdmin()){
+    sec.style.display = "none"; box.style.display = "none";
+    // بنفضّي الليستة كمان مش بنخفيها بس — عشان ماتبعتش hiddenFrom
+    // متعلّمة من فتحة قديمة والموظف مش شايف السكشن أصلاً
+    document.getElementById("aoHideList").innerHTML = "";
+    return;
+  }
+  sec.style.display = ""; box.style.display = "";
+  aoRenderHideList();
+  if(!AO_STAFF.length && typeof tsListStaff === "function"){
+    tsListStaff().then(list => { AO_STAFF = list || []; aoRenderHideList(); }).catch(()=>{});
+  }
+}
+
+function openAddOrder(){
+  const gov = document.getElementById("aoGov");
+  if(!gov.options.length){
+    gov.innerHTML = '<option value="">— اختر المحافظة —</option>' +
+      AO_GOVS.map(g => '<option value="'+g+'">'+g+'</option>').join("");
+  }
+  aoSetupHideSection();
+  aoFillArrivalSuggestions();
+  document.getElementById("aoSearch").value = "";
+  document.getElementById("aoResults").className = "ao-res";
+  document.getElementById("aoResults").innerHTML = "";
+  // رقم الطلب بيتولّد وقت فتح الشاشة عشان الموظف يشوفه قبل الحفظ
+  document.getElementById("aoOrderNo").innerText = aoGenOrderNo();
+  document.getElementById("aoUser").value = getCurrentUser() || "—";
+  document.getElementById("aoMsg").className = "ao-msg";
+  document.getElementById("aoMsg").innerText = "";
+  document.getElementById("aoOverlay").classList.add("show");
+  setTimeout(()=>document.getElementById("aoName").focus(), 60);
+}
+
+function closeAddOrder(){
+  document.getElementById("aoOverlay").classList.remove("show");
+}
+
+function aoClearForm(){
+  ["aoName","aoPhone","aoEmail","aoAddress","aoLink","aoUsd","aoPrice",
+   "aoDims","aoArrival","aoDeposit","aoSearch"].forEach(id=>{
+    document.getElementById(id).value = "";
+  });
+  document.getElementById("aoResults").className = "ao-res";
+  document.getElementById("aoResults").innerHTML = "";
+  document.getElementById("aoQty").value = "1";
+  document.getElementById("aoGov").value = "";
+  document.getElementById("aoStatus").value = "Pending Review";
+  document.getElementById("aoNotifyStaff").checked = true;
+  document.getElementById("aoNotifyCustomer").checked = true;
+  document.querySelectorAll(".ao-hide-cb").forEach(cb => { cb.checked = false; });
+}
+
+async function submitAddOrder(){
+  const v  = id => document.getElementById(id).value.trim();
+  const msg = document.getElementById("aoMsg");
+  const btn = document.getElementById("aoSave");
+
+  const name  = v("aoName");
+  const phone = v("aoPhone");
+  const price = v("aoPrice");
+
+  if(!name || !phone || !price){
+    msg.className = "ao-msg err";
+    msg.innerText = "الاسم والموبايل والسعر النهائي مطلوبين.";
+    return;
+  }
+
+  const orderNo = document.getElementById("aoOrderNo").innerText;
+  const email   = v("aoEmail");
+  const notifyCustomer = document.getElementById("aoNotifyCustomer").checked;
+  const notifyStaff    = document.getElementById("aoNotifyStaff").checked;
+
+  tsSetBtnLoading(btn, "جاري الحفظ...");
+  msg.className = "ao-msg";
+  msg.innerText = "";
+
+  try{
+    await tsPostScript(scriptURL, {
+      order: orderNo,
+      customerName: name,
+      phone: phone,
+      /* الإيميل بيتبعت دايمًا عشان يتسجل في الشيت (هنحتاجه بعدين في
+         تحديثات الحالة)، والتحكم في التأكيد بيبقى بفلاج منفصل تحت —
+         بدل ما نمسح بيانات العميل عشان بس نوقف إيميل واحد. */
+      email: email,
+      country: "USA",
+      address: v("aoAddress"),
+      governorate: document.getElementById("aoGov").value,
+      link: v("aoLink"),
+      quantity: document.getElementById("aoQty").value || 1,
+      usd: v("aoUsd"),
+      dimensions: v("aoDims"),
+      finalPrice: price,
+      deposit: v("aoDeposit"),
+      arrivaldate: v("aoArrival"),
+      status: document.getElementById("aoStatus").value,
+      user: getCurrentUser(),
+      /* 🙈 أسماء اليوزرز اللي الطلب مايبانش عندهم — مفصولة بفاصلة،
+         نفس صيغة عمود hiddenFrom في الشيت. السيرفر بيتجاهلها لو
+         التوكن مش أدمن، فبنبعت التوكن معاها. */
+      hiddenFrom: Array.from(document.querySelectorAll(".ao-hide-cb:checked"))
+                       .map(cb => cb.value).join(","),
+      staffToken: getStaffToken(),
+      /* 📧 الفلاجين دول بيتقروا في Orders_Code.gs، كل واحد بيوقف
+         إيميل واحد بس ومستقل عن التاني (مش زي suppressEmail
+         القديمة اللي كانت بتقفل الاتنين مع بعض) */
+      notifyStaff: notifyStaff,
+      notifyCustomer: notifyCustomer
+    });
+
+    msg.className = "ao-msg ok";
+    msg.innerText = "اتسجل بنجاح: " + orderNo;
+    aoClearForm();
+    document.getElementById("aoOrderNo").innerText = aoGenOrderNo();
+    /* الشيت عليه كاش دقيقتين، فبنستنى شوية قبل التحديث عشان الطلب
+       الجديد يبان فعلاً بدل ما ترجع نفس القايمة القديمة */
+    setTimeout(loadData, 1200);
+  }catch(err){
+    msg.className = "ao-msg err";
+    msg.innerText = "الطلب ماتسجلش — راجع النت وحاول تاني.";
+  }finally{
+    tsClearBtnLoading(btn);
+  }
+}
+
+/* Esc بتقفل نتايج البحث الأول لو مفتوحة، وبعدها الشاشة نفسها —
+   عشان ماتقفلش الفورم كله وانت قاصد تقفل الليستة بس */
+document.addEventListener("keydown", e => {
+  if(e.key !== "Escape") return;
+  if(!document.getElementById("aoOverlay").classList.contains("show")) return;
+  const res = document.getElementById("aoResults");
+  if(res.classList.contains("show")){ res.className = "ao-res"; return; }
+  closeAddOrder();
+});
+
+/* الضغط برّه ليستة النتايج بيقفلها */
+document.addEventListener("click", e => {
+  if(!e.target.closest(".ao-search")){
+    const res = document.getElementById("aoResults");
+    if(res) res.className = "ao-res";
+  }
+});
 </script>
 </body>
 </html>
