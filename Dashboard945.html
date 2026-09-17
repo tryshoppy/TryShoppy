@@ -154,6 +154,11 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .ao-chk input{width:17px;height:17px;flex-shrink:0;margin-top:2px;accent-color:var(--gold);cursor:pointer}
 .ao-chk b{display:block;font-size:13px;font-weight:700}
 .ao-chk small{display:block;font-size:11.5px;color:var(--ink-2);margin-top:2px}
+.ao-calc{font-size:12.5px;font-weight:700;color:var(--ink-2);background:var(--gold-wash);
+  border:1px solid #F2DFA8;border-radius:9px;padding:9px 12px;margin-bottom:12px;
+  font-family:var(--fm);display:none}
+.ao-calc.on{display:block}
+.ao-calc b{color:var(--gold-ink);font-weight:800}
 /* 🛒 زرار الإضافة للسلة — صلب وواضح عن قصد. أول نسخة كانت
    بحدود منقّطة وخلفية باهتة، فكانت بتتقري كأنها فاصل مش زرار. */
 .ao-addbtn{display:block;width:100%;padding:13px;border-radius:11px;cursor:pointer;
@@ -377,11 +382,20 @@ body.sb-open{overflow:hidden}
 
       <div class="ao-sec">بيانات المنتج</div>
       <div class="ao-f"><label>رابط المنتج</label><input id="aoLink" type="url" dir="ltr" placeholder="https://amazon.com/..."></div>
+      <!-- ⚠️ الأسعار دي **للوحدة الواحدة** — بتتضرب في الكمية قبل ما
+           تتسجل. الشيت بيخزّن الإجمالي مش سعر الوحدة (كل حسابات
+           الداشبورد بتجمع finalPrice و usd من غير ما تضربهم في
+           الكمية)، فالضرب لازم يحصل هنا. -->
       <div class="ao-grid">
-        <div class="ao-f"><label>الكمية</label><input id="aoQty" type="number" min="1" value="1"></div>
-        <div class="ao-f"><label>التكلفة (USD)</label><input id="aoUsd" type="number" step="any" placeholder="0.00"></div>
-        <div class="ao-f"><label>السعر النهائي (EGP) *</label><input id="aoPrice" type="number" step="any" placeholder="0"></div>
+        <div class="ao-f"><label>الكمية</label>
+          <input id="aoQty" type="number" min="1" value="1" oninput="aoUpdateLineTotal()"></div>
+        <div class="ao-f"><label>سعر الوحدة (USD)</label>
+          <input id="aoUsd" type="number" step="any" placeholder="0.00" oninput="aoUpdateLineTotal()"></div>
+        <div class="ao-f"><label>سعر الوحدة (EGP) *</label>
+          <input id="aoPrice" type="number" step="any" placeholder="0" oninput="aoUpdateLineTotal()"></div>
       </div>
+      <!-- 🧮 الإجمالي بيتحسب قدام الموظف قبل الإضافة — عشان يتأكد -->
+      <div class="ao-calc" id="aoLineTotal"></div>
       <div class="ao-f"><label>المواصفات والملاحظات</label><input id="aoDims" type="text" placeholder="المقاس / اللون / ملاحظات"></div>
 
       <!-- 🛒 السلة — كل منتج بياخد رقم طلب TRY خاص بيه وصف لوحده في
@@ -1680,9 +1694,9 @@ function aoRenderCart(){
       '<span class="ao-ci-n">' + tsEscapeHtml(it.order) + '</span>' +
       '<div class="ao-ci-b">' +
         '<b>' + tsEscapeHtml(it.link || "(من غير رابط)") + '</b>' +
-        '<small>' + it.quantity + ' × ' +
-          (Math.round((parseFloat(it.finalPrice) || 0) / (parseInt(it.quantity) || 1))).toLocaleString() +
-          ' ج.م = ' + (parseFloat(it.finalPrice) || 0).toLocaleString() + ' ج.م' +
+        '<small>' + it.quantity + ' × ' + it.unitEgp.toLocaleString() + ' ج.م = ' +
+          it.finalPrice.toLocaleString() + ' ج.م' +
+          (it.unitUsd ? ' · ' + it.quantity + ' × $' + it.unitUsd.toLocaleString() + ' = $' + it.usd.toLocaleString() : '') +
           (it.dimensions ? ' — ' + tsEscapeHtml(it.dimensions) : '') +
         '</small>' +
       '</div>' +
@@ -1693,29 +1707,62 @@ function aoRenderCart(){
                   " — " + aoCartTotal().toLocaleString() + " ج.م";
 }
 
+/** بتقرا الكمية وسعر الوحدة وترجّع الإجمالي المحسوب.
+ *  مصدر واحد للحساب — المعاينة والإضافة للسلة الاتنين بيستخدموه،
+ *  فمستحيل اللي الموظف شافه يختلف عن اللي اتسجل. */
+function aoReadLine(){
+  const num = id => parseFloat(document.getElementById(id).value) || 0;
+  const qty = Math.max(1, parseInt(document.getElementById("aoQty").value) || 1);
+  const unitEgp = num("aoPrice");
+  const unitUsd = num("aoUsd");
+  return {
+    qty: qty,
+    unitEgp: unitEgp,
+    unitUsd: unitUsd,
+    totalEgp: unitEgp * qty,
+    // بنقرّب الدولار لمنزلتين — ضرب الكسور بيطلع أرقام زي 89.97000000000001
+    totalUsd: Math.round(unitUsd * qty * 100) / 100
+  };
+}
+
+function aoUpdateLineTotal(){
+  const box = document.getElementById("aoLineTotal");
+  const L = aoReadLine();
+  if(!L.unitEgp && !L.unitUsd){ box.className = "ao-calc"; box.innerHTML = ""; return; }
+  box.className = "ao-calc on";
+  box.innerHTML =
+    L.qty + ' × ' + L.unitEgp.toLocaleString() + ' ج.م = <b>' + L.totalEgp.toLocaleString() + ' ج.م</b>' +
+    (L.unitUsd ? '<br>' + L.qty + ' × $' + L.unitUsd.toLocaleString() + ' = <b>$' + L.totalUsd.toLocaleString() + '</b>' : '');
+}
+
 function aoAddToCart(){
   const v = id => document.getElementById(id).value.trim();
   const msg = document.getElementById("aoMsg");
-  const price = v("aoPrice");
+  const L = aoReadLine();
 
-  if(!price){
+  if(!L.unitEgp){
     msg.className = "ao-msg err";
-    msg.innerText = "اكتب السعر النهائي للمنتج قبل ما تضيفه للسلة.";
+    msg.innerText = "اكتب سعر الوحدة بالجنيه قبل ما تضيف المنتج للسلة.";
     return;
   }
 
   AO_CART.push({
     order:      aoGenOrderNo(),
     link:       v("aoLink"),
-    quantity:   document.getElementById("aoQty").value || 1,
-    usd:        v("aoUsd"),
-    finalPrice: price,
+    quantity:   L.qty,
+    // 🧮 اللي بيتسجل في الشيت هو **الإجمالي** بعد الضرب في الكمية،
+    // وسعر الوحدة محفوظ هنا للعرض في السلة بس
+    unitEgp:    L.unitEgp,
+    unitUsd:    L.unitUsd,
+    usd:        L.totalUsd,
+    finalPrice: L.totalEgp,
     dimensions: v("aoDims")
   });
 
   // بنفضّي خانات المنتج بس — بيانات العميل والتشغيل بتفضل زي ما هي
   ["aoLink","aoUsd","aoPrice","aoDims"].forEach(id => { document.getElementById(id).value = ""; });
   document.getElementById("aoQty").value = "1";
+  aoUpdateLineTotal();
 
   msg.className = "ao-msg";
   msg.innerText = "";
@@ -1871,6 +1918,7 @@ function openAddOrder(){
   // وقت إضافة كل منتج، مش وقت فتح الشاشة
   AO_CART = [];
   aoRenderCart();
+  aoUpdateLineTotal();
   document.getElementById("aoUser").value = getCurrentUser() || "—";
   document.getElementById("aoMsg").className = "ao-msg";
   document.getElementById("aoMsg").innerText = "";
@@ -1900,6 +1948,7 @@ function aoClearForm(){
   document.getElementById("aoNotifyStaff").checked = true;
   document.getElementById("aoNotifyCustomer").checked = true;
   document.querySelectorAll(".ao-hide-cb").forEach(cb => { cb.checked = false; });
+  aoUpdateLineTotal();
   AO_CART = [];
   aoRenderCart();
 }
