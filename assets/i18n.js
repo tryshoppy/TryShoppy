@@ -498,6 +498,11 @@ const I18N = {
   tstrip_3:        { en: "Consolidated where applicable.", ar: "بنجمّعها في شحنة واحدة لما ينفع." },
   tstrip_4:        { en: "Check anytime with your order number.", ar: "تابع في أي وقت برقم الطلب." },
 
+  // ---------- home: metallic strip ----------
+  ms_1:            { en: "Shop global", ar: "تسوّق من العالم" },
+  ms_2:            { en: "One price", ar: "سعر واحد" },
+  ms_3:            { en: "Delivered to your door", ar: "يوصل لباب بيتك" },
+
   // ---------- home: calculator band ----------
   calcband_eyebrow:{ en: "PRICE CALCULATOR", ar: "حاسبة السعر" },
   calcband_title:  { en: "Know the full EGP price before you commit", ar: "اعرف السعر الكامل بالجنيه قبل ما توافق" },
