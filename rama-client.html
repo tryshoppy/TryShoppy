@@ -204,7 +204,9 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{
         <option value="Delayed">⏱️ متأخر</option>
         <option value="Delivered">🎉 تم التسليم</option>
       </select>
-      <input type="date" id="filterArrival" onchange="renderList()">
+      <select id="filterArrival" onchange="renderList()">
+        <option value="">📅 كل مواعيد الوصول</option>
+      </select>
       <button class="btn-ghost" style="flex:0 0 auto;" onclick="document.getElementById('searchInput').value='';document.getElementById('filterStatus').value='';document.getElementById('filterArrival').value='';renderList();">🧹 مسح</button>
     </div>
   </div>
@@ -263,6 +265,65 @@ function numAttr(v){
 function fmtNum(v){
   const n = parseFloat(v);
   return (isFinite(n) ? n : 0).toLocaleString();
+}
+
+/* ---------------------------------------------------------
+   📅 مواعيد الوصول — توحيد وترتيب
+   الموعد بيتكتب بإيد الفريق كنص حر (زي O-27SEP2026)، فساعات
+   بيتسجّل كابيتال وساعات سمول. بنوحّد الكل كابيتال عشان
+   "O-27sep2026" و"O-27SEP2026" يبقوا نفس الموعد الواحد، مش
+   اتنين منفصلين في الفلتر ولا في حساب الدفعات
+   --------------------------------------------------------- */
+function normArrival(v){
+  return String(v == null ? "" : v).trim().replace(/\s+/g, " ").toUpperCase();
+}
+
+const ARRIVAL_MONTHS = { JAN:0, FEB:1, MAR:2, APR:3, MAY:4, JUN:5,
+  JUL:6, AUG:7, SEP:8, SEPT:8, OCT:9, NOV:10, DEC:11 };
+
+/* بيطلّع تاريخ حقيقي من نص زي "O-27SEP2026" عشان الترتيب يبقى
+   بالتاريخ الفعلي مش أبجدي — أبجديًا "O-3OCT2026" بييجي قبل
+   "O-27SEP2026" وده غلط تمامًا. بيفهم كمان صيغة 2026-09-27 */
+function parseArrivalDate(v){
+  const s = normArrival(v);
+  if(!s) return null;
+  let m = s.match(/(\d{1,2})\s*-?\s*([A-Z]{3,4})\s*-?\s*(\d{4})/); // 27SEP2026
+  if(m && ARRIVAL_MONTHS[m[2]] !== undefined){
+    return new Date(Date.UTC(+m[3], ARRIVAL_MONTHS[m[2]], +m[1]));
+  }
+  m = s.match(/(\d{4})-(\d{1,2})-(\d{1,2})/); // 2026-09-27
+  if(m) return new Date(Date.UTC(+m[1], +m[2]-1, +m[3]));
+  return null;
+}
+
+// آخر 7 مواعيد وصول — من الأحدث للأقدم، من غير تكرار
+const ARRIVAL_FILTER_LIMIT = 7;
+function getRecentArrivals(){
+  const seen = new Map(); // الكابيتال هو المفتاح، فالسمول بيندمج فيه تلقائي
+  allProducts.forEach(p => {
+    const key = normArrival(p.arrivalDate);
+    if(key && !seen.has(key)) seen.set(key, parseArrivalDate(key));
+  });
+  return Array.from(seen.entries())
+    .sort((a, b) => {
+      if(a[1] && b[1]) return b[1] - a[1];      // الاتنين مفهومين → الأحدث فوق
+      if(a[1]) return -1;                        // اللي ليه تاريخ مفهوم قبل اللي ملوش
+      if(b[1]) return 1;
+      return b[0].localeCompare(a[0]);           // حل أخير: ترتيب نصي
+    })
+    .slice(0, ARRIVAL_FILTER_LIMIT)
+    .map(e => e[0]);
+}
+
+function renderArrivalFilter(){
+  const sel = document.getElementById("filterArrival");
+  if(!sel) return;
+  const current = sel.value;
+  const dates = getRecentArrivals();
+  sel.innerHTML = `<option value="">📅 كل مواعيد الوصول</option>`
+    + dates.map(d => `<option value="${escapeHtml(d)}">📅 ${escapeHtml(d)}</option>`).join("");
+  // نحافظ على اللي إنت مختاره طالما لسه موجود بعد التحديث
+  sel.value = (current && dates.indexOf(current) !== -1) ? current : "";
 }
 
 // 🕑 الجلسة بقت باقية يومين بدل ما تتقفل كل ما تقفل المتصفح —
@@ -737,9 +798,15 @@ function renderList(){
   // 💰 صفوف "Payment" مش منتجات عميل — دي سجلات داخلية لتتبع
   // دفعات دفعة الوصول، ملهاش أي داعي تظهر للعميل خالص
   let items = allProducts.filter(p => p.status !== "Payment").slice().reverse(); // الأحدث الأول كأساس
-  if(q) items = items.filter(p => (p.productName||"").toLowerCase().includes(q) || (p.link||"").toLowerCase().includes(q) || (p.arrivalDate||"").toLowerCase().includes(q));
+  // 🔍 البحث بيقارن الطرفين بحروف صغيرة، فالبحث بموعد الوصول
+  // بيشتغل سواء كتبته كابيتال أو سمول (27sep / 27SEP / O-27Sep)
+  if(q) items = items.filter(p => (p.productName||"").toLowerCase().includes(q) || (p.link||"").toLowerCase().includes(q) || normArrival(p.arrivalDate).toLowerCase().includes(q));
   if(statusF) items = items.filter(p => p.status === statusF);
-  if(arrivalF) items = items.filter(p => (p.arrivalDate||"").indexOf(arrivalF) !== -1);
+  // 🐞 كان بيقارن بالـindexOf على النص الخام والفلتر كان
+  // <input type="date"> بيطلّع "2026-09-27" — ده عمره ما هيطابق
+  // "O-27SEP2026"، يعني فلتر موعد الوصول كان ميّت تمامًا. دلوقتي
+  // قايمة من المواعيد الفعلية، والمقارنة بعد التوحيد كابيتال
+  if(arrivalF) items = items.filter(p => normArrival(p.arrivalDate) === normArrival(arrivalF));
 
   // 🔝 اللي محتاج ردك (بانتظار موافقتك) دايمًا فوق، والأحدث فوق جوه
   // نفس المجموعة (الـsort مستقر، فترتيب "الأحدث فوق" اللي عملناه
@@ -759,12 +826,13 @@ function renderList(){
   // إجمالي المدفوع/المتبقي — بنفس فلتر تاريخ الوصول لو مستخدم
   const paymentsTotal = allProducts
     .filter(p => p.status === "Payment")
-    .filter(p => !arrivalF || (p.arrivalDate||"").indexOf(arrivalF) !== -1)
+    .filter(p => !arrivalF || normArrival(p.arrivalDate) === normArrival(arrivalF))
     .reduce((s,p)=> s + (parseFloat(p.deposit)||0), 0);
 
   renderStats(items, paymentsTotal, statusF); // ← نفس المجموعة المفلترة اللي هتتعرض تحت
   renderProducts(items);
-  renderQuickChips(); // الشرايح السريعة تفضل مزامنة مع الفلتر والأعداد
+  renderQuickChips();    // الشرايح السريعة تفضل مزامنة مع الفلتر والأعداد
+  renderArrivalFilter(); // قايمة آخر 7 مواعيد وصول تفضل محدّثة
 }
 
 // 0 = محتاج ردك دلوقتي (بانتظار موافقتك)، 1 = الباقي
@@ -822,7 +890,7 @@ function renderProducts(items){
         <div class="meta-line">💰 سعر القطعة: ${fmtNum(p.staffEgp)} EGP</div>
         <div class="meta-line">🔢 العدد: ${escapeHtml(p.quantity || 1)}</div>
         <div class="price-tag">💵 الإجمالي: ${fmtNum(p.finalEgp)} EGP</div>
-        <div class="meta-line">📅 موعد الوصول: ${escapeHtml(p.arrivalDate || "—")}</div>
+        <div class="meta-line">📅 موعد الوصول: ${escapeHtml(normArrival(p.arrivalDate) || "—")}</div>
         <div class="meta-line">💰 العربون: ${fmtNum(p.deposit)} EGP — المتبقي: ${Math.max(0, (parseFloat(p.finalEgp)||0) - (parseFloat(p.deposit)||0)).toLocaleString()} EGP</div>
         <button class="mini-btn btn-ghost" style="margin-top:8px;" onclick="reorderProduct('${jid}', this)">🔁 إعادة طلب نفس المنتج</button>`;
     }
@@ -1026,7 +1094,7 @@ function exportCSV(){
   const headers = ["اسم المنتج","الرابط","الحالة","سعر القطعة EGP","الكمية","الإجمالي EGP","العربون EGP","المتبقي EGP","تاريخ الوصول"];
   const rows = lastRenderedItems.map(p => [
     p.productName, p.link, STATUS_META[p.status]?.label || p.status,
-    p.staffEgp, p.quantity, p.finalEgp, p.deposit, Math.max(0, (parseFloat(p.finalEgp)||0) - (parseFloat(p.deposit)||0)), p.arrivalDate
+    p.staffEgp, p.quantity, p.finalEgp, p.deposit, Math.max(0, (parseFloat(p.finalEgp)||0) - (parseFloat(p.deposit)||0)), normArrival(p.arrivalDate)
   ].map(csvEscape).join(","));
   const csv = "\uFEFF" + headers.map(csvEscape).join(",") + "\n" + rows.join("\n"); // BOM عشان إكسل يفتح العربي صح
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -1057,7 +1125,10 @@ function getArrivalBatches(){
   const ensure = (d) => { if(!byDate[d]) byDate[d] = { arrivalDate: d, total: 0, paidFromProducts: 0, payments: [] }; return byDate[d]; };
 
   allProducts.forEach(p => {
-    const d = (p.arrivalDate || "").trim();
+    // 🐞 كان بيجمّع على النص الخام — "O-27sep2026" و"O-27SEP2026"
+    // كانوا بيتحسبوا موعدين منفصلين، فالإجمالي والمدفوع والمتبقي
+    // بيتقسموا على كارتين بدل ما يبقوا موعد واحد صح
+    const d = normArrival(p.arrivalDate);
     if(!d) return;
     if(p.status === "Payment"){
       ensure(d).payments.push(p);
@@ -1076,7 +1147,14 @@ function getArrivalBatches(){
       const paid = b.paidFromProducts + paidFromPayments;
       return Object.assign({}, b, { paidFromPayments, paid, remaining: b.total - paid });
     })
-    .sort((a,b) => (b.arrivalDate||"").localeCompare(a.arrivalDate||""));
+    // ترتيب بالتاريخ الفعلي مش أبجدي (أبجديًا 3OCT بييجي قبل 27SEP)
+    .sort((a,b) => {
+      const da = parseArrivalDate(a.arrivalDate), db = parseArrivalDate(b.arrivalDate);
+      if(da && db) return db - da;
+      if(da) return -1;
+      if(db) return 1;
+      return (b.arrivalDate||"").localeCompare(a.arrivalDate||"");
+    });
 }
 
 function openPaymentsModal(){

@@ -168,7 +168,9 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
         <option value="Delayed">⏱️ Delayed</option>
         <option value="Delivered">🎉 Delivered</option>
       </select>
-      <input type="date" id="filterArrival" onchange="renderList()">
+      <select id="filterArrival" onchange="renderList()">
+        <option value="">📅 كل مواعيد الوصول</option>
+      </select>
       <button class="btn-ghost" onclick="document.getElementById('searchInput').value='';document.getElementById('filterStatus').value='';document.getElementById('filterArrival').value='';renderList();">🧹 مسح الفلاتر</button>
     </div>
     <div class="row" style="margin-top:10px;align-items:center;">
@@ -194,6 +196,9 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   </div>
 
   <div id="productsList"></div>
+
+  <!-- اقتراحات مواعيد الوصول لخانات الكروت (بتتملى من renderArrivalFilter) -->
+  <datalist id="arrivalOptions"></datalist>
 
 </div>
 </div>
@@ -253,6 +258,73 @@ function requireEl(id, msg){
   const el = document.getElementById(id);
   if(!el){ showToast(msg || "⚠️ القائمة اتحدّثت — جرّب تاني", "error"); loadProducts(); return null; }
   return el;
+}
+
+/* ---------------------------------------------------------
+   📅 مواعيد الوصول — توحيد وترتيب
+   الموعد بيتكتب بإيدك كنص حر (زي O-27SEP2026)، فساعات بيتسجّل
+   كابيتال وساعات سمول. بنوحّد الكل كابيتال عشان "O-27sep2026"
+   و"O-27SEP2026" يبقوا نفس الموعد الواحد، مش اتنين منفصلين في
+   الفلتر ولا في حساب الدفعات
+   --------------------------------------------------------- */
+function normArrival(v){
+  return String(v == null ? "" : v).trim().replace(/\s+/g, " ").toUpperCase();
+}
+
+const ARRIVAL_MONTHS = { JAN:0, FEB:1, MAR:2, APR:3, MAY:4, JUN:5,
+  JUL:6, AUG:7, SEP:8, SEPT:8, OCT:9, NOV:10, DEC:11 };
+
+/* بيطلّع تاريخ حقيقي من نص زي "O-27SEP2026" عشان الترتيب يبقى
+   بالتاريخ الفعلي مش أبجدي — أبجديًا "O-3OCT2026" بييجي قبل
+   "O-27SEP2026" وده غلط تمامًا. بيفهم كمان صيغة 2026-09-27 */
+function parseArrivalDate(v){
+  const s = normArrival(v);
+  if(!s) return null;
+  let m = s.match(/(\d{1,2})\s*-?\s*([A-Z]{3,4})\s*-?\s*(\d{4})/); // 27SEP2026
+  if(m && ARRIVAL_MONTHS[m[2]] !== undefined){
+    return new Date(Date.UTC(+m[3], ARRIVAL_MONTHS[m[2]], +m[1]));
+  }
+  m = s.match(/(\d{4})-(\d{1,2})-(\d{1,2})/); // 2026-09-27
+  if(m) return new Date(Date.UTC(+m[1], +m[2]-1, +m[3]));
+  return null;
+}
+
+// آخر 7 مواعيد وصول — من الأحدث للأقدم، من غير تكرار
+const ARRIVAL_FILTER_LIMIT = 7;
+function getRecentArrivals(){
+  const seen = new Map(); // الكابيتال هو المفتاح، فالسمول بيندمج فيه تلقائي
+  allProducts.forEach(p => {
+    const key = normArrival(p.arrivalDate);
+    if(key && !seen.has(key)) seen.set(key, parseArrivalDate(key));
+  });
+  return Array.from(seen.entries())
+    .sort((a, b) => {
+      if(a[1] && b[1]) return b[1] - a[1];      // الاتنين مفهومين → الأحدث فوق
+      if(a[1]) return -1;                        // اللي ليه تاريخ مفهوم قبل اللي ملوش
+      if(b[1]) return 1;
+      return b[0].localeCompare(a[0]);           // حل أخير: ترتيب نصي
+    })
+    .slice(0, ARRIVAL_FILTER_LIMIT)
+    .map(e => e[0]);
+}
+
+function renderArrivalFilter(){
+  const sel = document.getElementById("filterArrival");
+  if(sel){
+    const current = sel.value;
+    const dates = getRecentArrivals();
+    sel.innerHTML = `<option value="">📅 كل مواعيد الوصول</option>`
+      + dates.map(d => `<option value="${escapeHtml(d)}">📅 ${escapeHtml(d)}</option>`).join("");
+    sel.value = (current && dates.indexOf(current) !== -1) ? current : "";
+  }
+  // 💡 نفس المواعيد بتتعرض كاقتراحات جوه خانة "موعد الوصول" في كل
+  // كارت — بتختار من اللي موجود بدل ما تكتبه بإيدك وتطلع صيغة
+  // مختلفة بالغلط
+  const list = document.getElementById("arrivalOptions");
+  if(list){
+    list.innerHTML = getRecentArrivals()
+      .map(d => `<option value="${escapeHtml(d)}"></option>`).join("");
+  }
 }
 
 function getStaffToken(){ return localStorage.getItem("rmaStaffToken") || ""; }
@@ -619,10 +691,15 @@ function renderList(){
     items = items.filter(p => !["Confirmed","Placed","Delayed","Delivered"].includes(p.status));
   }
 
-  if(q) items = items.filter(p => (p.productName||"").toLowerCase().includes(q) || (p.link||"").toLowerCase().includes(q) || (p.arrivalDate||"").toLowerCase().includes(q));
+  // 🔍 البحث بيقارن الطرفين بحروف صغيرة، فالبحث بموعد الوصول
+  // بيشتغل سواء كتبته كابيتال أو سمول (27sep / 27SEP / O-27Sep)
+  if(q) items = items.filter(p => (p.productName||"").toLowerCase().includes(q) || (p.link||"").toLowerCase().includes(q) || normArrival(p.arrivalDate).toLowerCase().includes(q));
   if(statusF === "NeedsAction") items = items.filter(p => p.status==="PendingPrice" || p.status==="PendingReview");
   else if(statusF) items = items.filter(p=>p.status===statusF);
-  if(arrivalF) items = items.filter(p=> (p.arrivalDate||"").indexOf(arrivalF) !== -1);
+  // 🐞 كان بيقارن بالـindexOf على النص الخام والفلتر كان
+  // <input type="date"> بيطلّع "2026-09-27" — ده عمره ما هيطابق
+  // "O-27SEP2026"، يعني فلتر موعد الوصول كان ميّت تمامًا
+  if(arrivalF) items = items.filter(p => normArrival(p.arrivalDate) === normArrival(arrivalF));
 
   // 🔝 اللي محتاج مني إجراء دايمًا فوق (الأحدث إضافة فوق جواها).
   // اللي خلص إجراءه (مؤكد/تم الشراء/إلخ) بيترتب حسب وقت آخر تحديث
@@ -641,7 +718,7 @@ function renderList(){
   // الحالي لو مستخدم، عشان الأرقام تفضل متسقة مع اللي ظاهر قدامك
   const paymentsTotal = allProducts
     .filter(p => p.status === "Payment")
-    .filter(p => !arrivalF || (p.arrivalDate||"").indexOf(arrivalF) !== -1)
+    .filter(p => !arrivalF || normArrival(p.arrivalDate) === normArrival(arrivalF))
     .reduce((s,p)=> s + (parseFloat(p.deposit)||0), 0);
 
   renderStats(items, paymentsTotal, statusF); // ← نفس المجموعة المفلترة اللي هتتعرض تحت
@@ -656,6 +733,7 @@ function renderList(){
     // "X منتج محدد" كان بيفضل ظاهر بعداد قديم على قايمة فاضية
     updateBulkBar();
     renderQuickChips();
+    renderArrivalFilter();
     return;
   }
 
@@ -716,7 +794,7 @@ function renderList(){
               <option value="Delayed" ${p.status==='Delayed'?'selected':''}>⏱️ Delayed</option>
               <option value="Delivered" ${p.status==='Delivered'?'selected':''}>🎉 Delivered</option>
             </select>
-            <input type="text" id="arrival-${eid}" placeholder="📅 موعد الوصول" value="${escapeHtml(p.arrivalDate||'')}">
+            <input type="text" id="arrival-${eid}" placeholder="📅 موعد الوصول" list="arrivalOptions" value="${escapeHtml(normArrival(p.arrivalDate))}">
           </div>
           <div class="row" style="margin-top:8px;">
             <input type="number" id="deposit-${eid}" placeholder="💰 العربون" value="${escapeHtml(p.deposit||'')}">
@@ -745,7 +823,8 @@ function renderList(){
   // نبني قوائم الكبسولات/الجميز لأي منتج PendingPrice ظاهر دلوقتي
   items.filter(p=>p.status==="PendingPrice").forEach(p => onTypeChange(p.id));
   updateBulkBar();
-  renderQuickChips(); // الشرايح السريعة تفضل مزامنة مع الفلتر والأعداد
+  renderQuickChips();    // الشرايح السريعة تفضل مزامنة مع الفلتر والأعداد
+  renderArrivalFilter(); // قايمة آخر 7 مواعيد وصول + اقتراحات الكتابة
 }
 
 // ✅ تحديد متعدد — بنحدّث الـ Set + شريط التحديد بس من غير ما نعمل
@@ -955,7 +1034,9 @@ async function saveStatus(id){
   const status = statusEl.value;
   const arrivalEl = document.getElementById("arrival-"+id);
   const depositEl = document.getElementById("deposit-"+id);
-  const arrivalDate = arrivalEl ? arrivalEl.value : "";
+  // بيتحفظ كابيتال دايمًا — كده الشيت نفسه بيتوحّد مع الوقت وما
+  // يفضلش فيه نسختين من نفس الموعد بحروف مختلفة
+  const arrivalDate = arrivalEl ? normArrival(arrivalEl.value) : "";
   const deposit = depositEl ? depositEl.value : "";
   const p = allProducts.find(x => String(x.id) === String(id));
   const btn = findActionBtn("saveStatus", id);
@@ -1124,7 +1205,10 @@ function getArrivalBatches(){
   const ensure = (d) => { if(!byDate[d]) byDate[d] = { arrivalDate: d, total: 0, paidFromProducts: 0, payments: [] }; return byDate[d]; };
 
   allProducts.forEach(p => {
-    const d = (p.arrivalDate || "").trim();
+    // 🐞 كان بيجمّع على النص الخام — "O-27sep2026" و"O-27SEP2026"
+    // كانوا بيتحسبوا موعدين منفصلين، فالإجمالي والمدفوع والمتبقي
+    // بيتقسموا على كارتين بدل ما يبقوا موعد واحد صح
+    const d = normArrival(p.arrivalDate);
     if(!d) return; // من غير موعد وصول، مش جزء من أي دفعة
     if(p.status === "Payment"){
       ensure(d).payments.push(p);
@@ -1143,7 +1227,14 @@ function getArrivalBatches(){
       const paid = b.paidFromProducts + paidFromPayments;
       return Object.assign({}, b, { paidFromPayments, paid, remaining: b.total - paid });
     })
-    .sort((a,b) => (b.arrivalDate||"").localeCompare(a.arrivalDate||""));
+    // ترتيب بالتاريخ الفعلي مش أبجدي (أبجديًا 3OCT بييجي قبل 27SEP)
+    .sort((a,b) => {
+      const da = parseArrivalDate(a.arrivalDate), db = parseArrivalDate(b.arrivalDate);
+      if(da && db) return db - da;
+      if(da) return -1;
+      if(db) return 1;
+      return (b.arrivalDate||"").localeCompare(a.arrivalDate||"");
+    });
 }
 
 function openPaymentsModal(){
@@ -1316,7 +1407,7 @@ function exportCSV(){
     p.id, p.productName, p.link, STATUS_META[p.status]?.label || p.status,
     p.supplementType, p.pieceOrWeight, p.staffUsd, p.staffEgp, p.quantity,
     p.clientCounterEgp, p.finalEgp, p.deposit, Math.max(0, (parseFloat(p.finalEgp)||0) - (parseFloat(p.deposit)||0)),
-    p.arrivalDate, p.createdDate, p.lastUpdated, p.notes
+    normArrival(p.arrivalDate), p.createdDate, p.lastUpdated, p.notes
   ].map(csvEscape).join(","));
   const csv = "\uFEFF" + headers.map(csvEscape).join(",") + "\n" + rows.join("\n"); // BOM عشان إكسل يفتح العربي صح
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
