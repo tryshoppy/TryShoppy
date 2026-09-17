@@ -154,6 +154,24 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .ao-chk input{width:17px;height:17px;flex-shrink:0;margin-top:2px;accent-color:var(--gold);cursor:pointer}
 .ao-chk b{display:block;font-size:13px;font-weight:700}
 .ao-chk small{display:block;font-size:11.5px;color:var(--ink-2);margin-top:2px}
+/* 🛒 زرار الإضافة للسلة — صلب وواضح عن قصد. أول نسخة كانت
+   بحدود منقّطة وخلفية باهتة، فكانت بتتقري كأنها فاصل مش زرار. */
+.ao-addbtn{display:block;width:100%;padding:13px;border-radius:11px;cursor:pointer;
+  font-family:inherit;font-size:14.5px;font-weight:900;background:var(--blue);
+  color:#fff;border:0;margin:4px 0 12px;box-shadow:0 2px 8px rgba(37,99,235,.28)}
+.ao-addbtn:hover{background:#1D4FD8}
+.ao-addbtn:active{transform:translateY(1px)}
+.ao-cart{margin-bottom:4px}
+.ao-ci{display:flex;align-items:flex-start;gap:10px;background:var(--paper);
+  border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.ao-ci-n{font-family:var(--fm);font-size:11.5px;font-weight:700;color:var(--gold-ink);
+  background:var(--gold-wash);border-radius:6px;padding:3px 7px;flex-shrink:0}
+.ao-ci-b{flex:1;min-width:0}
+.ao-ci-b b{display:block;font-size:13px;font-weight:700;word-break:break-all}
+.ao-ci-b small{display:block;font-size:11.5px;color:var(--ink-2);margin-top:3px}
+.ao-ci-x{flex-shrink:0;width:26px;height:26px;border:0;border-radius:7px;cursor:pointer;
+  background:var(--dead-wash);color:var(--dead);font-size:15px;line-height:1;font-weight:800}
+.ao-cart-empty{font-size:12.5px;color:var(--ink-3);text-align:center;padding:9px 0}
 .ao-search{position:relative}
 .ao-res{position:absolute;z-index:5;inset-inline:0;top:100%;margin-top:4px;
   background:var(--panel);border:1px solid var(--line);border-radius:10px;
@@ -366,6 +384,16 @@ body.sb-open{overflow:hidden}
       </div>
       <div class="ao-f"><label>المواصفات والملاحظات</label><input id="aoDims" type="text" placeholder="المقاس / اللون / ملاحظات"></div>
 
+      <!-- 🛒 السلة — كل منتج بياخد رقم طلب TRY خاص بيه وصف لوحده في
+           الشيت (نفس مبدأ سلة الحاسبة والمارت بالظبط)، بس العميل
+           وبيانات التشغيل مشتركين بينهم كلهم. -->
+      <button type="button" class="ao-addbtn" id="aoAddItem" onclick="aoAddToCart()">
+        ➕ أضف المنتج للسلة
+      </button>
+
+      <div class="ao-sec">🛒 السلة</div>
+      <div class="ao-cart" id="aoCart"></div>
+
       <div class="ao-sec">بيانات التشغيل</div>
       <div class="ao-grid">
         <!-- ⚠️ نص مش type="date" عن قصد — عمود موعد الوصول في الشيت
@@ -377,6 +405,9 @@ body.sb-open{overflow:hidden}
           <input id="aoArrival" type="text" list="aoArrivalList" placeholder="زي: 18 Sep 2026">
           <datalist id="aoArrivalList"></datalist>
         </div>
+        <!-- 💰 عربون واحد للطلب كله — بيتسجل على أول منتج في السلة،
+             وده اللي بيخلي إجمالي المدفوع في العرض المجمّع مظبوط
+             (العرض بيجمع العربون من كل صفوف العميل) -->
         <div class="ao-f"><label>العربون المدفوع (EGP)</label><input id="aoDeposit" type="number" step="any" placeholder="0"></div>
         <div class="ao-f">
           <label>حالة الطلب</label>
@@ -423,7 +454,7 @@ body.sb-open{overflow:hidden}
     </div>
 
     <div class="ao-foot">
-      <span class="ao-num" id="aoOrderNo">—</span>
+      <span class="ao-num" id="aoTotal">السلة فاضية</span>
       <div class="sp">
         <button class="tbtn" onclick="closeAddOrder()">إلغاء</button>
         <button class="tbtn gold" id="aoSave" onclick="submitAddOrder()">حفظ الطلب</button>
@@ -1614,6 +1645,90 @@ const AO_GOVS = ["القاهرة","الجيزة","الإسكندرية","الد�
 function aoGenOrderNo(){ return "TRY" + Math.floor(10000000 + Math.random() * 90000000); }
 
 /* ───────────────────────────────────────────────────────────
+   🛒 سلة إضافة الطلب
+   ───────────────────────────────────────────────────────────
+   كل منتج بيتسجل كصف مستقل في الشيت برقم TRY خاص بيه — بالظبط
+   زي سلة الحاسبة والمارت. اللي مشترك بين كل منتجات السلة:
+   العميل، موعد الوصول، الحالة، مخفي عن، والعربون.
+
+   ⚠️ رقم الطلب بيتولّد وقت الإضافة للسلة مش وقت الحفظ، عشان
+   الموظف يشوفه ويقدر يكتبه قدامه قبل ما يحفظ.
+   ─────────────────────────────────────────────────────────── */
+let AO_CART = [];
+
+function aoCartTotal(){
+  return AO_CART.reduce((s, it) => s + (parseFloat(it.finalPrice) || 0), 0);
+}
+
+function aoRenderCart(){
+  const box = document.getElementById("aoCart");
+  const tot = document.getElementById("aoTotal");
+
+  const save = document.getElementById("aoSave");
+
+  if(!AO_CART.length){
+    box.innerHTML = '<div class="ao-cart-empty">السلة فاضية — املا بيانات المنتج واضغط «أضف المنتج للسلة».</div>';
+    tot.innerText = "السلة فاضية";
+    if(save) save.innerText = "حفظ الطلب";
+    return;
+  }
+  // العدد على زرار الحفظ كمان — عشان يبان إن فيه سلة فعلاً
+  if(save) save.innerText = "حفظ الطلب (" + AO_CART.length + ")";
+
+  box.innerHTML = AO_CART.map((it, i) =>
+    '<div class="ao-ci">' +
+      '<span class="ao-ci-n">' + tsEscapeHtml(it.order) + '</span>' +
+      '<div class="ao-ci-b">' +
+        '<b>' + tsEscapeHtml(it.link || "(من غير رابط)") + '</b>' +
+        '<small>' + it.quantity + ' × ' +
+          (Math.round((parseFloat(it.finalPrice) || 0) / (parseInt(it.quantity) || 1))).toLocaleString() +
+          ' ج.م = ' + (parseFloat(it.finalPrice) || 0).toLocaleString() + ' ج.م' +
+          (it.dimensions ? ' — ' + tsEscapeHtml(it.dimensions) : '') +
+        '</small>' +
+      '</div>' +
+      '<button type="button" class="ao-ci-x" title="شيل من السلة" onclick="aoRemoveFromCart(' + i + ')">&times;</button>' +
+    '</div>').join("");
+
+  tot.innerText = AO_CART.length + (AO_CART.length > 1 ? " منتجات" : " منتج") +
+                  " — " + aoCartTotal().toLocaleString() + " ج.م";
+}
+
+function aoAddToCart(){
+  const v = id => document.getElementById(id).value.trim();
+  const msg = document.getElementById("aoMsg");
+  const price = v("aoPrice");
+
+  if(!price){
+    msg.className = "ao-msg err";
+    msg.innerText = "اكتب السعر النهائي للمنتج قبل ما تضيفه للسلة.";
+    return;
+  }
+
+  AO_CART.push({
+    order:      aoGenOrderNo(),
+    link:       v("aoLink"),
+    quantity:   document.getElementById("aoQty").value || 1,
+    usd:        v("aoUsd"),
+    finalPrice: price,
+    dimensions: v("aoDims")
+  });
+
+  // بنفضّي خانات المنتج بس — بيانات العميل والتشغيل بتفضل زي ما هي
+  ["aoLink","aoUsd","aoPrice","aoDims"].forEach(id => { document.getElementById(id).value = ""; });
+  document.getElementById("aoQty").value = "1";
+
+  msg.className = "ao-msg";
+  msg.innerText = "";
+  aoRenderCart();
+  document.getElementById("aoLink").focus();
+}
+
+function aoRemoveFromCart(i){
+  AO_CART.splice(i, 1);
+  aoRenderCart();
+}
+
+/* ───────────────────────────────────────────────────────────
    🔎 البحث عن عميل موجود
    بيشتغل على ordersData المحمّلة في الشاشة (مفيش نداء سيرفر).
    بنجمّع العملاء بالموبايل الموحّد عشان العميل اللي عنده 10
@@ -1752,8 +1867,10 @@ function openAddOrder(){
   document.getElementById("aoSearch").value = "";
   document.getElementById("aoResults").className = "ao-res";
   document.getElementById("aoResults").innerHTML = "";
-  // رقم الطلب بيتولّد وقت فتح الشاشة عشان الموظف يشوفه قبل الحفظ
-  document.getElementById("aoOrderNo").innerText = aoGenOrderNo();
+  // 🛒 السلة بتبدأ فاضية في كل فتحة جديدة — أرقام الطلبات بتتولّد
+  // وقت إضافة كل منتج، مش وقت فتح الشاشة
+  AO_CART = [];
+  aoRenderCart();
   document.getElementById("aoUser").value = getCurrentUser() || "—";
   document.getElementById("aoMsg").className = "ao-msg";
   document.getElementById("aoMsg").innerText = "";
@@ -1762,6 +1879,11 @@ function openAddOrder(){
 }
 
 function closeAddOrder(){
+  // 🛒 تحذير قبل ما السلة تضيع — المنتجات دي لسه ماتسجلتش في الشيت
+  if(AO_CART.length && !confirm("في " + AO_CART.length +
+     (AO_CART.length > 1 ? " منتجات" : " منتج") + " في السلة لسه ماتسجلوش. تقفل وتلغيهم؟")) return;
+  AO_CART = [];
+  aoRenderCart();
   document.getElementById("aoOverlay").classList.remove("show");
 }
 
@@ -1778,6 +1900,8 @@ function aoClearForm(){
   document.getElementById("aoNotifyStaff").checked = true;
   document.getElementById("aoNotifyCustomer").checked = true;
   document.querySelectorAll(".ao-hide-cb").forEach(cb => { cb.checked = false; });
+  AO_CART = [];
+  aoRenderCart();
 }
 
 async function submitAddOrder(){
@@ -1787,70 +1911,108 @@ async function submitAddOrder(){
 
   const name  = v("aoName");
   const phone = v("aoPhone");
-  const price = v("aoPrice");
 
-  if(!name || !phone || !price){
+  // لو الموظف كتب منتج ونسي يضيفه للسلة، بنضيفه له بدل ما يضيع
+  if(!AO_CART.length && v("aoPrice")) aoAddToCart();
+
+  if(!name || !phone || !AO_CART.length){
     msg.className = "ao-msg err";
-    msg.innerText = "الاسم والموبايل والسعر النهائي مطلوبين.";
+    msg.innerText = !AO_CART.length
+      ? "ضيف منتج واحد على الأقل للسلة."
+      : "الاسم والموبايل مطلوبين.";
     return;
   }
 
-  const orderNo = document.getElementById("aoOrderNo").innerText;
   const email   = v("aoEmail");
   const notifyCustomer = document.getElementById("aoNotifyCustomer").checked;
   const notifyStaff    = document.getElementById("aoNotifyStaff").checked;
+  const hiddenFrom = Array.from(document.querySelectorAll(".ao-hide-cb:checked"))
+                          .map(cb => cb.value).join(",");
+
+  /* 📧 ملخص السلة — بيتبعت مع أول منتج بس، والسيرفر بيرسم منه
+     جدول المنتجات في الإيميل. الصيغة: order::link::label::qty::price::specs
+     (نفس صيغة الحاسبة والمارت بالظبط — buildItemsRowsHtml بيقراها) */
+  const emailSummary = AO_CART.map(it => [
+    it.order, it.link || "", "Item", it.quantity, it.finalPrice, it.dimensions || ""
+  ].join("::")).join("\n");
+
+  const cartTotal = aoCartTotal();
 
   tsSetBtnLoading(btn, "جاري الحفظ...");
   msg.className = "ao-msg";
   msg.innerText = "";
 
-  try{
-    await tsPostScript(scriptURL, {
-      order: orderNo,
-      customerName: name,
-      phone: phone,
-      /* الإيميل بيتبعت دايمًا عشان يتسجل في الشيت (هنحتاجه بعدين في
-         تحديثات الحالة)، والتحكم في التأكيد بيبقى بفلاج منفصل تحت —
-         بدل ما نمسح بيانات العميل عشان بس نوقف إيميل واحد. */
-      email: email,
-      country: "USA",
-      address: v("aoAddress"),
-      governorate: document.getElementById("aoGov").value,
-      link: v("aoLink"),
-      quantity: document.getElementById("aoQty").value || 1,
-      usd: v("aoUsd"),
-      dimensions: v("aoDims"),
-      finalPrice: price,
-      deposit: v("aoDeposit"),
-      arrivaldate: v("aoArrival"),
-      status: document.getElementById("aoStatus").value,
-      user: getCurrentUser(),
-      /* 🙈 أسماء اليوزرز اللي الطلب مايبانش عندهم — مفصولة بفاصلة،
-         نفس صيغة عمود hiddenFrom في الشيت. السيرفر بيتجاهلها لو
-         التوكن مش أدمن، فبنبعت التوكن معاها. */
-      hiddenFrom: Array.from(document.querySelectorAll(".ao-hide-cb:checked"))
-                       .map(cb => cb.value).join(","),
-      staffToken: getStaffToken(),
-      /* 📧 الفلاجين دول بيتقروا في Orders_Code.gs، كل واحد بيوقف
-         إيميل واحد بس ومستقل عن التاني (مش زي suppressEmail
-         القديمة اللي كانت بتقفل الاتنين مع بعض) */
-      notifyStaff: notifyStaff,
-      notifyCustomer: notifyCustomer
-    });
-
-    msg.className = "ao-msg ok";
-    msg.innerText = "اتسجل بنجاح: " + orderNo;
-    aoClearForm();
-    document.getElementById("aoOrderNo").innerText = aoGenOrderNo();
-    /* الشيت عليه كاش دقيقتين، فبنستنى شوية قبل التحديث عشان الطلب
-       الجديد يبان فعلاً بدل ما ترجع نفس القايمة القديمة */
-    setTimeout(loadData, 1200);
-  }catch(err){
-    msg.className = "ao-msg err";
-    msg.innerText = "الطلب ماتسجلش — راجع النت وحاول تاني.";
-  }finally{
-    tsClearBtnLoading(btn);
+  /* ⚠️ بالتتابع مش Promise.all — نفس السبب المشروح في calculator.html
+     وفي Orders_Code.gs: كتابتين في نفس اللحظة على الشيت ممكن تضيع
+     صف بصمت. وبنتابع كل منتج لوحده عشان لو فشل جزئي نعرف أنهي منتج
+     فشل ونسيبه في السلة بس بدل ما نلغي الطلب كله. */
+  const saved = [], failed = [];
+  for(let idx = 0; idx < AO_CART.length; idx++){
+    const it = AO_CART[idx];
+    try{
+      await tsPostScript(scriptURL, {
+        order: it.order,
+        customerName: name,
+        phone: phone,
+        /* الإيميل بيتبعت دايمًا عشان يتسجل في الشيت (هنحتاجه بعدين في
+           تحديثات الحالة)، والتحكم في التأكيد بيبقى بفلاج منفصل تحت —
+           بدل ما نمسح بيانات العميل عشان بس نوقف إيميل واحد. */
+        email: email,
+        country: "USA",
+        address: v("aoAddress"),
+        governorate: document.getElementById("aoGov").value,
+        link: it.link,
+        quantity: it.quantity,
+        usd: it.usd,
+        dimensions: it.dimensions,
+        finalPrice: it.finalPrice,
+        /* 💰 العربون على أول منتج بس — لو اتحط على كل صف كان
+           الإجمالي المدفوع هيتضاعف بعدد المنتجات في العرض المجمّع */
+        deposit: idx === 0 ? v("aoDeposit") : "",
+        arrivaldate: v("aoArrival"),
+        status: document.getElementById("aoStatus").value,
+        user: getCurrentUser(),
+        /* 🙈 أسماء اليوزرز اللي الطلب مايبانش عندهم — مفصولة بفاصلة،
+           نفس صيغة عمود hiddenFrom في الشيت. السيرفر بيتجاهلها لو
+           التوكن مش أدمن، فبنبعت التوكن معاها. */
+        hiddenFrom: hiddenFrom,
+        staffToken: getStaffToken(),
+        /* 📨 إيميل واحد للطلب كله مهما كان عدد المنتجات — نفس مبدأ
+           الحاسبة والمارت. من غير ده سلة فيها 5 منتجات كانت هتبعت
+           5 إيميلات للعميل و5 للفريق. */
+        suppressEmail: idx > 0,
+        emailSummary: idx === 0 ? emailSummary : "",
+        cartTotal:    idx === 0 ? cartTotal : undefined,
+        /* 📧 الفلاجين دول بيتقروا في Orders_Code.gs، كل واحد بيوقف
+           إيميل واحد بس ومستقل عن التاني (مش زي suppressEmail
+           القديمة اللي كانت بتقفل الاتنين مع بعض) */
+        notifyStaff: notifyStaff,
+        notifyCustomer: notifyCustomer
+      });
+      saved.push(it);
+    }catch(err){
+      failed.push(it);
+    }
   }
+
+  tsClearBtnLoading(btn);
+
+  if(failed.length){
+    // اللي نجح بيتشال من السلة، واللي فشل بس بيفضل عشان يعيد المحاولة
+    AO_CART = failed;
+    aoRenderCart();
+    msg.className = "ao-msg err";
+    msg.innerText = saved.length + " من " + (saved.length + failed.length) +
+                    " اتسجلوا — الباقي فضل في السلة، حاول تاني.";
+    return;
+  }
+
+  msg.className = "ao-msg ok";
+  msg.innerText = "اتسجل بنجاح: " + saved.map(s => s.order).join(" · ");
+  aoClearForm();
+  /* الشيت عليه كاش دقيقتين، فبنستنى شوية قبل التحديث عشان الطلبات
+     الجديدة تبان فعلاً بدل ما ترجع نفس القايمة القديمة */
+  setTimeout(loadData, 1200);
 }
 
 /* Esc بتقفل نتايج البحث الأول لو مفتوحة، وبعدها الشاشة نفسها —

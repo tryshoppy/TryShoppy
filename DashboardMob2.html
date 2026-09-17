@@ -78,6 +78,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .fgrp>label{display:block;font-size:11.5px;font-weight:800;color:var(--ink-2);margin-bottom:5px}
 .fpanel input,.fpanel select{width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:11px;background:#FBFCFE;min-height:46px}
 .fpanel input:focus,.fpanel select:focus{border-color:var(--gold);background:#fff;outline:none;box-shadow:0 0 0 3px rgba(245,184,32,.15)}
+.arr-quick{margin-bottom:7px;font-family:var(--fm);font-weight:600;letter-spacing:.02em}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .fbtn{width:100%;padding:13px;border-radius:11px;border:none;font-weight:900;font-size:14px;cursor:pointer;min-height:48px;margin-top:4px}
 .fbtn.go{background:var(--gold);color:var(--navy)}
@@ -227,7 +228,13 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
       </div>
       <div class="fgrp">
         <label>📅 موعد الوصول</label>
-        <input id="searchArrival" placeholder="🔎 بحث بموعد الوصول" onkeydown="if(event.key==='Enter'){applyFilters();closeFilters();}">
+        <!-- 🆕 أقرب 7 مواعيد وصول من الأحدث للأقدم. الاختيار منها
+             بيملّي خانة البحث تحت — يعني فلتر واحد مش اتنين، فمفيش
+             تعارض لو الموظف كتب حاجة بإيده بعد ما اختار. -->
+        <select id="arrivalQuick" class="arr-quick" onchange="pickArrivalQuick()">
+          <option value="">📅 آخر 7 مواعيد وصول…</option>
+        </select>
+        <input id="searchArrival" placeholder="🔎 أو اكتب جزء من الموعد" onkeydown="if(event.key==='Enter'){applyFilters();closeFilters();}">
       </div>
       <div class="fgrp">
         <label>تاريخ الطلب</label>
@@ -333,6 +340,9 @@ function closeFilters(){
 }
 function clearFilters(){
   ["searchInput","searchArrival","dateFrom","dateTo"].forEach(id=>document.getElementById(id).value="");
+  // 📅 قايمة المواعيد السريعة بتترجع لأولها كمان — عشان ماتفضلش
+  // مختارة وخانة البحث فاضية (منظر متناقض)
+  const aq=document.getElementById("arrivalQuick"); if(aq) aq.value="";
   document.getElementById("searchStatus").value="";
   document.getElementById("searchUser").value="";
   applyFilters(); updateFilterCount();
@@ -395,8 +405,9 @@ async function loadData(){
       });
     }
 
+    populateArrivalQuick();   // 📅 قايمة آخر 7 مواعيد وصول
     applyFilters();
-    checkPendingReview(); 
+    checkPendingReview();
   } catch(e) { alert("خطأ في التحميل - تأكد من الاتصال"); }
 }
 
@@ -671,9 +682,118 @@ function recalc(id, ship) {
     document.getElementById('net-'+id).innerText = (egp + ship - dep).toLocaleString() + " ج.م";
 }
 
+/* ═══════════════════════════════════════════════════════════
+   📅 فلتر مواعيد الوصول — آخر 7 مواعيد من الأحدث للأقدم
+   ═══════════════════════════════════════════════════════════
+   المواعيد مكتوبة في الشيت بإيد الموظفين، فنفس الشحنة ممكن
+   تتكتب بأكتر من شكل:  O-27SEP2026 · O-27sep2026 · o-27Sep2026
+   الفلتر بيعتبرهم كلهم واحد (المقارنة بحروف صغيرة والمسافات
+   متوحّدة)، وبيعرضهم بالكابيتال دايمًا.
+
+   ⚠️ التوحيد للعرض والمقارنة بس — النص المتخزن في الشيت
+   مبيتغيّرش خالص.
+   ═══════════════════════════════════════════════════════════ */
+const MONTHS_M = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+
+/** مفتاح المقارنة: حروف صغيرة + مسافات متوحّدة */
+function arrNormM(v){ return String(v == null ? "" : v).trim().toLowerCase().replace(/\s+/g, " "); }
+
+/** شكل العرض: نفس النص بالظبط بس كابيتال */
+function arrLabelM(v){ return String(v == null ? "" : v).trim().replace(/\s+/g, " ").toUpperCase(); }
+
+/** بيقرا الموعد كتاريخ حقيقي عشان الترتيب يبقى زمني مش أبجدي.
+ *  (نسخة من نفس الدالة في Dashboard945 — بتفهم الصيغ المستخدمة
+ *  فعليًا: O-8SEP2026 · 0-18Oct2026 · 21Sep2026 · 29032026)
+ *  بترجّع null لو الموعد مش مفهوم كتاريخ — وساعتها بيتحط في الآخر
+ *  بدل ما يختفي من القايمة. */
+function arrDateValueM(raw){
+  const original = String(raw || "").trim().toUpperCase();
+  if(!original) return null;
+
+  function tryParse(t){
+    if(!t) return null;
+
+    // 1) أرقام صافية: DDMMYYYY أو DMMYYYY (29032026 / 6032026)
+    if(/^\d+$/.test(t) && (t.length === 8 || t.length === 7)){
+      const y = +t.slice(-4), rest = t.slice(0, -4);
+      const mm = +rest.slice(-2), dd = +rest.slice(0, -2);
+      if(mm >= 1 && mm <= 12 && dd >= 1 && dd <= 31) return new Date(y, mm - 1, dd).getTime();
+    }
+
+    // 2) فيه اسم شهر: 8SEP2026 / 21 Sep 2026
+    const mIdx = MONTHS_M.findIndex(m => t.indexOf(m) !== -1);
+    if(mIdx !== -1){
+      const nums = t.replace(new RegExp(MONTHS_M[mIdx] + "[A-Z]*"), " ").match(/\d+/g) || [];
+      let day = null, year = null;
+      nums.forEach(n => { if(n.length === 4) year = +n; else if(day === null) day = +n; });
+      if(year && day >= 1 && day <= 31) return new Date(year, mIdx, day).getTime();
+    }
+
+    // 3) صيغ بفواصل: 2026-09-18 / 18-09-2026 / 18/9/2026
+    const parts = t.split(/[^0-9]+/).filter(Boolean).map(Number);
+    if(parts.length === 3){
+      let y, m, d;
+      if(String(parts[0]).length === 4){ y = parts[0]; m = parts[1]; d = parts[2]; }
+      else { d = parts[0]; m = parts[1]; y = parts[2]; }
+      if(y > 1900 && m >= 1 && m <= 12 && d >= 1 && d <= 31) return new Date(y, m - 1, d).getTime();
+    }
+    return null;
+  }
+
+  // بنجرّب النص كامل الأول (عشان "18-09-2026" ميتقصّش بالغلط)، وبعدين
+  // من غير البادئة اللي الموظفين بيكتبوها قدام الموعد (زي "O-" أو "0-")
+  const full = tryParse(original);
+  return full !== null ? full : tryParse(original.replace(/^[A-Z0-9]{1,3}[-–—\s]+/, "").trim());
+}
+
+function populateArrivalQuick(){
+  const sel = document.getElementById("arrivalQuick");
+  if(!sel) return;
+
+  // بنجمّع بالمفتاح الموحّد — أول شكل بيظهر بياخد العدّاد، وكل
+  // الأشكال التانية لنفس الموعد بتتضاف عليه بدل ما تعمل بند جديد
+  const byKey = new Map();
+  ordersData.forEach(o => {
+    const raw = String(o.arrivaldate || "").trim();
+    if(!raw) return;
+    const k = arrNormM(raw);
+    const prev = byKey.get(k);
+    if(prev) prev.count++;
+    else byKey.set(k, { label: arrLabelM(raw), value: arrDateValueM(raw), count: 1 });
+  });
+
+  const rows = [...byKey.values()].sort((a, b) => {
+    // المواعيد المفهومة كتاريخ الأول (الأحدث فالأقدم)، واللي مش
+    // مفهومة بعدهم بالترتيب الأبجدي — عشان متختفيش
+    if(a.value !== null && b.value !== null) return b.value - a.value;
+    if(a.value !== null) return -1;
+    if(b.value !== null) return 1;
+    return b.label.localeCompare(a.label);
+  }).slice(0, 7);
+
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">📅 آخر 7 مواعيد وصول…</option>' +
+    rows.map(r => '<option value="' + tsEscapeHtml(r.label) + '">' +
+      tsEscapeHtml(r.label) + ' (' + r.count + ')</option>').join("");
+  // لو الموعد المختار لسه موجود بعد التحديث بنحافظ عليه
+  if(cur && rows.some(r => r.label === cur)) sel.value = cur;
+}
+
+/** الاختيار من القايمة بيملّي خانة البحث — والبحث نفسه بيقارن
+ *  بحروف صغيرة، فاختيار O-27SEP2026 بيلاقي O-27sep2026 عادي */
+function pickArrivalQuick(){
+  const sel = document.getElementById("arrivalQuick");
+  document.getElementById("searchArrival").value = sel.value;
+  applyFilters();
+  updateFilterCount();
+  if(sel.value) closeFilters();
+}
+
 function applyFilters(){
   const search = document.getElementById("searchInput").value.toLowerCase();
-  const searchArr = document.getElementById("searchArrival").value.toLowerCase();
+  // 🆕 التوحيد بيشيل فرق الكابيتال/الاسمول وفرق المسافات، فالبحث
+  // بـ "o-27sep2026" بيلاقي "O-27SEP2026" والعكس
+  const searchArr = arrNormM(document.getElementById("searchArrival").value);
   const from = document.getElementById("dateFrom").value;
   const to = document.getElementById("dateTo").value;
   const status = document.getElementById("searchStatus").value;
@@ -683,7 +803,7 @@ function applyFilters(){
     const d = o.date || "";
     const dateMatch = (!from||d>=from) && (!to||d<=to);
     const statusMatch = !status||o.status===status;
-    const arrivalMatch = !searchArr || (o.arrivaldate || "").toString().toLowerCase().includes(searchArr);
+    const arrivalMatch = !searchArr || arrNormM(o.arrivaldate).includes(searchArr);
     const cleanOrder = String(o.order || "").toLowerCase().replace(/\s/g, "");
     const userMatch = !userFilter || (o.user || "").trim().toLowerCase() === userFilter;
 
