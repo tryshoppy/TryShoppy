@@ -607,9 +607,9 @@ function renderStats(items, paymentsTotal, statusF){
   // كده مضمون إن الإجمالي = المدفوع + المتبقي دايمًا رياضيًا
   const totalRemaining = Math.max(0, items.reduce((s,p)=> s + Math.max(0, (parseFloat(p.finalEgp)||0) - (parseFloat(p.deposit)||0)), 0) - paymentsTotal);
   const totalQty = items.reduce((s,p)=> s + (parseInt(p.quantity)||1), 0);
-  // إجمالي الدولار: سعر الدولار للقطعة × الكمية (لو الكمية لسه ماتحددتش
-  // لأن العميل لسه ماأكدش، بنفترض قطعة واحدة كحد أدنى بدل ما نصفّرها)
-  const totalUsd = items.reduce((s,p)=> s + ((parseFloat(p.staffUsd)||0) * (parseInt(p.quantity)||1)), 0);
+  // 💱 staffUsd بقى *إجمالي* الدولار جاي مضروب من السيرفر — لو
+  // ضربناه في الكمية تاني هنا هيتضرب مرتين. بنجمعه زي ما هو
+  const totalUsd = items.reduce((s,p)=> s + (parseFloat(p.staffUsd)||0), 0);
   const confirmedCount = items.filter(p=>["Confirmed","Placed","Delayed","Delivered"].includes(p.status)).length;
   const deliveredCount = items.filter(p=>p.status==="Delivered").length;
 
@@ -761,13 +761,22 @@ function renderList(){
         <div class="row hidden" id="weightRow-${eid}" style="margin-top:8px;">
           <input type="number" id="manualWeight-${eid}" placeholder="⚖️ الوزن الفعلي (جرام)" oninput="calcPreview('${jid}')">
         </div>
-        <div class="row" style="margin-top:8px;">
-          <input type="number" id="usd-${eid}" placeholder="💵 السعر بالدولار" oninput="calcPreview('${jid}')">
-          <div id="preview-${eid}" style="align-self:center;font-weight:800;color:var(--success);"></div>
+        <div style="margin-top:10px;font-size:12px;font-weight:800;color:var(--accent-ink);background:rgba(250,204,21,.18);border:1px solid var(--accent);border-radius:9px;padding:7px 10px;">
+          ⚠️ الرقمين دول <u>سعر الوحدة الواحدة</u> — الضرب في العدد بيحصل تلقائي وبيتسجل في الشيت
         </div>
-        <div class="row" style="margin-top:8px;align-items:center;">
-          <input type="number" id="customPrice-${eid}" placeholder="✏️ سعر مخصص (اختياري — يتجاوز الحاسبة)" oninput="calcPreview('${jid}')">
-          <div style="font-size:11px;color:var(--gray);flex:0 0 auto;">لو اتكتب، هيستخدم بدل حساب الحاسبة</div>
+        <div class="row" style="margin-top:8px;">
+          <div style="flex:1;min-width:150px;">
+            <label style="display:block;margin-bottom:4px;font-size:12px;font-weight:800;color:#475569;">💵 سعر الوحدة بالدولار ($ / قطعة)</label>
+            <input type="number" id="usd-${eid}" placeholder="مثال: 24.99" oninput="calcPreview('${jid}')">
+          </div>
+          <div id="preview-${eid}" style="align-self:flex-end;padding-bottom:10px;font-weight:800;color:var(--success);"></div>
+        </div>
+        <div class="row" style="margin-top:8px;">
+          <div style="flex:1;min-width:150px;">
+            <label style="display:block;margin-bottom:4px;font-size:12px;font-weight:800;color:#475569;">✏️ سعر الوحدة بالجنيه (EGP / قطعة) — اختياري</label>
+            <input type="number" id="customPrice-${eid}" placeholder="سيبه فاضي عشان الحاسبة تحسبه" oninput="calcPreview('${jid}')">
+          </div>
+          <div style="align-self:flex-end;padding-bottom:10px;font-size:11px;color:var(--gray);flex:0 0 auto;">لو اتكتب، هيستخدم بدل حساب الحاسبة</div>
         </div>
         <button class="btn-block btn-success" style="margin-top:8px;" onclick="submitPrice('${jid}')">📤 إرسال السعر للعميل</button>
         <button class="btn-block btn-ghost" style="margin-top:8px;color:var(--danger);" onclick="markUnavailable('${jid}', this)">🚫 المنتج غير متاح</button>
@@ -783,9 +792,9 @@ function renderList(){
         </div>`;
     } else {
       actionsHtml = `
-        <div class="meta-line">💰 سعر القطعة: ${fmtNum(p.staffEgp)} EGP</div>
+        <div class="meta-line">💰 سعر الوحدة: ${fmtNum(p.staffEgp)} EGP &nbsp;|&nbsp; 💵 ${fmtNum(p.unitUsd)}$</div>
         <div class="meta-line">🔢 العدد: ${escapeHtml(p.quantity || 1)}</div>
-        <div class="price-tag" style="font-weight:900;color:var(--primary);">💵 الإجمالي: ${fmtNum(p.finalEgp)} EGP</div>
+        <div class="price-tag" style="font-weight:900;color:var(--primary);">💵 الإجمالي: ${fmtNum(p.finalEgp)} EGP &nbsp;|&nbsp; ${fmtNum(p.staffUsd)}$</div>
         <div class="action-box">
           <div class="row">
             <select id="status-${eid}">
@@ -948,7 +957,7 @@ function calcPreview(id){
   const weight = resolveWeight(id);
   if(!usd || !weight){ preview.textContent = ""; return; }
   const { finalPrice } = tryShoppyCalculatePrice({ usd, category:"Vitamin or Supplements", weightGrams:weight, quantity:1 });
-  preview.textContent = "≈ " + finalPrice.toLocaleString() + " EGP";
+  preview.textContent = "≈ " + finalPrice.toLocaleString() + " EGP / للوحدة";
 }
 
 async function submitPrice(id){
@@ -990,9 +999,14 @@ async function submitPrice(id){
   const btn = findActionBtn("submitPrice", id);
   setBtnLoading(btn, "جاري الإرسال...");
   try{
+    // 💱 بنبعت سعر *الوحدة* بس — السيرفر هو اللي بيضرب في العدد
+    // وبيسجّل الإجماليات في الشيت، عشان الرقم اللي في الشيت يبقى
+    // هو الرقم الحقيقي مش محتاج الواجهة تحسبه
     const res = await fetch(RMA_SCRIPT_URL, { method:"POST", body: JSON.stringify({
       action:"setStaffPrice", staffToken:getStaffToken(), id,
-      supplementType:type, pieceOrWeight, staffUsd:usd||0, staffEgp:finalPrice
+      supplementType:type, pieceOrWeight,
+      unitUsd: usd || 0, unitEgp: finalPrice,
+      staffUsd: usd || 0, staffEgp: finalPrice // أسماء قديمة للتوافق
     })});
     const data = await res.json();
     if(data.success){
@@ -1110,17 +1124,48 @@ function openAddItemModal(){
       <label>رابط الصورة</label>
       <input type="text" id="addItemImage">
     </div>
+    <div style="font-size:12px;font-weight:800;color:var(--accent-ink);background:rgba(250,204,21,.18);border:1px solid var(--accent);border-radius:9px;padding:7px 10px;margin-bottom:8px;text-align:right;">
+      ⚠️ الرقمين دول <u>سعر الوحدة الواحدة</u> — الضرب في العدد بيحصل تلقائي وبيتسجل في الشيت
+    </div>
     <div class="row">
-      <input type="number" id="addItemUnitEgp" placeholder="💰 سعر القطعة (EGP)">
-      <input type="number" id="addItemUnitUsd" placeholder="💵 سعر القطعة ($)">
+      <div style="flex:1;min-width:130px;text-align:right;">
+        <label style="display:block;margin-bottom:4px;font-size:12px;font-weight:800;color:#475569;">💰 سعر الوحدة بالجنيه (EGP / قطعة)</label>
+        <input type="number" id="addItemUnitEgp" placeholder="مثال: 1200" oninput="updateAddItemPreview()">
+      </div>
+      <div style="flex:1;min-width:130px;text-align:right;">
+        <label style="display:block;margin-bottom:4px;font-size:12px;font-weight:800;color:#475569;">💵 سعر الوحدة بالدولار ($ / قطعة)</label>
+        <input type="number" id="addItemUnitUsd" placeholder="مثال: 24.99" oninput="updateAddItemPreview()">
+      </div>
     </div>
     <div class="row" style="margin-top:8px;">
-      <input type="number" id="addItemQty" placeholder="🔢 الكمية" value="1" min="1">
-      <input type="number" id="addItemDeposit" placeholder="🧾 العربون (اختياري)" value="0">
+      <div style="flex:1;min-width:130px;text-align:right;">
+        <label style="display:block;margin-bottom:4px;font-size:12px;font-weight:800;color:#475569;">🔢 العدد</label>
+        <input type="number" id="addItemQty" placeholder="🔢 الكمية" value="1" min="1" oninput="updateAddItemPreview()">
+      </div>
+      <div style="flex:1;min-width:130px;text-align:right;">
+        <label style="display:block;margin-bottom:4px;font-size:12px;font-weight:800;color:#475569;">🧾 العربون (اختياري)</label>
+        <input type="number" id="addItemDeposit" placeholder="0" value="0">
+      </div>
     </div>
+    <div id="addItemPreview" style="margin-top:10px;font-weight:900;font-size:13px;color:var(--primary);background:#eff6ff;border:1px solid #bfdbfe;border-radius:9px;padding:8px 10px;text-align:right;"></div>
     <button class="btn-block btn-success" id="submitAddItemBtn" onclick="submitAddItem()" style="margin-top:10px;">➕ إضافة المنتج (مؤكد)</button>
     <button class="btn-ghost btn-block" style="margin-top:8px;" onclick="closeModal()">إلغاء</button>
   `);
+}
+
+/* 🧮 معاينة حية للإجماليات في نافذة الإضافة — بتوريك بالظبط
+   الأرقام اللي هتتسجل في الشيت قبل ما تدوس إضافة، عشان مايحصلش
+   لبس تاني بين سعر الوحدة والإجمالي */
+function updateAddItemPreview(){
+  const box = document.getElementById("addItemPreview");
+  if(!box) return;
+  const unitEgp = parseFloat((document.getElementById("addItemUnitEgp")||{}).value) || 0;
+  const unitUsd = parseFloat((document.getElementById("addItemUnitUsd")||{}).value) || 0;
+  const qty = Math.max(1, parseInt((document.getElementById("addItemQty")||{}).value) || 1);
+  if(!unitEgp && !unitUsd){ box.textContent = "هيتسجل في الشيت: سعر الوحدة × العدد"; return; }
+  box.innerHTML = `📄 هيتسجل في الشيت:<br>`
+    + `TotalEGP = ${unitEgp.toLocaleString()} × ${qty} = <b>${(unitEgp*qty).toLocaleString()} EGP</b><br>`
+    + `TotalUSD = ${unitUsd.toLocaleString()} × ${qty} = <b>${(unitUsd*qty).toLocaleString()}$</b>`;
 }
 
 async function fetchForAddItem(){
@@ -1402,11 +1447,13 @@ function csvEscape(v){
 
 function exportCSV(){
   if(!lastRenderedItems.length){ alert("مفيش منتجات ظاهرة دلوقتي عشان تتصدّر"); return; }
-  const headers = ["ID","اسم المنتج","الرابط","الحالة","نوع المنتج","الوزن/القطعة","سعر القطعة $","سعر القطعة EGP","الكمية","عرض العميل EGP","الإجمالي EGP","العربون EGP","المتبقي EGP","تاريخ الوصول","تاريخ الإضافة","آخر تحديث","ملاحظات"];
+  // 💱 نفس تسمية أعمدة الشيت بالظبط — وحدة مقابل إجمالي واضحين
+  const headers = ["ID","اسم المنتج","الرابط","الحالة","نوع المنتج","الوزن/القطعة","سعر الوحدة $","سعر الوحدة EGP","الكمية","إجمالي $","إجمالي EGP","عرض العميل EGP","العربون EGP","المتبقي EGP","تاريخ الوصول","تاريخ الإضافة","آخر تحديث","ملاحظات"];
   const rows = lastRenderedItems.map(p => [
     p.id, p.productName, p.link, STATUS_META[p.status]?.label || p.status,
-    p.supplementType, p.pieceOrWeight, p.staffUsd, p.staffEgp, p.quantity,
-    p.clientCounterEgp, p.finalEgp, p.deposit, Math.max(0, (parseFloat(p.finalEgp)||0) - (parseFloat(p.deposit)||0)),
+    p.supplementType, p.pieceOrWeight,
+    p.unitUsd, p.staffEgp, p.quantity, p.staffUsd, p.finalEgp,
+    p.clientCounterEgp, p.deposit, Math.max(0, (parseFloat(p.finalEgp)||0) - (parseFloat(p.deposit)||0)),
     normArrival(p.arrivalDate), p.createdDate, p.lastUpdated, p.notes
   ].map(csvEscape).join(","));
   const csv = "\uFEFF" + headers.map(csvEscape).join(",") + "\n" + rows.join("\n"); // BOM عشان إكسل يفتح العربي صح

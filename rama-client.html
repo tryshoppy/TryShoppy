@@ -863,8 +863,9 @@ function renderProducts(items){
 
     if(p.status === "PendingApproval"){
       actionsHtml = `
-        <div class="price-tag">${fmtNum(p.staffEgp)} EGP <span style="font-size:11px;color:#94a3b8;font-weight:700;">/ للقطعة</span></div>
+        <div class="price-tag">${fmtNum(p.staffEgp)} EGP <span style="font-size:11px;color:#94a3b8;font-weight:700;">/ سعر الوحدة الواحدة</span></div>
         <div class="action-box">
+          <label style="display:block;margin-bottom:4px;font-size:12px;font-weight:800;color:#475569;">🔢 العدد المطلوب</label>
           <div class="row">
             <input type="number" class="mini-input" id="qty-${escapeHtml(p.id)}" placeholder="🔢 الكمية" value="1" min="1" oninput="updateQtyPreview('${jid}', ${numAttr(p.staffEgp)})">
           </div>
@@ -887,7 +888,7 @@ function renderProducts(items){
       actionsHtml = `<div class="meta-line" style="color:var(--danger);">🚫 ${escapeHtml(p.notes || "المنتج غير متاح حاليًا")}</div>`;
     } else if(["Confirmed","Placed","Delayed","Delivered"].includes(p.status)){
       actionsHtml = `
-        <div class="meta-line">💰 سعر القطعة: ${fmtNum(p.staffEgp)} EGP</div>
+        <div class="meta-line">💰 سعر الوحدة: ${fmtNum(p.staffEgp)} EGP</div>
         <div class="meta-line">🔢 العدد: ${escapeHtml(p.quantity || 1)}</div>
         <div class="price-tag">💵 الإجمالي: ${fmtNum(p.finalEgp)} EGP</div>
         <div class="meta-line">📅 موعد الوصول: ${escapeHtml(normArrival(p.arrivalDate) || "—")}</div>
@@ -1091,7 +1092,7 @@ function csvEscape(v){
 
 function exportCSV(){
   if(!lastRenderedItems.length){ alert("مفيش منتجات ظاهرة دلوقتي عشان تتصدّر"); return; }
-  const headers = ["اسم المنتج","الرابط","الحالة","سعر القطعة EGP","الكمية","الإجمالي EGP","العربون EGP","المتبقي EGP","تاريخ الوصول"];
+  const headers = ["اسم المنتج","الرابط","الحالة","سعر الوحدة EGP","الكمية","الإجمالي EGP","العربون EGP","المتبقي EGP","تاريخ الوصول"];
   const rows = lastRenderedItems.map(p => [
     p.productName, p.link, STATUS_META[p.status]?.label || p.status,
     p.staffEgp, p.quantity, p.finalEgp, p.deposit, Math.max(0, (parseFloat(p.finalEgp)||0) - (parseFloat(p.deposit)||0)), normArrival(p.arrivalDate)
