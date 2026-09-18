@@ -1670,6 +1670,13 @@ function aoGenOrderNo(){ return "TRY" + Math.floor(10000000 + Math.random() * 90
    ─────────────────────────────────────────────────────────── */
 let AO_CART = [];
 
+/* 🔒 بيتحطوا true بعد أول حفظ فيه نجاح جزئي — عشان لو الموظف ضغط
+   حفظ تاني على اللي فضل في السلة، ما يتسجلش العربون مرة تانية ولا
+   يتبعت إيميل تاني للعميل (الصف اللي نجح خد الاتنين فعلاً).
+   بيترجعوا false مع كل فتحة/تفضية جديدة. */
+let AO_DEPOSIT_DONE = false;
+let AO_EMAIL_DONE   = false;
+
 function aoCartTotal(){
   return AO_CART.reduce((s, it) => s + (parseFloat(it.finalPrice) || 0), 0);
 }
@@ -1917,6 +1924,8 @@ function openAddOrder(){
   // 🛒 السلة بتبدأ فاضية في كل فتحة جديدة — أرقام الطلبات بتتولّد
   // وقت إضافة كل منتج، مش وقت فتح الشاشة
   AO_CART = [];
+  AO_DEPOSIT_DONE = false;
+  AO_EMAIL_DONE   = false;
   aoRenderCart();
   aoUpdateLineTotal();
   document.getElementById("aoUser").value = getCurrentUser() || "—";
@@ -1950,6 +1959,8 @@ function aoClearForm(){
   document.querySelectorAll(".ao-hide-cb").forEach(cb => { cb.checked = false; });
   aoUpdateLineTotal();
   AO_CART = [];
+  AO_DEPOSIT_DONE = false;
+  AO_EMAIL_DONE   = false;
   aoRenderCart();
 }
 
@@ -1991,77 +2002,124 @@ async function submitAddOrder(){
   msg.className = "ao-msg";
   msg.innerText = "";
 
+  const payloadFor = (it, idx) => ({
+    order: it.order,
+    customerName: name,
+    phone: phone,
+    /* الإيميل بيتبعت دايمًا عشان يتسجل في الشيت (هنحتاجه بعدين في
+       تحديثات الحالة)، والتحكم في التأكيد بيبقى بفلاج منفصل تحت —
+       بدل ما نمسح بيانات العميل عشان بس نوقف إيميل واحد. */
+    email: email,
+    country: "USA",
+    address: v("aoAddress"),
+    governorate: document.getElementById("aoGov").value,
+    link: it.link,
+    quantity: it.quantity,
+    usd: it.usd,
+    dimensions: it.dimensions,
+    finalPrice: it.finalPrice,
+    /* 💰 العربون على أول منتج بس — لو اتحط على كل صف كان
+       الإجمالي المدفوع هيتضاعف بعدد المنتجات في العرض المجمّع */
+    deposit: (idx === 0 && !AO_DEPOSIT_DONE) ? v("aoDeposit") : "",
+    arrivaldate: v("aoArrival"),
+    status: document.getElementById("aoStatus").value,
+    user: getCurrentUser(),
+    /* 🙈 أسماء اليوزرز اللي الطلب مايبانش عندهم — مفصولة بفاصلة،
+       نفس صيغة عمود hiddenFrom في الشيت. السيرفر بيتجاهلها لو
+       التوكن مش أدمن، فبنبعت التوكن معاها. */
+    hiddenFrom: hiddenFrom,
+    staffToken: getStaffToken(),
+    /* 📨 إيميل واحد للطلب كله مهما كان عدد المنتجات — نفس مبدأ
+       الحاسبة والمارت. من غير ده سلة فيها 5 منتجات كانت هتبعت
+       5 إيميلات للعميل و5 للفريق. */
+    suppressEmail: idx > 0 || AO_EMAIL_DONE,
+    emailSummary: (idx === 0 && !AO_EMAIL_DONE) ? emailSummary : "",
+    cartTotal:    (idx === 0 && !AO_EMAIL_DONE) ? cartTotal : undefined,
+    /* 📧 الفلاجين دول بيتقروا في Orders_Code.gs، كل واحد بيوقف
+       إيميل واحد بس ومستقل عن التاني (مش زي suppressEmail
+       القديمة اللي كانت بتقفل الاتنين مع بعض) */
+    notifyStaff: notifyStaff,
+    notifyCustomer: notifyCustomer
+  });
+
   /* ⚠️ بالتتابع مش Promise.all — نفس السبب المشروح في calculator.html
      وفي Orders_Code.gs: كتابتين في نفس اللحظة على الشيت ممكن تضيع
      صف بصمت. وبنتابع كل منتج لوحده عشان لو فشل جزئي نعرف أنهي منتج
      فشل ونسيبه في السلة بس بدل ما نلغي الطلب كله. */
-  const saved = [], failed = [];
   for(let idx = 0; idx < AO_CART.length; idx++){
-    const it = AO_CART[idx];
-    try{
-      await tsPostScript(scriptURL, {
-        order: it.order,
-        customerName: name,
-        phone: phone,
-        /* الإيميل بيتبعت دايمًا عشان يتسجل في الشيت (هنحتاجه بعدين في
-           تحديثات الحالة)، والتحكم في التأكيد بيبقى بفلاج منفصل تحت —
-           بدل ما نمسح بيانات العميل عشان بس نوقف إيميل واحد. */
-        email: email,
-        country: "USA",
-        address: v("aoAddress"),
-        governorate: document.getElementById("aoGov").value,
-        link: it.link,
-        quantity: it.quantity,
-        usd: it.usd,
-        dimensions: it.dimensions,
-        finalPrice: it.finalPrice,
-        /* 💰 العربون على أول منتج بس — لو اتحط على كل صف كان
-           الإجمالي المدفوع هيتضاعف بعدد المنتجات في العرض المجمّع */
-        deposit: idx === 0 ? v("aoDeposit") : "",
-        arrivaldate: v("aoArrival"),
-        status: document.getElementById("aoStatus").value,
-        user: getCurrentUser(),
-        /* 🙈 أسماء اليوزرز اللي الطلب مايبانش عندهم — مفصولة بفاصلة،
-           نفس صيغة عمود hiddenFrom في الشيت. السيرفر بيتجاهلها لو
-           التوكن مش أدمن، فبنبعت التوكن معاها. */
-        hiddenFrom: hiddenFrom,
-        staffToken: getStaffToken(),
-        /* 📨 إيميل واحد للطلب كله مهما كان عدد المنتجات — نفس مبدأ
-           الحاسبة والمارت. من غير ده سلة فيها 5 منتجات كانت هتبعت
-           5 إيميلات للعميل و5 للفريق. */
-        suppressEmail: idx > 0,
-        emailSummary: idx === 0 ? emailSummary : "",
-        cartTotal:    idx === 0 ? cartTotal : undefined,
-        /* 📧 الفلاجين دول بيتقروا في Orders_Code.gs، كل واحد بيوقف
-           إيميل واحد بس ومستقل عن التاني (مش زي suppressEmail
-           القديمة اللي كانت بتقفل الاتنين مع بعض) */
-        notifyStaff: notifyStaff,
-        notifyCustomer: notifyCustomer
-      });
-      saved.push(it);
-    }catch(err){
-      failed.push(it);
-    }
+    try{ await tsPostScript(scriptURL, payloadFor(AO_CART[idx], idx)); }catch(err){}
+    // 🕐 نفس بين الطلبات — Apps Script بيقفل الشيت أثناء الكتابة
+    // (LockService)، والطلبات المتلاحقة أوي بتزوّد فرص التصادم
+    if(idx < AO_CART.length - 1) await new Promise(r => setTimeout(r, 400));
   }
 
+  /* ✅ التحقق الفعلي من إن الصفوف اتكتبت
+     ─────────────────────────────────────────────────────────────
+     ⚠️ ليه ده ضروري؟ tsPostScript بيستخدم mode:'no-cors'، يعني الرد
+     من السيرفر **مش بيتقرا** خالص — الـ fetch بينجح حتى لو الصف
+     ماتكتبش. فـ "نجح الإرسال" مش معناها "اتسجل في الشيت".
+     عشان كده بنرجع نقرا الشيت ونتأكد برقم كل طلب. */
+  tsSetBtnLoading(btn, "بنتأكد من التسجيل...");
+  const wanted  = AO_CART.map(it => it.order);
+  const missing = await aoVerifySaved(wanted);
   tsClearBtnLoading(btn);
 
-  if(failed.length){
-    // اللي نجح بيتشال من السلة، واللي فشل بس بيفضل عشان يعيد المحاولة
-    AO_CART = failed;
-    aoRenderCart();
+  if(missing === null){
+    // ماقدرناش نقرا الشيت (نت/جلسة) — ممنوع نقول نجح ولا فشل
     msg.className = "ao-msg err";
-    msg.innerText = saved.length + " من " + (saved.length + failed.length) +
-                    " اتسجلوا — الباقي فضل في السلة، حاول تاني.";
+    msg.innerText = "الطلبات اتبعتت بس ماقدرناش نتأكد إنها اتسجلت — افتح الشيت وراجع قبل ما تعيد.";
+    return;
+  }
+
+  if(missing.length){
+    const savedCount = wanted.length - missing.length;
+    // اللي اتسجل بيتشال، واللي ضاع بس بيفضل في السلة بنفس رقمه
+    AO_CART = AO_CART.filter(it => missing.indexOf(it.order) !== -1);
+    aoRenderCart();
+    if(savedCount > 0){
+      // في صف اتسجل فعلاً — يبقى خد العربون والإيميل، فممنوع يتكرروا
+      AO_DEPOSIT_DONE = true;
+      AO_EMAIL_DONE   = true;
+    }
+    msg.className = "ao-msg err";
+    msg.innerText = savedCount + " من " + wanted.length +
+                    " اتسجلوا فعلاً — الباقي فضل في السلة، اضغط حفظ تاني." +
+                    (savedCount > 0 ? " (العربون والإيميل اتسجلوا خلاص، مش هيتكرروا)" : "");
+    setTimeout(loadData, 600);
     return;
   }
 
   msg.className = "ao-msg ok";
-  msg.innerText = "اتسجل بنجاح: " + saved.map(s => s.order).join(" · ");
+  msg.innerText = "اتسجل بنجاح: " + wanted.join(" · ");
   aoClearForm();
-  /* الشيت عليه كاش دقيقتين، فبنستنى شوية قبل التحديث عشان الطلبات
-     الجديدة تبان فعلاً بدل ما ترجع نفس القايمة القديمة */
-  setTimeout(loadData, 1200);
+  setTimeout(loadData, 600);
+}
+
+/** بترجع أرقام الطلبات اللي **مش** موجودة في الشيت، أو null لو
+ *  ماقدرناش نقرا أصلاً (فرق مهم: مفيش ≠ مش عارفين).
+ *  بنقرا مباشرة مش من ordersData عشان نضمن بيانات طازة. */
+async function aoVerifySaved(orderNos){
+  for(let attempt = 0; attempt < 3; attempt++){
+    try{
+      const url = scriptURL + "?staffToken=" + encodeURIComponent(getStaffToken()) +
+                  "&_=" + Date.now();   // كسر أي كاش على المتصفح
+      const res  = await fetch(url, { redirect: 'follow' });
+      const data = await res.json();
+      if(!Array.isArray(data)) return null;
+
+      const found = new Set(data.map(o => String(o.order == null ? "" : o.order).trim()));
+      const missing = orderNos.filter(no => !found.has(no));
+      // لو كله موجود خلاص، وإلا نجرب تاني — السيرفر عنده كاش دقيقتين
+      // وممكن يكون رجّع نسخة قديمة شوية
+      if(!missing.length) return [];
+      if(attempt === 2) return missing;
+      await new Promise(r => setTimeout(r, 1500));
+    }catch(e){
+      if(attempt === 2) return null;
+      await new Promise(r => setTimeout(r, 1500));
+    }
+  }
+  return null;
 }
 
 /* Esc بتقفل نتايج البحث الأول لو مفتوحة، وبعدها الشاشة نفسها —
