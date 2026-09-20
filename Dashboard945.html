@@ -801,6 +801,18 @@ function ramaTag(raw){
     return t.toUpperCase().replace(/\s+/g,"");
 }
 
+/** اسم صف RAMA المعروض.
+ *  🐛→✅ كان "RAMA-O-" + ramaTag() على طول، وده كان بيكرر البادئة
+ *  لما الموعد نفسه مكتوب بيها في الشيت (وده الشائع فعلاً):
+ *      O-18OCT2026  →  RAMA-O-O-18OCT2026
+ *      (فاضي)       →  RAMA-O-NO-DATE
+ *  دلوقتي البادئة بتتحط بس لما تكون ناقصة. */
+function ramaLabel(raw){
+    const tag = ramaTag(raw);
+    if(tag === "NO-DATE") return "RAMA-NO-DATE";
+    return /^[O0][-–—]/i.test(tag) ? "RAMA-" + tag : "RAMA-O-" + tag;
+}
+
 async function loadRama(){
     try{
         const res = await fetch(RAMA_URL + "?scope=staff&staffToken=" + encodeURIComponent(getStaffToken()));
@@ -814,13 +826,21 @@ async function loadRama(){
             const q = parseInt(p.quantity)||1;
             groups[k].items += 1;
             groups[k].qty   += q;
-            groups[k].usd   += (parseFloat(p.staffUsd)||0) * q;   // staffUsd سعر القطعة
+            /* 🐛→✅ كان مكتوب: (staffUsd * q) على أساس إن staffUsd سعر
+               القطعة. شيت RAMA بقى بيخزّن **إجمالي الدولار** للصف
+               (الكمية مضروبة فيه أصلاً)، فالضرب هنا كان بيضاعف الرقم.
+
+               ⚠️ التناقض ده كان باين في السطر اللي تحته على طول:
+               finalEgp مكانش بيتضرب في الكمية — يعني الجنيه كان
+               إجمالي والدولار كان بيتعامل كسعر قطعة لنفس الصف.
+               دلوقتي الاتنين إجمالي، زي الشيت بالظبط. */
+            groups[k].usd   += parseFloat(p.staffUsd)||0;
             groups[k].egp   += parseFloat(p.finalEgp)||0;
             groups[k].dep   += parseFloat(p.deposit)||0;
         });
         ramaRows = Object.values(groups).map(g=>({
             isRama: true,
-            order: "RAMA-O-" + ramaTag(g.dateRaw),
+            order: ramaLabel(g.dateRaw),
             customerName: "RAMA — إجمالي الموعد",
             phone: "",
             quantity: g.qty,
