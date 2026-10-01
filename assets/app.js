@@ -142,16 +142,162 @@ const TS_STATUS_AR = {
   'Confirmed Via Try':'تم التأكيد',
   'Processing':       'جاري التجهيز',
   'Placed':           'تم الطلب',
+  'Arrived USA HUB':  'وصل مخزن أمريكا',
+  'In transit':       'في الشحن الدولي',
   'Arrived Cairo HUB':'وصل القاهرة',
   'Shipped To You':   'في الطريق إليك',
   'Delivered':        'تم التسليم',
+  'On Hold':          'معلّق مؤقتًا',
+  'Delayed':          'متأخر',
   'Canceled':         'ملغي',
-  'Delayed':          'متأخر'
+  'Returned':         'مرتجع',
+  'Lost':             'مفقود'
 };
 function tsStatusLabel(s){
   const k = String(s == null ? '' : s).trim();
   if(!k) return '';
   return TS_STATUS_AR[k] || k;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   📋 قائمة الحالات الرسمية — مصدر واحد لكل قوائم الحالات
+   ═══════════════════════════════════════════════════════════
+   ⚠️ لازم تطابق قائمة الـ dropdown في Sheet2 في شيت الطلبات
+   **حرف بحرف** (In transit بحرف t صغير، On Hold بـ H كبير) —
+   الكود بيقارن النص بالظبط.
+
+   الترتيب = مسار الطلب الطبيعي، وبعده حالات الاستثناء.
+
+   🐛 ليه مصدر واحد؟ قوائم الحالات كانت مكتوبة بإيد في كل داشبورد،
+   وأي حالة مش في القائمة كانت بتخلّي الـ <select> يختار أول اختيار
+   (Pending Review) تلقائيًا — فلو الموظف داس "حفظ" على الكارت
+   (حتى عشان يغيّر موعد الوصول بس) الحالة كانت بتترجع Pending Review
+   في الشيت من غير ما ياخد باله. tsStatusOptionsHtml تحت بتمنع ده. */
+const TS_STATUSES = [
+  'Pending Review', 'Confirmed Via Try', 'Processing', 'Placed',
+  'Arrived USA HUB', 'In transit', 'Arrived Cairo HUB', 'Shipped To You', 'Delivered',
+  'On Hold', 'Delayed', 'Canceled', 'Returned', 'Lost'
+];
+
+/* الحالات "المقفولة" — الطلب خلص (اتسلّم أو مش هيكمل). بتتستبعد من
+   ملخص الطلبات غير المستلمة ومن "طلباتك المفتوحة" في التتبع.
+   On Hold و Delayed **مش** منها — الطلب لسه شغال، بس متعطّل. */
+const TS_CLOSED_STATUSES = ['Delivered', 'Canceled', 'Returned', 'Lost'];
+function tsIsClosedStatus(s){ return TS_CLOSED_STATUSES.indexOf(String(s == null ? '' : s).trim()) !== -1; }
+
+/* ═══════════════════════════════════════════════════════════
+   📝 ملاحظة الحالة (عمود statusNote) — للمعلّق والمفقود
+   ═══════════════════════════════════════════════════════════
+   لما الموظف يحوّل طلب لـ On Hold أو Lost، بتظهر ويندو يكتب فيها
+   السبب أو المطلوب من العميل. الملاحظة بتظهر للعميل في صفحة التتبع
+   (والإيميل في حالة On Hold)، وفي التقرير اليومي للفريق.
+
+   الملاحظة بتفضل في العمود بعد ما الطلب يكمل، فبتتعرض **بس** مع
+   الحالتين دول (نفس STATUS_NOTE_STATUSES في Orders_Code.gs). */
+const TS_NOTE_STATUSES = ['On Hold', 'Lost'];
+
+/** محتاج نسأل؟ بس لما الحالة **بتتحوّل** لواحدة منهم — لو الطلب أصلاً
+ *  On Hold والموظف بيحفظ الكارت عشان يغيّر موعد الوصول، مانزعجوش. */
+function tsNeedsStatusNote(newStatus, oldStatus){
+  return TS_NOTE_STATUSES.indexOf(newStatus) !== -1 && String(newStatus) !== String(oldStatus || '');
+}
+
+const TS_NOTE_SUGGESTIONS = {
+  'On Hold': ['محتاجين تأكيد المقاس أو اللون قبل الشراء', 'محتاجين تحويل العربون عشان نكمل الطلب',
+              'المنتج مش متاح حاليًا في المتجر — بنشوف بديل', 'محتاجين تأكيد العنوان أو رقم التواصل'],
+  'Lost':    ['شركة الشحن بلّغت إن الطرد مفقود وبنتابع معاهم', 'الشحنة متأخرة عند شركة الشحن وبنتابعها']
+};
+
+/** بتفتح الويندو وترجّع Promise: النص اللي اتكتب، أو null لو الموظف لغى
+ *  (وساعتها الحفظ كله بيتلغي — مفيش طلب يتحوّل معلّق من غير سبب). */
+function tsAskStatusNote(status, current, label){
+  return new Promise(resolve => {
+    const isLost = status === 'Lost';
+    const wrap = document.createElement('div');
+    wrap.setAttribute('dir', 'rtl');
+    wrap.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(16,27,51,.55);display:flex;align-items:center;justify-content:center;padding:16px;font-family:Cairo,Tahoma,sans-serif';
+    const chips = (TS_NOTE_SUGGESTIONS[status] || []).map(s =>
+      '<button type="button" data-s="' + tsEscapeHtml(s) + '" style="border:1px solid #E3E8F2;background:#F8FAFC;color:#334155;border-radius:999px;padding:6px 11px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;margin:0 0 6px 6px">' + tsEscapeHtml(s) + '</button>').join('');
+    wrap.innerHTML =
+      '<div style="background:#fff;border-radius:16px;max-width:460px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.3);overflow:hidden">' +
+        '<div style="padding:16px 18px;border-bottom:4px solid ' + (isLost ? '#D93A3A' : '#7E22CE') + ';background:' + (isLost ? '#FDECEC' : '#F3EEFF') + '">' +
+          '<div style="font-size:16px;font-weight:900;color:#101B33">' + (isLost ? '⚠️ تحويل الطلب لـ Lost' : '⏸️ تحويل الطلب لـ On Hold') + '</div>' +
+          (label ? '<div style="font-size:12px;color:#5A6885;margin-top:2px;font-family:monospace" dir="ltr">' + tsEscapeHtml(label) + '</div>' : '') +
+        '</div>' +
+        '<div style="padding:16px 18px">' +
+          '<label style="display:block;font-size:13px;font-weight:800;color:#101B33;margin-bottom:6px">' +
+            (isLost ? 'إيه اللي حصل؟' : 'السبب أو المطلوب من العميل') + ' *</label>' +
+          '<textarea maxlength="300" rows="3" style="width:100%;box-sizing:border-box;border:1.5px solid #E3E8F2;border-radius:10px;padding:10px 12px;font:inherit;font-size:14px;resize:vertical;outline:none"></textarea>' +
+          '<div style="margin-top:8px">' + chips + '</div>' +
+          '<div style="font-size:11.5px;color:#5A6885;background:#FFF8E6;border-radius:8px;padding:8px 10px;margin-top:6px;line-height:1.6">📢 الملاحظة دي <b>هتظهر للعميل</b> في صفحة التتبع' +
+            (isLost ? ' (مفيش إيميل أوتوماتيك للمفقود — كلّم العميل بنفسك)' : ' وفي الإيميل اللي بيوصله') + '. اكتبها بلغة لطيفة.</div>' +
+          '<div class="tsn-err" style="color:#D93A3A;font-size:12.5px;font-weight:800;margin-top:8px;display:none">اكتب السبب الأول (3 حروف على الأقل)</div>' +
+        '</div>' +
+        '<div style="display:flex;gap:8px;justify-content:flex-start;padding:12px 18px;border-top:1px solid #EEF2F8">' +
+          '<button type="button" class="tsn-ok" style="background:#F5B820;color:#101B33;border:0;border-radius:10px;padding:10px 20px;font:inherit;font-weight:900;cursor:pointer">حفظ</button>' +
+          '<button type="button" class="tsn-no" style="background:#EEF2F8;color:#5A6885;border:0;border-radius:10px;padding:10px 16px;font:inherit;font-weight:800;cursor:pointer">إلغاء</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(wrap);
+    const ta = wrap.querySelector('textarea');
+    ta.value = current || '';
+    setTimeout(() => ta.focus(), 30);
+    const done = v => { wrap.remove(); document.removeEventListener('keydown', onKey); resolve(v); };
+    const ok = () => {
+      const v = ta.value.trim();
+      if(v.length < 3){ wrap.querySelector('.tsn-err').style.display = 'block'; ta.style.borderColor = '#D93A3A'; ta.focus(); return; }
+      done(v);
+    };
+    const onKey = e => { if(e.key === 'Escape') done(null); };
+    document.addEventListener('keydown', onKey);
+    wrap.querySelector('.tsn-ok').onclick = ok;
+    wrap.querySelector('.tsn-no').onclick = () => done(null);
+    wrap.addEventListener('click', e => {
+      const s = e.target.getAttribute && e.target.getAttribute('data-s');
+      if(s){ ta.value = s; ta.focus(); }
+      else if(e.target === wrap) done(null);
+    });
+  });
+}
+
+/** <option>s لقائمة حالات. opts.withAr: يكتب العربي جنب الإنجليزي.
+ *  opts.placeholder: أول اختيار فاضي (للفلاتر والتعديل الجماعي).
+ *  لو الحالة الحالية مش في القائمة الرسمية، بتتضاف هي كمان ومختارة —
+ *  عشان الحفظ مايغيّرهاش من غير قصد. */
+function tsStatusOptionsHtml(current, opts){
+  opts = opts || {};
+  const cur = String(current == null ? '' : current).trim();
+  const list = TS_STATUSES.slice();
+  if(cur && list.indexOf(cur) === -1) list.push(cur);
+  const label = s => opts.withAr && TS_STATUS_AR[s] ? (s + ' — ' + TS_STATUS_AR[s]) : s;
+  return (opts.placeholder != null ? '<option value="">' + tsEscapeHtml(opts.placeholder) + '</option>' : '') +
+    list.map(s => '<option value="' + tsEscapeHtml(s) + '"' + (s === cur ? ' selected' : '') + '>' +
+      tsEscapeHtml(label(s)) + '</option>').join('');
+}
+
+/* 🏷️ الأصناف — نفس قيم حاسبة الموقع بالظبط (calculator.html)، لأنها
+   مفاتيح التسعير. أي شاشة موظفين بتطلب صنف بتستخدم القائمة دي. */
+const TS_CATEGORIES = [
+  'Clothes (Regular)', 'Jacket or BALTO', 'Electronics', 'Shoes (Regular)', 'Shoes (Boot)',
+  'Watches', 'Accessories', 'Cosmetics', 'Sunglasses', 'Food', 'CarParts',
+  'Vitamin or Supplements', 'Shampoo or Conditioner', 'Small Size Hand bag (women)',
+  'Back bag (or Lap bag)', 'Large Size Hand bag (women)', 'Stationary'
+];
+function tsCategoryOptionsHtml(current){
+  const cur = String(current == null ? '' : current).trim();
+  const list = TS_CATEGORIES.slice();
+  if(cur && list.indexOf(cur) === -1) list.push(cur);   // صنف قديم مش في القائمة يفضل ظاهر
+  return '<option value="">— اختر الصنف —</option>' +
+    list.map(c => '<option value="' + tsEscapeHtml(c) + '"' + (c === cur ? ' selected' : '') + '>' + tsEscapeHtml(c) + '</option>').join('');
+}
+
+/* 🔢 أرقام عربي/فارسي ← إنجليزي (٠١٠ ← 010). العملاء اللي بيكتبوا
+   من كيبورد عربي بيدخلوا الموبايل بالأرقام العربي، و\d في جافاسكريبت
+   مش بيعتبرها أرقام أصلاً — فكانت بتتمسح وتطلع الرقم فاضي. */
+function tsToEnDigits(v){
+  return String(v == null ? '' : v)
+    .replace(/[٠-٩]/g, ch => String(ch.charCodeAt(0) - 0x0660))
+    .replace(/[۰-۹]/g, ch => String(ch.charCodeAt(0) - 0x06F0));
 }
 
 /* 📅 تاريخ من الشيت → YYYY-MM-DD بتوقيت القاهرة.
@@ -294,7 +440,7 @@ function tsWaMessage(opts){
 /* فتح واتساب برقم معيّن. من غير رقم بيروح لرقم الدعم. */
 function tsWaOpen(phone, message){
   const support = (typeof TS_CONFIG !== 'undefined' && TS_CONFIG.SUPPORT_PHONE) ? TS_CONFIG.SUPPORT_PHONE : '201005609642';
-  let target = String(phone || '').replace(/\D/g, '');
+  let target = tsToEnDigits(phone || '').replace(/\D/g, '');
   if(!target){
     target = support;
   } else {
@@ -530,7 +676,7 @@ function tsRequireAuth(){
    مفاتيح الجلسات ومطابقة الطلبات في الشيت كلها معتمدة عليها.
    للعرض استخدم tsDisplayPhone تحت. */
 function tsNormalizePhone(phone){
-  return String(phone || '').replace(/\D/g, '').replace(/^2/, '').replace(/^0/, '');
+  return tsToEnDigits(phone || '').replace(/\D/g, '').replace(/^2/, '').replace(/^0/, '');
 }
 
 /* 📞 الرقم بشكله الكامل للعرض: 01012345678
@@ -550,7 +696,7 @@ function tsNormalizePhone(phone){
 function tsDisplayPhone(v){
   const raw = String(v == null ? '' : v).trim();
   if(!raw) return '';
-  let d = raw.replace(/\D/g, '');
+  let d = tsToEnDigits(raw).replace(/\D/g, '');
   if(!d) return raw;                                             // مفيش أرقام خالص
   if(d.length > 12 && d.slice(0, 2) === '00') d = d.slice(2);     // بادئة دولية
   if(d.length === 12 && d.slice(0, 3) === '201') d = d.slice(2);  // كود مصر

@@ -262,6 +262,10 @@ label{display:block;font-weight:700;font-size:13px;margin-bottom:7px;color:var(-
 .badge.green,.badge.b-green{background:var(--ok-bg);color:var(--ok)}
 .badge.red,.badge.b-red{background:var(--err-bg);color:var(--err)}
 .badge.yellow,.badge.b-yellow{background:var(--yellow-100);color:var(--yellow-ink)}
+/* 🆕 لحالتين جداد: معلّق (بنفسجي) ومرتجع (رمادي غامق) — لونين مميزين
+   عشان مايتلخبطوش مع متأخر (أصفر) وملغي (أحمر) */
+.badge.purple,.badge.b-purple{background:#F3EEFF;color:#6D28D9}
+.badge.slate,.badge.b-slate{background:#E8EDF3;color:#334155}
 
 .stamp{
   display:inline-flex;align-items:center;gap:7px;font-family:inherit;font-size:13px;font-weight:700;
