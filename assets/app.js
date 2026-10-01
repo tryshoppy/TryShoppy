@@ -210,13 +210,14 @@ const TS_NOTE_SUGGESTIONS = {
 
 /** بتفتح الويندو وترجّع Promise: النص اللي اتكتب، أو null لو الموظف لغى
  *  (وساعتها الحفظ كله بيتلغي — مفيش طلب يتحوّل معلّق من غير سبب). */
-function tsAskStatusNote(status, current, label){
+function tsAskStatusNote(status, current, label, suggestions){
   return new Promise(resolve => {
     const isLost = status === 'Lost';
     const wrap = document.createElement('div');
     wrap.setAttribute('dir', 'rtl');
     wrap.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(16,27,51,.55);display:flex;align-items:center;justify-content:center;padding:16px;font-family:Cairo,Tahoma,sans-serif';
-    const chips = (TS_NOTE_SUGGESTIONS[status] || []).map(s =>
+    // suggestions اختياري — أداة المندوب بتبعت أسباب خاصة بالتوصيل
+    const chips = (suggestions || TS_NOTE_SUGGESTIONS[status] || []).map(s =>
       '<button type="button" data-s="' + tsEscapeHtml(s) + '" style="border:1px solid #E3E8F2;background:#F8FAFC;color:#334155;border-radius:999px;padding:6px 11px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;margin:0 0 6px 6px">' + tsEscapeHtml(s) + '</button>').join('');
     wrap.innerHTML =
       '<div style="background:#fff;border-radius:16px;max-width:460px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.3);overflow:hidden">' +
