@@ -344,7 +344,8 @@ function normName(s){
 }
 function normPhone(p){ return tsToEnDigits(p).replace(/\D/g, "").replace(/^2/, "").replace(/^0/, ""); }
 const num = v => parseFloat(tsToEnDigits(v)) || 0;
-const dueOf = o => Math.max(0, num(o.finalPrice) + num(o.shipping) - num(o.deposit));
+// 💵 السيرفر بيبعت "المطلوب" جاهز (due) — من غير السعر ولا العربون
+const dueOf = o => Math.max(0, num(o.due));
 const money = v => Math.round(v).toLocaleString("en-US");
 
 function setRows(d){
@@ -514,16 +515,16 @@ function renderCustomer(){
     h += '<div class="sec">📦 الجاهز للتسليم — موعد ' + tsEscapeHtml(batches[currentBatch].label) + '</div>';
     h += rows.map(o => {
       const st = String(o.status).trim();
-      const q = num(o.quantity) || 1, line = num(o.finalPrice) + num(o.shipping), dep = num(o.deposit);
+      const q = num(o.quantity) || 1, d = dueOf(o);
       return '<label class="item">' +
         '<input type="checkbox" class="pick" value="' + tsEscapeHtml(o.order) + '" checked onchange="updateTotals()">' +
         '<div class="item-b">' +
           '<div class="item-top"><span class="item-no">' + tsEscapeHtml(o.order) + '</span>' +
             '<span class="st ' + (st === OUT ? 'out' : 'hub') + '">' + tsEscapeHtml(tsStatusLabel(st)) + '</span></div>' +
           (o.dimensions && o.dimensions !== "-" ? '<div class="item-sp">📝 ' + tsEscapeHtml(o.dimensions) + '</div>' : '') +
-          '<div class="item-m"><span>الكمية <b>' + q + '</b></span><span>الإجمالي <b>' + money(line) + '</b></span>' +
-            (dep ? '<span>مدفوع <b>' + money(dep) + '</b></span>' : '') +
-            '<span class="due">المطلوب <b>' + money(dueOf(o)) + '</b></span></div>' +
+          // 💵 المطلوب بس — من غير الإجمالي ولا المدفوع مقدمًا
+          '<div class="item-m"><span>الكمية <b>' + q + '</b></span>' +
+            (d ? '<span class="due">المطلوب <b>' + money(d) + '</b></span>' : '<span class="due" style="color:var(--ok)">✅ مدفوع</span>') + '</div>' +
         '</div></label>';
     }).join("");
 
@@ -552,12 +553,33 @@ function renderCustomer(){
 let BATCH_KEYS = [];
 function pickBatch(i){ if(BATCH_KEYS[i] !== undefined){ currentBatch = BATCH_KEYS[i]; renderCustomer(); } }
 
-/* 💬 "أنا في الطريق ليك" — برقم الطلبات المحددة */
+/* 💬 "أنا في الطريق ليك" — أرقام الطلبات + المطلوب تحصيله بس.
+   ⚠️ مفيش أي ذكر للمدفوع مقدمًا ولا لإجمالي الشحنة. لو مفيش مطلوب،
+   بنقول "مدفوع بالكامل" من غير أرقام.
+   طرق الدفع: إنستاباي ← تحويل بنكي ← كاش، والمحفظة في الآخر كاختيار
+   "لو أسهل ليك". مفيش أرقام حسابات هنا — العميل بيقول هيحوّل إزاي
+   وبيتبعتله البيانات. */
 function waOnTheWay(){
   if(!current) return;
-  const sel = selectedRows();
-  tsWaOpen(current.phone || "", "أهلًا " + (current.name || "") + " 👋\nمعاك مندوب Try Shoppy، أنا في الطريق ليك بطلبك" +
-    (sel.length ? " (" + sel.map(o => o.order).join("، ") + ")" : "") + ".");
+  const sel = selectedRows().length ? selectedRows() : current.rows.filter(o => ACTIVE.indexOf(String(o.status).trim()) !== -1);
+  const due = sel.reduce((s, o) => s + dueOf(o), 0);
+  const first = String(current.name || "").trim().split(/\s+/)[0] || "";
+  const lines = [
+    "أهلًا " + first + " 👋",
+    "معاك مندوب Try Shoppy 🛵 — طلبك في الطريق ليك النهارده إن شاء الله 📦",
+    ""
+  ].concat(sel.map(o => "• " + o.order)).concat([""]);
+  if(due > 0){
+    lines.push("💵 المطلوب عند الاستلام: " + money(due) + " ج.م");
+    lines.push("الدفع زي ما يريحك: إنستاباي، أو تحويل بنكي، أو كاش وقت الاستلام — والمحفظة الإلكترونية كمان متاحة لو أسهل ليك. لو هتحوّل، قولّي وهبعتلك البيانات 🙏");
+  } else {
+    lines.push("✅ طلبك مدفوع بالكامل — مفيش أي مبلغ مطلوب عند الاستلام.");
+  }
+  lines.push("");
+  lines.push("📍 لو تسمح، ابعتلي اللوكيشن هنا، وأي تفاصيل تسهّل الوصول (رقم العمارة، الدور، علامة مميزة) لو مش موجودة في العنوان.");
+  lines.push("");
+  lines.push("شكرًا لثقتك في Try Shoppy 🌟");
+  tsWaOpen(current.phone || "", lines.join("\n"));
 }
 let LAST_RECEIPT = null;
 function waReceipt(){ if(LAST_RECEIPT) tsWaOpen(LAST_RECEIPT.phone, LAST_RECEIPT.text); }
@@ -569,17 +591,15 @@ function selectedRows(){
 
 function updateTotals(resetAmt){
   const sel = selectedRows();
-  const total = sel.reduce((s, o) => s + num(o.finalPrice) + num(o.shipping), 0);
-  const dep = sel.reduce((s, o) => s + num(o.deposit), 0);
   const due = sel.reduce((s, o) => s + dueOf(o), 0);
   const sum = document.getElementById("sum");
   if(!sum) return;
   sum.innerHTML =
-    '<div>الإجمالي (' + sel.length + ' منتج)<b>' + money(total) + '</b></div>' +
-    (dep ? '<div>مدفوع مقدمًا<b>' + money(dep) + '</b></div>' : '') +
-    '<div class="due">المطلوب تحصيله<b>' + money(due) + '</b></div>';
+    '<div>المنتجات المحددة<b>' + sel.length + '</b></div>' +
+    (due ? '<div class="due">المطلوب تحصيله<b>' + money(due) + '</b></div>'
+         : '<div class="due" style="color:var(--ok)">✅ مدفوع بالكامل — مفيش تحصيل<b></b></div>');
   const amt = document.getElementById("amt");
-  if(amt && (resetAmt || amt.dataset.auto !== "0")){ amt.value = due ? Math.round(due) : ""; amt.dataset.auto = "1"; }
+  if(amt && (resetAmt || amt.dataset.auto !== "0")){ amt.value = sel.length ? Math.round(due) : ""; amt.dataset.auto = "1"; }
   const noSel = !sel.length;
   ["btnDeliver","btnOut","btnHold"].forEach(id => { const b = document.getElementById(id); if(b) b.disabled = noSel; });
   const bo = document.getElementById("btnOut");
@@ -643,7 +663,8 @@ async function sendUpdates(updates){
         const o = states.find(x => String(x.order) === String(u.order));
         if(!o || o.missing) return true;
         if(u.status && String(o.status).trim() !== u.status) return true;
-        if(u.deposit !== undefined && Math.round(num(o.deposit)) !== Math.round(num(u.deposit))) return true;
+        // التحصيل نزل لو "المطلوب" قل بالمبلغ اللي اتحصّل (من غير ما نعرف العربون)
+        if(u._expectDue !== undefined && Math.round(num(o.due)) !== Math.round(u._expectDue)) return true;
         return false;
       });
       if(!failed.length || attempt === 2){
@@ -708,8 +729,10 @@ async function askDeliver(){
   const updates = live.map((o, i) => {
     const take = i === live.length - 1 ? left : Math.min(dueOf(o), left);
     left = Math.max(0, left - take);
-    return { order: String(o.order), status: "Delivered", deposit: Math.round((num(o.deposit) + Math.max(0, take)) * 100) / 100,
-             logNote: "💵 اتحصّل " + money(Math.max(0, take)) + " ج.م", _take: Math.max(0, take) };
+    // collected = اللي اتحصّل بس — السيرفر هو اللي بيجمعه على العربون
+    const got = Math.round(Math.max(0, take) * 100) / 100;
+    return { order: String(o.order), status: "Delivered", collected: got,
+             _take: got, _expectDue: Math.max(0, dueOf(o) - got) };
   });
 
   const failed = await sendUpdates(updates);

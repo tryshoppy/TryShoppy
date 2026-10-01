@@ -274,7 +274,7 @@ function renderByOrder(d){
   const found=d.order, sibs=d.siblings||[];
   let h='<div class="card-wrap">';
   h+='<div class="order-head"><div class="order-id">🔖 <span>'+tsT('trk_orderLabel')+'</span> <span class="onum">'+tsEscapeHtml(found.order)+'</span></div>';
-  if(found.arrivaldate)h+='<div class="arrival-line">📅 '+tsT('trk_arrivalLabel')+': '+tsEscapeHtml(found.arrivaldate)+'</div>';
+  if(found.arrivaldate)h+='<div class="arrival-line">📅 '+tsT('trk_arrivalLabel')+': '+tsEscapeHtml(tsFormatArrival(found.arrivaldate))+'</div>';
   if(found.link)h+='<a class="order-link" href="'+tsSafeHref(found.link)+'" target="_blank" rel="noopener noreferrer">🔗 '+tsEscapeHtml(found.link)+'</a>';
   h+='<div class="order-meta"><span>📦 '+tsT('trk_qtyLabel')+': '+tsEscapeHtml(found.quantity||1)+'</span><span class="price-tag">'+fmt(found.finalPrice)+' '+tsT('trk_currency')+'</span></div></div>';
   const ban=STATUS_BANNERS[found.status];
@@ -290,8 +290,8 @@ function renderByOrder(d){
        '</div>';
   }
   else h+='<div class="stage-title">'+tsT('trk_stage_title')+'</div>'+buildStepper(found.status);
-  if(found.history&&found.history.length){h+='<div class="siblings-title">'+tsT('trk_historyTitle')+'</div>';found.history.forEach(e=>{h+='<div class="sibling-card"><div class="sibling-top"><span class="sibling-order" style="font-family:inherit;letter-spacing:0">'+tsEscapeHtml(e.status)+'</span><span style="font-size:12px;color:var(--ink-3)">'+tsEscapeHtml(e.time)+'</span></div></div>';});}
-  if(sibs.length){h+='<div class="siblings-title">📦 '+tsT('trk_siblingsTitle')+' ('+sibs.length+')</div>';sibs.forEach(s=>{const b=sbadge(s.status);h+='<div class="sibling-card"><div class="sibling-top"><span class="sibling-order">'+tsEscapeHtml(s.order)+'</span><span class="badge '+b.cls+'">'+tsEscapeHtml(b.label)+'</span></div>'+(s.arrivaldate?'<div class="sibling-arrival">📅 '+tsEscapeHtml(s.arrivaldate)+'</div>':'')+(s.link?'<a class="sibling-link" href="'+tsSafeHref(s.link)+'" target="_blank" rel="noopener noreferrer">🔗 '+tsEscapeHtml(s.link)+'</a>':'')+'<div class="sibling-meta"><span>📦 '+tsEscapeHtml(s.quantity||1)+' '+tsT('trk_pieceWord')+' — '+fmt(s.finalPrice)+' '+tsT('trk_currency')+'</span></div></div>';});}
+  if(found.history&&found.history.length){h+='<div class="siblings-title">'+tsT('trk_historyTitle')+'</div>';found.history.forEach(e=>{const hb=sbadge(e.status);h+='<div class="sibling-card"><div class="sibling-top"><span class="badge '+hb.cls+'">'+tsEscapeHtml(hb.label)+'</span><span style="font-size:12px;color:var(--ink-3)">'+tsEscapeHtml(e.time)+'</span></div></div>';});}
+  if(sibs.length){h+='<div class="siblings-title">📦 '+tsT('trk_siblingsTitle')+' ('+sibs.length+')</div>';sibs.forEach(s=>{const b=sbadge(s.status);h+='<div class="sibling-card"><div class="sibling-top"><span class="sibling-order">'+tsEscapeHtml(s.order)+'</span><span class="badge '+b.cls+'">'+tsEscapeHtml(b.label)+'</span></div>'+(s.arrivaldate?'<div class="sibling-arrival">📅 '+tsEscapeHtml(tsFormatArrival(s.arrivaldate))+'</div>':'')+(s.link?'<a class="sibling-link" href="'+tsSafeHref(s.link)+'" target="_blank" rel="noopener noreferrer">🔗 '+tsEscapeHtml(s.link)+'</a>':'')+'<div class="sibling-meta"><span>📦 '+tsEscapeHtml(s.quantity||1)+' '+tsT('trk_pieceWord')+' — '+fmt(s.finalPrice)+' '+tsT('trk_currency')+'</span></div></div>';});}
   h+='<div class="help-line">'+tsT('trk_helpQuestion')+' <a href="https://wa.me/'+SUPPORT_PHONE+'" target="_blank" rel="noopener">'+tsT('trk_helpCta')+'</a></div>';
   h+='</div>';
   res.innerHTML=h;res.style.display='block';scrollToResult();
