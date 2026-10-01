@@ -1601,6 +1601,7 @@ function showLoginScreen() {
 
 function showDashboard() {
   hideInitLoader();
+  if (tsGateTool("dash945")) return;   // 🔑 صلاحية الأداة من شيت الموظفين
   document.body.classList.add("ts-ready");
   document.getElementById("loginScreen").style.display = "none";
   const badge = document.getElementById("dashUserBadge");

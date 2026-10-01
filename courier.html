@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#101B33">
+<title>أداة المندوب — Try Shoppy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;700;800;900&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<!--
+  ═══════════════════════════════════════════════════════════
+  🛵 أداة المندوب
+  ═══════════════════════════════════════════════════════════
+  • البيانات بتتحمّل في الخلفية من مسار خاص صغير (Orders_Code.gs →
+    scope=courier): آخر 200 صف + أي طلب "وصل القاهرة" أو "خرج
+    للتوصيل" مهما كان قديم، بالحقول اللي المندوب محتاجها بس.
+  • مفيش أي بيانات عميل بتظهر على الشاشة غير لما المندوب يبحث.
+  • التسليم بيحدّث الحالة + بيضيف المبلغ اللي اتحصل على العربون
+    (deposit)، وبيتسجل في History باسم المندوب والمبلغ — سجل دائم
+    للفلوس. وبعدها بنقرا الشيت تاني ونتأكد إن التحديث نزل فعلاً.
+  ═══════════════════════════════════════════════════════════ -->
+<style>
+:root{
+  --navy:#101B33;--navy-2:#1B2A4A;--gold:#F5B820;--gold-2:#FFD35C;--gold-ink:#7A5A08;--gold-wash:#FFF8E6;
+  --blue:#2563EB;--blue-wash:#EAF1FE;--paper:#F4F6FB;--panel:#FFFFFF;--line:#E3E8F2;--line-2:#EEF2F8;
+  --ink:#101B33;--ink-2:#5A6885;--ink-3:#95A1BC;
+  --ok:#0F9D6E;--ok-wash:#E6F6F0;--warn:#D97706;--warn-wash:#FEF4E5;--dead:#DC2626;--dead-wash:#FDECEC;
+  --hold:#7E22CE;--hold-wash:#F3E8FF;
+  --f:'Cairo',system-ui,sans-serif;--fm:'IBM Plex Mono',ui-monospace,monospace;--r:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--paper);color:var(--ink);font-family:var(--f);font-size:15px}
+body{min-height:100vh;padding-bottom:calc(24px + env(safe-area-inset-bottom))}
+button,input,select{font:inherit;color:inherit}
+.mono{font-family:var(--fm)}
+
+/* ══ الدخول ══ */
+#loginScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:var(--navy)}
+.lcard{background:var(--panel);border-radius:20px;padding:28px 22px;width:100%;max-width:380px;text-align:center}
+.lg{width:52px;height:52px;border-radius:14px;background:var(--gold);color:var(--navy);font-weight:900;font-size:24px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+.lcard h2{font-size:20px;font-weight:900}
+.lcard p{color:var(--ink-2);font-size:13px;margin:4px 0 18px}
+.lcard label{display:block;text-align:start;font-size:12.5px;font-weight:800;color:var(--ink-2);margin:10px 0 5px}
+.lcard input{width:100%;padding:13px;border:1.5px solid var(--line);border-radius:12px;background:#FBFCFE;font-size:15px}
+.lcard input:focus{outline:none;border-color:var(--gold)}
+#loginError{display:none;color:var(--dead);font-weight:800;font-size:13px;margin-top:10px}
+.lbtn{width:100%;margin-top:16px;padding:14px;border:0;border-radius:12px;background:var(--gold);color:var(--navy);font-weight:900;font-size:16px;cursor:pointer}
+
+/* ══ الهيدر ══ */
+.hdr{position:sticky;top:0;z-index:40;background:var(--navy);color:#fff;padding:12px 14px;padding-top:calc(12px + env(safe-area-inset-top))}
+.hdr-row{display:flex;align-items:center;gap:10px;max-width:720px;margin:0 auto}
+.hdr h1{font-size:17px;font-weight:900;flex:1}
+.hdr h1 small{display:block;font-size:11.5px;font-weight:700;color:#AEB6D3}
+.sync{font-size:11px;font-weight:800;color:#AEB6D3;display:flex;align-items:center;gap:5px;white-space:nowrap}
+.sync i{width:8px;height:8px;border-radius:50%;background:#94A3B8;display:inline-block}
+.sync.ok i{background:#34D399}.sync.busy i{background:var(--gold);animation:pulse 1s infinite}.sync.err i{background:#F87171}
+@keyframes pulse{50%{opacity:.35}}
+.out{background:rgba(255,255,255,.1);border:0;color:#fff;border-radius:10px;padding:7px 11px;font-size:12px;font-weight:800;cursor:pointer}
+
+.wrap{max-width:720px;margin:0 auto;padding:12px 14px}
+
+/* ══ تحصيل النهارده ══ */
+.today{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 14px;margin-bottom:12px;cursor:pointer}
+.today b{font-family:var(--fm);font-size:17px;color:var(--ok)}
+.today span{font-size:12.5px;color:var(--ink-2);font-weight:700;flex:1}
+.today-list{display:none;background:var(--panel);border:1px solid var(--line);border-radius:14px;margin:-6px 0 12px;padding:6px 14px}
+.today-list.open{display:block}
+.today-list div{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--line-2);font-size:13px}
+.today-list div:last-child{border-bottom:0}
+
+/* ══ البحث ══ */
+.search{position:sticky;top:calc(58px + env(safe-area-inset-top));z-index:30;background:var(--paper);padding-bottom:8px}
+.sbox{position:relative}
+.sbox input{width:100%;padding:15px 46px 15px 14px;border:2px solid var(--line);border-radius:14px;background:var(--panel);font-size:16px;font-weight:700}
+.sbox input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 4px rgba(245,184,32,.18)}
+.sbox .ic{position:absolute;inset-inline-start:15px;top:50%;transform:translateY(-50%);font-size:18px;pointer-events:none}
+.sbox .clr{position:absolute;inset-inline-end:8px;top:50%;transform:translateY(-50%);border:0;background:var(--line-2);width:32px;height:32px;border-radius:10px;font-size:18px;cursor:pointer;display:none}
+.sugs{background:var(--panel);border:1px solid var(--line);border-radius:14px;margin-top:6px;overflow:hidden;box-shadow:0 12px 28px rgba(16,27,51,.12);display:none}
+.sugs.open{display:block}
+.sug{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line-2);cursor:pointer}
+.sug:last-child{border-bottom:0}
+.sug:active,.sug.on{background:var(--gold-wash)}
+.sug-b{flex:1;min-width:0}
+.sug-n{font-weight:900;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sug-n mark{background:var(--gold-2);color:inherit;border-radius:3px;padding:0 1px}
+.sug-s{font-size:12px;color:var(--ink-2);font-weight:700;margin-top:1px}
+.pill{font-size:11.5px;font-weight:900;border-radius:999px;padding:4px 9px;white-space:nowrap}
+.pill.go{background:var(--ok-wash);color:var(--ok)}
+.pill.no{background:var(--line-2);color:var(--ink-3)}
+.sug-empty{padding:14px;font-size:13px;color:var(--ink-2);font-weight:700;text-align:center}
+
+/* ══ الحالة الفاضية ══ */
+.idle{text-align:center;padding:46px 20px;color:var(--ink-2)}
+.idle .big{font-size:46px;margin-bottom:8px}
+.idle h3{font-size:17px;font-weight:900;color:var(--ink)}
+.idle p{font-size:13px;margin-top:4px;line-height:1.7}
+
+/* ══ كارت العميل ══ */
+.cust{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-top:4px}
+.c-head{padding:16px;border-bottom:1px solid var(--line-2)}
+.c-name{font-size:20px;font-weight:900;line-height:1.35}
+.c-ph{font-family:var(--fm);font-size:15px;color:var(--ink-2);direction:ltr;text-align:right;margin-top:2px}
+.c-addr{font-size:13px;color:var(--ink-2);font-weight:700;margin-top:8px;line-height:1.6}
+.c-acts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.c-acts a{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 4px;border-radius:12px;text-decoration:none;font-size:12px;font-weight:800;border:1px solid var(--line);color:var(--ink);background:#FBFCFE}
+.c-acts a b{font-size:19px}
+.c-acts a.wa{background:#ECFDF3;border-color:#B7EBCB;color:#166534}
+
+.batches{display:flex;gap:7px;overflow-x:auto;padding:12px 16px 0;scrollbar-width:none}
+.batch{flex-shrink:0;border:1.5px solid var(--line);background:#FBFCFE;border-radius:999px;padding:7px 13px;font-size:12.5px;font-weight:900;cursor:pointer;font-family:var(--fm)}
+.batch.on{background:var(--navy);color:var(--gold);border-color:var(--navy)}
+.sec{font-size:11.5px;font-weight:900;color:var(--ink-3);letter-spacing:.04em;padding:14px 16px 6px}
+
+.item{display:flex;gap:11px;padding:12px 16px;border-top:1px solid var(--line-2);align-items:flex-start}
+.item input{width:22px;height:22px;accent-color:var(--gold);flex-shrink:0;margin-top:2px}
+.item-b{flex:1;min-width:0}
+.item-top{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.item-no{font-family:var(--fm);font-weight:600;font-size:13.5px}
+.st{font-size:11px;font-weight:900;border-radius:999px;padding:3px 8px;white-space:nowrap}
+.st.hub{background:#CFFAFE;color:#0E7490}.st.out{background:#E0E7FF;color:#4338CA}
+.st.done{background:var(--ok-wash);color:var(--ok)}.st.hold{background:var(--hold-wash);color:var(--hold)}
+.item-sp{font-size:12.5px;color:var(--ink-2);margin-top:3px;line-height:1.5}
+.item-m{display:flex;gap:12px;flex-wrap:wrap;margin-top:5px;font-size:12px;color:var(--ink-2);font-weight:700}
+.item-m b{font-family:var(--fm);color:var(--ink)}
+.item-m .due b{color:var(--navy)}
+
+.sum{margin:6px 16px 0;background:var(--paper);border-radius:14px;padding:12px 14px}
+.sum div{display:flex;justify-content:space-between;padding:4px 0;font-size:13.5px;font-weight:700;color:var(--ink-2)}
+.sum div b{font-family:var(--fm);color:var(--ink)}
+.sum .due{border-top:1.5px dashed var(--line);margin-top:4px;padding-top:9px;font-size:15px;color:var(--navy);font-weight:900}
+.sum .due b{font-size:20px;color:var(--navy)}
+
+.collect{padding:14px 16px 4px}
+.collect label{display:block;font-size:12.5px;font-weight:900;color:var(--ink-2);margin-bottom:6px}
+.amt{display:flex;align-items:center;border:2px solid var(--line);border-radius:14px;background:#FBFCFE;overflow:hidden}
+.amt:focus-within{border-color:var(--gold)}
+.amt input{flex:1;border:0;background:transparent;padding:13px 14px;font-family:var(--fm);font-size:22px;font-weight:600;outline:none;min-width:0;direction:ltr;text-align:right}
+.amt span{padding:0 14px;font-weight:900;color:var(--ink-3)}
+.amt-hint{font-size:12px;font-weight:800;margin-top:6px;min-height:1em}
+.amt-hint.less{color:var(--warn)}.amt-hint.more{color:var(--blue)}
+
+.acts{display:grid;gap:9px;padding:12px 16px 16px}
+.btn{border:0;border-radius:14px;padding:15px;font-weight:900;font-size:15.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.deliver{background:var(--ok);color:#fff;font-size:16.5px;padding:17px}
+.btn.out{background:var(--blue-wash);color:var(--blue);border:1.5px solid #CBDCFB}
+.btn.hold{background:var(--hold-wash);color:var(--hold);border:1.5px solid #E2C9FB}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+
+.nothing{padding:18px 16px;font-size:14px;font-weight:800;color:var(--ink-2);text-align:center;line-height:1.7}
+.other{margin:0 16px 14px;background:var(--gold-wash);border-radius:12px;padding:10px 13px;font-size:12.5px;font-weight:800;color:var(--gold-ink);line-height:1.6}
+.hold-note{margin:10px 16px 0;background:var(--hold-wash);color:var(--hold);border-radius:12px;padding:10px 13px;font-size:13px;font-weight:800}
+
+/* ══ رسالة النتيجة ══ */
+.toast{position:fixed;inset-inline:14px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:60;max-width:690px;margin:0 auto;border-radius:16px;padding:14px 16px;font-weight:800;font-size:14px;box-shadow:0 14px 36px rgba(16,27,51,.28);display:none;line-height:1.6}
+.toast.show{display:block}
+.toast.ok{background:var(--navy);color:#fff}.toast.err{background:var(--dead);color:#fff}
+.toast a{display:inline-block;margin-top:8px;background:#16A34A;color:#fff;text-decoration:none;border-radius:10px;padding:8px 13px;font-size:13px}
+.toast .x{float:left;background:transparent;border:0;color:inherit;font-size:20px;cursor:pointer;line-height:1}
+
+/* ══ تأكيد ══ */
+.sheet-bg{position:fixed;inset:0;z-index:70;background:rgba(16,27,51,.55);display:none;align-items:flex-end;justify-content:center}
+.sheet-bg.open{display:flex}
+.sheet{background:var(--panel);width:100%;max-width:560px;border-radius:22px 22px 0 0;padding:20px 18px calc(18px + env(safe-area-inset-bottom))}
+.sheet h3{font-size:18px;font-weight:900}
+.sheet p{font-size:14px;color:var(--ink-2);font-weight:700;margin-top:8px;line-height:1.8}
+.sheet p b{color:var(--ink);font-family:var(--fm)}
+.sheet .row2{margin-top:16px}
+.btn.ghost{background:var(--line-2);color:var(--ink-2)}
+</style>
+</head>
+<body>
+
+<!-- ══ الدخول ══ -->
+<div id="loginScreen" style="display:none">
+  <div class="lcard">
+    <div class="lg">🛵</div>
+    <h2>أداة المندوب</h2>
+    <p>سجّل دخولك بحساب الموظف</p>
+    <label>اسم المستخدم</label>
+    <input id="loginUser" type="text" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()">
+    <label>كلمة المرور</label>
+    <input id="loginPass" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    <div id="loginError"></div>
+    <button class="lbtn" id="loginBtn" onclick="doLogin()">دخول ←</button>
+  </div>
+</div>
+
+<!-- ══ الأداة ══ -->
+<div id="app" style="display:none">
+  <header class="hdr">
+    <div class="hdr-row">
+      <h1>🛵 أداة المندوب<small id="who"></small></h1>
+      <span class="sync" id="sync"><i></i><span id="syncTxt">جاري التحميل</span></span>
+      <button class="out" onclick="logout()">خروج</button>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="today" onclick="document.getElementById('todayList').classList.toggle('open')">
+      <span>💵 تحصيلك النهارده</span>
+      <b id="todaySum">0</b><small style="color:var(--ink-3);font-weight:800">ج.م</small>
+    </div>
+    <div class="today-list" id="todayList"></div>
+
+    <div class="search">
+      <div class="sbox">
+        <span class="ic">🔎</span>
+        <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="اسم العميل أو رقم الموبايل">
+        <button class="clr" id="clr" aria-label="مسح">×</button>
+      </div>
+      <div class="sugs" id="sugs"></div>
+    </div>
+
+    <div id="view">
+      <div class="idle">
+        <div class="big">🔎</div>
+        <h3>دوّر على العميل</h3>
+        <p>اكتب جزء من اسمه أو رقم موبايله<br>ومفيش أي بيانات بتظهر غير لما تبحث.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ تأكيد التسليم ══ -->
+<div class="sheet-bg" id="confirmBg">
+  <div class="sheet">
+    <h3 id="cfTitle"></h3>
+    <p id="cfBody"></p>
+    <div class="row2">
+      <button class="btn deliver" id="cfOk">تأكيد</button>
+      <button class="btn ghost" id="cfNo">رجوع</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="assets/config.js"></script>
+<script src="assets/app.js"></script>
+<script src="staff-auth.js"></script>
+<script>
+const scriptURL = TS_CONFIG.ORDERS_SCRIPT_URL;
+const HUB = "Arrived Cairo HUB", OUT = "Shipped To You";
+const ACTIVE = [HUB, OUT];
+const CACHE_KEY = "ts_courier_cache";
+const CACHE_MAX_AGE = 30 * 60 * 1000;      // كاش 30 دقيقة للفتح السريع، وبيتحدّث في الخلفية على طول
+const REFRESH_EVERY = 3 * 60 * 1000;
+
+let ROWS = [];          // صفوف الطلبات (من السيرفر)
+let CUSTOMERS = [];     // متجمّعين بالعميل + مفهرسين للبحث
+let current = null;     // العميل المعروض
+let currentBatch = "";
+let busy = false;
+
+/* ═══════════ الدخول ═══════════ */
+function getStaffToken(){ return localStorage.getItem("staffToken") || ""; }
+function getCurrentUser(){ return localStorage.getItem("currentUserLabel") || localStorage.getItem("currentUser") || ""; }
+
+async function doLogin(){
+  const u = document.getElementById("loginUser").value.trim();
+  const p = document.getElementById("loginPass").value;
+  if(!u || !p) return;
+  const btn = document.getElementById("loginBtn");
+  tsSetBtnLoading(btn, "جاري التحقق...");
+  let res;
+  try { res = await tsStaffLogin(u, p); } catch(e){ res = { success:false }; }
+  tsClearBtnLoading(btn);
+  if(res && res.success){
+    localStorage.setItem("currentUser", u.toLowerCase());
+    localStorage.setItem("currentUserLabel", res.label || u);
+    localStorage.setItem("loginTime", Date.now());
+    localStorage.setItem("staffToken", res.token || "");
+    localStorage.setItem("isAdmin", res.isAdmin ? "1" : "");
+    showApp();
+  } else {
+    const er = document.getElementById("loginError");
+    er.textContent = (res && res.code === "locked") ? "⏳ " + res.message : "❌ اسم المستخدم أو كلمة المرور غلط";
+    er.style.display = "block";
+  }
+}
+function logout(){
+  ["currentUser","currentUserLabel","loginTime","staffToken","isAdmin",CACHE_KEY].forEach(k => localStorage.removeItem(k));
+  ROWS = []; CUSTOMERS = []; current = null;
+  location.reload();
+}
+function showApp(){
+  if (tsGateTool("courier")) return;   // 🔑 صلاحية الأداة من شيت الموظفين
+  document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("app").style.display = "block";
+  document.getElementById("who").textContent = getCurrentUser();
+  renderToday();
+  loadData(true);
+  setTimeout(() => document.getElementById("q").focus(), 150);
+}
+
+/* ═══════════ البيانات ═══════════ */
+function setSync(state, txt){
+  const s = document.getElementById("sync");
+  s.className = "sync " + state;
+  document.getElementById("syncTxt").textContent = txt;
+}
+
+async function fetchRows(){
+  const url = scriptURL + "?scope=courier&staffToken=" + encodeURIComponent(getStaffToken()) + "&_=" + Date.now();
+  const res = await fetch(url, { redirect: "follow" });
+  const data = await res.json();
+  if(!Array.isArray(data)){
+    const err = new Error("unauthorized"); err.auth = true; throw err;
+  }
+  return data;
+}
+
+async function loadData(useCache){
+  if(useCache){
+    try{
+      const c = JSON.parse(localStorage.getItem(CACHE_KEY) || "null");
+      if(c && Date.now() - c.t < CACHE_MAX_AGE && Array.isArray(c.d)){ setRows(c.d); setSync("ok", "جاهز"); }
+    }catch(e){}
+  }
+  setSync("busy", ROWS.length ? "تحديث" : "جاري التحميل");
+  try{
+    const d = await fetchRows();
+    setRows(d);
+    try{ localStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), d })); }catch(e){}
+    setSync("ok", "جاهز");
+  }catch(e){
+    if(e.auth){ alert("⚠️ الجلسة انتهت — سجّل دخول تاني."); logout(); return; }
+    setSync("err", ROWS.length ? "أوفلاين" : "مفيش نت");
+  }
+}
+
+/* 🔤 توحيد الأسماء العربي للبحث: أ/إ/آ = ا، ة = ه، ى = ي، من غير تشكيل */
+function normName(s){
+  return String(s == null ? "" : s).toLowerCase()
+    .replace(/[ً-ٰٟـ]/g, "")
+    .replace(/[أإآٱ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").replace(/ؤ/g, "و").replace(/ئ/g, "ي")
+    .replace(/\s+/g, " ").trim();
+}
+function normPhone(p){ return tsToEnDigits(p).replace(/\D/g, "").replace(/^2/, "").replace(/^0/, ""); }
+const num = v => parseFloat(tsToEnDigits(v)) || 0;
+const dueOf = o => Math.max(0, num(o.finalPrice) + num(o.shipping) - num(o.deposit));
+const money = v => Math.round(v).toLocaleString("en-US");
+
+function setRows(d){
+  ROWS = d;
+  const map = {};
+  d.forEach(o => {
+    const key = normPhone(o.phone) || ("name:" + normName(o.customerName));
+    if(!map[key]) map[key] = { key, name: "", phone: "", gov: "", addr: "", rows: [], last: 0 };
+    const c = map[key];
+    c.rows.push(o);
+    const t = new Date(o.date || 0).getTime() || 0;
+    if(t >= c.last){            // أحدث بيانات للعميل
+      c.last = t;
+      c.name = String(o.customerName || c.name || "").trim();
+      c.phone = o.phone || c.phone; c.gov = o.governorate || c.gov; c.addr = o.address || c.addr;
+    }
+  });
+  CUSTOMERS = Object.values(map).map(c => {
+    c.nName = normName(c.name);
+    c.nPhone = normPhone(c.phone);
+    c.active = c.rows.filter(o => ACTIVE.indexOf(String(o.status).trim()) !== -1).length;
+    return c;
+  });
+  // لو فيه عميل معروض، نحدّثه بالبيانات الجديدة
+  if(current){
+    const fresh = CUSTOMERS.find(c => c.key === current.key);
+    if(fresh){ current = fresh; renderCustomer(); }
+  }
+  if(document.getElementById("q").value.trim()) renderSugs();
+}
+
+/* ═══════════ البحث ═══════════ */
+function search(q){
+  const raw = q.trim();
+  if(raw.length < 2) return [];
+  const digits = tsToEnDigits(raw).replace(/\D/g, "");
+  const isPhone = digits.length >= 3 && digits.length >= raw.replace(/\s/g, "").length * 0.6;
+  const nq = normName(raw);
+  const tokens = nq.split(" ").filter(Boolean);
+  const res = [];
+  CUSTOMERS.forEach(c => {
+    let score = -1;
+    if(isPhone){
+      const d = digits.replace(/^2/, "").replace(/^0/, "");
+      if(d && c.nPhone.indexOf(d) !== -1) score = c.nPhone.endsWith(d) ? 3 : 2;
+    } else if(tokens.every(t => c.nName.indexOf(t) !== -1)){
+      score = c.nName.startsWith(tokens[0]) ? 3 : (c.nName.split(" ").some(w => w.startsWith(tokens[0])) ? 2 : 1);
+    }
+    if(score >= 0) res.push({ c, score });
+  });
+  // اللي عندهم طلبات واصلة الأول، بعدين الأقرب في الاسم، بعدين الأحدث
+  res.sort((a, b) => (b.c.active > 0) - (a.c.active > 0) || b.score - a.score || b.c.last - a.c.last);
+  return res.slice(0, 8).map(r => r.c);
+}
+
+function hl(name, q){
+  const safe = tsEscapeHtml(name);
+  const t = q.trim().split(/\s+/)[0];
+  if(!t || /\d/.test(t)) return safe;
+  const i = name.indexOf(t);
+  if(i === -1) return safe;
+  return tsEscapeHtml(name.slice(0, i)) + "<mark>" + tsEscapeHtml(name.slice(i, i + t.length)) + "</mark>" + tsEscapeHtml(name.slice(i + t.length));
+}
+
+let SUGS = [];
+function renderSugs(){
+  const q = document.getElementById("q").value;
+  const box = document.getElementById("sugs");
+  document.getElementById("clr").style.display = q ? "block" : "none";
+  if(q.trim().length < 2){ box.className = "sugs"; box.innerHTML = ""; SUGS = []; return; }
+  if(!ROWS.length){
+    box.className = "sugs open";
+    box.innerHTML = '<div class="sug-empty">⏳ لحظة، البيانات بتتحمّل...</div>';
+    return;
+  }
+  SUGS = search(q);
+  box.className = "sugs open";
+  box.innerHTML = SUGS.length ? SUGS.map((c, i) => {
+    const tail = c.nPhone ? "•••" + c.nPhone.slice(-4) : "";
+    return '<div class="sug" onclick="pick(' + i + ')">' +
+      '<div class="sug-b"><div class="sug-n">' + hl(c.name || "(بدون اسم)", q) + '</div>' +
+      '<div class="sug-s">' + tsEscapeHtml(c.gov || "") + (c.gov && tail ? " · " : "") + '<span class="mono" dir="ltr">' + tail + '</span></div></div>' +
+      (c.active ? '<span class="pill go">📦 ' + c.active + ' جاهز</span>' : '<span class="pill no">مفيش واصل</span>') +
+    '</div>';
+  }).join("") : '<div class="sug-empty">مفيش عميل بالاسم أو الرقم ده في الطلبات الأخيرة</div>';
+}
+
+function pick(i){
+  const c = SUGS[i];
+  if(!c) return;
+  current = c;
+  currentBatch = "";
+  document.getElementById("sugs").className = "sugs";
+  document.getElementById("q").blur();
+  renderCustomer();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+/* ═══════════ كارت العميل ═══════════ */
+const MONTHS = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+/* قراءة موعد الوصول كتاريخ عشان نختار "الموعد اللي شغال عليه" (الأحدث) —
+   نفس منطق فلتر المواعيد في الداشبورد */
+function arrValue(raw){
+  const t = String(raw || "").trim().toUpperCase().replace(/^[A-Z0-9]{1,3}[-–—\s]+(?=\d)/, "");
+  if(!t) return -1;
+  if(/^\d{7,8}$/.test(t)){ const y=+t.slice(-4), r=t.slice(0,-4), m=+r.slice(-2), d=+r.slice(0,-2); return new Date(y, m-1, d).getTime(); }
+  const mi = MONTHS.findIndex(m => t.indexOf(m) !== -1);
+  if(mi !== -1){
+    const nums = t.replace(new RegExp(MONTHS[mi] + "[A-Z]*"), " ").match(/\d+/g) || [];
+    let day = null, year = null;
+    nums.forEach(n => { if(n.length === 4) year = +n; else if(day === null) day = +n; });
+    if(year && day) return new Date(year, mi, day).getTime();
+  }
+  const p = t.split(/[^0-9]+/).filter(Boolean).map(Number);
+  if(p.length === 3){ const y = String(p[0]).length === 4 ? p[0] : p[2], d = String(p[0]).length === 4 ? p[2] : p[0]; return new Date(y, p[1]-1, d).getTime(); }
+  return 0;
+}
+const batchKey = v => String(v || "").trim().toLowerCase().replace(/\s+/g, " ");
+
+function renderCustomer(){
+  const c = current;
+  const view = document.getElementById("view");
+  if(!c){ view.innerHTML = ""; return; }
+
+  const active = c.rows.filter(o => ACTIVE.indexOf(String(o.status).trim()) !== -1);
+  const held = c.rows.filter(o => String(o.status).trim() === "On Hold");
+  const pending = c.rows.filter(o => ACTIVE.indexOf(String(o.status).trim()) === -1 && !tsIsClosedStatus(o.status) && String(o.status).trim() !== "On Hold");
+
+  // المواعيد اللي فيها حاجة جاهزة — الأحدث الأول
+  const batches = {};
+  active.forEach(o => { const k = batchKey(o.arrivaldate); if(!batches[k]) batches[k] = { label: String(o.arrivaldate || "").trim() || "بدون موعد", v: arrValue(o.arrivaldate), rows: [] }; batches[k].rows.push(o); });
+  const bKeys = Object.keys(batches).sort((a, b) => batches[b].v - batches[a].v);
+  if(!currentBatch || !batches[currentBatch]) currentBatch = bKeys[0] || "";
+  const rows = currentBatch ? batches[currentBatch].rows : [];
+
+  const phoneDisp = tsDisplayPhone(c.phone) || "—";
+  const mapQ = encodeURIComponent([c.addr, c.gov, "مصر"].filter(Boolean).join(" "));
+  BATCH_KEYS = bKeys;
+
+  let h = '<div class="cust">' +
+    '<div class="c-head">' +
+      '<div class="c-name">' + tsEscapeHtml(c.name || "(بدون اسم)") + '</div>' +
+      '<div class="c-ph">' + tsEscapeHtml(phoneDisp) + '</div>' +
+      (c.addr || c.gov ? '<div class="c-addr">📍 ' + tsEscapeHtml([c.gov, c.addr].filter(Boolean).join(" — ")) + '</div>' : '') +
+      '<div class="c-acts">' +
+        '<a href="tel:' + tsEscapeHtml(tsDisplayPhone(c.phone) || "") + '"><b>📞</b>اتصال</a>' +
+        '<a class="wa" href="#" onclick="waOnTheWay();return false"><b>💬</b>واتساب</a>' +
+        '<a href="https://www.google.com/maps/search/?api=1&query=' + mapQ + '" target="_blank" rel="noopener"><b>🗺️</b>الخريطة</a>' +
+      '</div>' +
+    '</div>';
+
+  if(held.length){
+    h += '<div class="hold-note">⏸️ ' + held.length + ' منتج معلّق' + (held[0].statusNote ? ': ' + tsEscapeHtml(held[0].statusNote) : '') + '</div>';
+  }
+
+  if(!active.length){
+    h += '<div class="nothing">📭 مفيش طلبات واصلة القاهرة للعميل ده دلوقتي.</div>';
+  } else {
+    if(bKeys.length > 1){
+      h += '<div class="batches">' + bKeys.map((k, i) =>
+        '<button class="batch' + (k === currentBatch ? ' on' : '') + '" onclick="pickBatch(' + i + ')">📅 ' +
+        tsEscapeHtml(batches[k].label) + ' (' + batches[k].rows.length + ')</button>').join("") + '</div>';
+    }
+    h += '<div class="sec">📦 الجاهز للتسليم — موعد ' + tsEscapeHtml(batches[currentBatch].label) + '</div>';
+    h += rows.map(o => {
+      const st = String(o.status).trim();
+      const q = num(o.quantity) || 1, line = num(o.finalPrice) + num(o.shipping), dep = num(o.deposit);
+      return '<label class="item">' +
+        '<input type="checkbox" class="pick" value="' + tsEscapeHtml(o.order) + '" checked onchange="updateTotals()">' +
+        '<div class="item-b">' +
+          '<div class="item-top"><span class="item-no">' + tsEscapeHtml(o.order) + '</span>' +
+            '<span class="st ' + (st === OUT ? 'out' : 'hub') + '">' + tsEscapeHtml(tsStatusLabel(st)) + '</span></div>' +
+          (o.dimensions && o.dimensions !== "-" ? '<div class="item-sp">📝 ' + tsEscapeHtml(o.dimensions) + '</div>' : '') +
+          '<div class="item-m"><span>الكمية <b>' + q + '</b></span><span>الإجمالي <b>' + money(line) + '</b></span>' +
+            (dep ? '<span>مدفوع <b>' + money(dep) + '</b></span>' : '') +
+            '<span class="due">المطلوب <b>' + money(dueOf(o)) + '</b></span></div>' +
+        '</div></label>';
+    }).join("");
+
+    h += '<div class="sum" id="sum"></div>' +
+      '<div class="collect"><label>💵 المبلغ اللي اتحصّل</label>' +
+        '<div class="amt"><input id="amt" inputmode="decimal" autocomplete="off" oninput="amtHint()"><span>ج.م</span></div>' +
+        '<div class="amt-hint" id="amtHint"></div></div>' +
+      '<div class="acts">' +
+        '<button class="btn deliver" id="btnDeliver" onclick="askDeliver()">✅ تم التسليم والتحصيل</button>' +
+        '<div class="row2">' +
+          '<button class="btn out" id="btnOut" onclick="markOut()">🚚 خرجت للتوصيل</button>' +
+          '<button class="btn hold" id="btnHold" onclick="markHold()">⏸️ مؤجل</button>' +
+        '</div>' +
+      '</div>';
+  }
+
+  if(pending.length){
+    const dates = [...new Set(pending.map(o => String(o.arrivaldate || "").trim()).filter(Boolean))];
+    h += '<div class="other">🕐 للعميل ' + pending.length + ' منتج تاني لسه ماوصلش' + (dates.length ? ' (موعد: ' + tsEscapeHtml(dates.join("، ")) + ')' : '') + ' — مايتسلّمش دلوقتي.</div>';
+  }
+  h += '</div>';
+  view.innerHTML = h;
+  updateTotals(true);
+}
+
+let BATCH_KEYS = [];
+function pickBatch(i){ if(BATCH_KEYS[i] !== undefined){ currentBatch = BATCH_KEYS[i]; renderCustomer(); } }
+
+/* 💬 "أنا في الطريق ليك" — برقم الطلبات المحددة */
+function waOnTheWay(){
+  if(!current) return;
+  const sel = selectedRows();
+  tsWaOpen(current.phone || "", "أهلًا " + (current.name || "") + " 👋\nمعاك مندوب Try Shoppy، أنا في الطريق ليك بطلبك" +
+    (sel.length ? " (" + sel.map(o => o.order).join("، ") + ")" : "") + ".");
+}
+let LAST_RECEIPT = null;
+function waReceipt(){ if(LAST_RECEIPT) tsWaOpen(LAST_RECEIPT.phone, LAST_RECEIPT.text); }
+
+function selectedRows(){
+  const ids = [...document.querySelectorAll(".pick:checked")].map(i => i.value);
+  return current ? current.rows.filter(o => ids.indexOf(String(o.order)) !== -1) : [];
+}
+
+function updateTotals(resetAmt){
+  const sel = selectedRows();
+  const total = sel.reduce((s, o) => s + num(o.finalPrice) + num(o.shipping), 0);
+  const dep = sel.reduce((s, o) => s + num(o.deposit), 0);
+  const due = sel.reduce((s, o) => s + dueOf(o), 0);
+  const sum = document.getElementById("sum");
+  if(!sum) return;
+  sum.innerHTML =
+    '<div>الإجمالي (' + sel.length + ' منتج)<b>' + money(total) + '</b></div>' +
+    (dep ? '<div>مدفوع مقدمًا<b>' + money(dep) + '</b></div>' : '') +
+    '<div class="due">المطلوب تحصيله<b>' + money(due) + '</b></div>';
+  const amt = document.getElementById("amt");
+  if(amt && (resetAmt || amt.dataset.auto !== "0")){ amt.value = due ? Math.round(due) : ""; amt.dataset.auto = "1"; }
+  const noSel = !sel.length;
+  ["btnDeliver","btnOut","btnHold"].forEach(id => { const b = document.getElementById(id); if(b) b.disabled = noSel; });
+  const bo = document.getElementById("btnOut");
+  if(bo && !noSel) bo.disabled = !sel.some(o => String(o.status).trim() === HUB);
+  amtHint();
+}
+
+function amtHint(){
+  const el = document.getElementById("amt"), hint = document.getElementById("amtHint");
+  if(!el || !hint) return;
+  if(document.activeElement === el) el.dataset.auto = "0";
+  const due = selectedRows().reduce((s, o) => s + dueOf(o), 0);
+  const v = num(el.value);
+  if(el.value.trim() === "" || Math.round(v) === Math.round(due)){ hint.className = "amt-hint"; hint.textContent = ""; }
+  else if(v < due){ hint.className = "amt-hint less"; hint.textContent = "⚠️ أقل من المطلوب بـ " + money(due - v) + " ج.م — الباقي هيفضل متسجل على العميل"; }
+  else { hint.className = "amt-hint more"; hint.textContent = "ℹ️ أكتر من المطلوب بـ " + money(v - due) + " ج.م"; }
+}
+
+/* ═══════════ التحديث ═══════════ */
+function confirmSheet(title, body, okLabel){
+  return new Promise(resolve => {
+    document.getElementById("cfTitle").textContent = title;
+    document.getElementById("cfBody").innerHTML = body;
+    const ok = document.getElementById("cfOk"), no = document.getElementById("cfNo"), bg = document.getElementById("confirmBg");
+    ok.textContent = okLabel || "تأكيد";
+    bg.classList.add("open");
+    const done = v => { bg.classList.remove("open"); ok.onclick = no.onclick = bg.onclick = null; resolve(v); };
+    ok.onclick = () => done(true);
+    no.onclick = () => done(false);
+    bg.onclick = e => { if(e.target === bg) done(false); };
+  });
+}
+
+function toast(kind, html, ms){
+  const t = document.getElementById("toast");
+  t.className = "toast show " + kind;
+  t.innerHTML = '<button class="x" onclick="this.parentNode.className=\'toast\'">×</button>' + html;
+  clearTimeout(t._h);
+  if(ms) t._h = setTimeout(() => { t.className = "toast"; }, ms);
+}
+
+/** بيبعت التحديثات واحد ورا التاني (نفس سبب سلة الداشبورد: كتابتين في نفس
+ *  اللحظة على الشيت ممكن تضيّع صف)، وبعدين يقرا الشيت تاني ويتأكد إن كل
+ *  طلب بقى بالحالة والعربون المتوقعين — tsPostScript مابيقدرش يقرا رد
+ *  السيرفر (no-cors)، فده التأكيد الحقيقي الوحيد. */
+async function sendUpdates(updates){
+  for(let i = 0; i < updates.length; i++){
+    // الحقول اللي بتبدأ بـ _ للشاشة بس، مابتتبعتش للسيرفر
+    const payload = { action: "updateStatus", user: getCurrentUser(), staffToken: getStaffToken(), source: "courier" };
+    Object.keys(updates[i]).forEach(k => { if(k[0] !== "_") payload[k] = updates[i][k]; });
+    try{ await tsPostScript(scriptURL, payload); }catch(e){}
+    if(i < updates.length - 1) await new Promise(r => setTimeout(r, 350));
+  }
+  for(let attempt = 0; attempt < 3; attempt++){
+    await new Promise(r => setTimeout(r, attempt ? 1500 : 700));
+    try{
+      const fresh = await fetchRows();
+      const failed = updates.filter(u => {
+        const o = fresh.find(x => String(x.order) === String(u.order));
+        if(!o) return true;
+        if(u.status && String(o.status).trim() !== u.status) return true;
+        if(u.deposit !== undefined && Math.round(num(o.deposit)) !== Math.round(num(u.deposit))) return true;
+        return false;
+      });
+      if(!failed.length || attempt === 2){
+        setRows(fresh);
+        try{ localStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), d: fresh })); }catch(e){}
+        return failed;
+      }
+    }catch(e){ if(e.auth){ alert("⚠️ الجلسة انتهت — سجّل دخول تاني."); logout(); return updates; } }
+  }
+  return null;   // مقدرناش نتأكد
+}
+
+function lockUI(on){
+  busy = on;
+  ["btnDeliver","btnOut","btnHold"].forEach(id => { const b = document.getElementById(id); if(b) b.disabled = on; });
+  setSync(on ? "busy" : "ok", on ? "بيحفظ" : "جاهز");
+}
+
+/* ✅ تسليم + تحصيل */
+async function askDeliver(){
+  if(busy) return;
+  const sel = selectedRows();
+  if(!sel.length) return;
+  const amtEl = document.getElementById("amt");
+  const amount = num(amtEl.value);
+  const due = sel.reduce((s, o) => s + dueOf(o), 0);
+  if(amtEl.value.trim() === ""){ amtEl.focus(); return toast("err", "اكتب المبلغ اللي اتحصّل (ولو العميل مادفعش حاجة اكتب 0)", 3500); }
+
+  let warn = "";
+  if(Math.round(amount) < Math.round(due)) warn = '<br>⚠️ <b>' + money(due - amount) + '</b> ج.م هيفضلوا مطلوبين من العميل.';
+  if(Math.round(amount) > Math.round(due)) warn = '<br>ℹ️ المبلغ أكتر من المطلوب بـ <b>' + money(amount - due) + '</b> ج.م.';
+  const ok = await confirmSheet("✅ تأكيد التسليم",
+    'هتسجّل تسليم <b>' + sel.length + '</b> منتج لـ ' + tsEscapeHtml(current.name) +
+    '<br>والمبلغ اللي اتحصّل: <b>' + money(amount) + '</b> ج.م' + warn, "تأكيد التسليم");
+  if(!ok) return;
+
+  lockUI(true);
+  toast("ok", "⏳ بيسجّل التسليم...");
+  // ⚠️ بنقرا العربون من الشيت **دلوقتي** قبل ما نحسب — لو حد في المكتب عدّل
+  // العربون من شوية، مانكتبش فوقه بقيمة قديمة
+  let fresh;
+  try{ fresh = await fetchRows(); setRows(fresh); }catch(e){ lockUI(false); return toast("err", "❌ مفيش اتصال — ماتسجلش حاجة. جرّب تاني.", 5000); }
+  const ids = sel.map(o => String(o.order));
+  const live = ids.map(id => fresh.find(o => String(o.order) === id)).filter(Boolean);
+  if(live.length !== ids.length){ lockUI(false); return toast("err", "❌ في طلب مش لاقيه في الشيت — حدّث الصفحة وجرّب تاني.", 6000); }
+
+  // 💵 توزيع المبلغ: كل منتج بياخد المطلوب عليه بالترتيب، والزيادة (لو فيه) على آخر واحد
+  let left = amount;
+  const updates = live.map((o, i) => {
+    const take = i === live.length - 1 ? left : Math.min(dueOf(o), left);
+    left = Math.max(0, left - take);
+    return { order: String(o.order), status: "Delivered", deposit: Math.round((num(o.deposit) + Math.max(0, take)) * 100) / 100,
+             logNote: "💵 اتحصّل " + money(Math.max(0, take)) + " ج.م", _take: Math.max(0, take) };
+  });
+
+  const failed = await sendUpdates(updates);
+  lockUI(false);
+  if(failed === null){
+    return toast("err", "⚠️ التحديثات اتبعتت بس مقدرناش نتأكد إنها اتسجلت (النت؟). <b>ماتعيدش</b> — كلّم المكتب يتأكد من الشيت.");
+  }
+  const okCount = updates.length - failed.length;
+  if(okCount) logCollection(current.name, updates.filter(u => failed.indexOf(u) === -1));
+  LAST_RECEIPT = { phone: current.phone || "", text: "أهلًا " + (current.name || "") + " 👋\nتم تسليم طلبك من Try Shoppy ✅\n" +
+    updates.map(u => "• " + u.order).join("\n") + "\nالمبلغ المدفوع: " + money(amount) + " ج.م\nشكرًا لثقتك 🌟" };
+  if(failed.length){
+    toast("err", "⚠️ اتسجل " + okCount + " من " + updates.length + ". دول ماتسجلوش: " + failed.map(f => f.order).join("، ") + " — جرّب تاني ليهم بس.");
+  } else {
+    toast("ok", "✅ تم تسجيل التسليم وتحصيل " + money(amount) + " ج.م" +
+      '<br><a href="#" onclick="waReceipt();return false">📲 ابعت إيصال للعميل على واتساب</a>');
+  }
+  renderCustomer();
+}
+
+/* 🚚 خرج للتوصيل — للمنتجات اللي لسه "وصل القاهرة" بس */
+async function markOut(){
+  if(busy) return;
+  const sel = selectedRows().filter(o => String(o.status).trim() === HUB);
+  if(!sel.length) return;
+  const ok = await confirmSheet("🚚 خرجت للتوصيل", "هتحوّل <b>" + sel.length + "</b> منتج لـ «في الطريق إليك» — العميل هيوصله إيميل إن طلبه خرج للتوصيل.", "تأكيد");
+  if(!ok) return;
+  lockUI(true);
+  const failed = await sendUpdates(sel.map(o => ({ order: String(o.order), status: OUT })));
+  lockUI(false);
+  if(failed === null) return toast("err", "⚠️ مقدرناش نتأكد إن التحديث اتسجل — ماتعيدش، كلّم المكتب.");
+  toast(failed.length ? "err" : "ok", failed.length ? "⚠️ دول ماتسجلوش: " + failed.map(f => f.order).join("، ") : "✅ اتسجل إنك خرجت للتوصيل", failed.length ? 0 : 3500);
+  renderCustomer();
+}
+
+/* ⏸️ مؤجل — بسبب (بيظهر للعميل في التتبع والإيميل) */
+const COURIER_HOLD_REASONS = ["العميل مابيردش على التليفون", "العميل طلب يأجّل الاستلام", "العنوان ناقص أو غلط", "العميل مش موجود في العنوان"];
+async function markHold(){
+  if(busy) return;
+  const sel = selectedRows();
+  if(!sel.length) return;
+  const note = await tsAskStatusNote("On Hold", "", current.name + " — " + sel.length + " منتج", COURIER_HOLD_REASONS);
+  if(note === null) return;
+  lockUI(true);
+  const failed = await sendUpdates(sel.map(o => ({ order: String(o.order), status: "On Hold", statusNote: note })));
+  lockUI(false);
+  if(failed === null) return toast("err", "⚠️ مقدرناش نتأكد إن التحديث اتسجل — ماتعيدش، كلّم المكتب.");
+  toast(failed.length ? "err" : "ok", failed.length ? "⚠️ دول ماتسجلوش: " + failed.map(f => f.order).join("، ") : "⏸️ اتسجل مؤجل: " + tsEscapeHtml(note), failed.length ? 0 : 4000);
+  renderCustomer();
+}
+
+/* ═══════════ تحصيل النهارده (على الموبايل ده بس — للتسليم آخر اليوم) ═══════════ */
+function todayKey(){ return "ts_courier_log_" + (localStorage.getItem("currentUser") || "") + "_" + new Date().toLocaleDateString("en-CA"); }
+function logCollection(name, ups){
+  let log = [];
+  try{ log = JSON.parse(localStorage.getItem(todayKey()) || "[]"); }catch(e){}
+  const amount = ups.reduce((s, u) => s + (u._take || 0), 0);
+  log.push({ t: new Date().toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" }), name, n: ups.length, amount });
+  try{ localStorage.setItem(todayKey(), JSON.stringify(log)); }catch(e){}
+  renderToday();
+}
+function renderToday(){
+  let log = [];
+  try{ log = JSON.parse(localStorage.getItem(todayKey()) || "[]"); }catch(e){}
+  const total = log.reduce((s, x) => s + (x.amount || 0), 0);
+  document.getElementById("todaySum").textContent = money(total);
+  document.getElementById("todayList").innerHTML = log.length
+    ? log.slice().reverse().map(x => '<div><span>' + tsEscapeHtml(x.t) + ' · ' + tsEscapeHtml(x.name) + ' (' + x.n + ')</span><b class="mono">' + money(x.amount) + '</b></div>').join("")
+    : '<div><span style="color:var(--ink-3)">لسه ماحصّلتش حاجة النهارده</span></div>';
+}
+
+/* ═══════════ التشغيل ═══════════ */
+const qEl = document.getElementById("q");
+qEl.addEventListener("input", renderSugs);
+qEl.addEventListener("focus", renderSugs);
+qEl.addEventListener("keydown", e => { if(e.key === "Enter" && SUGS.length){ e.preventDefault(); pick(0); } });
+document.getElementById("clr").onclick = () => { qEl.value = ""; renderSugs(); qEl.focus(); };
+document.addEventListener("click", e => { if(!e.target.closest(".search")) document.getElementById("sugs").className = "sugs"; });
+
+// تحديث في الخلفية كل 3 دقايق + أول ما الموبايل يرجع للصفحة
+setInterval(() => { if(document.visibilityState === "visible" && getStaffToken() && !busy) loadData(false); }, REFRESH_EVERY);
+document.addEventListener("visibilitychange", () => { if(document.visibilityState === "visible" && getStaffToken() && !busy) loadData(false); });
+
+(function init(){
+  const t = +localStorage.getItem("loginTime") || 0;
+  if(getStaffToken() && Date.now() - t < 12 * 60 * 60 * 1000) showApp();
+  else document.getElementById("loginScreen").style.display = "flex";
+})();
+</script>
+</body>
+</html>

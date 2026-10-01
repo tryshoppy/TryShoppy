@@ -83,6 +83,8 @@
         .btn-dash { border-right: 6px solid var(--brand-dark); }
         .btn-ref { border-right: 6px solid #7c3aed; }
         .btn-rama-admin { border-right: 6px solid #dc2626; }
+        .btn-courier { border-right: 6px solid #0F9D6E; }
+        .btn-courier i { color: #0F9D6E; }
 
         .lang-switch {
             margin-top: 50px;
@@ -108,6 +110,7 @@
         body.en-mode .btn-dash { border-right: none; border-left: 6px solid var(--brand-dark); }
         body.en-mode .btn-ref { border-right: none; border-left: 6px solid #7c3aed; }
         body.en-mode .btn-rama-admin { border-right: none; border-left: 6px solid #dc2626; }
+        body.en-mode .btn-courier { border-right: none; border-left: 6px solid #0F9D6E; }
 
         footer { margin-top: auto; padding-top: 40px; font-size: 0.8rem; color: #94a3b8; font-weight: 600; }
     </style>
@@ -163,6 +166,14 @@
                 <i class="fa-solid fa-user-gear"></i>
             </a>
 
+            <a href="courier.html" class="menu-btn btn-courier">
+                <div class="btn-content">
+                    <span id="btn8_ar">أداة المندوب — تسليم وتحصيل</span>
+                    <span class="btn-text-en">Courier Delivery Tool</span>
+                </div>
+                <i class="fa-solid fa-motorcycle"></i>
+            </a>
+
             <a href="CustomerReference.html" class="menu-btn btn-ref">
                 <div class="btn-content">
                     <span id="btn5_ar">مرجع طلبات العملاء</span>
@@ -191,6 +202,36 @@
     </div>
 
     <script>
+        /* 🔑 لو فيه موظف مسجّل دخول، الأدوات اللي مالوش صلاحية عليها
+           بتبان باهتة وعليها قفل (لسه بتفتح، والصفحة نفسها بتقوله إنه
+           مالوش صلاحية). الحماية الحقيقية في السيرفر مش هنا. */
+        (function markTools(){
+            let tools = null;
+            try { tools = JSON.parse(localStorage.getItem('staffTools') || 'null'); } catch (e) {}
+            if (!Array.isArray(tools) || !localStorage.getItem('staffToken')) return;
+            const map = { 'calculatorOP.html':'calculatorOP', 'QuickOrder.html':'quickOrder', 'DirectOrder.html':'directOrder',
+                          'DashboardMob2.html':'dashMob', 'courier.html':'courier', 'CustomerReference.html':'customerRef',
+                          'rama-admin.html':'rama', 'Dashboard945.html':'dash945', 'mart-admin.html':'mart' };
+            document.querySelectorAll('.menu-grid a.menu-btn').forEach(a => {
+                const key = map[a.getAttribute('href')];
+                if (key && tools.indexOf(key) === -1) {
+                    a.style.opacity = '.45';
+                    a.title = 'مالكش صلاحية على الأداة دي';
+                    const i = a.querySelector('i'); if (i) i.className = 'fa-solid fa-lock';
+                }
+            });
+            const who = localStorage.getItem('currentUserLabel');
+            if (who) {
+                const s = document.getElementById('subTitle');
+                s.innerHTML = '👤 ' + who.replace(/[&<>"]/g, '') + ' · <a href="#" id="opOut" style="color:#2563eb">خروج</a>';
+                document.getElementById('opOut').onclick = e => {
+                    e.preventDefault();
+                    ['currentUser','currentUserLabel','loginTime','staffToken','isAdmin','staffTools'].forEach(k => localStorage.removeItem(k));
+                    location.reload();
+                };
+            }
+        })();
+
         let currentLang = 'ar';
 
         function toggleLanguage() {
@@ -213,7 +254,8 @@
                 document.getElementById('btn4_ar').innerText = 'Admin Dashboard';
                 document.getElementById('btn5_ar').innerText = 'Customer Reference';
                 document.getElementById('btn7_ar').innerText = 'Rama Admin';
-                
+                document.getElementById('btn8_ar').innerText = 'Courier Tool';
+
                 currentLang = 'en';
             } else {
                 body.classList.remove('en-mode');
@@ -228,6 +270,7 @@
                 document.getElementById('btn4_ar').innerText = 'لوحة التحكم';
                 document.getElementById('btn5_ar').innerText = 'مرجع طلبات العملاء';
                 document.getElementById('btn7_ar').innerText = 'RAMA — لوحة الموظف';
+                document.getElementById('btn8_ar').innerText = 'أداة المندوب — تسليم وتحصيل';
 
                 currentLang = 'ar';
             }

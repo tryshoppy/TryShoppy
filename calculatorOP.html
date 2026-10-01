@@ -266,5 +266,51 @@ function calculate(){
   document.getElementById('resultArea').scrollIntoView({behavior:'smooth'});
 }
 </script>
+<script src="staff-auth.js"></script>
+<script>
+/* 🔑 دخول + صلاحية "حاسبة التشغيل" من شيت الموظفين.
+   ⚠️ الحاسبة مابتكلمش السيرفر خالص، ومعادلة التسعير نفسها موجودة في
+   حاسبة الموقع العامة — فده تحكم في مين يشوف الأداة في التشغيل، مش
+   حماية لبيانات سرية. */
+(function calcOpGate(){
+  const fresh = localStorage.getItem("staffToken") && (Date.now() - (+localStorage.getItem("loginTime") || 0)) < 8 * 60 * 60 * 1000;
+  if (fresh) { tsGateTool("calculatorOP"); return; }
+  const w = document.createElement("div");
+  w.setAttribute("dir", "rtl");
+  w.style.cssText = "position:fixed;inset:0;z-index:99998;background:#101B33;display:flex;align-items:center;justify-content:center;padding:20px;font-family:Cairo,Tahoma,sans-serif";
+  w.innerHTML =
+    '<div style="background:#fff;border-radius:20px;padding:26px 22px;max-width:380px;width:100%;text-align:center">' +
+      '<div style="font-size:19px;font-weight:900;color:#101B33">🧮 حاسبة التشغيل</div>' +
+      '<div style="font-size:13px;color:#5A6885;margin:4px 0 14px">سجّل دخولك بحساب الموظف</div>' +
+      '<input id="cgU" placeholder="اسم المستخدم" autocomplete="username" style="width:100%;padding:12px;border:1.5px solid #E3E8F2;border-radius:12px;margin-bottom:8px;font:inherit">' +
+      '<input id="cgP" type="password" placeholder="كلمة المرور" autocomplete="current-password" style="width:100%;padding:12px;border:1.5px solid #E3E8F2;border-radius:12px;font:inherit">' +
+      '<div id="cgE" style="color:#DC2626;font-weight:800;font-size:13px;margin-top:8px;display:none"></div>' +
+      '<button id="cgB" style="width:100%;margin-top:12px;padding:13px;border:0;border-radius:12px;background:#F5B820;color:#101B33;font:inherit;font-weight:900;cursor:pointer">دخول ←</button>' +
+    '</div>';
+  document.body.appendChild(w);
+  const go = async () => {
+    const u = document.getElementById("cgU").value.trim(), p = document.getElementById("cgP").value;
+    if (!u || !p) return;
+    const b = document.getElementById("cgB"); b.disabled = true; b.textContent = "جاري التحقق...";
+    let res; try { res = await tsStaffLogin(u, p); } catch (e) { res = { success: false }; }
+    b.disabled = false; b.textContent = "دخول ←";
+    if (res && res.success) {
+      localStorage.setItem("currentUser", u.toLowerCase());
+      localStorage.setItem("currentUserLabel", res.label || u);
+      localStorage.setItem("loginTime", Date.now());
+      localStorage.setItem("staffToken", res.token || "");
+      localStorage.setItem("isAdmin", res.isAdmin ? "1" : "");
+      w.remove();
+      tsGateTool("calculatorOP");
+    } else {
+      const e = document.getElementById("cgE");
+      e.textContent = res && res.message ? "❌ " + res.message : "❌ اسم المستخدم أو كلمة المرور غلط";
+      e.style.display = "block";
+    }
+  };
+  document.getElementById("cgB").onclick = go;
+  document.getElementById("cgP").onkeydown = e => { if (e.key === "Enter") go(); };
+})();
+</script>
 </body>
 </html>

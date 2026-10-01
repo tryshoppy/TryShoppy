@@ -183,6 +183,7 @@ function showLogin(){
   document.getElementById("mainContent").style.display = "none";
 }
 function showMain(){
+  if (tsGateTool("customerRef")) return;   // 🔑 صلاحية الأداة من شيت الموظفين
   document.getElementById("loginScreen").style.display = "none";
   document.getElementById("mainContent").style.display = "block";
   document.getElementById("userBadge").textContent = "👤 " + (localStorage.getItem("crefUserLabel") || "");

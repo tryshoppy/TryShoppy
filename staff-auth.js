@@ -19,7 +19,7 @@
 
 // ⚠️ Paste your Staff Apps Script /exec URL here after deploying
 // backend/Staff_Code.gs as its own Web App (see STAFF_SETUP.md).
-const STAFF_API_URL = "https://script.google.com/macros/s/AKfycbw6OmnaJswT0CM1b8DcZ7pHuQefCIc-XT7y5mS8B7Sn19DjYOm4VRvc7Wl1-GsB9VhUpQ/exec";
+const STAFF_API_URL = "https://script.google.com/macros/s/AKfycbxkFzbuFi13k8w-5tAeFvYDRNsGWBDtTD0IIbX5BB-LfQ-Jkcnkf2R7KuKIfkf_xA7OGg/exec";
 
 function tsStaffApi(payload) {
   return fetch(STAFF_API_URL, {
@@ -35,7 +35,73 @@ function tsStaffApi(payload) {
  * Never resolves with any password/hash data.
  */
 function tsStaffLogin(username, password) {
-  return tsStaffApi({ action: "login", username, password });
+  return tsStaffApi({ action: "login", username, password }).then(res => {
+    // 🔑 الأدوات المسموحة بتتحفظ مع الجلسة — كل صفحة بتتأكد منها قبل
+    // ما تفتح (tsGateTool تحت). الحماية الحقيقية في السيرفر: التوكن
+    // نفسه فيه نفس القايمة موقّعة، والسيرفر بيرفض أي نداء برّاها.
+    if (res && res.success) {
+      try { localStorage.setItem("staffTools", JSON.stringify(res.tools || [])); } catch (e) {}
+    } else if (res && res.code === "noTools") {
+      // الباسورد صح بس الحساب مالوش ولا أداة — الصفحات بتعرض "باسورد غلط"
+      // لأي فشل، فبنوضح السبب الحقيقي هنا مرة واحدة
+      alert("🔒 " + res.message);
+    }
+    return res;
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   🔑 صلاحيات الأدوات — نفس مفاتيح TOOLS في Staff_Code.gs
+   ═══════════════════════════════════════════════════════════ */
+const TS_TOOL_NAMES = {
+  dash945: "لوحة الطلبات والحسابات (945)", dashMob: "لوحة الطلبات (موبايل)",
+  quickOrder: "إضافة أوردر لعميل سابق", directOrder: "تسجيل طلب مباشر",
+  customerRef: "مرجع طلبات العملاء", courier: "أداة المندوب",
+  calculatorOP: "حاسبة التشغيل", rama: "RAMA", mart: "إدارة المارت"
+};
+
+function tsStaffTools() {
+  try { return JSON.parse(localStorage.getItem("staffTools") || "[]"); } catch (e) { return []; }
+}
+function tsHasTool(key) { return tsStaffTools().indexOf(key) !== -1; }
+
+/** بتتنادى أول ما الصفحة تتأكد إن فيه جلسة. لو الموظف مالوش الأداة دي،
+ *  بتغطي الصفحة برسالة واضحة (بدل ما تفتح وكل حاجة تفشل) وترجع true.
+ *  جلسة قديمة من قبل نظام الصلاحيات (مفيش staffTools خالص) → بنطلب
+ *  دخول تاني عشان ياخد توكن جديد بصلاحياته. */
+function tsGateTool(key) {
+  if (localStorage.getItem("staffToken") && localStorage.getItem("staffTools") === null) {
+    ["currentUser", "currentUserLabel", "loginTime", "staffToken", "isAdmin"].forEach(k => localStorage.removeItem(k));
+    location.reload();
+    return true;
+  }
+  if (tsHasTool(key)) return false;
+  const old = document.getElementById("tsNoToolGate");
+  if (old) old.remove();
+  const mine = tsStaffTools().map(k => TS_TOOL_NAMES[k]).filter(Boolean);
+  const box = document.createElement("div");
+  box.id = "tsNoToolGate";
+  box.setAttribute("dir", "rtl");
+  box.style.cssText = "position:fixed;inset:0;z-index:99999;background:#101B33;display:flex;align-items:center;justify-content:center;padding:20px;font-family:Cairo,Tahoma,sans-serif";
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  box.innerHTML =
+    '<div style="background:#fff;border-radius:20px;padding:28px 22px;max-width:400px;width:100%;text-align:center">' +
+      '<div style="font-size:44px">🔒</div>' +
+      '<div style="font-size:19px;font-weight:900;color:#101B33;margin-top:8px">مالكش صلاحية على الأداة دي</div>' +
+      '<div style="font-size:14px;color:#5A6885;margin-top:6px;line-height:1.7">«' + esc(TS_TOOL_NAMES[key] || key) + '» مش مفتوحة لحسابك (' +
+        esc(localStorage.getItem("currentUserLabel") || "") + '). لو محتاجها، الأدمن يحط ✓ قدام اسمك في شيت الموظفين.</div>' +
+      (mine.length ? '<div style="font-size:12.5px;color:#5A6885;background:#F4F6FB;border-radius:12px;padding:10px;margin-top:14px;line-height:1.8"><b style="color:#101B33">أدواتك:</b> ' + mine.map(esc).join(" · ") + '</div>' : '') +
+      '<div style="display:grid;gap:8px;margin-top:18px">' +
+        '<a href="Operation.html" style="background:#F5B820;color:#101B33;border-radius:12px;padding:12px;font-weight:900;text-decoration:none">← رجوع للأدوات</a>' +
+        '<button id="tsGateOut" style="background:#EEF2F8;color:#5A6885;border:0;border-radius:12px;padding:12px;font:inherit;font-weight:800;cursor:pointer">دخول بحساب تاني</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(box);
+  document.getElementById("tsGateOut").onclick = () => {
+    ["currentUser", "currentUserLabel", "loginTime", "staffToken", "isAdmin", "staffTools"].forEach(k => localStorage.removeItem(k));
+    location.reload();
+  };
+  return true;
 }
 
 /**

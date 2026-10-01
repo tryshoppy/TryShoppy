@@ -1387,6 +1387,7 @@ function showLogin() {
   document.getElementById("loginPass").value = "";
 }
 function showMain() {
+  if (tsGateTool("dashMob")) return;   // 🔑 صلاحية الأداة من شيت الموظفين
   document.getElementById("loginScreen").style.display = "none";
   document.getElementById("mainContent").style.display = "block";
   const badge = document.getElementById("headerUserBadge");

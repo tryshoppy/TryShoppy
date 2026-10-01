@@ -232,6 +232,7 @@ function showLogin() {
 }
 
 function showMain() {
+  if (tsGateTool("quickOrder")) return;   // 🔑 صلاحية الأداة من شيت الموظفين
   document.getElementById("loginScreen").style.display = "none";
   document.getElementById("mainContent").style.display = "block";
 

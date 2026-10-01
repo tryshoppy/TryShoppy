@@ -373,6 +373,7 @@ function showLogin() {
 }
 
 function showMain() {
+  if (tsGateTool("directOrder")) return;   // 🔑 صلاحية الأداة من شيت الموظفين
   document.getElementById("loginScreen").style.display = "none";
   document.getElementById("mainContent").style.display = "block";
   const label = localStorage.getItem("currentUserLabel") || localStorage.getItem("currentUser") || "";
