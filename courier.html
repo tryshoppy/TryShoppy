@@ -13,8 +13,9 @@
   🛵 أداة المندوب
   ═══════════════════════════════════════════════════════════
   • البيانات بتتحمّل في الخلفية من مسار خاص صغير (Orders_Code.gs →
-    scope=courier): آخر 200 صف + أي طلب "وصل القاهرة" أو "خرج
-    للتوصيل" مهما كان قديم، بالحقول اللي المندوب محتاجها بس.
+    scope=courier): الطلبات اللي "وصلت القاهرة" + اللي المندوب ده نفسه
+    حوّلها "في الطريق" بس، بالحقول اللي محتاجها بس. السيرفر كمان
+    بيرفض أي تعديل منه على أي طلب غيرهم.
   • مفيش أي بيانات عميل بتظهر على الشاشة غير لما المندوب يبحث.
   • التسليم بيحدّث الحالة + بيضيف المبلغ اللي اتحصل على العربون
     (deposit)، وبيتسجل في History باسم المندوب والمبلغ — سجل دائم
@@ -242,6 +243,9 @@ button,input,select{font:inherit;color:inherit}
 <script src="staff-auth.js"></script>
 <script>
 const scriptURL = TS_CONFIG.ORDERS_SCRIPT_URL;
+/* 🔒 السيرفر بيبعت للمندوب بس: الطلبات اللي "وصلت القاهرة"، + اللي هو
+   نفسه حوّلها "في الطريق" (عشان يقدر يسجّل تسليمها). ومش بيسمحله يعدّل
+   أي طلب غيرهم — شوف courierCanTouch_ في Orders_Code.gs. */
 const HUB = "Arrived Cairo HUB", OUT = "Shipped To You";
 const ACTIVE = [HUB, OUT];
 const CACHE_KEY = "ts_courier_cache";
@@ -367,7 +371,10 @@ function setRows(d){
   // لو فيه عميل معروض، نحدّثه بالبيانات الجديدة
   if(current){
     const fresh = CUSTOMERS.find(c => c.key === current.key);
-    if(fresh){ current = fresh; renderCustomer(); }
+    // لو العميل خرج من القايمة (كل طلباته اتسلّمت/اتأجلت)، الكارت يفضل
+    // باسمه بس من غير منتجات — عشان مايفضلش يعرض منتجات قديمة تتداس تاني
+    current = fresh || Object.assign({}, current, { rows: [], active: 0 });
+    renderCustomer();
   }
   if(document.getElementById("q").value.trim()) renderSugs();
 }
@@ -629,22 +636,37 @@ async function sendUpdates(updates){
   for(let attempt = 0; attempt < 3; attempt++){
     await new Promise(r => setTimeout(r, attempt ? 1500 : 700));
     try{
-      const fresh = await fetchRows();
+      // ⚠️ مش من القايمة: بعد التسليم/التأجيل الطلب بيخرج من قايمة المندوب،
+      // فبنسأل السيرفر عن حالة وعربون الطلبات دي بالاسم (scope=courier&check)
+      const states = await fetchCheck(updates.map(u => u.order));
       const failed = updates.filter(u => {
-        const o = fresh.find(x => String(x.order) === String(u.order));
-        if(!o) return true;
+        const o = states.find(x => String(x.order) === String(u.order));
+        if(!o || o.missing) return true;
         if(u.status && String(o.status).trim() !== u.status) return true;
         if(u.deposit !== undefined && Math.round(num(o.deposit)) !== Math.round(num(u.deposit))) return true;
         return false;
       });
       if(!failed.length || attempt === 2){
-        setRows(fresh);
-        try{ localStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), d: fresh })); }catch(e){}
+        try{
+          const fresh = await fetchRows();
+          setRows(fresh);
+          localStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), d: fresh }));
+        }catch(e){}
         return failed;
       }
     }catch(e){ if(e.auth){ alert("⚠️ الجلسة انتهت — سجّل دخول تاني."); logout(); return updates; } }
   }
   return null;   // مقدرناش نتأكد
+}
+
+/** حالة + عربون طلبات محددة بس (من غير أي بيانات عميل) */
+async function fetchCheck(orders){
+  const url = scriptURL + "?scope=courier&check=" + encodeURIComponent(orders.join(",")) +
+              "&staffToken=" + encodeURIComponent(getStaffToken()) + "&_=" + Date.now();
+  const res = await fetch(url, { redirect: "follow" });
+  const data = await res.json();
+  if(!Array.isArray(data)){ const err = new Error("unauthorized"); err.auth = true; throw err; }
+  return data;
 }
 
 function lockUI(on){
