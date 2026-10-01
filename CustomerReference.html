@@ -101,6 +101,8 @@ button:hover{ opacity:.9; }
 .b-green{ background:#f0fdf4; color:#16a34a; }
 .b-red{ background:#fef2f2; color:#dc2626; }
 .b-yellow{ background:#fffbeb; color:#a16207; }
+.b-purple{ background:#F3EEFF; color:#6D28D9; }   /* معلّق */
+.b-slate{ background:#E8EDF3; color:#334155; }    /* مرتجع */
 
 /* تنبيه تشابه أسماء العملاء */
 .duplicate-warning{ background:#fffbeb; border:1px solid #fde68a; color:#92400e; }
@@ -309,13 +311,14 @@ function showNameSearchWarning(groups){
   area.innerHTML = h;
 }
 
-const OPEN_STATUSES_LABELS = { "Pending Review":"قيد المراجعة","Confirmed Via Try":"تم التأكيد","Processing":"جاري التجهيز","Placed":"تم الطلب وجاري الشحن","Arrived Cairo HUB":"وصل مخزن القاهرة","Shipped To You":"في الطريق إليك" };
-const STATUS_LABELS = Object.assign({ "Delivered":"تم التسليم 🎉","Canceled":"ملغي","Delayed":"متأخر" }, OPEN_STATUSES_LABELS);
-const STATUS_BADGE_CLASS = { "Delivered":"b-green","Canceled":"b-red","Delayed":"b-yellow","Pending Review":"b-gray","Confirmed Via Try":"b-blue","Processing":"b-orange","Placed":"b-orange","Arrived Cairo HUB":"b-blue","Shipped To You":"b-blue" };
+const OPEN_STATUSES_LABELS = { "Pending Review":"قيد المراجعة","Confirmed Via Try":"تم التأكيد","Processing":"جاري التجهيز","Placed":"تم الشراء من المتجر","Arrived USA HUB":"وصل مخزن أمريكا","In transit":"في الشحن الدولي","Arrived Cairo HUB":"وصل مخزن القاهرة","Shipped To You":"في الطريق إليك","On Hold":"معلّق مؤقتًا","Delayed":"متأخر" };
+const STATUS_LABELS = Object.assign({ "Delivered":"تم التسليم 🎉","Canceled":"ملغي","Returned":"مرتجع","Lost":"مفقود" }, OPEN_STATUSES_LABELS);
+const STATUS_BADGE_CLASS = { "Delivered":"b-green","Canceled":"b-red","Lost":"b-red","Returned":"b-slate","Delayed":"b-yellow","On Hold":"b-purple","Pending Review":"b-gray","Confirmed Via Try":"b-blue","Processing":"b-orange","Placed":"b-orange","Arrived USA HUB":"b-blue","In transit":"b-blue","Arrived Cairo HUB":"b-blue","Shipped To You":"b-blue" };
 
 function statusLabel(s){ return STATUS_LABELS[s] || s || "—"; }
 function statusClass(s){ return STATUS_BADGE_CLASS[s] || "b-gray"; }
-function isOpenStatus(s){ return s !== "Delivered" && s !== "Canceled"; }
+// المرتجع والمفقود مقفولين زي الملغي (TS_CLOSED_STATUSES في assets/app.js)
+function isOpenStatus(s){ return !tsIsClosedStatus(s); }
 
 async function doSearch(){
   const raw = document.getElementById("customerSearchInput").value.trim();

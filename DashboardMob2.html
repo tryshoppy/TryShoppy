@@ -70,15 +70,31 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .tool .n{background:var(--gold);color:var(--navy);border-radius:20px;padding:1px 7px;font-size:11px;font-family:var(--fm)}
 
 /* ══ لوحة الفلاتر المنسدلة ══ */
-.fpanel{margin:0 14px 10px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:none}
+/* 🐛→✅ اللوحة كانت في مجرى الصفحة العادي تحت شريط الأدوات، فلما
+   تكون نازل تحت في الكروت وتضغط "الفلاتر" كانت بتفتح فوق خالص في
+   أول الصفحة ومش باينة. دلوقتي fixed — بتنزل تحت شريط الأدوات
+   اللاصق مباشرة في أي مكان انت فيه (top بيتحسب وقت الفتح في
+   positionFilters)، وليها سكرول خاص بيها لو أطول من الشاشة. */
+.fpanel{position:fixed;left:14px;right:14px;top:var(--fp-top,120px);z-index:32;margin:0 auto;
+  max-height:calc(100vh - var(--fp-top,120px) - 14px);max-height:calc(100dvh - var(--fp-top,120px) - 14px);
+  overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:0 16px 40px rgba(16,27,51,.22);display:none}
 .fpanel.open{display:block}
+/* خلفية معتمة ورا اللوحة — الضغط عليها بيقفل. تحت شريط الأدوات
+   (z 30) عشان زرار الفلاتر يفضل قابل للضغط فوقها */
+.fbackdrop{position:fixed;inset:0;z-index:25;background:rgba(16,27,51,.35);display:none;touch-action:none}
+.fbackdrop.open{display:block}
 .fpanel-in{padding:13px}
 .fgrp{margin-bottom:11px}
 .fgrp:last-child{margin-bottom:0}
 .fgrp>label{display:block;font-size:11.5px;font-weight:800;color:var(--ink-2);margin-bottom:5px}
 .fpanel input,.fpanel select{width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:11px;background:#FBFCFE;min-height:46px}
 .fpanel input:focus,.fpanel select:focus{border-color:var(--gold);background:#fff;outline:none;box-shadow:0 0 0 3px rgba(245,184,32,.15)}
-.arr-quick{margin-bottom:7px;font-family:var(--fm);font-weight:600;letter-spacing:.02em}
+/* ⚠️ من غير letter-spacing ومن غير الخط المونوسبيس — الاتنين بيقطّعوا
+   الحروف العربي عن بعض (كانت "آخر 7 مواعيد" بتطلع حروف منفصلة،
+   لأن IBM Plex Mono مفيهوش حروف عربي أصلاً) */
+.arr-quick{margin-bottom:7px;font-weight:700}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .fbtn{width:100%;padding:13px;border-radius:11px;border:none;font-weight:900;font-size:14px;cursor:pointer;min-height:48px;margin-top:4px}
 .fbtn.go{background:var(--gold);color:var(--navy)}
@@ -137,6 +153,8 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .fl input.arr{background:var(--gold-wash);border-color:#F2DFAE;font-family:var(--f);font-weight:700}
 .fl.full{margin-bottom:12px}
 .fl select.stsel{font-family:var(--f);font-weight:800}
+/* 📝 ملاحظة On Hold / Lost تحت الحالة (اللي العميل شايفها في التتبع) */
+.fl .stnote{display:block;font-size:12px;font-weight:700;color:var(--ink-2);background:#F8FAFC;border:1px dashed var(--line);border-radius:9px;padding:7px 10px;margin-top:6px;line-height:1.55}
 .oc-net{background:var(--ok-wash);border:1px solid #B9E7D6;border-radius:11px;padding:11px 13px;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .oc-net span{font-size:12px;font-weight:800;color:var(--ok)}
 .oc-net b{font-family:var(--fm);font-size:17px;font-weight:600;color:var(--ok)}
@@ -220,6 +238,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
     <button class="tool" id="groupToggle" onclick="toggleGrouping()">👥 تجميع</button>
   </div>
 
+  <div class="fbackdrop" id="fbackdrop" onclick="closeFilters()"></div>
   <div class="fpanel" id="fpanel">
     <div class="fpanel-in">
       <div class="fgrp">
@@ -245,17 +264,9 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
       </div>
       <div class="fgrp">
         <label>الحالة</label>
+        <!-- بتتملى من TS_STATUSES (assets/app.js) — شوف fillStatusFilter -->
         <select id="searchStatus">
           <option value="">كل الحالات</option>
-          <option>Pending Review</option>
-          <option>Confirmed Via Try</option>
-          <option>Processing</option>
-          <option>Placed</option>
-          <option>Arrived Cairo HUB</option>
-          <option>Shipped To You</option>
-          <option>Delivered</option>
-          <option>Canceled</option>
-          <option>Delayed</option>
         </select>
       </div>
       <div class="fgrp">
@@ -280,6 +291,9 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
       <input type="number" id="dupQty" placeholder="الكمية" min="1" value="1">
       <input type="number" id="dupUsd" placeholder="السعر بالدولار ($)">
       <input type="number" id="dupEgp" placeholder="السعر بالمصري (EGP)">
+      <!-- 🏷️ الصنف إجباري — قبل كده كان بيتنسخ من الطلب القديم، فمنتج جديد
+           مختلف كان بيتسجل بصنف غلط -->
+      <select id="dupCategory"></select>
       <input type="text" id="dupDimensions" placeholder="المواصفات الخاصة (SPCS)">
       <input type="email" id="dupEmail" placeholder="بريد العميل (اختياري — لإرسال تأكيد)">
       <select id="dupUser"><option value="">👤 اختر الموظف المسؤول *</option></select>
@@ -319,6 +333,13 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
    تحته وقت السكرول — بنحسب ارتفاع الهيدر الفعلي (بيتغيّر حسب
    safe-area-inset-top على الأجهزة اللي فيها notch) ونحطه في
    --hdr-h، بدل رقم ثابت هيغلط على شاشات مختلفة. */
+/* 📋 فلتر الحالات بيتملى من القائمة الموحّدة (assets/app.js) */
+(function fillStatusFilter(){
+  const el = document.getElementById("searchStatus");
+  if(el) el.insertAdjacentHTML("beforeend", TS_STATUSES.map(s =>
+    '<option value="' + tsEscapeHtml(s) + '">' + tsEscapeHtml(s) + '</option>').join(""));
+})();
+
 function syncHeaderHeight(){
   const hdr = document.querySelector('.hdr');
   if(hdr) document.documentElement.style.setProperty('--hdr-h', hdr.offsetHeight + 'px');
@@ -328,16 +349,33 @@ window.addEventListener('orientationchange', syncHeaderHeight);
 
 /* ══ لوحة الفلاتر — على الموبايل بتبقى مقفولة افتراضيًا عشان
    الكروت تبان من أول لحظة من غير تمرير طويل ══ */
+/** بيحط اللوحة تحت شريط الأدوات بالظبط في المكان الحالي للشاشة —
+ *  الشريط sticky، فحافته السفلية هي المكان الصح سواء انت فوق خالص
+ *  أو نازل تحت في الكروت */
+function positionFilters(){
+  const tools = document.querySelector(".tools");
+  if(!tools) return;
+  const top = Math.max(0, Math.round(tools.getBoundingClientRect().bottom)) + 6;
+  document.documentElement.style.setProperty("--fp-top", top + "px");
+}
 function toggleFilters(){
   const p=document.getElementById("fpanel");
-  p.classList.toggle("open");
-  document.getElementById("filterToggle").classList.toggle("on", p.classList.contains("open"));
+  if(p.classList.contains("open")){ closeFilters(); return; }
+  positionFilters();
+  p.classList.add("open");
+  p.scrollTop = 0;
+  document.getElementById("fbackdrop").classList.add("open");
+  document.getElementById("filterToggle").classList.add("on");
 }
 function closeFilters(){
   document.getElementById("fpanel").classList.remove("open");
+  document.getElementById("fbackdrop").classList.remove("open");
   document.getElementById("filterToggle").classList.remove("on");
   updateFilterCount();
 }
+window.addEventListener("resize", () => {
+  if(document.getElementById("fpanel").classList.contains("open")) positionFilters();
+});
 function clearFilters(){
   ["searchInput","searchArrival","dateFrom","dateTo"].forEach(id=>document.getElementById(id).value="");
   // 📅 قايمة المواعيد السريعة بتترجع لأولها كمان — عشان ماتفضلش
@@ -362,9 +400,9 @@ document.addEventListener("change", e=>{
 function statusTone(st){
   st = String(st||"");
   if(st.indexOf("Delivered")!==-1) return "done";
-  if(st.indexOf("Canceled")!==-1)  return "dead";
+  if(st.indexOf("Canceled")!==-1 || st==="Lost" || st==="Returned") return "dead";
   if(st.indexOf("Pending")!==-1)   return "wait";
-  if(st.indexOf("Delayed")!==-1)   return "late";
+  if(st.indexOf("Delayed")!==-1 || st==="On Hold") return "late";
   return "move";
 }
 
@@ -412,7 +450,7 @@ async function loadData(){
 }
 
 function normalizePhone(phone){
-  return String(phone || "")
+  return tsToEnDigits(phone || "")   // ٠١٠ ← 010 (العربي كان بيتمسح كله)
     .replace(/\D/g,'')   // يشيل أي رموز
     .replace(/^2/, '')   // يشيل كود الدولة 2 (زي normalizePhoneOrders في Orders_Code.gs)
     .replace(/^0+/, ''); // يشيل الصفر الأول
@@ -436,7 +474,7 @@ function renderCards(data, append = false){
   let htmlString = "";
 
   data.forEach(o => {
-    let phone = String(o.phone || "").replace(/\D/g, "").replace(/^0/, "");
+    let phone = tsToEnDigits(o.phone || "").replace(/\D/g, "").replace(/^0/, "");
     const orderId = o.order;
     const cleanOrderId = orderId.toString().split(' + ')[0];
     const qty = o.quantity || 1;
@@ -606,7 +644,7 @@ if (o.status === "Arrived Cairo HUB") {
 
       <div class="oc-cust">
         <div class="nm">${safeCustomerName}</div>
-        <a class="ph" href="tel:${String(o.phone||'').replace(/\D/g,'')}">${tsEscapeHtml(formatPhone(o.phone))}</a>
+        <a class="ph" href="tel:${tsToEnDigits(o.phone||'').replace(/\D/g,'')}">${tsEscapeHtml(formatPhone(o.phone))}</a>
       </div>
 
       <div class="oc-chips">
@@ -641,17 +679,12 @@ if (o.status === "Arrived Cairo HUB") {
 
       <label class="fl full">
         <span>الحالة</span>
-        <select id="status-${cleanOrderId}" class="stsel">
-          <option ${o.status==="Pending Review"?"selected":""}>Pending Review</option>
-          <option ${o.status==="Confirmed Via Try"?"selected":""}>Confirmed Via Try</option>
-          <option ${o.status==="Processing"?"selected":""}>Processing</option>
-          <option ${o.status==="Placed"?"selected":""}>Placed</option>
-          <option ${o.status==="Arrived Cairo HUB"?"selected":""}>Arrived Cairo HUB</option>
-          <option ${o.status==="Shipped To You"?"selected":""}>Shipped To You</option>
-          <option ${o.status==="Delivered"?"selected":""}>Delivered</option>
-          <option ${o.status==="Canceled"?"selected":""}>Canceled</option>
-          <option ${o.status==="Delayed"?"selected":""}>Delayed</option>
-        </select>
+        <!-- 🐛→✅ القائمة كانت مكتوبة بإيد: أي حالة مش فيها (زي In transit)
+             كانت بتخلّي أول اختيار يتحدد تلقائيًا، و"حفظ" الكارت كان بيرجّع
+             الحالة Pending Review في الشيت. دلوقتي من القائمة الموحّدة،
+             والحالة الحالية بتفضل مختارة دايمًا حتى لو مش معروفة. -->
+        <select id="status-${cleanOrderId}" class="stsel">${tsStatusOptionsHtml(o.status)}</select>
+        ${TS_NOTE_STATUSES.indexOf(o.status) !== -1 && o.statusNote ? `<span class="stnote">📝 ${tsEscapeHtml(o.statusNote)}</span>` : ""}
       </label>
 
       <div class="oc-links">${linksHTML}</div>
@@ -818,7 +851,8 @@ function applyFilters(){
    if(isGrouped){
     const groups={};
     filtered.forEach(o=>{
-      const key=o.phone||"Unknown";
+      // نفس العميل يتجمّع حتى لو رقمه متسجل بأرقام عربي مرة وإنجليزي مرة
+      const key=normalizePhone(o.phone)||"Unknown";
       if(!groups[key]){
         groups[key]={
           ...o,
@@ -873,12 +907,23 @@ function toggleGrouping(){
   applyFilters();
 }
 
-function updateOrder(orderId){
+async function updateOrder(orderId){
   const newEGP=document.getElementById("egp-"+orderId).value;
   const newDeposit=document.getElementById("deposit-"+orderId).value;
   const newUSD=document.getElementById("usd-"+orderId).value;
   const newStatus=document.getElementById("status-"+orderId).value;
-  const newArrival=document.getElementById("arrival-"+orderId).value; 
+  const newArrival=document.getElementById("arrival-"+orderId).value;
+
+  // 📝 تحويل لـ On Hold / Lost = لازم سبب (بيظهر للعميل) — شوف tsAskStatusNote
+  const cur = ordersData.find(o => String(o.order) === String(orderId)) || {};
+  let statusNote;
+  if (tsNeedsStatusNote(newStatus, cur.status)) {
+    statusNote = await tsAskStatusNote(newStatus, cur.statusNote, orderId + (cur.customerName ? " — " + cur.customerName : ""));
+    if (statusNote === null) {
+      document.getElementById("status-"+orderId).value = cur.status || "Pending Review";
+      return;
+    }
+  }
 
   const btn=document.querySelector(`button[onclick*="updateOrder('${orderId}')"]`);
   if(btn) tsSetBtnLoading(btn, "جاري التحديث...");
@@ -896,6 +941,7 @@ function updateOrder(orderId){
     usd:newUSD,
     status:newStatus,
     arrivaldate:newArrival,
+    statusNote:statusNote,   // undefined = العمود مايتلمسش
     user:getCurrentUser(),   // ✅
     staffToken:getStaffToken()
   }).then(()=>{
@@ -1039,7 +1085,7 @@ function sendUndeliveredSummary(orderId) {
 }
 
 function generateUndeliveredSummary(o) {
-  const phone = String(o.phone || "").replace(/\D/g, "").replace(/^0/, "");
+  const phone = tsToEnDigits(o.phone || "").replace(/\D/g, "").replace(/^0/, "");
 
   // تجميع كل المنتجات (تدعم العرض المجمّع والمفرد)
   let allItems = [];
@@ -1070,7 +1116,8 @@ function generateUndeliveredSummary(o) {
   }
 
   // استبعاد المنتجات المُسلَّمة أو الملغاة
-  const pendingItems = allItems.filter(it => it.status !== "Delivered" && it.status !== "Canceled");
+  // المرتجع والمفقود مقفولين زي الملغي — مش "منتظر الاستلام" (TS_CLOSED_STATUSES)
+  const pendingItems = allItems.filter(it => !tsIsClosedStatus(it.status));
 
   if (pendingItems.length === 0) {
     alert("🎉 لا يوجد طلبات غير مستلمة لهذا العميل حالياً، كل طلباته تم تسليمها بالفعل!");
@@ -1157,6 +1204,10 @@ function openDuplicateModal(orderId) {
     document.getElementById("dupEgp").value = "";
     document.getElementById("dupDimensions").value = "";
     document.getElementById("dupEmail").value = "";
+    // فاضي عن قصد — الموظف لازم يختار صنف المنتج الجديد بنفسه، مش صنف القديم
+    const dupCat = document.getElementById("dupCategory");
+    dupCat.innerHTML = tsCategoryOptionsHtml("");
+    dupCat.style.borderColor = "";
     document.getElementById("dupWhatsappContainer").style.display = "none";
 
     // ✅ بناء قائمة الموظفين من STAFF_DIRECTORY (دليل أسماء بس، بيتحمّل
@@ -1252,8 +1303,16 @@ function submitDuplicate() {
     const egp       = parseFloat(document.getElementById("dupEgp").value) || 0;
     const dimensions= document.getElementById("dupDimensions").value.trim();
     const dupUser   = document.getElementById("dupUser").value.trim();
+    const category  = document.getElementById("dupCategory").value;
 
     if (!newOrder || !link) return alert("يرجى ملء رقم الأوردر والرابط!");
+
+    if (!category) {
+        document.getElementById("dupCategory").style.borderColor = "var(--dead)";
+        document.getElementById("dupCategory").focus();
+        return alert("⚠️ اختار صنف المنتج الجديد!");
+    }
+    document.getElementById("dupCategory").style.borderColor = "";
 
     if (!dupUser) {
         document.getElementById("dupUser").style.borderColor = "var(--danger)";
@@ -1281,6 +1340,7 @@ function submitDuplicate() {
         newUsd: totalUsd,
         newEgp: totalEgp,
         newDimensions: dimensions,
+        newCategory: category,   // Orders_Code.gs بيستخدمه بدل صنف الطلب القديم
         newEmail: document.getElementById("dupEmail").value.trim(),
         user: dupUser,
         staffToken: getStaffToken()

@@ -20,7 +20,7 @@ body{ font-family:'Cairo',sans-serif; background:var(--bg); margin:0; padding:20
 h2{ margin-top:0; text-align:center; color:var(--primary); font-weight:900; }
 .input-group{ margin-bottom:15px; }
 .input-group label{ display:block; margin-bottom:6px; font-weight:bold; color:#475569; }
-.input-group input{ width:100%; padding:14px; border:1px solid var(--border); border-radius:12px; font-family:'Cairo'; box-sizing:border-box; font-size:15px; }
+.input-group input,.input-group select{ width:100%; padding:14px; border:1px solid var(--border); border-radius:12px; font-family:'Cairo'; box-sizing:border-box; font-size:15px; }
 button{ width:100%; padding:14px; border:none; border-radius:12px; background:var(--primary); color:white; font-family:'Cairo'; font-size:16px; font-weight:bold; cursor:pointer; }
 button:hover{ opacity:.9; }
 .customer-box{ background:#eff6ff; padding:15px; border-radius:12px; margin-bottom:15px; display:none; }
@@ -146,6 +146,14 @@ button:hover{ opacity:.9; }
 <div class="input-group">
   <label>لينك المنتج الجديد</label>
   <input type="text" id="link">
+</div>
+
+<!-- 🏷️ الصنف إجباري ولكل منتج لوحده — قبل كده كان بيتنسخ من آخر طلب
+     للعميل، فمنتج جديد مختلف كان بيتسجل بصنف غلط. لكل منتج عشان السلة
+     ممكن يبقى فيها جزمة وإلكترونيات مع بعض. -->
+<div class="input-group">
+  <label>الصنف *</label>
+  <select id="category"></select>
 </div>
 
 <div class="input-group">
@@ -313,7 +321,8 @@ async function loadData() {
 }
 
 function normalizePhone(phone) {
-  return String(phone || "").replace(/\D/g,'').replace(/^2/,'').replace(/^0/,'');
+  // tsToEnDigits: الموظف أو العميل ممكن يكونوا كاتبين الرقم بأرقام عربي (٠١٠…)
+  return tsToEnDigits(phone || "").replace(/\D/g,'').replace(/^2/,'').replace(/^0/,'');
 }
 
 function searchCustomer() {
@@ -326,7 +335,7 @@ function searchCustomer() {
   // لو 60% على الأقل من الحروف المكتوبة أرقام، نعتبره رقم تليفون
   // ونبحث بالمطابقة التامة زي الأول. غير كده، نعتبره اسم ونبحث
   // بالاحتواء الجزئي (contains) بين كل العملاء.
-  const digitsOnly = raw.replace(/\D/g, "");
+  const digitsOnly = tsToEnDigits(raw).replace(/\D/g, "");   // ٠١٠ ← 010 قبل العدّ
   const looksLikePhone = raw.length > 0 && (digitsOnly.length / raw.replace(/\s/g, "").length) >= 0.6 && digitsOnly.length >= 6;
 
   if (looksLikePhone) {
@@ -403,7 +412,7 @@ function searchByName(rawName) {
          style="background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:.15s"
          onmouseover="this.style.borderColor='#6366f1'" onmouseout="this.style.borderColor='#e2e8f0'">
       <div style="font-weight:800;font-size:14px">👤 ${tsEscapeHtml(o.customerName || "-")}</div>
-      <div style="font-size:13px;color:#475569;margin-top:3px">📞 ${tsEscapeHtml(o.phone || "-")}</div>
+      <div style="font-size:13px;color:#475569;margin-top:3px">📞 ${tsEscapeHtml(tsDisplayPhone(o.phone) || "-")}</div>
       <div style="font-size:12.5px;color:#94a3b8;margin-top:2px">📍 ${tsEscapeHtml(o.address || "-")}</div>
     </div>
   `).join("");
@@ -421,7 +430,7 @@ function pickNameMatch(phone) {
 // عشان مفيش تكرار كود بين المسارات التلاتة
 function applySelectedCustomer(customer) {
   selectedCustomer = customer;
-  document.getElementById("customerSearch").value = customer.phone; // نوري رقمه في الخانة تأكيدًا
+  document.getElementById("customerSearch").value = tsDisplayPhone(customer.phone); // نوري رقمه في الخانة تأكيدًا
   document.getElementById("customerBox").style.display = "block";
   document.getElementById("customerName").innerText = "👤 " + (selectedCustomer.customerName || "-");
   document.getElementById("customerAddress").innerText = "📍 " + (selectedCustomer.address || "-");
@@ -473,11 +482,16 @@ function addCurrentToCart(){
   const usd  = parseFloat(document.getElementById("usd").value) || 0;
   const egp  = parseFloat(document.getElementById("egp").value) || 0;
   const dimensions = document.getElementById("dimensions").value.trim();
+  const category = document.getElementById("category").value;
 
   if (!link || !usd || !egp) return alert("يرجى ملء كل بيانات المنتج (اللينك، الدولار، والمصري)");
+  if (!category) {
+    document.getElementById("category").focus();
+    return alert("⚠️ اختار صنف المنتج!");
+  }
 
   tsAddToQuickCart({
-    link, qty, unitUsd: usd, unitEgp: egp, dimensions,
+    link, qty, unitUsd: usd, unitEgp: egp, dimensions, category,
     totalUsd: +(usd * qty).toFixed(2),
     totalEgp: +(egp * qty).toFixed(2)
   });
@@ -488,10 +502,14 @@ function addCurrentToCart(){
   document.getElementById("usd").value = "";
   document.getElementById("egp").value = "";
   document.getElementById("dimensions").value = "";
+  document.getElementById("category").value = "";
 
   renderCart();
   showStep('cart');
 }
+
+/* قائمة الأصناف — نفس قيم حاسبة الموقع (TS_CATEGORIES في assets/app.js) */
+document.getElementById("category").innerHTML = tsCategoryOptionsHtml("");
 
 function renderCart(){
   const cart = tsGetQuickCart();
@@ -502,7 +520,7 @@ function renderCart(){
     const specsLine = item.dimensions ? '<div class="cart-item-meta">📝 '+tsEscapeHtml(item.dimensions)+'</div>' : '';
     return '<div class="cart-item">'+
       '<div><div class="cart-item-link">'+linkHtml+'</div>'+
-      '<div class="cart-item-meta">الكمية: '+tsEscapeHtml(item.qty)+'</div>'+specsLine+'</div>'+
+      '<div class="cart-item-meta">'+(item.category?'🏷️ '+tsEscapeHtml(item.category)+' · ':'')+'الكمية: '+tsEscapeHtml(item.qty)+'</div>'+specsLine+'</div>'+
       '<div class="cart-item-right"><div class="cart-item-price">'+item.totalEgp.toLocaleString()+' EGP</div>'+
       '<button class="cart-item-remove" onclick="removeCartItem(\''+tsJsAttr(item.tempId)+'\')">🗑 حذف</button></div>'+
     '</div>';
@@ -553,7 +571,7 @@ function checkoutAll(){
   // بيكتبه الموظف، فبنبعته زي ما هو بعد تنضيفه
   const cleanSpec = v => String(v||"").replace(/::/g,":").replace(/[\r\n]+/g," ").trim();
   const emailSummary = cartWithOrders.map(({item, orderNo}) =>
-    [orderNo, item.link || "", label, item.qty, item.totalEgp, cleanSpec(item.dimensions)].join("::")
+    [orderNo, item.link || "", item.category || label, item.qty, item.totalEgp, cleanSpec(item.dimensions)].join("::")
   ).join("\n");
   const cartTotal = tsQuickCartTotal();
 
@@ -591,7 +609,9 @@ function checkoutAll(){
           usd: item.totalUsd,
           weight: c.weight,
           dimensions: item.dimensions,
-          category: c.category,
+          // صنف المنتج نفسه (إجباري في الفورم) — c.category احتياطي بس
+          // لمنتجات اتضافت للسلة قبل التحديث ده ولسه محفوظة في المتصفح
+          category: item.category || c.category,
           finalPrice: item.totalEgp,
           user: getCurrentUser(),
           // 🔇 كل منتج بعد الأول ميبعتش إيميل مستقل — الملخص المجمّع

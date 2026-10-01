@@ -257,6 +257,9 @@ input[type=checkbox]{width:17px;height:17px;cursor:pointer;accent-color:var(--go
 .stsel.st-wait{border-color:#F0C97A;background:var(--warn-wash);color:var(--warn)}
 .stsel.st-late{border-color:#C89BF5;background:#F6EEFE;color:#7E22CE}
 .stsel.st-move{border-color:#BBD1FA;background:var(--blue-wash);color:var(--blue)}
+/* 📝 ملاحظة On Hold / Lost تحت الحالة — سطرين بالكتير، والنص الكامل في الـ tooltip */
+.stnote{font-size:11px;color:var(--ink-2);margin-top:5px;line-height:1.45;max-width:190px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .ubadge{display:inline-block;font-size:11.5px;font-weight:800;padding:4px 10px;border-radius:20px;background:var(--navy);color:var(--gold-2);white-space:nowrap}
 .muted{color:var(--ink-3)}
 .c-act{width:130px}
@@ -429,16 +432,9 @@ body.sb-open{overflow:hidden}
                بالظبط — دي القيمة اللي tsStatusLabel والسيرفر بيقارنوا
                بيها. العربي هنا عرض بس (كان بالإنجليزي كمان فطال وكان
                بيتقص في عرض العمود) -->
+          <!-- بتتملى من TS_STATUSES (العربي من TS_STATUS_AR) — tsFillStatusSelects -->
           <select id="aoStatus">
             <option value="Pending Review">قيد المراجعة</option>
-            <option value="Confirmed Via Try">تم التأكيد</option>
-            <option value="Processing">جاري التجهيز</option>
-            <option value="Placed">تم الطلب</option>
-            <option value="Arrived Cairo HUB">وصل القاهرة</option>
-            <option value="Shipped To You">في الطريق إليك</option>
-            <option value="Delivered">تم التسليم</option>
-            <option value="Delayed">متأخر</option>
-            <option value="Canceled">ملغي</option>
           </select>
         </div>
         <div class="ao-f"><label>مسجّل باسم</label><input id="aoUser" type="text" readonly></div>
@@ -515,17 +511,9 @@ body.sb-open{overflow:hidden}
     <h4>تصفية</h4>
     <div class="sbf">
       <label>الحالة</label>
+      <!-- بتتملى من TS_STATUSES (assets/app.js) — شوف tsFillStatusSelects -->
       <select id="searchStatus" onchange="applyFilters();autoCloseSb()">
         <option value="">كل الحالات</option>
-        <option value="Pending Review">Pending Review</option>
-        <option value="Confirmed Via Try">Confirmed Via Try</option>
-        <option value="Placed">Placed</option>
-        <option value="Processing">Processing</option>
-        <option value="Arrived Cairo HUB">Arrived Cairo HUB</option>
-        <option value="Shipped To You">Shipped To You</option>
-        <option value="Delivered">Delivered</option>
-        <option value="Canceled">Canceled</option>
-        <option value="Delayed">Delayed</option>
       </select>
     </div>
     <div class="sbf">
@@ -596,15 +584,6 @@ body.sb-open{overflow:hidden}
     <div class="sp">
       <select id="bulkStatus">
         <option value="">— غيّر حالة المحدد إلى —</option>
-        <option value="Pending Review">Pending Review</option>
-        <option value="Confirmed Via Try">Confirmed Via Try</option>
-        <option value="Placed">Placed</option>
-        <option value="Processing">Processing</option>
-        <option value="Arrived Cairo HUB">Arrived Cairo HUB</option>
-        <option value="Shipped To You">Shipped To You</option>
-        <option value="Delivered">Delivered</option>
-        <option value="Canceled">Canceled</option>
-        <option value="Delayed">Delayed</option>
       </select>
       <button class="tbtn gold" id="bulkApplyBtn" onclick="applyBulkStatus()" disabled>تطبيق</button>
     </div>
@@ -771,7 +750,9 @@ function populateArrivalFilter(){
 /* 🆕 توحيد رقم الموبايل للبحث — بيشيل أي رموز/مسافات، وبيشيل
    كود الدولة 20 والصفر البادئ، عشان كل الصيغ تتطابق مع بعض */
 function normPhoneD(p){
-    return String(p||"").replace(/\D/g,"").replace(/^2/,"").replace(/^0/,"");
+    // 🔢 tsToEnDigits: الأرقام العربي (٠١٠…) كانت بتتمسح كلها هنا، فالبحث
+    // برقم العميل ماكانش بيلاقيه، والبحث بأرقام عربي ماكانش بيلاقي حاجة
+    return tsToEnDigits(p).replace(/\D/g,"").replace(/^2/,"").replace(/^0/,"");
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -914,7 +895,7 @@ function createRowHTML(o) {
     if(o.isRama) return createRamaRowHTML(o);
 
     const cur = o.status || "Pending Review";
-    const printPhone = o.phone ? o.phone.toString().replace(/\s/g, '') : '';
+    const printPhone = o.phone ? tsToEnDigits(o.phone).replace(/\s/g, '') : '';
     const printOrder = o.order ? o.order.toString().split(' + ')[0] : 'N/A';
 
     const qty = isGrouped ? o.totalQty : (o.quantity || 1);
@@ -929,9 +910,9 @@ function createRowHTML(o) {
     // تصنيف الحالة لخانة لونية — بيتحكم في شريط الصف الجانبي كمان
     let tone = "hold";
     if (cur.indexOf("Delivered") !== -1) tone = "done";
-    else if (cur.indexOf("Canceled") !== -1) tone = "dead";
+    else if (cur.indexOf("Canceled") !== -1 || cur === "Lost" || cur === "Returned") tone = "dead";
     else if (cur.indexOf("Pending") !== -1) tone = "wait";
-    else if (cur.indexOf("Delayed") !== -1) tone = "late";
+    else if (cur.indexOf("Delayed") !== -1 || cur === "On Hold") tone = "late";
     else tone = "move";
 
     const checked = selectedOrderIds.has(printOrder);
@@ -982,17 +963,10 @@ function createRowHTML(o) {
         <td class="c-arr"><input type="text" id="arrival-${printOrder}" class="inp" value="${safeArrival}" placeholder="موعد الوصول"></td>
 
         <td class="c-status">
-            <select id="status-${printOrder}" class="stsel st-${tone}">
-                <option value="Pending Review" ${cur==='Pending Review'?'selected':''}>Pending Review</option>
-                <option value="Confirmed Via Try" ${cur==='Confirmed Via Try'?'selected':''}>Confirmed Via Try</option>
-                <option value="Placed" ${cur==='Placed'?'selected':''}>Placed</option>
-                <option value="Processing" ${cur==='Processing'?'selected':''}>Processing</option>
-                <option value="Arrived Cairo HUB" ${cur==='Arrived Cairo HUB'?'selected':''}>Arrived Cairo HUB</option>
-                <option value="Shipped To You" ${cur==='Shipped To You'?'selected':''}>Shipped To You</option>
-                <option value="Delivered" ${cur==='Delivered'?'selected':''}>Delivered</option>
-                <option value="Canceled" ${cur==='Canceled'?'selected':''}>Canceled</option>
-                <option value="Delayed" ${cur==='Delayed'?'selected':''}>Delayed</option>
-            </select>
+            <!-- 📋 من القائمة الموحّدة في assets/app.js — وأي حالة مش فيها
+                 بتفضل مختارة زي ما هي بدل ما تتحول Pending Review عند الحفظ -->
+            <select id="status-${printOrder}" class="stsel st-${tone}">${tsStatusOptionsHtml(cur)}</select>
+            ${TS_NOTE_STATUSES.indexOf(cur) !== -1 && o.statusNote ? `<div class="stnote" title="${tsEscapeHtml(o.statusNote)}">📝 ${tsEscapeHtml(o.statusNote)}</div>` : ""}
         </td>
 
         <td class="c-user">${o.user ? `<span class="ubadge">${safeUser}</span>` : `<span class="muted">—</span>`}</td>
@@ -1082,7 +1056,9 @@ return dateMatch && searchMatch && statusMatch && arrivalMatch && userMatch;
         const ramaKeep = filtered.filter(o=>o.isRama);   // صفوف RAMA مش بتتجمّع بالموبايل
         filtered = filtered.filter(o=>!o.isRama);
         filtered.forEach(o => {
-            const key = o.phone ? o.phone.toString().replace(/\s/g, '') : 'Unknown';
+            // نفس العميل لازم يتجمّع حتى لو رقمه متسجل مرة بأرقام عربي ومرة
+            // إنجليزي، أو مرة بالصفر ومرة من غيره
+            const key = normPhoneD(o.phone) || 'Unknown';
             if (!groups[key]) {
                 groups[key] = { 
                     ...o, order: [o.order], 
@@ -1195,12 +1171,24 @@ function toggleGrouping() {
     applyFilters(); 
 }
 
-function updateOrder(orderId) {
+async function updateOrder(orderId) {
     const newStatus = document.getElementById(`status-${orderId}`).value;
     const newEGP = document.getElementById(`egp-${orderId}`).value;
     const newUSD = document.getElementById(`usd-${orderId}`).value;
     const newDeposit = document.getElementById(`deposit-${orderId}`).value;
        const newArrival = document.getElementById(`arrival-${orderId}`).value;
+
+    // 📝 تحويل لـ On Hold / Lost = لازم سبب (بيظهر للعميل). لو الموظف لغى
+    // الويندو، الحفظ كله بيتلغي والقائمة بترجع للحالة القديمة.
+    const cur = ordersData.find(o => String(o.order) === String(orderId).split(' + ')[0]) || {};
+    let statusNote;
+    if (tsNeedsStatusNote(newStatus, cur.status)) {
+        statusNote = await tsAskStatusNote(newStatus, cur.statusNote, orderId + (cur.customerName ? " — " + cur.customerName : ""));
+        if (statusNote === null) {
+            document.getElementById(`status-${orderId}`).value = cur.status || "Pending Review";
+            return;
+        }
+    }
 
     const btn = document.querySelector(`button[onclick="updateOrder('${orderId}')"]`);
     tsSetBtnLoading(btn, "جاري التحديث...");
@@ -1217,6 +1205,7 @@ function updateOrder(orderId) {
         usd: newUSD,
         deposit: newDeposit,
         arrivaldate: newArrival,
+        statusNote: statusNote,   // undefined لو مفيش ملاحظة = العمود مايتلمسش
         user: (typeof getCurrentUser === "function" ? getCurrentUser() : ""),
         staffToken: getStaffToken()
     }).then(() => {
@@ -1426,7 +1415,7 @@ function exportCSV(){
 
             const name = (o.customerName || "").replace(/,/g, " ");
             const address = (o.address || "").replace(/,/g, " - ") + " " + (o.governorate || "");
-            const phone = (o.phone || "").toString().replace(/,/g, ""); 
+            const phone = (tsDisplayPhone(o.phone) || "").replace(/,/g, "");
 
             csv += `"${name}","${address}","${phone}","${finalP}","${dep}","${net}"\n`;
         });
@@ -1515,6 +1504,13 @@ async function applyBulkStatus(){
 
     if(selected.length === 0) return alert("مفيش طلبات محددة");
 
+    // 📝 تحويل جماعي لـ On Hold / Lost — سبب واحد بيتسجل لكل الطلبات المحددة
+    let statusNote;
+    if(TS_NOTE_STATUSES.indexOf(status) !== -1){
+        statusNote = await tsAskStatusNote(status, "", selected.length + " طلب محدد");
+        if(statusNote === null) return;
+    }
+
     const bulkBtn = document.getElementById("bulkApplyBtn");
     tsSetBtnLoading(bulkBtn, "جاري التطبيق...");
 
@@ -1535,6 +1531,7 @@ async function applyBulkStatus(){
                 action:"updateStatus",
                 order: orderId,
                 status: status,
+                statusNote: statusNote,
                 user: (typeof getCurrentUser === "function" ? getCurrentUser() : ""),
                 staffToken: getStaffToken()
             }).then(()=>({orderId, ok:true}))
@@ -1670,6 +1667,20 @@ checkSession();
    دي بتسمح كمان بموعد الوصول والعربون وحالة الطلب من أول لحظة
    بدل ما تتسجل Pending Review وتتعدّل بعدين.
    ═══════════════════════════════════════════════════════════ */
+
+/* 📋 قوائم الحالات الثابتة (الفلتر + التعديل الجماعي + إضافة طلب)
+   بتتملى من القائمة الموحّدة في assets/app.js — أي حالة تتضاف
+   هناك بتظهر هنا لوحدها، من غير ما حد يفتكر يعدّل 4 أماكن */
+(function tsFillStatusSelects(){
+  const plain = s => '<option value="' + tsEscapeHtml(s) + '">' + tsEscapeHtml(s) + '</option>';
+  ["searchStatus","bulkStatus"].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.insertAdjacentHTML("beforeend", TS_STATUSES.map(plain).join(""));
+  });
+  const ao = document.getElementById("aoStatus");
+  if(ao) ao.innerHTML = TS_STATUSES.map(s =>
+    '<option value="' + tsEscapeHtml(s) + '">' + tsEscapeHtml(TS_STATUS_AR[s] || s) + '</option>').join("");
+})();
 
 const AO_GOVS = ["القاهرة","الجيزة","الإسكندرية","الدقهلية","الشرقية","الغربية","المنوفية",
   "القليوبية","البحيرة","كفر الشيخ","دمياط","بورسعيد","الإسماعيلية","السويس","الفيوم",
