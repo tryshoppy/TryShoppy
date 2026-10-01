@@ -8,11 +8,11 @@
 const TS_CONFIG = {
   /* ── رابط سكريبت الطلبات الموحّد (GET + POST) ──
      نفس الرابط من ملف script_link.js بتاعك             */
-  ORDERS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycby6UKQn-Xfu-MlOF5JpvDI_qMBgb4R_ORsgtd_K6-msSl7K9vjeaVYgtdEZ3yDZoaBv/exec",
+  ORDERS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbwCFb5hW9mKeuYDohPxa7EoG5TGfe4hVidgTJpAAV5EOfK7BkRwG_DyD8wRViry7Bww/exec",
 
   /* ── رابط سكريبت الحسابات (حسابات العملاء) ──
      انشر Users_Code.gs واحط الرابط هنا              */
-  USERS_API_URL: "https://script.google.com/macros/s/AKfycbyZxsg-z7oNsAw0NsKsCKY0eUn7GTpEEG2LSQdDtyFQJTguRglEfZwxed5hz4jF-M6Ilw/exec",
+  USERS_API_URL: "https://script.google.com/macros/s/AKfycby9I4Vr4Tr2OwH8IzcJWiDCvgBGvAsxFw5egI0NKMFwA3I1dMsSkiak9n2y0hAzZrktOQ/exec",
 
   /* ── رابط سكريبت منتجات المارت (شيت منفصل تمامًا) ──
      انشر backend/MartProducts_Code.gs على شيت جديد

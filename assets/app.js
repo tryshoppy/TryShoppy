@@ -292,6 +292,38 @@ function tsCategoryOptionsHtml(current){
     list.map(c => '<option value="' + tsEscapeHtml(c) + '"' + (c === cur ? ' selected' : '') + '>' + tsEscapeHtml(c) + '</option>').join('');
 }
 
+/* 📅 موعد الوصول بشكل مفهوم للعميل — الموظفين بيكتبوه بصيغ داخلية
+   (O-27SEP2026 · 0-18Oct2026 · 29032026 · 2026-09-18). بيرجّع
+   "27 سبتمبر 2026" / "27 Sep 2026"، ولو الصيغة مش مفهومة بيرجّع النص
+   نفسه من غير البادئة الداخلية (O- / 0-) — مابيخفيش الموعد أبدًا. */
+const TS_MONTHS_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const TS_MONTHS_AR = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+function tsParseArrival(raw){
+  const clean = String(raw == null ? '' : raw).trim().toUpperCase().replace(/^[A-Z0-9]{1,2}[-–—\s]+(?=\d)/, '');
+  if(!clean) return null;
+  let m;
+  if((m = clean.match(/^(\d{1,2})(\d{2})(\d{4})$/))) return { d: +m[1], m: +m[2] - 1, y: +m[3] };
+  const mi = TS_MONTHS_EN.findIndex(x => clean.indexOf(x.toUpperCase()) !== -1);
+  if(mi !== -1){
+    const nums = clean.replace(new RegExp(TS_MONTHS_EN[mi].toUpperCase() + '[A-Z]*'), ' ').match(/\d+/g) || [];
+    let d = null, y = null;
+    nums.forEach(n => { if(n.length === 4) y = +n; else if(d === null) d = +n; });
+    if(d && y) return { d, m: mi, y };
+  }
+  const p = clean.split(/[^0-9]+/).filter(Boolean).map(Number);
+  if(p.length === 3){
+    if(String(p[0]).length === 4) return { y: p[0], m: p[1] - 1, d: p[2] };
+    return { d: p[0], m: p[1] - 1, y: p[2] };
+  }
+  return null;
+}
+function tsFormatArrival(raw, lang){
+  const v = tsParseArrival(raw);
+  const ar = (lang || (typeof TS_LANG !== 'undefined' ? TS_LANG : 'ar')) === 'ar';
+  if(v && v.m >= 0 && v.m < 12 && v.d >= 1 && v.d <= 31) return v.d + ' ' + (ar ? TS_MONTHS_AR : TS_MONTHS_EN)[v.m] + ' ' + v.y;
+  return String(raw == null ? '' : raw).trim().replace(/^[A-Za-z0-9]{1,2}[-–—\s]+(?=\d)/, '');
+}
+
 /* 🔢 أرقام عربي/فارسي ← إنجليزي (٠١٠ ← 010). العملاء اللي بيكتبوا
    من كيبورد عربي بيدخلوا الموبايل بالأرقام العربي، و\d في جافاسكريبت
    مش بيعتبرها أرقام أصلاً — فكانت بتتمسح وتطلع الرقم فاضي. */
@@ -714,8 +746,13 @@ function tsUsersApi(payload){
   }).then(res => res.json());
 }
 
-function tsRegister({ phone, email, username, password, name, address, governorate }){
-  return tsUsersApi({ action: 'register', phone, email, username, password, name, address, governorate });
+/* الإيميل هو اسم المستخدم (مفيش username). emailProof بيرجع من
+   tsVerifyEmailOtp، وorderProof = رقم طلب لو السيرفر طلب إثبات ملكية الموبايل */
+function tsRegister({ phone, email, password, emailProof, orderProof, name, address, governorate }){
+  return tsUsersApi({ action: 'register', phone, email, password, emailProof, orderProof, name, address, governorate });
+}
+function tsRegisterPrecheck({ phone, email, orderProof }){
+  return tsUsersApi({ action: 'registerPrecheck', phone, email, orderProof });
 }
 function tsLogin({ identifier, password }){
   return tsUsersApi({ action: 'login', identifier, password });
@@ -778,7 +815,9 @@ function tsFetchMyOrders(phone, token){
     + '&token=' + encodeURIComponent(token || '');
   return fetch(url)
     .then(res => res.json())
-    .then(rows => Array.isArray(rows) ? rows.filter(o => tsNormalizePhone(o.phone) === target) : []);
+    // السيرفر بيفلتر بالموبايل أصلاً — الفلتر هنا احتياطي بس. طلب من غير
+    // موبايل في الرد بيتقبل (السيرفر الجديد بيبعت حقول محددة للعميل)
+    .then(rows => Array.isArray(rows) ? rows.filter(o => !o.phone || tsNormalizePhone(o.phone) === target) : []);
 }
 
 /* تتبع عام برقم الطلب — من غير تسجيل دخول، بس برقم الطلب بالظبط.
