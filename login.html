@@ -61,6 +61,8 @@
 .err-line.show{display:block;animation:fadeUp .25s ease-out}
 .auth-switch{text-align:center;margin:14px 0 0;font-size:13.5px;color:var(--ink-2)}
 .auth-switch a{color:var(--blue-link);font-weight:700}
+.reg-proof-note{background:var(--inf-bg);color:var(--inf);font-size:12.5px;font-weight:700;line-height:1.65;border-radius:var(--r);padding:10px 12px;margin-bottom:10px}
+.err-line a{color:inherit;font-weight:800;text-decoration:underline}
 .otp-box{background:var(--yellow-50);border:1.5px solid var(--yellow-100);border-radius:var(--r2);padding:16px;margin-bottom:16px}
 .link-btn{background:none;border:none;color:var(--blue-link);font-size:12.5px;font-weight:700;cursor:pointer;padding:0}
 
@@ -165,13 +167,17 @@
           <label for="regPhone" data-i18n="lbl_phone">Phone Number</label>
           <input id="regPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="01xxxxxxxxx" required>
         </div>
+        <!-- الإيميل هو اسم المستخدم — مفيش خانة username منفصلة -->
         <div class="field">
           <label for="regEmail" data-i18n="lbl_email_req">Email</label>
-          <input id="regEmail" type="email" inputmode="email" autocomplete="email" required>
+          <input id="regEmail" type="email" inputmode="email" autocomplete="username email" required>
         </div>
-        <div class="field">
-          <label for="regUsername" data-i18n="lbl_username">Username</label>
-          <input id="regUsername" type="text" autocomplete="username" required>
+        <!-- 🛡️ بتظهر بس لو الموبايل ده عليه طلبات بإيميل مختلف (أو من غير
+             إيميل) — إثبات إن الرقم بتاعك قبل ما تشوف طلباته -->
+        <div class="field hidden" id="regOrderBox">
+          <div class="reg-proof-note" data-i18n="reg_proof_note">This phone number already has orders with us. To protect them, enter any one of your order numbers.</div>
+          <label for="regOrderProof" data-i18n="reg_proof_lbl">One of your order numbers</label>
+          <input id="regOrderProof" type="text" autocomplete="off" placeholder="TRY12345678" dir="ltr" style="text-transform:uppercase">
         </div>
         <div class="row2">
           <div class="field">
@@ -271,6 +277,7 @@ function fpSendCode(btn){
       tsToast(tsT('fp_code_sent'));
     }else if(res&&res.code==='no_email'){showErr('fp_err_no_email');}
     else if(res&&res.code==='not_found'){showErr('fp_err_not_found');}
+    else if(res&&(res.code==='otp_rate'||res.code==='otp_quota')){showErr(res.code==='otp_rate'?'otp_err_rate':'otp_err_quota');}
     else{showErr('auth_err_connection');}
   }).catch(()=>{tsClearBtnLoading(btn);showErr('auth_err_connection');});
 }
@@ -312,15 +319,39 @@ loginForm.addEventListener('submit',function(e){
 let REG_STATE={otpSent:false,email:''};
 function regShowOtp(show){
   document.getElementById('regOtpStep').classList.toggle('hidden',!show);
-  ['regPhone','regEmail','regUsername','regPassword','regConfirm'].forEach(id=>{document.getElementById(id).disabled=show;});
+  ['regPhone','regEmail','regOrderProof','regPassword','regConfirm'].forEach(id=>{document.getElementById(id).disabled=show;});
   document.getElementById('registerSubmitBtn').textContent=tsT(show?'reg_verify_btn':'btn_register');
+}
+/* رسالة واضحة لكل كود من السيرفر — بدل "حصل خطأ" العامة */
+function regErr(code){
+  // "محتاج رقم طلب" مش غلطة من العميل — بنظهرله الخانة بشرحها الأزرق بس، من غير مربع أحمر
+  if(code==='need_order_proof'){
+    errLine.classList.remove('show');
+    document.getElementById('regOrderBox').classList.remove('hidden');
+    document.getElementById('regOrderProof').focus();
+    return;
+  }
+  const map={exists_phone:'reg_err_exists_phone',exists_email:'reg_err_exists_email',need_order_proof:'reg_err_need_proof',
+             bad_order_proof:'reg_err_bad_proof',locked:'auth_err_locked',otp_rate:'otp_err_rate',otp_quota:'otp_err_quota',
+             email_not_verified:'fp_err_code',bad_email:'reg_err_email_phone'};
+  const k=map[code]||'auth_err_connection';
+  errLine.innerHTML=tsEscapeHtml(tsT(k))+(code==='exists_phone'||code==='exists_email'
+    ?' <a href="#" id="errToLogin">'+tsEscapeHtml(tsT('tab_login'))+'</a> · <a href="#" id="errToForgot">'+tsEscapeHtml(tsT('auth_forgot_link'))+'</a>':'');
+  errLine.classList.add('show');
+  const a=document.getElementById('errToLogin'),b=document.getElementById('errToForgot');
+  if(a)a.onclick=e=>{e.preventDefault();showTab('login');};
+  if(b)b.onclick=e=>{e.preventDefault();showTab('forgot');};
+  if(code==='need_order_proof'||code==='bad_order_proof'){
+    document.getElementById('regOrderBox').classList.remove('hidden');
+    document.getElementById('regOrderProof').focus();
+  }
 }
 function regSendOtp(btn){
   tsSetBtnLoading(btn, tsT('common_sending'));
   tsSendEmailOtp(REG_STATE.email).then(res=>{
     tsClearBtnLoading(btn);
     if(res&&res.success){REG_STATE.otpSent=true;regShowOtp(true);tsToast(tsT('reg_code_sent'));}
-    else{showErr('auth_err_connection');}
+    else{regErr(res&&res.code);}
   }).catch(()=>{tsClearBtnLoading(btn);showErr('auth_err_connection');});
 }
 document.getElementById('regOtpResend').addEventListener('click',function(){regSendOtp(this);});
@@ -331,37 +362,44 @@ document.getElementById('regOtpChange').addEventListener('click',function(){
 });
 registerForm.addEventListener('submit',function(e){
   e.preventDefault();errLine.classList.remove('show');
-  const phone=document.getElementById('regPhone').value.trim();
-  const email=document.getElementById('regEmail').value.trim();
-  const username=document.getElementById('regUsername').value.trim();
+  const phone=tsToEnDigits(document.getElementById('regPhone').value.trim());
+  const email=document.getElementById('regEmail').value.trim().toLowerCase();
+  const orderProof=document.getElementById('regOrderProof').value.trim().toUpperCase();
   const password=document.getElementById('regPassword').value;
   const confirm=document.getElementById('regConfirm').value;
   const btn=document.getElementById('registerSubmitBtn');
 
   /* step 2: user is entering the verification code */
   if(REG_STATE.otpSent){
-    const code=document.getElementById('regOtpCode').value.trim();
+    const code=tsToEnDigits(document.getElementById('regOtpCode').value.trim());
     if(code.length!==6){showErr('fp_err_code');return;}
     tsSetBtnLoading(btn, tsT('common_checking'));
     tsVerifyEmailOtp(REG_STATE.email,code).then(v=>{
       if(!(v&&v.success)){tsClearBtnLoading(btn);showErr('fp_err_code');return;}
-      /* email confirmed — create the account now */
+      /* email confirmed — create the account now. emailProof = إثبات موقّع
+         من السيرفر إن الكود اتأكد (السيرفر بيرفض التسجيل من غيره) */
       const txt=btn.querySelector('span:last-child');if(txt)txt.textContent=tsT('common_saving');
-      tsRegister({phone,email:REG_STATE.email,username,password}).then(res=>{
+      tsRegister({phone,email:REG_STATE.email,password,emailProof:v.emailProof,orderProof}).then(res=>{
         if(res&&res.success){tsToast(tsT('auth_success_register'));tsSetSession(res.profile);setTimeout(()=>window.location.href='dashboard.html',700);}
-        else{tsClearBtnLoading(btn);regShowOtp(false);REG_STATE={otpSent:false,email:''};showErr(res&&res.code==='exists'?'auth_err_exists':'auth_err_required');}
+        else{tsClearBtnLoading(btn);regShowOtp(false);REG_STATE={otpSent:false,email:''};regErr(res&&res.code);}
       }).catch(()=>{tsClearBtnLoading(btn);showErr('auth_err_connection');});
     }).catch(()=>{tsClearBtnLoading(btn);showErr('auth_err_connection');});
     return;
   }
 
-  /* step 1: validate everything, then email the code */
-  if(!phone||!email||!username||!password){showErr('reg_err_email_phone');return;}
+  /* step 1: validate everything, check with the server (account exists?
+     phone needs ownership proof?), and only then email the code */
+  if(!phone||!email||!password){showErr('reg_err_email_phone');return;}
   if(!/^\S+@\S+\.\S+$/.test(email)){showErr('reg_err_email_phone');return;}
   if(password!==confirm){showErr('auth_err_mismatch');return;}
   if(password.length<6){showErr('auth_err_short');return;}
-  REG_STATE.email=email;
-  regSendOtp(btn);
+  tsSetBtnLoading(btn, tsT('common_checking'));
+  tsRegisterPrecheck({phone,email,orderProof}).then(res=>{
+    tsClearBtnLoading(btn);
+    if(!(res&&res.success)){regErr(res&&res.code);return;}
+    REG_STATE.email=email;
+    regSendOtp(btn);
+  }).catch(()=>{tsClearBtnLoading(btn);showErr('auth_err_connection');});
 });
 </script>
 </body>

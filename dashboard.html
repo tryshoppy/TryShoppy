@@ -129,7 +129,8 @@
 <div class="dash-header">
   <div class="container">
     <span class="eyebrow" data-i18n="dash_eyebrow">MY ACCOUNT</span>
-    <h1><span data-i18n="dash_hello">Hello</span>, <span id="dashName">there</span> 👋</h1>
+    <!-- لو مفيش اسم: "أهلًا 👋" لوحدها — من غير فاصلة ولا رقم موبايل -->
+    <h1><span data-i18n="dash_hello">Hello</span><span id="dashNameWrap">, <span id="dashName"></span></span> 👋</h1>
   </div>
 </div>
 
@@ -237,8 +238,15 @@ function renderEmailVerifyBtn(){
   }
 }
 
+/* 👋 الترحيب: الاسم، أو اسم المستخدم للحسابات القديمة — ولو مفيش الاتنين
+   "أهلًا 👋" لوحدها (من غير فاصلة ولا رقم الموبايل) */
+function setDashName(p){
+  const n = String((p && (p.name || p.username)) || '').trim();
+  document.getElementById('dashName').textContent = n;
+  document.getElementById('dashNameWrap').style.display = n ? '' : 'none';
+}
 function populateProfile(p){
-  document.getElementById('dashName').textContent=p.name||p.username||p.phone;
+  setDashName(p);
   document.getElementById('pfPhone').value=p.phone||'';
   document.getElementById('pfEmail').value=p.email||'';
   document.getElementById('pfName').value=p.name||'';
@@ -255,7 +263,7 @@ document.getElementById('pfEmail').addEventListener('input', renderEmailVerifyBt
    same action there, so both are wired to one handler */
 document.querySelectorAll('#logoutBtn,#logoutBtnMobile').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();tsClearSession();window.location.href='index.html';}));
 document.querySelectorAll('.dash-tabs button').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.dash-tabs button').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.dash-panel').forEach(p=>p.classList.remove('active'));btn.classList.add('active');document.getElementById('panel-'+btn.dataset.tab).classList.add('active');if(btn.dataset.tab==='orders')loadOrders();});});
-document.getElementById('profileForm').addEventListener('submit',function(e){e.preventDefault();const btn=document.getElementById('profileSaveBtn');tsSetBtnLoading(btn, tsT('common_saving'));const payload={phone:session.phone,token:session.token,email:document.getElementById('pfEmail').value.trim(),name:document.getElementById('pfName').value.trim(),governorate:document.getElementById('pfGov').value,address:document.getElementById('pfAddress').value.trim()};tsUpdateProfile(payload).then(res=>{tsClearBtnLoading(btn);if(res&&res.success){res.profile.token=session.token;tsSetSession(res.profile);document.getElementById('dashName').textContent=res.profile.name||res.profile.username||res.profile.phone;emailVerified=!!res.profile.emailVerified;savedEmail=res.profile.email||'';document.getElementById('emailOtpBox').classList.add('hidden');renderEmailVerifyBtn();tsToast(tsT('save_success'));}else{tsToast(tsT('auth_err_connection'));}}).catch(()=>{tsClearBtnLoading(btn);tsToast(tsT('auth_err_connection'));});});
+document.getElementById('profileForm').addEventListener('submit',function(e){e.preventDefault();const btn=document.getElementById('profileSaveBtn');tsSetBtnLoading(btn, tsT('common_saving'));const payload={phone:session.phone,token:session.token,email:document.getElementById('pfEmail').value.trim(),name:document.getElementById('pfName').value.trim(),governorate:document.getElementById('pfGov').value,address:document.getElementById('pfAddress').value.trim()};tsUpdateProfile(payload).then(res=>{tsClearBtnLoading(btn);if(res&&res.success){res.profile.token=session.token;tsSetSession(res.profile);setDashName(res.profile);emailVerified=!!res.profile.emailVerified;savedEmail=res.profile.email||'';document.getElementById('emailOtpBox').classList.add('hidden');renderEmailVerifyBtn();tsToast(tsT('save_success'));}else{tsToast(tsT('auth_err_connection'));}}).catch(()=>{tsClearBtnLoading(btn);tsToast(tsT('auth_err_connection'));});});
 
 /* ---------- email OTP: send / confirm / resend ---------- */
 function sendEmailOtp(){
@@ -275,7 +283,7 @@ function sendEmailOtp(){
       document.getElementById('emailOtpCode').focus();
       tsToast(tsT('email_verify_sent'));
     } else {
-      tsToast(tsT('auth_err_connection'));
+      tsToast(tsT(res && res.code === 'otp_rate' ? 'otp_err_rate' : res && res.code === 'otp_quota' ? 'otp_err_quota' : 'auth_err_connection'));
     }
   }).catch(()=>{ tsClearBtnLoading(btn); renderEmailVerifyBtn(); tsToast(tsT('auth_err_connection')); });
 }
