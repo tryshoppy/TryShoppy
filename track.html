@@ -66,6 +66,26 @@
 .order-id .onum{font-family:var(--fm);letter-spacing:.05em;color:var(--blue-700);direction:ltr}
 .arrival-line{font-size:13px;color:var(--ink-2);margin-top:8px;font-weight:600}
 .order-link{display:block;margin-top:8px;font-size:12.5px;color:var(--blue-link);word-break:break-all;font-weight:600}
+.oh-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.oh-date{font-size:12.5px;color:var(--ink-3);font-weight:600;margin-top:6px}
+.oh-specs{font-size:13px;color:var(--ink-2);margin-top:8px;line-height:1.6}
+.arrival-line b{color:var(--ink)}
+.oh-pay{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.oh-pay > span{font-size:12.5px;font-weight:700;border-radius:10px;padding:7px 11px}
+.oh-pay .paid{background:var(--ok-bg);color:var(--ok)}
+.oh-pay .due{background:var(--yellow-50);color:var(--blue-900)}
+.oh-pay b{font-family:var(--fm)}
+.cur{font-family:'Cairo','Plus Jakarta Sans',sans-serif;font-size:.82em;font-weight:700}
+/* 🛍️ زرار المنتج بدل اللينك الخام */
+.prod-btn{display:inline-flex;align-items:center;gap:6px;margin-top:12px;background:var(--white);border:1px solid var(--blue-100);
+  color:var(--blue-700);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:800;text-decoration:none;max-width:100%}
+.prod-btn b{font-weight:700;color:var(--ink-2)}
+.prod-btn:hover{border-color:var(--blue-700)}
+.step-when{display:inline-block;font-size:11.5px;font-weight:700;color:var(--ok);background:var(--ok-bg);border-radius:999px;padding:1px 8px;margin-inline-start:6px;vertical-align:1px}
+.sib-btn{display:block;width:100%;text-align:start;font:inherit;color:inherit;cursor:pointer}
+.sib-btn:hover{border-color:var(--blue-700)}
+.sib-due{font-weight:800;color:var(--blue-900)}
+.sib-go{font-size:12px;font-weight:800;color:var(--blue-700);margin-top:8px}
 .order-meta{display:flex;justify-content:space-between;margin-top:12px;padding-top:12px;
   border-top:1px dashed var(--line-2);font-size:13.5px;color:var(--ink-2);flex-wrap:wrap;gap:8px}
 .price-tag{font-weight:800;color:var(--ink);font-family:var(--fm)}
@@ -268,46 +288,111 @@ function track(){
      مش كل قاعدة بيانات الطلبات زي الأول (شوف Orders_Code.gs doGet) */
   tsFetchOrderByNumber(raw).then(d=>{lastData=d;lastMode='order';lastVal=raw;renderByOrder(d);}).catch(()=>{res.innerHTML='<div class="err-box">'+bi('trk_connError')+'</div>';res.style.display='block';}).finally(()=>{tsClearBtnLoading(btn);});
 }
+/* ═══════════ عرض الطلب ═══════════
+   • راس الكارت: الرقم والحالة، تاريخ الطلب، المواصفات، الكمية × السعر،
+     والمدفوع/المطلوب (السيرفر بيبعتهم — شوف stripInternalFields_).
+   • اللينك الخام اتشال: زرار "المنتج على amazon.com ↗" باسم المتجر بس.
+   • تواريخ التحديثات بقت جوه شريط المراحل نفسه (تحت كل خطوة خلصت)، بدل
+     قايمة "سجل التحديثات" اللي كانت بتكرر نفس المراحل بتواريخ خام.
+   • "طلباتك التانية" كروت بتتداس وتفتح الطلب ده في نفس الصفحة. */
+const TL=(ar,en)=>TS_LANG==='ar'?ar:en;
+function money(v){return Math.round(parseFloat(v)||0).toLocaleString('en-US')+' <span class="cur">'+tsT('trk_currency')+'</span>';}
+function niceDate(v){const d=tsFormatSheetDate(v);return d?tsFormatArrival(d):'';}
+/** اسم المتجر من اللينك (amazon.com) — والعميل بيدوس زرار، مش لينك طويل */
+function storeName(url){try{return new URL(url).hostname.replace(/^www\.|^smile\./,'');}catch(e){return '';}}
+function productBtn(link,cls){
+  if(!link)return '';
+  const host=storeName(link);
+  return '<a class="'+(cls||'prod-btn')+'" href="'+tsSafeHref(link)+'" target="_blank" rel="noopener noreferrer">🛍️ '+
+    TL('عرض المنتج','View product')+(host?' <b dir="ltr">'+tsEscapeHtml(host)+'</b>':'')+' ↗</a>';
+}
+/** أول مرة الطلب دخل كل حالة (من سجل الحالات) — للتواريخ في شريط المراحل */
+function stageDates(history){
+  const m={};(history||[]).forEach(e=>{if(e&&e.status&&!m[e.status])m[e.status]=e.time;});return m;
+}
 function renderByOrder(d){
   const res=document.getElementById('result');
   if(!d||!d.success||!d.order){res.innerHTML='<div class="err-box">'+bi('trk_invalidOrder')+'</div>';res.style.display='block';scrollToResult();return;}
   const found=d.order, sibs=d.siblings||[];
+  const st=sbadge(found.status);
+  const closed=tsIsClosedStatus(found.status);
+  const qty=parseFloat(found.quantity)||1;
+  const line=(parseFloat(found.finalPrice)||0)+(parseFloat(found.shipping)||0);
+  const paid=parseFloat(found.deposit)||0;
+  const due=found.due!==undefined?(parseFloat(found.due)||0):Math.max(0,line-paid);
+  const specs=String(found.dimensions||'').trim();
+  const date=niceDate(found.date);
+
   let h='<div class="card-wrap">';
-  h+='<div class="order-head"><div class="order-id">🔖 <span>'+tsT('trk_orderLabel')+'</span> <span class="onum">'+tsEscapeHtml(found.order)+'</span></div>';
-  if(found.arrivaldate)h+='<div class="arrival-line">📅 '+tsT('trk_arrivalLabel')+': '+tsEscapeHtml(tsFormatArrival(found.arrivaldate))+'</div>';
-  if(found.link)h+='<a class="order-link" href="'+tsSafeHref(found.link)+'" target="_blank" rel="noopener noreferrer">🔗 '+tsEscapeHtml(found.link)+'</a>';
-  h+='<div class="order-meta"><span>📦 '+tsT('trk_qtyLabel')+': '+tsEscapeHtml(found.quantity||1)+'</span><span class="price-tag">'+fmt(found.finalPrice)+' '+tsT('trk_currency')+'</span></div></div>';
+  h+='<div class="order-head">'+
+    '<div class="oh-top"><div class="order-id">🔖 <span>'+tsT('trk_orderLabel')+'</span> <span class="onum">'+tsEscapeHtml(found.order)+'</span></div>'+
+      '<span class="badge '+st.cls+'">'+tsEscapeHtml(st.label)+'</span></div>'+
+    (date?'<div class="oh-date">'+TL('تاريخ الطلب: ','Ordered: ')+tsEscapeHtml(date)+'</div>':'')+
+    (specs&&specs!=='-'?'<div class="oh-specs">📝 '+tsEscapeHtml(specs)+'</div>':'')+
+    (found.arrivaldate&&!closed?'<div class="arrival-line">📅 '+tsT('trk_arrivalLabel')+': <b>'+tsEscapeHtml(tsFormatArrival(found.arrivaldate))+'</b></div>':'')+
+    '<div class="order-meta"><span>📦 '+tsT('trk_qtyLabel')+': '+qty+(qty>1?' × '+money(line/qty):'')+'</span><span class="price-tag">'+money(line)+'</span></div>';
+  // المدفوع والمطلوب — للطلب المفتوح بس
+  if(!closed&&(paid>0||due>0)){
+    h+='<div class="oh-pay">'+(due>0
+      ?(paid>0?'<span class="paid">'+TL('مدفوع','Paid')+' <b>'+money(paid)+'</b></span>':'')+
+       '<span class="due">'+TL('المطلوب عند الاستلام','Due on delivery')+' <b>'+money(due)+'</b></span>'
+      :'<span class="paid">✅ '+TL('مدفوع بالكامل','Fully paid')+'</span>')+'</div>';
+  }
+  h+=productBtn(found.link)+'</div>';
+
   const ban=STATUS_BANNERS[found.status];
   if(ban){
-    const bd=sbadge(found.status);
     h+='<div class="status-banner '+ban.cls+'"><span class="sb-ico">'+ban.icon+'</span>'+
-       '<span class="badge '+bd.cls+'">'+tsEscapeHtml(bd.label)+'</span>'+
+       '<span class="badge '+st.cls+'">'+tsEscapeHtml(st.label)+'</span>'+
        '<div class="sb-msg">'+tsT(ban.key)+'</div><small>'+tsOther(ban.key)+'</small>'+
        // 📝 ملاحظة الفريق (السبب أو المطلوب من العميل) — للمعلّق والمفقود بس
        (TS_NOTE_STATUSES.indexOf(found.status)!==-1&&found.statusNote
-         ?'<div class="sb-note"><span>'+(TS_LANG==='ar'?'📝 ملاحظة من فريقنا':'📝 Note from our team')+'</span>'+tsEscapeHtml(found.statusNote)+'</div>':'')+
+         ?'<div class="sb-note"><span>'+TL('📝 ملاحظة من فريقنا','📝 Note from our team')+'</span>'+tsEscapeHtml(found.statusNote)+'</div>':'')+
        (ban.wa?'<a class="sb-wa" href="https://wa.me/'+SUPPORT_PHONE+'?text='+encodeURIComponent('استفسار عن الطلب '+found.order)+'" target="_blank" rel="noopener">'+tsT('trk_helpCta')+'</a>':'')+
        '</div>';
   }
-  else h+='<div class="stage-title">'+tsT('trk_stage_title')+'</div>'+buildStepper(found.status);
-  if(found.history&&found.history.length){h+='<div class="siblings-title">'+tsT('trk_historyTitle')+'</div>';found.history.forEach(e=>{const hb=sbadge(e.status);h+='<div class="sibling-card"><div class="sibling-top"><span class="badge '+hb.cls+'">'+tsEscapeHtml(hb.label)+'</span><span style="font-size:12px;color:var(--ink-3)">'+tsEscapeHtml(e.time)+'</span></div></div>';});}
-  if(sibs.length){h+='<div class="siblings-title">📦 '+tsT('trk_siblingsTitle')+' ('+sibs.length+')</div>';sibs.forEach(s=>{const b=sbadge(s.status);h+='<div class="sibling-card"><div class="sibling-top"><span class="sibling-order">'+tsEscapeHtml(s.order)+'</span><span class="badge '+b.cls+'">'+tsEscapeHtml(b.label)+'</span></div>'+(s.arrivaldate?'<div class="sibling-arrival">📅 '+tsEscapeHtml(tsFormatArrival(s.arrivaldate))+'</div>':'')+(s.link?'<a class="sibling-link" href="'+tsSafeHref(s.link)+'" target="_blank" rel="noopener noreferrer">🔗 '+tsEscapeHtml(s.link)+'</a>':'')+'<div class="sibling-meta"><span>📦 '+tsEscapeHtml(s.quantity||1)+' '+tsT('trk_pieceWord')+' — '+fmt(s.finalPrice)+' '+tsT('trk_currency')+'</span></div></div>';});}
-  h+='<div class="help-line">'+tsT('trk_helpQuestion')+' <a href="https://wa.me/'+SUPPORT_PHONE+'" target="_blank" rel="noopener">'+tsT('trk_helpCta')+'</a></div>';
+  else h+='<div class="stage-title">'+tsT('trk_stage_title')+'</div>'+buildStepper(found.status,stageDates(found.history));
+
+  if(sibs.length){
+    h+='<div class="siblings-title">📦 '+tsT('trk_siblingsTitle')+' ('+sibs.length+')</div>';
+    sibs.forEach(s=>{
+      const b=sbadge(s.status);
+      const sDue=s.due!==undefined?(parseFloat(s.due)||0):0;
+      h+='<button type="button" class="sibling-card sib-btn" data-order="'+tsEscapeHtml(s.order)+'">'+
+        '<div class="sibling-top"><span class="sibling-order">'+tsEscapeHtml(s.order)+'</span><span class="badge '+b.cls+'">'+tsEscapeHtml(b.label)+'</span></div>'+
+        (String(s.dimensions||'').trim()&&s.dimensions!=='-'?'<div class="sibling-arrival">📝 '+tsEscapeHtml(s.dimensions)+'</div>':'')+
+        (s.arrivaldate?'<div class="sibling-arrival">📅 '+tsEscapeHtml(tsFormatArrival(s.arrivaldate))+'</div>':'')+
+        '<div class="sibling-meta"><span>📦 '+tsEscapeHtml(s.quantity||1)+' '+tsT('trk_pieceWord')+' — '+money(s.finalPrice)+'</span>'+
+          (sDue>0?'<span class="sib-due">'+TL('المطلوب ','Due ')+money(sDue)+'</span>':'')+'</div>'+
+        '<div class="sib-go">'+TL('تفاصيل الطلب ←','Order details →')+'</div>'+
+      '</button>';
+    });
+  }
+  h+='<div class="help-line">'+tsT('trk_helpQuestion')+' <a href="https://wa.me/'+SUPPORT_PHONE+'?text='+encodeURIComponent('استفسار عن الطلب '+found.order)+'" target="_blank" rel="noopener">'+tsT('trk_helpCta')+'</a></div>';
   h+='</div>';
-  res.innerHTML=h;res.style.display='block';scrollToResult();
+  res.innerHTML=h;res.style.display='block';
+  // دوسة على طلب تاني = تتبّعه هو في نفس الصفحة
+  res.querySelectorAll('.sib-btn').forEach(b=>b.addEventListener('click',()=>{
+    const input=document.getElementById('orderNo');input.value=b.getAttribute('data-order');track();
+  }));
+  scrollToResult();
 }
 function scrollToResult(){
   const res=document.getElementById('result');
   if(res) res.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
-function buildStepper(status){
+function buildStepper(status,dates){
+  dates=dates||{};
   const idx=STAGES.findIndex(s=>s.key===status);
   let h='<div class="stepper">';
   // ✓ بتظهر دلوقتي جنب الخطوة الحالية (active) كمان، مش بس اللي
   // خلصت (done) — العميل عايز يشوف علامة واضحة على مكانه الحالي،
   // مش بس دايرة لونها مختلف. اللون لسه بيفرّق بينهم (أخضر=خلصت،
   // كحلي بحلقة دهبي=دلوقتي)، بس الشكل بقى موحّد.
-  STAGES.forEach((s,i)=>{let cls='step',dot='';if(idx!==-1){if(i<idx){cls+=' done';dot='✓';}else if(i===idx){cls+=' active';dot='✓';}}const p=TS_LANG==='ar'?s.ar:s.en,q=TS_LANG==='ar'?s.en:s.ar;h+='<div class="'+cls+'"><div class="step-dot">'+dot+'</div><div class="step-label">'+p+'</div><div class="step-sub">'+q+'</div></div>';});
+  STAGES.forEach((s,i)=>{let cls='step',dot='';if(idx!==-1){if(i<idx){cls+=' done';dot='✓';}else if(i===idx){cls+=' active';dot='✓';}}const p=TS_LANG==='ar'?s.ar:s.en,q=TS_LANG==='ar'?s.en:s.ar;
+    // 📅 تاريخ وصول الطلب للخطوة دي (من سجل الحالات) — للخطوات اللي خلصت أو الحالية بس
+    const when=(idx!==-1&&i<=idx&&dates[s.key])?niceDate(dates[s.key]):'';
+    h+='<div class="'+cls+'"><div class="step-dot">'+dot+'</div><div class="step-label">'+p+(when?' <span class="step-when">'+tsEscapeHtml(when)+'</span>':'')+'</div><div class="step-sub">'+q+'</div></div>';});
   return h+'</div>';
 }
 
