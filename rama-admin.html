@@ -28,6 +28,9 @@ button:active{transform:scale(.98);}
 .btn-success{background:var(--success);}
 .btn-danger{background:var(--danger);}
 /* 💛💙 زرار البحث — أصفر بنص أزرق غامق وإطار أزرق */
+/* 🔁 زرار إعادة التسجيل في شحنة جديدة — بنفس هوية الأصفر/الأزرق */
+.btn-reorder{background:var(--accent);color:var(--accent-ink);border:2px solid var(--primary);font-weight:900;}
+.btn-reorder:hover{background:var(--accent-dark);opacity:1;}
 .btn-search{background:var(--accent);color:var(--accent-ink);border:2px solid var(--primary);
   box-shadow:0 3px 0 0 var(--primary);font-weight:900;}
 .btn-search:hover{background:var(--accent-dark);opacity:1;}
@@ -810,7 +813,8 @@ function renderList(){
             <div style="align-self:center;font-size:12.5px;color:var(--gray);">المتبقي: ${Math.max(0, (parseFloat(p.finalEgp)||0) - (parseFloat(p.deposit)||0)).toLocaleString()} EGP</div>
           </div>
           <button class="btn-block" style="margin-top:8px;" onclick="saveStatus('${jid}')">💾 حفظ</button>
-        </div>`;
+        </div>
+        <button class="btn-block btn-reorder" style="margin-top:8px;" onclick="openReorderModal('${jid}')">🔁 تسجيل نفس المنتج في شحنة جديدة</button>`;
     }
 
     const img = safeUrl(p.imageUrl);
@@ -1218,6 +1222,151 @@ async function submitAddItem(){
       closeModal();
       showToast("✅ تم إضافة المنتج", "success");
       loadProducts();
+    } else {
+      clearBtnLoading(btn);
+      alert(data.message || "حصل خطأ");
+    }
+  }catch(e){
+    clearBtnLoading(btn);
+    alert("تعذر الاتصال بالسيرفر");
+  }
+}
+
+/* ---------------------------------------------------------
+   🔁 إعادة تسجيل نفس المنتج في شحنة (موعد وصول) جديد
+   بيتعمل صف جديد تمامًا بحالة "مؤكد" — الصف القديم مابيتلمسش
+   خالص، عشان تاريخ الشحنة اللي فاتت يفضل زي ما هو في الشيت.
+   اللينك والاسم والصورة بيتنسخوا، والسعر والعدد والموعد كلهم
+   قابلين للتعديل قبل التأكيد
+   --------------------------------------------------------- */
+let reorderSource = null; // المنتج اللي بنعيد تسجيله
+
+function openReorderModal(id){
+  const p = allProducts.find(x => String(x.id) === String(id));
+  if(!p){ showToast("⚠️ تعذر إيجاد المنتج — حدّث القائمة", "error"); return; }
+  reorderSource = p;
+
+  const lastQty = Math.max(1, parseInt(p.quantity) || 1);
+  const lastEgp = parseFloat(p.staffEgp) || 0;
+  const lastUsd = parseFloat(p.unitUsd) || 0;
+
+  showModal(`
+    <h3 style="margin-bottom:6px;">🔁 تسجيل في شحنة جديدة</h3>
+    <div style="font-size:12.5px;color:var(--gray);margin-bottom:4px;">${escapeHtml(p.productName || "منتج بدون اسم")}</div>
+    <div style="font-size:11.5px;color:var(--gray);margin-bottom:12px;">
+      الشحنة القديمة: ${escapeHtml(normArrival(p.arrivalDate) || "بدون موعد")} — هتفضل زي ما هي، ده صف جديد مستقل
+    </div>
+
+    <div class="input-group" style="text-align:right;">
+      <label>📅 موعد الوصول الجديد <span style="color:var(--danger)">*</span></label>
+      <input type="text" id="reorderArrival" list="arrivalOptions" placeholder="مثال: O-27SEP2026" oninput="updateReorderPreview()">
+    </div>
+
+    <div style="font-size:12px;font-weight:800;color:var(--accent-ink);background:rgba(250,204,21,.18);border:1px solid var(--accent);border-radius:9px;padding:7px 10px;margin-bottom:8px;text-align:right;">
+      ⚠️ الرقمين دول <u>سعر الوحدة الواحدة</u> — الضرب في العدد بيحصل تلقائي
+    </div>
+
+    <div class="row">
+      <div style="flex:1;min-width:130px;text-align:right;">
+        <label style="display:block;margin-bottom:4px;font-size:12px;font-weight:800;color:#475569;">💰 سعر الوحدة بالجنيه</label>
+        <input type="number" id="reorderEgp" value="${escapeHtml(lastEgp || '')}" oninput="updateReorderPreview()">
+        <div style="font-size:11px;color:var(--gray);margin-top:3px;">آخر سعر: ${fmtNum(lastEgp)} EGP</div>
+      </div>
+      <div style="flex:1;min-width:130px;text-align:right;">
+        <label style="display:block;margin-bottom:4px;font-size:12px;font-weight:800;color:#475569;">💵 سعر الوحدة بالدولار</label>
+        <input type="number" id="reorderUsd" value="${escapeHtml(lastUsd || '')}" oninput="updateReorderPreview()">
+        <div style="font-size:11px;color:var(--gray);margin-top:3px;">آخر سعر: ${fmtNum(lastUsd)}$</div>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:8px;">
+      <div style="flex:1;min-width:130px;text-align:right;">
+        <label style="display:block;margin-bottom:4px;font-size:12px;font-weight:800;color:#475569;">🔢 العدد</label>
+        <input type="number" id="reorderQty" value="${lastQty}" min="1" oninput="updateReorderPreview()">
+      </div>
+      <div style="flex:1;min-width:130px;text-align:right;">
+        <label style="display:block;margin-bottom:4px;font-size:12px;font-weight:800;color:#475569;">🧾 العربون (اختياري)</label>
+        <input type="number" id="reorderDeposit" value="0" oninput="updateReorderPreview()">
+      </div>
+    </div>
+
+    <div id="reorderPreview" style="margin-top:10px;font-weight:900;font-size:13px;color:var(--primary);background:#eff6ff;border:1px solid #bfdbfe;border-radius:9px;padding:8px 10px;text-align:right;"></div>
+    <div id="reorderWarn" class="hidden" style="margin-top:8px;font-size:12px;font-weight:800;color:#92400e;background:#fffbeb;border:1px solid #fcd34d;border-radius:9px;padding:8px 10px;text-align:right;"></div>
+
+    <button class="btn-block btn-success" id="submitReorderBtn" style="margin-top:10px;" onclick="submitReorder()">✅ تسجيل في الشحنة الجديدة</button>
+    <button class="btn-ghost btn-block" style="margin-top:8px;" onclick="closeModal()">إلغاء</button>
+  `);
+  updateReorderPreview();
+  const f = document.getElementById("reorderArrival");
+  if(f) f.focus();
+}
+
+/* 🧮 معاينة حية للإجماليات + تحذير لو نفس المنتج متسجل بالفعل على
+   نفس موعد الوصول (ده أكتر غلط وارد: تسجيل نفس الحاجة مرتين في
+   نفس الشحنة من غير ما تاخد بالك) */
+function updateReorderPreview(){
+  const box = document.getElementById("reorderPreview");
+  if(!box || !reorderSource) return;
+  const egp = parseFloat((document.getElementById("reorderEgp")||{}).value) || 0;
+  const usd = parseFloat((document.getElementById("reorderUsd")||{}).value) || 0;
+  const qty = Math.max(1, parseInt((document.getElementById("reorderQty")||{}).value) || 1);
+  const dep = Math.max(0, parseFloat((document.getElementById("reorderDeposit")||{}).value) || 0);
+  const totalEgp = egp * qty;
+
+  box.innerHTML = `📄 هيتسجل في الشيت:<br>`
+    + `TotalEGP = ${egp.toLocaleString()} × ${qty} = <b>${totalEgp.toLocaleString()} EGP</b><br>`
+    + `TotalUSD = ${usd.toLocaleString()} × ${qty} = <b>${(usd*qty).toLocaleString()}$</b><br>`
+    + `المتبقي بعد العربون: <b>${Math.max(0, totalEgp - dep).toLocaleString()} EGP</b>`;
+
+  // تحذير التكرار
+  const warn = document.getElementById("reorderWarn");
+  if(!warn) return;
+  const arrival = normArrival((document.getElementById("reorderArrival")||{}).value);
+  const dupe = arrival && allProducts.some(x =>
+    String(x.id) !== String(reorderSource.id) &&
+    x.status !== "Payment" &&
+    (x.link || "") === (reorderSource.link || "") &&
+    normArrival(x.arrivalDate) === arrival);
+  if(dupe){
+    warn.textContent = "⚠️ نفس المنتج متسجل بالفعل على موعد الوصول ده — متأكد إنك عايز تسجله تاني؟";
+    warn.classList.remove("hidden");
+  } else {
+    warn.classList.add("hidden");
+  }
+}
+
+async function submitReorder(){
+  if(!reorderSource) return;
+  const arrival = normArrival((document.getElementById("reorderArrival")||{}).value);
+  const egp = parseFloat((document.getElementById("reorderEgp")||{}).value) || 0;
+  const usd = parseFloat((document.getElementById("reorderUsd")||{}).value) || 0;
+  const qty = Math.max(1, parseInt((document.getElementById("reorderQty")||{}).value) || 1);
+  const dep = Math.max(0, parseFloat((document.getElementById("reorderDeposit")||{}).value) || 0);
+
+  if(!arrival){ alert("لازم تحدد موعد الوصول للشحنة الجديدة"); return; }
+  if(!egp){ alert("لازم تحط سعر الوحدة بالجنيه على الأقل"); return; }
+  if(dep > egp * qty){ alert("العربون أكبر من إجمالي الطلب — راجع الأرقام"); return; }
+
+  const btn = document.getElementById("submitReorderBtn");
+  setBtnLoading(btn, "جاري التسجيل...");
+  try{
+    const res = await fetch(RMA_SCRIPT_URL, { method:"POST", body: JSON.stringify({
+      action:"staffAddItem", staffToken:getStaffToken(),
+      link: reorderSource.link || "",
+      productName: reorderSource.productName || "",
+      imageUrl: reorderSource.imageUrl || "",
+      unitEgp: egp, unitUsd: usd, quantity: qty, deposit: dep,
+      arrivalDate: arrival,
+      notes: "إعادة تسجيل من " + (reorderSource.id || "")
+    })});
+    const data = await res.json();
+    if(data.success){
+      logActivity("🔁 شحنة جديدة", reorderSource.productName || reorderSource.link,
+        `${arrival} — ${egp.toLocaleString()} EGP × ${qty}`);
+      closeModal();
+      reorderSource = null;
+      showToast("✅ اتسجل في الشحنة الجديدة", "success");
+      await loadProducts();
     } else {
       clearBtnLoading(btn);
       alert(data.message || "حصل خطأ");
