@@ -322,10 +322,10 @@ html[lang="ar"] .aside-card h4{letter-spacing:0;text-transform:none}
     <div id="stepCheckout" class="hidden">
       <div class="shipping-head">📍 <span data-i18n="calc_shipping_title">Shipping Details</span></div>
 
-      <div class="field"><label for="customerName" data-i18n="calc_name_label">Full Name</label><input id="customerName" data-i18n-ph="calc_name_ph" placeholder="Enter your full name"></div>
+      <div class="field"><label for="customerName" data-i18n="calc_name_label">Full Name</label><input id="customerName" autocomplete="name" data-i18n-ph="calc_name_ph" placeholder="Enter your full name"></div>
       <div class="field"><label for="customerEmail" data-i18n="lbl_email_optional">Email (optional — for order confirmation)</label><input id="customerEmail" type="email" inputmode="email" placeholder="name@example.com"></div>
       <div class="row">
-        <div class="field"><label for="phone" data-i18n="calc_phone_label">Phone Number</label><input id="phone" type="tel" inputmode="tel" placeholder="01xxxxxxxxx"></div>
+        <div class="field"><label for="phone" data-i18n="calc_phone_label">Phone Number</label><input id="phone" type="tel" inputmode="tel" autocomplete="tel-national" dir="ltr" placeholder="01xxxxxxxxx"></div>
         <div class="field">
           <label for="governorate" data-i18n="calc_gov_label">Governorate</label>
           <select id="governorate">
@@ -376,7 +376,7 @@ html[lang="ar"] .aside-card h4{letter-spacing:0;text-transform:none}
       </div>
       <div style="font-size:12.5px;color:var(--ink-3);text-align:center;margin:18px 0 10px" data-i18n="order_wa_optional">You can also confirm on WhatsApp (optional):</div>
       <button id="whatsappBtn" class="btn btn-whatsapp btn-block" type="button" onclick="sendWhatsApp()" data-i18n="mart_cart_whatsapp_btn">Send WhatsApp Confirmation (optional)</button>
-      <button class="btn btn-secondary btn-block" type="button" style="margin-top:10px" onclick="window.location.href='track.html'">🔍 <span data-i18n="calc_btn_track">Track Your Order</span></button>
+      <button class="btn btn-secondary btn-block" type="button" style="margin-top:10px" onclick="window.location.href = lastOrders.length ? 'track.html?order='+encodeURIComponent(lastOrders[0].orderNo) : 'track.html'">🔍 <span data-i18n="calc_btn_track">Track Your Order</span></button>
     </div>
   </div>
 
@@ -575,29 +575,57 @@ document.addEventListener('ts-lang-changed', ()=>{
   if(result && !result.classList.contains('hidden')) renderWeightBasis(lastUsedVolumetric);
 });
 
-function calculatePrice(){
-  if(document.getElementById('country').value==='OTHER'){alert(tsT('calc_alert_country'));return;}
+/* 🧮 قراءة بيانات المنتج من الفورم + حساب السعر — مكان واحد بيستخدمه
+   "احسب السعر" و"أضف للسلة" الاتنين.
+   🐛→✅ "أضف للسلة" كان بياخد السعر المحسوب آخر مرة (finalPrice) زي ما
+   هو، فلو العميل حسب السعر وبعدين غيّر الكمية أو السعر أو الفئة ودوس
+   "أضف للسلة" على طول، الطلب كان بيتسجل بالسعر القديم الغلط.
+   كمان الكمية السالبة (-3) والسعر/الوزن بالسالب كانوا بيعدّوا. */
+function readItemForm(){
+  ['quantity','productLink'].forEach(id=>tsFieldError(document.getElementById(id),''));
+  if(document.getElementById('country').value==='OTHER') return {err:tsT('calc_alert_country')};
   const usd=parseFloat(document.getElementById('price').value);
   const actualWeight=parseFloat(document.getElementById('weight').value);
   const cat=document.getElementById('category').value;
-  const qty=parseInt(document.getElementById('quantity').value)||1;
+  const qtyRaw=parseInt(document.getElementById('quantity').value);
+  const link=document.getElementById('productLink').value.trim();
 
-  const l=parseFloat(document.getElementById('dimLength').value)||0;
-  const w=parseFloat(document.getElementById('dimWidth').value)||0;
-  const h=parseFloat(document.getElementById('dimHeight').value)||0;
+  const l=Math.max(0,parseFloat(document.getElementById('dimLength').value)||0);
+  const w=Math.max(0,parseFloat(document.getElementById('dimWidth').value)||0);
+  const h=Math.max(0,parseFloat(document.getElementById('dimHeight').value)||0);
   const volumetricWeight=(l*w*h/6000)*1000;
 
-  if(!usd||!cat||!actualWeight){alert(tsT('calc_alert_missing'));return;}
-  usdTotal=usd*qty;
+  if(!(usd>0)||!cat||!(actualWeight>0)) return {err:tsT('calc_alert_missing')};
+  if(!(qtyRaw>=1)) { tsFieldError(document.getElementById('quantity'), tsT('calc_err_qty')); return {err:tsT('calc_err_qty')}; }
+  if(link && !/^https?:\/\//i.test(link)) { tsFieldError(document.getElementById('productLink'), tsT('calc_err_link')); return {err:tsT('calc_err_link')}; }
+  const qty=Math.min(qtyRaw, 999);
 
   // نفس منطق CalculatorOP: نستخدم الأكبر بين الوزن الفعلي والوزن الحجمي.
   // منطق التسعير نفسه يظل داخل function_calc.js بدون أي تغيير.
-  lastChargeableWeight=Math.max(actualWeight,volumetricWeight);
-  lastUsedVolumetric=volumetricWeight>actualWeight;
-
+  const chargeable=Math.max(actualWeight,volumetricWeight);
   /* ✅ المعادلة من function_calc.js — عدّل الأسعار هناك فقط */
-  const result=tryShoppyCalculatePrice({usd,category:cat,weightGrams:lastChargeableWeight,quantity:qty});
-  finalPrice=result.finalPrice;
+  const result=tryShoppyCalculatePrice({usd,category:cat,weightGrams:chargeable,quantity:qty});
+  return {usd, qty, cat, link, actualWeight, l, w, h, chargeable,
+          usedVolumetric: volumetricWeight>actualWeight, finalPrice: result.finalPrice};
+}
+
+/* لو العميل غيّر أي حاجة بعد ما حسب السعر، النتيجة القديمة بتستخبى —
+   عشان ميشوفش (ولا يضيف) سعر مش بتاع البيانات اللي قدامه */
+['productLink','quantity','price','weight','category','dimLength','dimWidth','dimHeight','country','supplementType','supplementRange'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(!el) return;
+  const hide=()=>{ const r=document.getElementById('resultArea'); if(r && !r.classList.contains('hidden')){ r.classList.add('hidden'); tsToast(tsT('calc_recalc_note')); } };
+  el.addEventListener('input', hide);
+  el.addEventListener('change', hide);
+});
+
+function calculatePrice(){
+  const it=readItemForm();
+  if(it.err){alert(it.err);return;}
+  usdTotal=it.usd*it.qty;
+  lastChargeableWeight=it.chargeable;
+  lastUsedVolumetric=it.usedVolumetric;
+  finalPrice=it.finalPrice;
 
   document.getElementById('priceDetails').innerHTML=finalPrice.toLocaleString()+' EGP';
   renderWeightBasis(lastUsedVolumetric);
@@ -610,23 +638,16 @@ function calculatePrice(){
    زي بالظبط فكرة المارت (Add to Cart / Checkout)
    ============================================ */
 function addCurrentToCart(){
-  const link=document.getElementById('productLink').value;
-  const qty=parseInt(document.getElementById('quantity').value)||1;
-  const usd=parseFloat(document.getElementById('price').value);
-  const actualWeight=parseFloat(document.getElementById('weight').value);
-  const cat=document.getElementById('category').value;
-  const dimLength=parseFloat(document.getElementById('dimLength').value)||0;
-  const dimWidth=parseFloat(document.getElementById('dimWidth').value)||0;
-  const dimHeight=parseFloat(document.getElementById('dimHeight').value)||0;
-  const volumetricWeight=(dimLength*dimWidth*dimHeight/6000)*1000;
-  const chargeableWeight=Math.max(actualWeight,volumetricWeight);
-  const size=document.getElementById('length').value;
-  const color=document.getElementById('width').value;
-  const notes=document.getElementById('height').value;
+  // السعر بيتحسب تاني هنا من البيانات اللي قدام العميل دلوقتي (مش آخر حساب)
+  const it=readItemForm();
+  if(it.err){alert(it.err);return;}
+  const size=document.getElementById('length').value.trim();
+  const color=document.getElementById('width').value.trim();
+  const notes=document.getElementById('height').value.trim();
 
   tsAddToCalcCart({
-    link, usd, qty, weightGrams:chargeableWeight, actualWeightGrams:actualWeight,
-    dimLength, dimWidth, dimHeight, category:cat, size, color, notes, finalPrice
+    link:it.link, usd:it.usd, qty:it.qty, weightGrams:it.chargeable, actualWeightGrams:it.actualWeight,
+    dimLength:it.l, dimWidth:it.w, dimHeight:it.h, category:it.cat, size, color, notes, finalPrice:it.finalPrice
   });
   tsToast(tsT('calc_alert_added'));
 
@@ -668,23 +689,33 @@ function openCartFromAnywhere(){
   showStep('cart');
 }
 
+/* اسم الفئة بلغة الصفحة (من قايمة الفئات نفسها) بدل الاسم الإنجليزي الداخلي */
+function tsCategoryLabel(v){
+  const o=[...document.getElementById('category').options].find(x=>x.value===v);
+  return o && v ? o.textContent : (v||'');
+}
+
 function renderCart(){
   renderCalcCartBadge();
   const cart=tsGetCalcCart();
   const list=document.getElementById('cartItemsList');
   list.innerHTML = cart.map(item=>{
+    // 🔒 الرابط جاي من العميل (أو من ?link= في الرابط) — من غير تنضيف كان
+    // رابط javascript:… بيتحط في href ويشتغل لما حد يدوس عليه
+    const host = (()=>{ try{ return new URL(item.link).hostname.replace(/^www\./,''); }catch(e){ return ''; } })();
     const linkHtml = item.link
-      ? '<a href="'+item.link+'" target="_blank" rel="noopener">'+(item.link.length>42?item.link.slice(0,42)+'…':item.link)+'</a>'
+      ? '<a href="'+tsSafeHref(item.link)+'" target="_blank" rel="noopener noreferrer">🔗 '+tsEscapeHtml(host || (item.link.length>42?item.link.slice(0,42)+'…':item.link))+'</a>'
       : '—';
+    const specs = [item.size, item.color, item.notes].filter(Boolean).map(tsEscapeHtml).join(' · ');
     return '<div class="cart-item">'+
       '<div class="cart-item-info">'+
-        '<div class="cart-item-cat">'+(item.category||'')+'</div>'+
+        '<div class="cart-item-cat">'+tsEscapeHtml(tsCategoryLabel(item.category))+'</div>'+
         '<div class="cart-item-link">'+linkHtml+'</div>'+
-        '<div class="cart-item-meta">'+tsT('calc_cart_item_qty')+': '+item.qty+'</div>'+
+        '<div class="cart-item-meta">'+tsT('calc_cart_item_qty')+': '+tsEscapeHtml(item.qty)+(specs?' · '+specs:'')+'</div>'+
       '</div>'+
       '<div class="cart-item-right">'+
-        '<div class="cart-item-price">'+item.finalPrice.toLocaleString()+' EGP</div>'+
-        '<button class="cart-item-remove" onclick="removeCartItem(\''+item.tempId+'\')">🗑 '+tsT('calc_cart_remove')+'</button>'+
+        '<div class="cart-item-price">'+(parseFloat(item.finalPrice)||0).toLocaleString()+' EGP</div>'+
+        '<button class="cart-item-remove" onclick="removeCartItem(\''+tsJsAttr(item.tempId)+'\')">🗑 '+tsT('calc_cart_remove')+'</button>'+
       '</div>'+
     '</div>';
   }).join('');
@@ -707,18 +738,28 @@ function goToCheckout(){
 }
 
 async function confirmOrder(){
-  const name=document.getElementById('customerName').value;
-  if(!name){alert(tsT('calc_alert_name'));return;}
   const cart=tsGetCalcCart();
   if(!cart.length){alert(tsT('calc_alert_cart_empty'));showStep('cart');return;}
+  // ✅ الاسم + موبايل مصري صحيح + المحافظة + العنوان (والإيميل لو اتكتب)
+  const v=tsCheckoutValidate({
+    name:{el:document.getElementById('customerName')},
+    phone:{el:document.getElementById('phone')},
+    email:{el:document.getElementById('customerEmail')},
+    gov:{el:document.getElementById('governorate')},
+    address:{el:document.getElementById('address')}
+  });
+  if(!v.ok) return;
 
   const btn=document.getElementById('confirmBtn');
+  if(btn.dataset.tsLoading==='1') return;   // دوستين ورا بعض = طلب واحد
   tsSetBtnLoading(btn, tsT('common_confirming'));
 
-  const phone=document.getElementById('phone').value;
+  const name=document.getElementById('customerName').value.trim();
+  const phone=v.phone;
   const email=document.getElementById('customerEmail').value.trim();
-  const country=document.getElementById('country').value;
-  const address=document.getElementById('address').value;
+  // الخدمة متاحة من أمريكا بس — والقايمة نفسها ممكن تكون اتغيرت بعد الإضافة للسلة
+  const country='USA';
+  const address=document.getElementById('address').value.trim();
   const governorate=document.getElementById('governorate').value;
 
   // 🔖 بنولّد أرقام الطلبات الأول عشان نقدر نبني ملخص الإيميل بيها —
@@ -809,7 +850,7 @@ async function confirmOrder(){
     }
 
     document.getElementById('successEmailNote').classList.toggle('hidden', !email);
-    document.getElementById('successOrderNos').textContent = orders.map(o=>o.orderNo).join(' · ');
+    tsRenderOrderLinks(document.getElementById('successOrderNos'), orders.map(o=>o.orderNo));
     tsClearCalcCart();
     renderCalcCartBadge();
     tsClearBtnLoading(btn);

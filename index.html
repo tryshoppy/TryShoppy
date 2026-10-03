@@ -380,6 +380,68 @@ html[lang="ar"] .mart-tag{letter-spacing:0}
 .final-cta .cta-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
 .final-cta .eyebrow{justify-content:center;display:inline-flex;margin-bottom:4px}
 
+/* ── 🔍 quick track (hero) ── */
+.quick-track{display:flex;align-items:center;gap:8px;max-width:540px;margin:16px 0 0;
+  background:var(--white);border:1px solid var(--line);border-radius:14px;padding:6px 6px 6px 12px;box-shadow:var(--sh-1)}
+html[dir="rtl"] .quick-track{padding:6px 12px 6px 6px}
+.quick-track:focus-within{border-color:var(--blue-link)}
+.quick-track .qt-ic{font-size:14px;opacity:.7;flex-shrink:0}
+.quick-track input{flex:1;min-width:0;border:0;box-shadow:none!important;background:transparent;
+  min-height:38px;padding:6px 4px;font-family:var(--fm);font-size:14px;text-transform:uppercase}
+.quick-track input::placeholder{text-transform:none;font-family:var(--f, inherit)}
+/* الـ placeholder بالعربي يتقري طبيعي، ورقم الطلب نفسه LTR — نفس فكرة خانة اللينك */
+.quick-track input:not(:placeholder-shown){direction:ltr;text-align:left}
+.quick-track input:focus{border:0;outline:none}
+.quick-track .btn{flex-shrink:0}
+.hero-ctas{margin-top:14px}
+
+/* ── 🛍️ live mart products (mart band) ── */
+.mart-live{position:relative;z-index:2}
+.ml-head{display:flex;align-items:center;gap:8px;color:#D7DBEA;font-size:12.5px;font-weight:800;margin-bottom:12px}
+.ml-dot{width:8px;height:8px;border-radius:50%;background:#22C55E;box-shadow:0 0 0 4px rgba(34,197,94,.18)}
+.ml-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ml-card{display:flex;flex-direction:column;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
+  border-radius:16px;overflow:hidden;text-decoration:none;transition:transform .2s ease,border-color .2s ease,background .2s ease}
+.ml-card:hover{transform:translateY(-3px);border-color:rgba(249,194,46,.55);background:rgba(255,255,255,.1)}
+.ml-img{aspect-ratio:1/1;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.ml-img img{width:100%;height:100%;object-fit:contain;padding:10px}
+.ml-body{padding:10px 12px 12px;display:flex;flex-direction:column;gap:5px;flex:1}
+.ml-name{text-align:start;color:#fff;font-size:12.5px;font-weight:700;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ml-price{margin-top:auto;display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}
+.ml-price b{color:var(--yellow);font-family:var(--fm);font-size:14px}
+.ml-price s{color:#8E97B8;font-family:var(--fm);font-size:11.5px}
+.ml-off{font-size:10.5px;font-weight:800;color:var(--ink);background:var(--yellow);border-radius:999px;padding:2px 7px}
+
+/* ── 📱 mobile: smaller cover so the headline + link box show up first ──
+   على الموبايل الكوفر كان واخد شاشة كاملة تقريبًا (≈300px) قبل العنوان
+   وخانة اللينك — فأهم حاجة في الصفحة كانت تحت أول شاشة. */
+@media(max-width:520px){
+  .mcover-wrap{padding-top:12px}
+  .mcover{min-height:150px}
+  .mcover-inner{padding-block:20px 0;padding-inline:16px}
+  .mcover h2{font-size:1.12rem;line-height:1.55}
+  /* السطر يتكسر بين العبارات، مش في نص "يوصل لباب بيتك" */
+  .mcover h2{display:flex;flex-wrap:wrap;justify-content:center;align-items:baseline;row-gap:2px}
+  .mcover h2 > span[data-i18n]{white-space:nowrap}
+  .mcover h2 .sep{display:inline;height:auto;overflow:visible;margin-inline:5px}
+  .mcover-scene{height:64px}
+  .mc-spot{bottom:8px;gap:4px}
+  .mc-spot svg{height:24px}
+  .mc-right svg{height:22px}
+  .mc-spot span{font-size:7.5px}
+  .mcover-parcel{width:14px;height:14px}
+  @keyframes mcTravel{
+    0%{left:14%;bottom:8px;opacity:0;transform:scale(.7)}
+    9%{opacity:1}
+    50%{left:50%;bottom:40px;transform:scale(1)}
+    91%{opacity:1}
+    100%{left:86%;bottom:8px;opacity:0;transform:scale(.7)}
+  }
+  .hero{padding-top:30px}
+  .hero h1{margin:12px 0 14px}
+  .hero .lead{margin-bottom:20px}
+}
+
 /* the sticky mobile bar covers the last strip of the page */
 @media(max-width:760px){.site-footer .container{padding-bottom:96px}}
 </style>
@@ -494,7 +556,8 @@ html[lang="ar"] .mart-tag{letter-spacing:0}
   </div>
 
   <div class="mcover-inner">
-    <span class="mcover-kicker" data-i18n="hero_eyebrow">USA → EGYPT SHOPPING &amp; SHIPPING</span>
+    <!-- الـ kicker اتشال: كان نفس جملة "شراء وشحن من أمريكا لمصر" اللي
+         فوق عنوان الهيرو تحته على طول — نفس السطر مرتين ورا بعض -->
     <h2>
       <span data-i18n="ms_1">Shop global</span><span class="sep">·</span><span data-i18n="ms_2">One price</span><span class="sep">·</span><span data-i18n="ms_3">Delivered to your door</span>
     </h2>
@@ -518,8 +581,16 @@ html[lang="ar"] .mart-tag{letter-spacing:0}
         <button class="btn btn-primary" type="submit" data-i18n="hero_cta_price">Calculate My Price</button>
       </form>
 
+      <!-- 🔍 تتبع سريع من الصفحة الرئيسية — بيفتح track.html?order=… والنتيجة
+           على طول، بدل زرار بيودّي لصفحة فاضية يكتب فيها الرقم تاني -->
+      <form class="quick-track" id="quickTrack" autocomplete="off">
+        <span class="qt-ic" aria-hidden="true">🔍</span>
+        <input id="quickTrackNo" type="text" autocapitalize="characters" spellcheck="false"
+               data-i18n-ph="home_track_ph" placeholder="Order no. e.g. TRY12345678" aria-label="Order number">
+        <button class="btn btn-secondary btn-sm" type="submit" data-i18n="home_track_btn">Track</button>
+      </form>
+
       <div class="hero-ctas">
-        <a href="track.html" class="btn btn-secondary" data-i18n="hero_cta_track">Track an Order</a>
         <a href="mart.html" class="btn btn-ghost" data-i18n="nav_mart">Try Shoppy Mart</a>
       </div>
 
@@ -578,7 +649,14 @@ html[lang="ar"] .mart-tag{letter-spacing:0}
         </ul>
         <a href="mart.html" class="btn btn-primary btn-lg" data-i18n="mart_cta">Browse the Mart</a>
       </div>
-      <div class="mart-tiles">
+      <!-- 🛍️ منتجات حقيقية من كاتالوج المارت — بتترسم من loadHomeMart() تحت.
+           لو التحميل فشل أو مفيش منتجات متاحة، الكروت الثابتة اللي تحت
+           هي اللي بتفضل ظاهرة (مفيش مساحة فاضية أبدًا). -->
+      <div class="mart-live hidden" id="martLive">
+        <div class="ml-head"><span class="ml-dot"></span><span data-i18n="home_mart_live">Available now</span></div>
+        <div class="ml-grid" id="martLiveGrid"></div>
+      </div>
+      <div class="mart-tiles" id="martTiles">
         <div class="mart-tile"><div class="t" data-i18n="lbl_brand_new">Brand New</div><div class="s" data-i18n="mart_tab_highdemand">High Demand</div></div>
         <div class="mart-tile"><div class="t" data-i18n="lbl_open_box">Open Box</div><div class="s" data-i18n="mart_tab_outlet">Outlet</div></div>
         <div class="mart-tile"><div class="t" data-i18n="lbl_heavy_discount">Heavily Discounted</div><div class="s" data-i18n="mart_tab_outlet">Outlet</div></div>
@@ -836,6 +914,74 @@ tsInitNav();
     const v = document.getElementById('heroLink').value.trim();
     window.location.href = v ? ('calculator.html?link=' + encodeURIComponent(v)) : 'calculator.html';
   });
+})();
+
+/* ── 🔍 quick track ───────────────────────────────────────────────
+   رقم الطلب بيروح لـ track.html?order=… اللي بيدوّر على طول. الأرقام
+   العربي والمسافات بتتظبط هنا (TRY 1234 5678 / try12345678). */
+(function(){
+  const form = document.getElementById('quickTrack');
+  if(!form) return;
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    const v = tsToEnDigits(document.getElementById('quickTrackNo').value).replace(/\s+/g,'').toUpperCase();
+    window.location.href = v ? ('track.html?order=' + encodeURIComponent(v)) : 'track.html';
+  });
+})();
+
+/* ── 🛍️ live Mart products ────────────────────────────────────────
+   4 منتجات حقيقية متاحة من الكاتالوج بدل الكروت الثابتة. الأولوية:
+   أكبر خصم، وبعدين الأكثر طلبًا. بيستخدم نفس كاش mart.html
+   (ts_mart_cache_v1، 10 دقايق) عشان السكريبت بطيء أحيانًا — ولو فشل
+   كل حاجة، الكروت الثابتة بتفضل زي ما هي. كل كارت بيفتح المنتج نفسه
+   في المارت (mart.html?product=ID). */
+(function(){
+  const CACHE_KEY = 'ts_mart_cache_v1', MAX_AGE = 10 * 60 * 1000;
+  let last = null;
+  function pick(list){
+    return (list || [])
+      .map(p => ({ ...p, price: parseFloat(p.price) || 0, oldPrice: parseFloat(p.oldPrice) || 0, stock: parseInt(p.stock) || 0 }))
+      .filter(p => p.id && p.price > 0 && p.stock > 0 && String(p.image || '').trim())
+      .sort((a, b) => {
+        const da = a.oldPrice > a.price ? (a.oldPrice - a.price) / a.oldPrice : 0;
+        const db = b.oldPrice > b.price ? (b.oldPrice - b.price) / b.oldPrice : 0;
+        if (db !== da) return db - da;
+        return (b.section === 'highdemand') - (a.section === 'highdemand');
+      })
+      .slice(0, 4);
+  }
+  function render(list){
+    const items = pick(list);
+    if (items.length < 2) return;            // منتج واحد شكله فاضي — نسيب الكروت الثابتة
+    last = list;
+    const ar = TS_LANG === 'ar';
+    document.getElementById('martLiveGrid').innerHTML = items.map(p => {
+      const name = (ar ? (p.nameAr || p.nameEn) : (p.nameEn || p.nameAr)) || '';
+      const img = String(p.image).split('|')[0].trim();
+      const off = p.oldPrice > p.price ? Math.round((p.oldPrice - p.price) / p.oldPrice * 100) : 0;
+      return '<a class="ml-card" href="mart.html?product=' + encodeURIComponent(p.id) + '">' +
+        '<div class="ml-img"><img src="' + tsSafeHref(img) + '" alt="' + tsEscapeHtml(name) + '" loading="lazy"></div>' +
+        // dir="auto": اسم إنجليزي في صفحة عربي يتقص من آخره صح (مش "...7.5mg, Organic")
+        '<div class="ml-body"><div class="ml-name" dir="auto">' + tsEscapeHtml(name) + '</div>' +
+          '<div class="ml-price"><b dir="ltr">' + p.price.toLocaleString('en-US') + ' EGP</b>' +
+            (off ? '<s dir="ltr">' + p.oldPrice.toLocaleString('en-US') + '</s><span class="ml-off" dir="ltr">-' + off + '%</span>' : '') +
+          '</div></div></a>';
+    }).join('');
+    document.getElementById('martLive').classList.remove('hidden');
+    document.getElementById('martTiles').classList.add('hidden');
+  }
+  try {
+    const c = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+    if (c && Array.isArray(c.products) && (Date.now() - c.t) < MAX_AGE) render(c.products);
+  } catch (e) {}
+  if (typeof tsFetchMartProducts === 'function') {
+    tsFetchMartProducts().then(list => {
+      if (!Array.isArray(list)) return;
+      try { localStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), products: list })); } catch (e) {}
+      render(list);
+    }).catch(() => {});
+  }
+  document.addEventListener('ts-lang-changed', () => { if (last) render(last); });
 })();
 
 /* ── US store examples ─────────────────────────────────────────────

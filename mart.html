@@ -277,9 +277,9 @@ html[lang="ar"] .pcard-tagline{letter-spacing:0;text-transform:none}
     </div>
     <div id="checkoutView" class="drawer-body hidden checkout-form">
       <p style="font-size:12.5px;color:var(--ink-2);margin-top:0" data-i18n="mart_checkout_sub">We'll confirm by WhatsApp right after.</p>
-      <div class="field"><label data-i18n="calc_name_label">Full Name</label><input id="coName" data-i18n-ph="calc_name_ph" placeholder="Your full name"></div>
-      <div class="field"><label data-i18n="calc_phone_label">Phone Number</label><input id="coPhone" placeholder="01xxxxxxxxx"></div>
-      <div class="field"><label data-i18n="lbl_email_optional">Email (optional — for order confirmation)</label><input id="coEmail" type="email" placeholder="name@example.com"></div>
+      <div class="field"><label data-i18n="calc_name_label">Full Name</label><input id="coName" autocomplete="name" data-i18n-ph="calc_name_ph" placeholder="Your full name"></div>
+      <div class="field"><label data-i18n="calc_phone_label">Phone Number</label><input id="coPhone" type="tel" inputmode="tel" autocomplete="tel-national" dir="ltr" placeholder="01xxxxxxxxx"></div>
+      <div class="field"><label data-i18n="lbl_email_optional">Email (optional — for order confirmation)</label><input id="coEmail" type="email" inputmode="email" autocomplete="email" placeholder="name@example.com"></div>
       <div class="field">
         <label data-i18n="calc_gov_label">Governorate</label>
         <select id="coGov">
@@ -682,6 +682,8 @@ document.querySelectorAll('#tabRow button').forEach(btn=>{
 document.addEventListener('ts-lang-changed',()=>{renderCategoryChips();renderMart();renderCartItems();});
 function handleAdd(id){
   const p=pid(id);if(!p||p.stock<=0)return;
+  const inCart=tsGetCart().find(i=>String(i.id)===String(p.id));
+  if(inCart && inCart.qty>=p.stock){ tsToast(tsT('mart_max_stock')); openCart(); return; }
   tsAddToCart({id:p.id,name:{en:p.nameEn,ar:p.nameAr},price:p.price,cat:p.category});
   // 📊 Meta Pixel — بدون الحدث ده، البيكسل بيعرف بس إن حد زار
   // الصفحة (PageView)، مش إنه فعلًا مهتم بمنتج بعينه. ده أهم إشارة
@@ -709,16 +711,47 @@ function renderCartItems(){
       const p=pid(item.id);
       const name=(item.name&&item.name[TS_LANG])||(item.name&&item.name.en)||'';
       const cimgs=p?pimgs(p):[];
-      const imgHtml=cimgs.length?'<img src="'+cimgs[0]+'" alt="">':'🛍️';
+      const imgHtml=cimgs.length?'<img src="'+tsEscapeHtml(cimgs[0])+'" alt="">':'🛍️';
       const qm=item.qty-1,qp=item.qty+1;
-      return '<div class="cart-line"><div class="ci-img">'+imgHtml+'</div><div class="ci-info"><div class="ci-name">'+name+'</div><div class="ci-price">'+item.price.toLocaleString()+' EGP</div></div><div class="qty-ctrl"><button class="qty-btn" onclick="chqty(\''+item.id+'\','+qm+')">−</button><span class="qty-num">'+item.qty+'</span><button class="qty-btn" onclick="chqty(\''+item.id+'\','+qp+')">+</button></div><button class="ci-remove" onclick="chqty(\''+item.id+'\',0)" aria-label="Remove">✕</button></div>';
+      const atMax=p && item.qty>=p.stock;
+      const idJs=tsJsAttr(item.id);
+      return '<div class="cart-line"><div class="ci-img">'+imgHtml+'</div><div class="ci-info"><div class="ci-name">'+tsEscapeHtml(name)+'</div><div class="ci-price">'+(parseFloat(item.price)||0).toLocaleString()+' EGP</div></div><div class="qty-ctrl"><button class="qty-btn" onclick="chqty(\''+idJs+'\','+qm+')">−</button><span class="qty-num">'+item.qty+'</span><button class="qty-btn" onclick="chqty(\''+idJs+'\','+qp+')"'+(atMax?' disabled style="opacity:.35"':'')+'>+</button></div><button class="ci-remove" onclick="chqty(\''+idJs+'\',0)" aria-label="Remove">✕</button></div>';
     }).join('');
     document.getElementById('cartCheckoutBtn').disabled=false;
   }
   document.getElementById('cartSubtotalValue').textContent=tsCartSubtotal().toLocaleString()+' EGP';
 }
-function chqty(id,qty){tsUpdateCartQty(id,qty);renderCartItems();}
-document.getElementById('cartCheckoutBtn').addEventListener('click',()=>{const s=tsGetSession();if(s){document.getElementById('coName').value=s.name||'';document.getElementById('coPhone').value=s.phone||'';document.getElementById('coEmail').value=s.email||'';document.getElementById('coAddress').value=s.address||'';if(s.governorate){const sel=document.getElementById('coGov');for(const o of sel.options)if(o.value===s.governorate)o.selected=true;}}
+/* 🔄 مزامنة السلة مع آخر أسعار ومخزون
+   ---------------------------------------------------------------
+   🐛→✅ السلة متخزنة في المتصفح بالسعر وقت الإضافة. فلو العميل حط
+   منتج في السلة من يومين والسعر اتغير، أو المنتج خلص من المخزون،
+   الطلب كان بيتسجل بالسعر القديم / على منتج مش موجود، ومن غير حد أقصى
+   للكمية (+ كانت بتزود فوق المخزون).
+   دلوقتي قبل الدفع وقبل التأكيد: السعر بيتحدّث، والمنتج اللي خلص
+   أو اتشال بيتشال، والكمية بتتقص للمتاح. بترجّع true لو حاجة اتغيرت. */
+function syncCartWithProducts(){
+  if(!MART_PRODUCTS.length) return false;     // المنتجات لسه ماتحمّلتش — مانحكمش على حاجة
+  const cart=tsGetCart();
+  let changed=false;
+  const next=[];
+  cart.forEach(item=>{
+    const p=pid(item.id);
+    if(!p || p.stock<=0){ changed=true; return; }
+    const qty=Math.min(item.qty, p.stock);
+    if(qty!==item.qty || p.price!==item.price) changed=true;
+    next.push({...item, qty, price:p.price, name:{en:p.nameEn, ar:p.nameAr}, cat:p.category});
+  });
+  if(changed) tsSaveCart(next);
+  return changed;
+}
+function chqty(id,qty){
+  const p=pid(id);
+  if(p && qty>p.stock){ qty=p.stock; tsToast(tsT('mart_max_stock')); }
+  tsUpdateCartQty(id,qty);renderCartItems();
+}
+document.getElementById('cartCheckoutBtn').addEventListener('click',()=>{
+  if(syncCartWithProducts()){ renderCartItems(); tsToast(tsT('mart_cart_updated')); if(!tsGetCart().length) return; }
+  const s=tsGetSession();if(s){document.getElementById('coName').value=s.name||'';document.getElementById('coPhone').value=s.phone||'';document.getElementById('coEmail').value=s.email||'';document.getElementById('coAddress').value=s.address||'';if(s.governorate){const sel=document.getElementById('coGov');for(const o of sel.options)if(o.value===s.governorate)o.selected=true;}}
   /* 📊 begin_checkout — الفرق بين اللي حط في السلة واللي بدأ يكتب
      بياناته فعلًا. ده أهم مقياس لتحسين الحملة قبل ما يبقى فيه
      عدد طلبات كفاية عشان Google يتعلم من الشراء نفسه. */
@@ -727,9 +760,21 @@ document.getElementById('cartCheckoutBtn').addEventListener('click',()=>{const s
 
 let lastSummary=null;
 document.getElementById('placeOrderBtn').addEventListener('click',async function(){
-  const name=document.getElementById('coName').value.trim(),phone=document.getElementById('coPhone').value.trim(),email=document.getElementById('coEmail').value.trim(),gov=document.getElementById('coGov').value,addr=document.getElementById('coAddress').value.trim(),cart=tsGetCart();
-  if(!name||!phone||!cart.length){tsToast(tsT('auth_err_required'));return;}
+  // ✅ نفس قواعد الحاسبة: اسم + موبايل مصري صحيح + محافظة + عنوان (والإيميل لو اتكتب)
+  const v=tsCheckoutValidate({
+    name:{el:document.getElementById('coName')},
+    phone:{el:document.getElementById('coPhone')},
+    email:{el:document.getElementById('coEmail')},
+    gov:{el:document.getElementById('coGov')},
+    address:{el:document.getElementById('coAddress')}
+  });
+  if(!v.ok) return;
+  // آخر سعر ومخزون قبل التسجيل — لو اتغير حاجة نرجّعه للسلة يشوفها الأول
+  if(syncCartWithProducts()){ showStep('cart'); renderCartItems(); tsToast(tsT('mart_cart_updated')); return; }
+  const name=document.getElementById('coName').value.trim(),phone=v.phone,email=document.getElementById('coEmail').value.trim(),gov=document.getElementById('coGov').value,addr=document.getElementById('coAddress').value.trim(),cart=tsGetCart();
+  if(!cart.length){tsToast(tsT('auth_err_required'));return;}
   const btn=this;
+  if(btn.dataset.tsLoading==='1') return;   // دوستين ورا بعض = طلب واحد
   tsSetBtnLoading(btn, tsT('common_confirming'));
   const orders=[];
   /* ملخص كل المنتجات — يتبعت مرة واحدة مع أول صف عشان
@@ -751,7 +796,8 @@ document.getElementById('placeOrderBtn').addEventListener('click',async function
       try{
         // 🐛→✅ بقت بترجع true لو الطلب وصل للسيرفر (مش Response نقرا
         // نصه) — الشرح الكامل جوه tsPostScript في assets/app.js
-        await tsSubmitOrderRow({order:o,customerName:name,phone,email,country:"Try Shoppy Mart",address:addr,governorate:gov,link:'',quantity:item.qty,usd:'',weight:'',dimensions:(item.name&&item.name.en)||'',category:'Mart - '+item.cat,finalPrice:item.price*item.qty,status:'Pending Review',
+        // martId: السيرفر بيجيب السعر من الكاتالوج بيه ويقلل المخزون (applyMartCatalog_)
+        await tsSubmitOrderRow({order:o,martId:item.id,customerName:name,phone,email,country:"Try Shoppy Mart",address:addr,governorate:gov,link:'',quantity:item.qty,usd:'',weight:'',dimensions:(item.name&&item.name.en)||'',category:'Mart - '+item.cat,finalPrice:item.price*item.qty,status:'Pending Review',
           suppressEmail:idx>0,                                  // إيميل واحد فقط للطلب كله
           emailSummary:idx===0?emailSummary:'',
           cartTotal:idx===0?tsCartSubtotal():undefined});       // ✅ إجمالي السلة الحقيقي، منفصل عن finalPrice بتاع الصف الأول بس
@@ -770,7 +816,7 @@ document.getElementById('placeOrderBtn').addEventListener('click',async function
 
     lastSummary={name,phone,gov,addr,orders,total:tsCartSubtotal()};
     document.getElementById('successEmailNote').classList.toggle('hidden',!email);
-    document.getElementById('successOrderNos').textContent=orders.map(o=>o.orderNo).join(' · ');
+    tsRenderOrderLinks(document.getElementById('successOrderNos'), orders.map(o=>o.orderNo));
 
     // 📊 Meta Pixel — أهم حدث في القمع كله. من غيره، فيسبوك بيحسّن
     // الحملات على "زيارات" بس، مش على "طلبات فعلية" — يعني ميزانيتك
@@ -794,14 +840,15 @@ document.getElementById('placeOrderBtn').addEventListener('click',async function
        Orders_Code.gs — التوازي هنا آمن لأنها منتجات مختلفة/صفوف
        مختلفة عادةً، لكن لو نفس المنتج اتباع في نفس اللحظة من عميل
        تاني كمان، ده يحتاج قفل في decrementStock نفسها لو حصل معاك) */
+    /* 🔒 تقليل المخزون الفعلي بقى بيحصل على السيرفر نفسه لحظة حفظ الطلب
+       (applyMartCatalog_ في Orders_Code.gs) — النداء المفتوح القديم اتقفل.
+       هنا بنحدّث الأرقام المعروضة بس عشان "Continue Shopping" يبان صح. */
     cart.forEach(item=>{
-      tsDecrementMartStock(item.id,item.qty).then(res=>{
-        if(res&&res.success){
-          const p=MART_PRODUCTS.find(x=>String(x.id)===String(item.id));
-          if(p){ p.stock=res.stock; renderMart(); }   // الشبكة موجودة دايمًا خلف الدرج، فتحديثها آمن أيًّا كانت الخطوة الظاهرة
-        }
-      }).catch(()=>{ /* فشل تحديث المخزون لا يلغي نجاح الطلب نفسه */ });
+      const p=MART_PRODUCTS.find(x=>String(x.id)===String(item.id));
+      if(p) p.stock=Math.max(0,p.stock-item.qty);
     });
+    try{ localStorage.removeItem(MART_CACHE_KEY); }catch(e){}   // الكاش المحلي فيه المخزون القديم
+    renderMart();
 
     tsClearCart();
     tsClearBtnLoading(btn);

@@ -19,7 +19,7 @@
 
 // ⚠️ Paste your Staff Apps Script /exec URL here after deploying
 // backend/Staff_Code.gs as its own Web App (see STAFF_SETUP.md).
-const STAFF_API_URL = "https://script.google.com/macros/s/AKfycbxkFzbuFi13k8w-5tAeFvYDRNsGWBDtTD0IIbX5BB-LfQ-Jkcnkf2R7KuKIfkf_xA7OGg/exec";
+const STAFF_API_URL = "https://script.google.com/macros/s/AKfycbz613_2eEW_pWZStczWC-wKAzVXBzvTbUWGpHyb-I3bWhqrf4JEojwTWuljHJk2mdfKZg/exec";
 
 function tsStaffApi(payload) {
   return fetch(STAFF_API_URL, {
@@ -57,7 +57,8 @@ const TS_TOOL_NAMES = {
   dash945: "لوحة الطلبات والحسابات (945)", dashMob: "لوحة الطلبات (موبايل)",
   quickOrder: "إضافة أوردر لعميل سابق", directOrder: "تسجيل طلب مباشر",
   customerRef: "مرجع طلبات العملاء", courier: "أداة المندوب",
-  calculatorOP: "حاسبة التشغيل", rama: "RAMA", mart: "إدارة المارت"
+  calculatorOP: "حاسبة التشغيل", rama: "RAMA", mart: "إدارة المارت",
+  expenses: "المصروفات (OPEX)"
 };
 
 function tsStaffTools() {

@@ -69,6 +69,25 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .sbf select option{background:var(--navy-2);color:#fff}
 .sbf input:focus,.sbf select:focus{border-color:var(--gold);background:rgba(255,255,255,.12);outline:none}
 .sbf .two{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+/* ☑️ فلتر اختيار متعدد (موعد الوصول / الموظف) — القايمة بتفتح تحت
+   الزرار جوه العمود نفسه، فمفيش مشاكل تموضع على الموبايل */
+.ms-btn{width:100%;padding:9px 11px;border-radius:9px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.07);color:#fff;font-size:13px;display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;text-align:start;font-family:inherit}
+.ms-btn .ms-txt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ms-btn .ms-car{flex:none;font-size:10px;opacity:.7;transition:transform .15s}
+.ms.open .ms-btn{border-color:var(--gold);background:rgba(255,255,255,.12)}
+.ms.open .ms-car{transform:rotate(180deg)}
+.ms.has .ms-btn{border-color:var(--gold);color:var(--gold);font-weight:700}
+.ms-panel{display:none;margin-top:6px;border:1px solid rgba(255,255,255,.14);border-radius:9px;background:var(--navy-2);padding:6px}
+.ms.open .ms-panel{display:block}
+.sbf .ms-panel input.ms-q{width:100%;padding:7px 9px;margin-bottom:6px;border-radius:7px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.07);color:#fff;font-size:12.5px}
+.ms-list{max-height:230px;overflow-y:auto}
+.sbf .ms-opt{display:flex;margin:0;font-weight:500;align-items:center;gap:8px;padding:6px 7px;border-radius:7px;font-size:13px;cursor:pointer;color:#E6ECF8}
+.ms-opt:hover{background:rgba(255,255,255,.08)}
+.sbf .ms-opt input{width:15px;height:15px;padding:0;border:0;accent-color:var(--gold);flex:none;margin:0}
+.sbf .ms-opt.hid{display:none}
+.ms-acts{display:flex;gap:6px;margin-top:6px}
+.ms-acts button{flex:1;padding:6px;border-radius:7px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.ms-acts button.ok{background:var(--gold);color:var(--navy);border-color:var(--gold)}
 .sb-btn{width:100%;padding:10px;border-radius:9px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#fff;font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px}
 .sb-btn:hover{background:rgba(255,255,255,.13)}
 .sb-btn.gold{background:var(--gold);color:var(--navy);border-color:var(--gold);font-weight:900}
@@ -202,6 +221,27 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
   flex-wrap:wrap;padding:14px 20px;border-top:1px solid var(--line)}
 .ao-num{font-family:var(--fm);font-size:13px;font-weight:700;color:var(--gold);letter-spacing:.04em}
 @media(max-width:560px){.ao-grid{grid-template-columns:1fr}.ao-body{max-height:calc(100vh - 200px)}}
+/* ═══ 💸 المصروفات ═══ */
+.tbtn.exp{background:var(--panel);border-color:var(--dead);color:var(--dead)}
+.ex-cur{display:flex;gap:8px}
+.ex-cur label{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;margin:0;
+  padding:9px 8px;border:1px solid var(--line);border-radius:9px;background:var(--paper);
+  font-size:13px;font-weight:700;color:var(--ink);cursor:pointer}
+.ex-cur label:has(input:checked){border-color:var(--gold);background:var(--gold-wash)}
+.ex-cur input{width:auto;accent-color:var(--gold);margin:0}
+.ex-sum{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:12.5px;color:var(--ink-2);margin-bottom:10px}
+.ex-sum b{color:var(--ink);font-family:var(--fm)}
+.ex-row{display:flex;align-items:flex-start;gap:10px;background:var(--paper);border:1px solid var(--line);
+  border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.ex-row .ex-b{flex:1;min-width:0}
+.ex-row .ex-b b{font-size:13px;font-weight:800}
+.ex-row .ex-b small{display:block;font-size:11.5px;color:var(--ink-2);margin-top:3px;word-break:break-word}
+.ex-row .ex-amt{text-align:end;font-family:var(--fm);font-weight:800;font-size:13.5px;color:var(--dead);white-space:nowrap}
+.ex-row .ex-amt small{display:block;font-size:11px;color:var(--ink-2);font-weight:600}
+.ex-empty{font-size:12.5px;color:var(--ink-3);text-align:center;padding:12px 0}
+.kpi.k-exp,.kpi.k-np{cursor:default}
+.kpi.k-exp{cursor:pointer}
+.kpi .ksub{font-size:11px;color:var(--ink-2);margin-top:3px}
 .kpi h3{margin:0 0 5px;font-size:11.5px;font-weight:700;color:var(--ink-2)}
 .kpi .value{font-family:var(--fm);font-variant-numeric:tabular-nums;font-size:20px;font-weight:600;letter-spacing:-.02em}
 
@@ -472,6 +512,43 @@ body.sb-open{overflow:hidden}
     </div>
   </div>
 </div>
+
+<!-- ═══ 💸 المصروفات (OPEX) — تاب Expenses في شيت الطلبات ═══ -->
+<div class="ao-overlay" id="exOverlay" onclick="if(event.target===this)closeExpenses()">
+  <div class="ao-box" role="dialog" aria-modal="true" aria-labelledby="exTitle">
+    <div class="ao-head">
+      <h3 id="exTitle">💸 المصروفات</h3>
+      <button class="ao-x" onclick="closeExpenses()" aria-label="إغلاق">&times;</button>
+    </div>
+    <div class="ao-body">
+      <div class="ao-sec">➕ مصروف جديد</div>
+      <div class="ao-grid">
+        <div class="ao-f"><label>النوع *</label><select id="exType"></select></div>
+        <div class="ao-f"><label>موعد الوصول (الشحنة)</label>
+          <input id="exArrival" type="text" list="exArrivalList" placeholder="O-27SEP2026 — أو سيبه فاضي">
+          <datalist id="exArrivalList"></datalist></div>
+        <div class="ao-f"><label>التاريخ</label><input id="exDate" type="date"></div>
+      </div>
+      <div class="ao-grid">
+        <div class="ao-f"><label>المبلغ *</label><input id="exAmount" type="number" step="any" min="0" inputmode="decimal" placeholder="0"></div>
+        <div class="ao-f"><label>العملة</label>
+          <div class="ex-cur">
+            <label><input type="radio" name="exCur" value="EGP" checked> جنيه</label>
+            <label><input type="radio" name="exCur" value="USD"> دولار</label>
+          </div></div>
+        <div class="ao-f" id="exRateWrap"><label>سعر الدولار وقت الشحنة</label><input id="exRate" type="number" step="any" min="1" inputmode="decimal"></div>
+      </div>
+      <div class="ao-calc on" id="exCalc"></div>
+      <div class="ao-f"><label>ملاحظة</label><input id="exNote" type="text" maxlength="300" placeholder="مثلاً: فاتورة شحن الشحنة / رقم الإيصال"></div>
+      <div class="ao-msg" id="exMsg"></div>
+      <button type="button" class="ao-addbtn" id="exSave" onclick="submitExpense()">حفظ المصروف</button>
+
+      <div class="ao-sec" id="exListTitle">المصروفات</div>
+      <div id="exList"></div>
+    </div>
+  </div>
+</div>
+
 <aside class="sb" id="sb">
   <div class="sb-brand">
     <div class="lg">TS</div>
@@ -500,7 +577,8 @@ body.sb-open{overflow:hidden}
   <div class="sb-sec">
     <h4>موعد الوصول</h4>
     <div class="sbf">
-      <select id="arrivalSelect" onchange="applyFilters();autoCloseSb()"><option value="">📅 كل مواعيد الوصول</option></select>
+      <!-- اختيار متعدد — شوف msBuild / msValues -->
+      <div class="ms" id="arrivalSelect" data-all="📅 كل مواعيد الوصول" data-unit="موعد" data-search="1"></div>
     </div>
     <div class="sbf">
       <input id="searchArrival" placeholder="أو اكتب جزء من الموعد…" onkeydown="if(event.key==='Enter'){applyFilters();autoCloseSb();}" oninput="applyFilters()">
@@ -518,7 +596,7 @@ body.sb-open{overflow:hidden}
     </div>
     <div class="sbf">
       <label>الموظف</label>
-      <select id="searchUser" onchange="applyFilters();autoCloseSb()"><option value="">👤 كل الموظفين</option></select>
+      <div class="ms" id="searchUser" data-all="👤 كل الموظفين" data-unit="موظف"></div>
     </div>
     <div class="sbf">
       <label>تاريخ التسجيل</label>
@@ -551,6 +629,7 @@ body.sb-open{overflow:hidden}
       <button class="tbtn" onclick="loadData()"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> تحديث</button>
       <button class="tbtn" onclick="exportCSV()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> تصدير CSV</button>
       <button class="tbtn gold" onclick="printAllDisplayed()"><svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> طباعة الكل</button>
+      <button class="tbtn exp" id="exBtn" onclick="openExpenses()" style="display:none">💸 المصروفات</button>
       <button class="tbtn add" onclick="openAddOrder()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> إضافة طلب</button>
     </div>
   </div>
@@ -570,11 +649,14 @@ body.sb-open{overflow:hidden}
     <div class="kpi k-dep"><h3>إجمالي العربون المحصّل</h3><div id="totalDeposit" class="value" style="color:var(--warn)">0</div></div>
     <div class="kpi k-net"><h3>صافي التحصيل (End Price)</h3><div id="totalNet" class="value" style="color:var(--ok)">0</div></div>
     <div class="kpi k-cnt"><h3>عدد الشحنات</h3><div id="totalCount" class="value">0</div></div>
-    <div class="kpi k-usd"><h3>التكلفة (USD)</h3><div id="totalUSD" class="value">0</div></div>
+    <div class="kpi k-usd"><h3>التكلفة (USD)</h3><div id="totalUSD" class="value">0</div><div class="ksub" id="totalCostEgp"></div></div>
     <div class="kpi k-pf"><h3>أرباح الطلبات (Profit)</h3><div id="totalProfit" class="value" style="color:var(--ok)">0</div></div>
     <!-- 🆕 نسبة الـ 25% — عرض فقط، محسوبة لحظيًا من الأرباح المعروضة.
          مش متخزنة في الشيت ولا بتتبعت لأي حد، وبتتبع نفس الفلتر. -->
-    <div class="kpi k-25"><h3>25% من الأرباح</h3><div id="totalShare25" class="value" style="color:var(--gold)">0</div></div>
+    <!-- 💸 بيظهروا بس لصاحب صلاحية المصروفات — شوف applyExpensesKpis -->
+    <div class="kpi k-exp" id="kpiExp" style="display:none" onclick="openExpenses()" title="اضغط لعرض المصروفات"><h3>المصروفات (OPEX)</h3><div id="totalExp" class="value" style="color:var(--dead)">0</div><div class="ksub" id="totalExpSub"></div></div>
+    <div class="kpi k-np" id="kpiNetProfit" style="display:none"><h3>صافي الربح بعد المصروفات</h3><div id="totalNetProfit" class="value" style="color:var(--ok)">0</div></div>
+    <div class="kpi k-25"><h3 id="share25Title">25% من الأرباح</h3><div id="totalShare25" class="value" style="color:var(--gold)">0</div></div>
   </div>
 
   <div class="bulkbar">
@@ -646,6 +728,7 @@ async function loadData() {
         }
         ordersData = data;
         await loadRama();               // 🟣 نجيب RAMA كمان قبل ما نعرض
+        await loadExpenses();           // 💸 المصروفات (لصاحب الصلاحية بس)
         populateUserFilter();
         populateArrivalFilter();
         applyFilters(); 
@@ -657,6 +740,19 @@ async function loadData() {
    لازم يبقوا خيار واحد في الفلتر مش تلاتة */
 function arrKeyD(s){ return String(s||"").trim().toLowerCase().replace(/\s+/g," "); }
 const ARR_LABEL_D = new Map();
+
+/* 📆 يوم تسجيل الطلب بصيغة YYYY-MM-DD **بتوقيت الجهاز** — لفلتر "تاريخ التسجيل".
+   🐛→✅ كان new Date(o.date).toISOString():
+     • toISOString بيحوّل لتوقيت جرينتش، فطلب اتسجل 1 الصبح بتوقيت القاهرة
+       كان بيتحسب على اليوم اللي قبله، ويقع برّه فلتر اليوم الصح.
+     • ولو خلية تاريخ واحدة في الشيت فيها نص مش تاريخ، toISOString بيرمي
+       RangeError، فالفلترة كلها كانت بتقع والجدول ميتحدّثش خالص. */
+function dayKeyD(v){
+    if(!v) return "";
+    const d = new Date(v);
+    if(isNaN(d.getTime())) return "";
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+}
 
 /* ═══════════════════════════════════════════════════════════
    📅 قراءة موعد الوصول كتاريخ حقيقي — عشان الفلتر يترتب زمنيًا
@@ -718,12 +814,73 @@ function arrDateValueD(raw){
         : tryParse(original.replace(/^[A-Z0-9]{1,3}[-–—\s]+/, "").trim());
 }
 
+/* ═══════════════════════════════════════════════════════════
+   ☑️ فلتر اختيار متعدد — موعد الوصول والموظف
+   ═══════════════════════════════════════════════════════════
+   بدل <select> اللي بياخد قيمة واحدة: زرار بيفتح قايمة checkboxes.
+   • التعليم بيفلتر على طول (من غير ما القايمة تقفل) عشان تقدر
+     تختار كذا قيمة ورا بعض؛ "تم" بتقفلها.
+   • مفيش حاجة متعلّمة = الكل (زي الخيار الفاضي في الـ select القديم).
+   • msBuild بيحافظ على اللي كان متعلّم لما البيانات تتحمّل تاني. */
+function msValues(id){
+    const box = document.getElementById(id);
+    return box ? [...box.querySelectorAll(".ms-list input:checked")].map(i => i.value) : [];
+}
+function msLabelOf(box, v){
+    const i = [...box.querySelectorAll(".ms-list input")].find(x => x.value === v);
+    return i ? i.getAttribute("data-label") : v;
+}
+function msSync(id){
+    const box = document.getElementById(id);
+    if(!box) return;
+    const vals = msValues(id);
+    const txt = !vals.length ? box.getAttribute("data-all")
+              : vals.length === 1 ? msLabelOf(box, vals[0])
+              : vals.length + " " + box.getAttribute("data-unit") + ": " + vals.map(v => msLabelOf(box, v)).join("، ");
+    box.querySelector(".ms-txt").textContent = txt;
+    box.classList.toggle("has", vals.length > 0);
+}
+function msBuild(id, items){
+    const box = document.getElementById(id);
+    if(!box) return;
+    const keep = new Set(msValues(id));
+    const wasOpen = box.classList.contains("open");
+    const search = box.getAttribute("data-search") === "1";
+    box.innerHTML =
+        '<button type="button" class="ms-btn"><span class="ms-txt"></span><span class="ms-car">▼</span></button>' +
+        '<div class="ms-panel">' +
+          (search ? '<input class="ms-q" placeholder="دوّر في القايمة…">' : '') +
+          '<div class="ms-list">' + items.map(it =>
+            '<label class="ms-opt"><input type="checkbox" value="' + tsEscapeHtml(it.v) + '" data-label="' + tsEscapeHtml(it.label) + '"' +
+            (keep.has(it.v) ? ' checked' : '') + '><span>' + tsEscapeHtml(it.icon ? it.icon + " " + it.label : it.label) + '</span></label>'
+          ).join("") + '</div>' +
+          '<div class="ms-acts"><button type="button" class="clr">مسح</button><button type="button" class="ok">تم ✓</button></div>' +
+        '</div>';
+    box.classList.toggle("open", wasOpen);
+    box.querySelector(".ms-btn").onclick = () => box.classList.toggle("open");
+    box.querySelector(".ms-list").onchange = () => { msSync(id); applyFilters(); };
+    box.querySelector(".clr").onclick = () => { msClear(id); applyFilters(); };
+    box.querySelector(".ok").onclick = () => { box.classList.remove("open"); autoCloseSb(); };
+    const q = box.querySelector(".ms-q");
+    if(q) q.oninput = () => {
+        const s = q.value.trim().toLowerCase();
+        box.querySelectorAll(".ms-opt").forEach(o =>
+            o.classList.toggle("hid", !!s && !o.textContent.toLowerCase().includes(s)));
+    };
+    msSync(id);
+}
+function msClear(id){
+    const box = document.getElementById(id);
+    if(!box) return;
+    box.querySelectorAll(".ms-list input").forEach(i => i.checked = false);
+    msSync(id);
+}
+
 function populateArrivalFilter(){
-    const sel = document.getElementById("arrivalSelect");
-    if(!sel) return;
-    const cur = sel.value;
+    if(!document.getElementById("arrivalSelect")) return;
     ARR_LABEL_D.clear();
-    ordersData.concat(ramaRows).forEach(o=>{
+    // 💸 مواعيد المصروفات بتتضاف للقايمة كمان، وصفوف OPEX القديمة لأ (لو المصروفات شغالة)
+    (EXP_ON ? ordersData.filter(o => !isOpexD(o)) : ordersData).concat(ramaRows, EXP_ON ? EXPENSES : []).forEach(o=>{
         const raw = String(o.arrivaldate||"").trim();
         if(!raw) return;
         const k = arrKeyD(raw);
@@ -739,13 +896,18 @@ function populateArrivalFilter(){
         if(vb !== null) return 1;
         return String(b).localeCompare(String(a));
     });
-    const hasEmpty = ordersData.some(o=>!String(o.arrivaldate||"").trim());
-    sel.innerHTML = '<option value="">📅 كل مواعيد الوصول</option>'
-        + (hasEmpty ? '<option value="__none">— بدون موعد وصول —</option>' : '')
-        + keys.map(k=>`<option value="${k}">📅 ${ARR_LABEL_D.get(k)}</option>`).join("");
-    if(cur) sel.value = cur;
+    // ملاحظة: صفوف RAMA اللي من غير موعد بتتحسب برضه في "بدون موعد"
+    const hasEmpty = ordersData.concat(ramaRows, EXP_ON ? EXPENSES : []).some(o=>!String(o.arrivaldate||"").trim());
+    msBuild("arrivalSelect",
+        (hasEmpty ? [{ v: "__none", label: "— بدون موعد وصول —" }] : [])
+        .concat(keys.map(k => ({ v: k, label: ARR_LABEL_D.get(k), icon: "📅" }))));
 }
 
+
+/* 🏷️ صف مصاريف (OPEX) مش طلب عميل — نفس قاعدة isOpexRow في Orders_Code.gs */
+function isOpexD(o){
+    return !!o && (/opex/i.test(String(o.order || "")) || /opex/i.test(String(o.customerName || "")));
+}
 
 /* 🆕 توحيد رقم الموبايل للبحث — بيشيل أي رموز/مسافات، وبيشيل
    كود الدولة 20 والصفر البادئ، عشان كل الصيغ تتطابق مع بعض */
@@ -844,6 +1006,210 @@ async function loadRama(){
     }
 }
 
+/* ═══════════════════════════════════════════════════════════
+   💸 المصروفات (OPEX) — تاب "Expenses" في شيت الطلبات
+   ═══════════════════════════════════════════════════════════
+   بديل صفوف "OPEX" الوهمية اللي كانت بتتسجل كطلبات.
+   • بتظهر بس لصاحب صلاحية "Expenses" في شيت الموظفين (أو الأدمن)،
+     والسيرفر نفسه بيرفض أي حد غيرهم.
+   • EXP_ON = المصروفات اتحمّلت فعلاً. ساعتها صفوف OPEX القديمة في
+     Sheet1 بتتشال من الحسابات (وإلا كانت هتتخصم مرتين). لو التحميل
+     فشل أو الموظف مالوش صلاحية، اللوحة بترجع للطريقة القديمة بالظبط.
+   • كل مصروف بيتحوّل لجنيه بسعر الدولار المتسجل معاه وقت الشحنة. */
+const EXP_DEFAULT_RATE = 53;
+const EXP_TYPES = ["شحن دولي", "جمارك", "مندوب / توصيل", "تغليف", "إعلانات", "رواتب", "أخرى"];
+let EXPENSES = [];
+let EXP_ON = false;
+let EXP_MATCHED = [];      // مصروفات الفلتر الحالي (للنافذة)
+
+function expEgp(e){
+    const a = parseFloat(e.amount) || 0;
+    return String(e.currency).toUpperCase() === "USD" ? a * (parseFloat(e.rate) || EXP_DEFAULT_RATE) : a;
+}
+
+/* 💱 سعر الدولار لكل شحنة (موعد وصول) — من مصروفات الدولار المتسجلة
+   للشحنة دي في تاب Expenses. لو فيه أكتر من مصروف بأسعار مختلفة،
+   بناخد المتوسط المرجّح بالمبلغ. شحنة مالهاش مصروف بالدولار (أو الموظف
+   مالوش صلاحية المصروفات) = EXP_DEFAULT_RATE.
+   ده اللي بيتضرب فيه دولار كل طلب في حساب التكلفة والربح. */
+let EXP_RATE_BY_ARR = new Map();
+function buildArrivalRates(){
+    const acc = new Map();
+    EXPENSES.forEach(e => {
+        if(String(e.currency).toUpperCase() !== "USD") return;
+        const raw = String(e.arrivaldate || "").trim();
+        const amt = parseFloat(e.amount) || 0, rate = parseFloat(e.rate) || 0;
+        if(!raw || !(amt > 0) || !(rate > 0)) return;
+        const k = arrKeyD(raw), cur = acc.get(k) || { usd: 0, egp: 0 };
+        cur.usd += amt; cur.egp += amt * rate;
+        acc.set(k, cur);
+    });
+    EXP_RATE_BY_ARR = new Map([...acc].map(([k, v]) => [k, v.egp / v.usd]));
+}
+function rateForArrival(raw){
+    const k = arrKeyD(raw);
+    return (k && EXP_RATE_BY_ARR.get(k)) || EXP_DEFAULT_RATE;
+}
+
+async function loadExpenses(){
+    EXP_ON = false;
+    EXP_RATE_BY_ARR = new Map();
+    if(!tsHasTool("expenses")){ EXPENSES = []; syncExpenseUi(); return; }
+    try{
+        const res = await fetch(scriptURL + "?scope=expenses&staffToken=" + encodeURIComponent(getStaffToken()));
+        const data = await res.json();
+        if(Array.isArray(data)){ EXPENSES = data; EXP_ON = true; buildArrivalRates(); }
+        else EXPENSES = [];
+    }catch(e){
+        EXPENSES = [];          // السكريبت لسه مااتعملوش ديبلوي مثلاً — نكمّل بالطريقة القديمة
+        console.warn("تعذر تحميل المصروفات:", e);
+    }
+    syncExpenseUi();
+}
+
+function syncExpenseUi(){
+    document.getElementById("exBtn").style.display = EXP_ON ? "" : "none";
+    document.getElementById("kpiExp").style.display = EXP_ON ? "" : "none";
+    document.getElementById("kpiNetProfit").style.display = EXP_ON ? "" : "none";
+    document.getElementById("share25Title").innerText = EXP_ON ? "25% من صافي الربح" : "25% من الأرباح";
+}
+
+/** نفس فلاتر موعد الوصول والتاريخ اللي على الطلبات. المصروف مالوش موظف
+ *  ولا حالة ولا عميل، ففلاتر دول مش بتأثر عليه. */
+function expenseMatches(e, f){
+    const raw = String(e.arrivaldate || "").trim();
+    if(f.arrivalSet.size && !f.arrivalSet.has(raw ? arrKeyD(raw) : "__none")) return false;
+    if(f.arrivalSearch && !raw.toLowerCase().includes(f.arrivalSearch)) return false;
+    if(f.from || f.to){
+        const d = dayKeyD(e.date);
+        if(!d || (f.from && d < f.from) || (f.to && d > f.to)) return false;
+    }
+    return true;
+}
+
+function fmtEgp(n){ return Math.round(n).toLocaleString() + " ج.م"; }
+
+function openExpenses(){
+    if(!EXP_ON) return;
+    const typeSel = document.getElementById("exType");
+    if(!typeSel.options.length) typeSel.innerHTML = EXP_TYPES.map(t => `<option>${tsEscapeHtml(t)}</option>`).join("");
+    document.getElementById("exArrivalList").innerHTML =
+        [...ARR_LABEL_D.values()].map(v => `<option value="${tsEscapeHtml(v)}">`).join("");
+    // موعد واحد متعلّم في الفلتر = أغلب الظن المصروف ده للشحنة دي
+    const picks = msValues("arrivalSelect").filter(k => k !== "__none");
+    const arr = document.getElementById("exArrival");
+    if(!arr.value && picks.length === 1) arr.value = ARR_LABEL_D.get(picks[0]) || "";
+    const dt = document.getElementById("exDate");
+    if(!dt.value) dt.value = dayKeyD(new Date());
+    const rate = document.getElementById("exRate");
+    if(!rate.value) rate.value = EXP_DEFAULT_RATE;
+    document.getElementById("exMsg").textContent = "";
+    exCalc();
+    renderExpenseList();
+    document.getElementById("exOverlay").classList.add("show");
+}
+function closeExpenses(){ document.getElementById("exOverlay").classList.remove("show"); }
+
+function exCurrency(){ return (document.querySelector('input[name="exCur"]:checked') || {}).value || "EGP"; }
+
+function exCalc(){
+    const usd = exCurrency() === "USD";
+    document.getElementById("exRateWrap").style.display = usd ? "" : "none";
+    const amt = parseFloat(document.getElementById("exAmount").value) || 0;
+    const rate = parseFloat(document.getElementById("exRate").value) || EXP_DEFAULT_RATE;
+    const box = document.getElementById("exCalc");
+    box.innerHTML = !amt ? "اكتب المبلغ"
+        : usd ? `$${amt.toLocaleString()} × ${rate} = <b>${fmtEgp(amt * rate)}</b>`
+              : `<b>${fmtEgp(amt)}</b>`;
+}
+document.addEventListener("input", e => { if(e.target && /^ex(Amount|Rate)$/.test(e.target.id)) exCalc(); });
+document.addEventListener("change", e => { if(e.target && e.target.name === "exCur") exCalc(); });
+
+function renderExpenseList(){
+    const list = EXP_MATCHED.slice().sort((a, b) => String(b.date).localeCompare(String(a.date)));
+    const total = list.reduce((s, e) => s + expEgp(e), 0);
+    const filtered = list.length !== EXPENSES.length;
+    document.getElementById("exListTitle").innerText =
+        (filtered ? "مصروفات الفلتر الحالي" : "كل المصروفات") + " (" + list.length + ")";
+    const admin = aoIsAdmin();
+    document.getElementById("exList").innerHTML = !list.length
+        ? '<div class="ex-empty">مفيش مصروفات ' + (filtered ? "للفلتر ده" : "متسجلة لسه") + '</div>'
+        : '<div class="ex-sum">الإجمالي: <b>' + fmtEgp(total) + '</b></div>' + list.map(e => {
+            const usd = String(e.currency).toUpperCase() === "USD";
+            return `<div class="ex-row">
+              <div class="ex-b"><b>${tsEscapeHtml(e.type || "—")}</b>
+                <small>📅 ${tsEscapeHtml(e.arrivaldate || "بدون موعد وصول")} · ${tsEscapeHtml(dayKeyD(e.date))}${e.user ? " · " + tsEscapeHtml(e.user) : ""}</small>
+                ${e.note ? `<small>📝 ${tsEscapeHtml(e.note)}</small>` : ""}
+              </div>
+              <div class="ex-amt">${fmtEgp(expEgp(e))}${usd ? `<small>$${(parseFloat(e.amount)||0).toLocaleString()} × ${tsEscapeHtml(e.rate)}</small>` : ""}</div>
+              ${admin ? `<button class="ao-ci-x" title="مسح" onclick="deleteExpense('${tsJsAttr(e.id)}')">✕</button>` : ""}
+            </div>`;
+        }).join("");
+}
+
+/* الإرسال no-cors (مش بنقدر نقرا رد السيرفر — شوف tsPostScript)، فالتأكيد
+   الحقيقي بإننا نقرا المصروفات تاني ونلاقي الـ id. الـ id بيتولد مرة واحدة
+   للمحاولة، والسيرفر بيرفض نفس الـ id مرتين — فإعادة الضغط مش بتكرر المصروف. */
+let EXP_PENDING_ID = null;
+async function submitExpense(){
+    const msg = document.getElementById("exMsg");
+    const amount = parseFloat(document.getElementById("exAmount").value);
+    const currency = exCurrency();
+    const rate = parseFloat(document.getElementById("exRate").value) || EXP_DEFAULT_RATE;
+    msg.className = "ao-msg err";
+    if(!(amount > 0)) { msg.textContent = "اكتب المبلغ"; return; }
+    if(currency === "USD" && !(rate > 1 && rate < 1000)) { msg.textContent = "سعر الدولار مش مظبوط"; return; }
+
+    if(!EXP_PENDING_ID) EXP_PENDING_ID = "EXP" + Date.now().toString(36).toUpperCase() + Math.random().toString(36).slice(2, 6).toUpperCase();
+    const id = EXP_PENDING_ID;
+    const btn = document.getElementById("exSave");
+    tsSetBtnLoading(btn, "جاري الحفظ...");
+    msg.textContent = "";
+    try{
+        await tsPostScript(scriptURL, {
+            action: "addExpense", id,
+            date: document.getElementById("exDate").value,
+            arrivaldate: document.getElementById("exArrival").value.trim(),
+            type: document.getElementById("exType").value,
+            amount, currency, rate: currency === "USD" ? rate : "",
+            note: document.getElementById("exNote").value.trim(),
+            staffToken: getStaffToken()
+        });
+        let ok = false;
+        for(let i = 0; i < 3 && !ok; i++){
+            await new Promise(r => setTimeout(r, 1200 + i * 800));
+            await loadExpenses();
+            ok = EXPENSES.some(e => e.id === id);
+        }
+        tsClearBtnLoading(btn);
+        if(!ok){ msg.textContent = "⚠️ مش متأكد إن المصروف اتسجل — اضغط حفظ تاني (مش هيتكرر)، أو راجع تاب Expenses."; return; }
+        EXP_PENDING_ID = null;
+        document.getElementById("exAmount").value = "";
+        document.getElementById("exNote").value = "";
+        msg.className = "ao-msg ok";
+        msg.textContent = "✅ المصروف اتسجل";
+        applyFilters();
+        exCalc();
+        renderExpenseList();
+    }catch(err){
+        tsClearBtnLoading(btn);
+        msg.textContent = "❌ تعذر الاتصال بالسيرفر — المصروف مااتسجلش. " + err;
+    }
+}
+
+async function deleteExpense(id){
+    const e = EXPENSES.find(x => x.id === id);
+    if(!e || !confirm("تمسح المصروف ده؟\n" + (e.type || "") + " — " + fmtEgp(expEgp(e)) + "\n\nالمسح نهائي من تاب Expenses.")) return;
+    try{
+        await tsPostScript(scriptURL, { action: "deleteExpense", id, staffToken: getStaffToken() });
+        await new Promise(r => setTimeout(r, 1200));
+        await loadExpenses();
+        applyFilters();
+        renderExpenseList();
+        if(EXPENSES.some(x => x.id === id)) alert("⚠️ المصروف لسه موجود — جرّب تاني.");
+    }catch(err){ alert("❌ تعذر الاتصال بالسيرفر. " + err); }
+}
+
 /* فتح وقفل القائمة الجانبية على الموبايل */
 document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeSb(); });
 function openSb(){
@@ -863,28 +1229,19 @@ function autoCloseSb(){
 }
 
 function populateUserFilter() {
-    const select = document.getElementById("searchUser");
-    const currentVal = select.value;
     const users = [...new Set(ordersData.map(o => o.user || "").filter(u => u.trim() !== ""))].sort();
-    select.innerHTML = `<option value="">👤 كل الموظفين</option>`;
-    users.forEach(u => {
-        const opt = document.createElement("option");
-        opt.value = u;
-        opt.textContent = `👤 ${u}`;
-        if (u === currentVal) opt.selected = true;
-        select.appendChild(opt);
-    });
+    msBuild("searchUser", users.map(u => ({ v: u, label: u, icon: "👤" })));
 }
 
 function resetFilters() {
     document.getElementById("searchInput").value = "";
     document.getElementById("searchArrival").value = "";
-    document.getElementById("arrivalSelect").value = "";
+    msClear("arrivalSelect");
     document.getElementById("srcFilter").value = "";
     document.getElementById("dateFrom").value = "";
     document.getElementById("dateTo").value = "";
     document.getElementById("searchStatus").value = "";
-    document.getElementById("searchUser").value = "";
+    msClear("searchUser");
     selectedOrderIds.clear();
     applyFilters();
 }
@@ -932,11 +1289,11 @@ function createRowHTML(o) {
     const safeUser = tsEscapeHtml(o.user || '');
 
     return `<tr class="orow tone-${tone} ${checked?'is-sel':''}" data-order="${safeOrder}">
-        <td class="c-check"><input type="checkbox" class="row-check" value="${safeOrder}" ${checked ? 'checked' : ''} onchange="onRowCheckChange(this)"></td>
+        <td class="c-check"><input type="checkbox" class="row-check" value="${safeOrder}" data-orders="${tsEscapeHtml(orderIdsOf(o).join('|'))}" ${checked ? 'checked' : ''} onchange="onRowCheckChange(this)"></td>
 
         <td class="c-id">
             <div class="oid">${safeOrder}</div>
-            ${o.date ? `<div class="odate">${new Date(o.date).toISOString().split('T')[0]}</div>` : ``}
+            ${dayKeyD(o.date) ? `<div class="odate">${dayKeyD(o.date)}</div>` : ``}
         </td>
 
         <td class="c-cust">
@@ -953,19 +1310,19 @@ function createRowHTML(o) {
         </td>
 
         <td class="c-money">
-            <label class="mrow"><span>إجمالي</span><input type="number" id="egp-${printOrder}" class="inp" value="${finalP}"></label>
-            <label class="mrow"><span>عربون</span><input type="number" id="deposit-${printOrder}" class="inp dep" value="${dep}"></label>
+            <label class="mrow"><span>إجمالي</span><input type="number" id="egp-${safeOrder}" class="inp" value="${finalP}"></label>
+            <label class="mrow"><span>عربون</span><input type="number" id="deposit-${safeOrder}" class="inp dep" value="${dep}"></label>
             <div class="net" title="الصافي المطلوب تحصيله">${endP.toLocaleString()} <b>EGP</b></div>
         </td>
 
-        <td class="c-usd"><input type="number" id="usd-${printOrder}" class="inp usd" value="${parseFloat(o.usd || 0).toFixed(2)}"></td>
+        <td class="c-usd"><input type="number" id="usd-${safeOrder}" class="inp usd" value="${parseFloat(o.usd || 0).toFixed(2)}"></td>
 
-        <td class="c-arr"><input type="text" id="arrival-${printOrder}" class="inp" value="${safeArrival}" placeholder="موعد الوصول"></td>
+        <td class="c-arr"><input type="text" id="arrival-${safeOrder}" class="inp" value="${safeArrival}" placeholder="موعد الوصول"></td>
 
         <td class="c-status">
             <!-- 📋 من القائمة الموحّدة في assets/app.js — وأي حالة مش فيها
                  بتفضل مختارة زي ما هي بدل ما تتحول Pending Review عند الحفظ -->
-            <select id="status-${printOrder}" class="stsel st-${tone}">${tsStatusOptionsHtml(cur)}</select>
+            <select id="status-${safeOrder}" class="stsel st-${tone}">${tsStatusOptionsHtml(cur)}</select>
             ${TS_NOTE_STATUSES.indexOf(cur) !== -1 && o.statusNote ? `<div class="stnote" title="${tsEscapeHtml(o.statusNote)}">📝 ${tsEscapeHtml(o.statusNote)}</div>` : ""}
         </td>
 
@@ -1009,25 +1366,30 @@ function applyFilters() {
     // 🆕 فلتر موعد الوصول من قايمة جاهزة — بيشتغل جنب البحث النصي:
     // القايمة للاختيار السريع من المواعيد الموجودة فعلاً، والبحث
     // النصي لو عايز تكتب جزء من التاريخ بإيدك
-    const arrivalPick = document.getElementById("arrivalSelect").value;
+    // ☑️ اختيار متعدد: الطلب بيعدّي لو موعده أي واحد من المتعلّمين
+    const arrivalPicks = msValues("arrivalSelect");
+    const arrivalSet = new Set(arrivalPicks);
        const from = document.getElementById("dateFrom").value;
     const to = document.getElementById("dateTo").value;
     const search = document.getElementById("searchInput").value.toLowerCase();
     const status = document.getElementById("searchStatus").value;
-    const userFilter = document.getElementById("searchUser").value;
-    const USD_RATE = 50; 
+    const userPicks = msValues("searchUser");
+    const userSet = new Set(userPicks);
 
     const srcFilter = document.getElementById("srcFilter").value;   // "" | orders | rama
 
     // بنضم صفوف RAMA المُجمّعة للطلبات قبل الفلترة، عشان تاخد
     // نفس فلاتر موعد الوصول والبحث بالظبط
-    const pool = srcFilter === "orders" ? ordersData
+    // 💸 لو المصروفات شغالة، صفوف OPEX القديمة في Sheet1 بتتشال من هنا
+    // (مصروفاتها اتنقلت لتاب Expenses — وإلا كانت هتتخصم مرتين)
+    const orderRows = EXP_ON ? ordersData.filter(o => !isOpexD(o)) : ordersData;
+    const pool = srcFilter === "orders" ? orderRows
                : srcFilter === "rama"   ? ramaRows
-               : ordersData.concat(ramaRows);
+               : orderRows.concat(ramaRows);
 
     let filtered = pool.filter(o => {
-        const d = o.date ? new Date(o.date).toISOString().split('T')[0] : "";
-        const dateMatch = (!from || d >= from) && (!to || d <= to);
+        const d = dayKeyD(o.date);
+        const dateMatch = (!from || (d && d >= from)) && (!to || (d && d <= to));
         const cleanOrder = String(o.order || "").toLowerCase().replace(/\s/g, "");
 
 // 🆕 البحث بالموبايل بقى بيوحّد الصيغة على الجهتين — يعني
@@ -1042,14 +1404,16 @@ const searchMatch = !search ||
         const statusMatch = !status || o.status === status;
         const arrivalRaw = (o.arrivaldate || "").toString();
         const arrivalMatch = (!arrivalSearch || arrivalRaw.toLowerCase().includes(arrivalSearch))
-            && (!arrivalPick || (arrivalPick === "__none" ? !arrivalRaw.trim()
-                                                          : arrKeyD(arrivalRaw) === arrivalPick));
-        const userMatch = !userFilter || (o.user || "") === userFilter;
+            && (!arrivalSet.size || arrivalSet.has(arrivalRaw.trim() ? arrKeyD(arrivalRaw) : "__none"));
+        const userMatch = !userSet.size || userSet.has(o.user || "");
 
 return dateMatch && searchMatch && statusMatch && arrivalMatch && userMatch;
     });
     
-    filtered = filtered.reverse();
+    // 💱 تكلفة كل طلب بالجنيه = دولاره × سعر الدولار بتاع شحنته (من تاب Expenses)
+    // — بتتحسب قبل التجميع، عشان العميل اللي طلباته في شحنات مختلفة كل طلب
+    // ياخد سعر شحنته هو
+    filtered = filtered.reverse().map(o => ({ ...o, costEgp: (parseFloat(o.usd) || 0) * rateForArrival(o.arrivaldate) }));
 
     if (isGrouped) {
         const groups = {};
@@ -1067,7 +1431,8 @@ return dateMatch && searchMatch && statusMatch && arrivalMatch && userMatch;
                     totalShipping: parseFloat(o.shipping || 0),
                     finalPrice: parseFloat(o.finalPrice || 0), 
                     deposit: parseFloat(o.deposit || 0),
-                    usd: parseFloat(o.usd || 0) 
+                    usd: parseFloat(o.usd || 0),
+                    costEgp: o.costEgp
                 };
             } else {
                 groups[key].order.push(o.order);
@@ -1077,6 +1442,7 @@ return dateMatch && searchMatch && statusMatch && arrivalMatch && userMatch;
                 groups[key].finalPrice += parseFloat(o.finalPrice || 0);
                 groups[key].deposit += parseFloat(o.deposit || 0);
                 groups[key].usd += parseFloat(o.usd || 0);
+                groups[key].costEgp += o.costEgp;
             }
         });
         filtered = Object.values(groups).map(g => ({ ...g, order: g.order.join(' + ') })).concat(ramaKeep);
@@ -1091,17 +1457,35 @@ return dateMatch && searchMatch && statusMatch && arrivalMatch && userMatch;
         const ship = isGrouped ? (parseFloat(b.totalShipping)||0) : (parseFloat(b.shipping)||0);
         return a + (parseFloat(b.finalPrice||0) + ship - parseFloat(b.deposit||0));
     }, 0);
-    const totalProfit = totalEGP - (totalUSD * USD_RATE);
+    const totalCostEgp = filtered.reduce((a,b) => a + (b.costEgp || 0), 0);
+    const totalProfit = totalEGP - totalCostEgp;
+    document.getElementById("totalCostEgp").innerText = totalUSD
+        ? "= " + fmtEgp(totalCostEgp) + " (متوسط " + (totalCostEgp / totalUSD).toFixed(2) + " ج.م/$)" : "";
     
     document.getElementById("totalEGP").innerText = Math.round(totalEGP).toLocaleString() + " EGP";
     document.getElementById("totalUSD").innerText = Math.round(totalUSD).toLocaleString() + " $";
     document.getElementById("totalDeposit").innerText = Math.round(totalDeposit).toLocaleString() + " ج.م";
     document.getElementById("totalNet").innerText = Math.round(totalNet).toLocaleString() + " ج.م";
     document.getElementById("totalProfit").innerText = Math.round(totalProfit).toLocaleString() + " ج.م";
-    // 🆕 25% من الأرباح — عرض فقط، مش بيتخزن ولا بيتبعت لأي حد
-    document.getElementById("totalShare25").innerText = Math.round(totalProfit * 0.25).toLocaleString() + " ج.م";
-    document.getElementById("totalCount").innerText = filtered.length;
-    document.getElementById("activeUser").innerText = userFilter || "كل الموظفين";
+    // 💸 المصروفات بنفس فلتر موعد الوصول/التاريخ، وصافي الربح بعدها.
+    // الـ 25% بقت من صافي الربح — زي ما كانت فعليًا أيام صفوف OPEX
+    // (اللي كانت بتتخصم من الربح نفسه).
+    EXP_MATCHED = EXP_ON ? EXPENSES.filter(e => expenseMatches(e, { arrivalSet, arrivalSearch, from, to })) : [];
+    const totalExp = EXP_MATCHED.reduce((s, e) => s + expEgp(e), 0);
+    const profitBase = EXP_ON ? totalProfit - totalExp : totalProfit;
+    if (EXP_ON) {
+        document.getElementById("totalExp").innerText = fmtEgp(totalExp);
+        document.getElementById("totalExpSub").innerText = EXP_MATCHED.length + " مصروف — اضغط للتفاصيل";
+        document.getElementById("totalNetProfit").innerText = fmtEgp(profitBase);
+        document.getElementById("totalNetProfit").style.color = profitBase < 0 ? "var(--dead)" : "var(--ok)";
+        if (document.getElementById("exOverlay").classList.contains("show")) renderExpenseList();
+    }
+    // 🆕 25% — عرض فقط، مش بيتخزن ولا بيتبعت لأي حد
+    document.getElementById("totalShare25").innerText = Math.round(profitBase * 0.25).toLocaleString() + " ج.م";
+    // صفوف الـ OPEX مصاريف مش طلبات — متتعدّش في عدد الطلبات
+    // (لكن الدولار بتاعها لسه بيتخصم من الربح زي ما هو، ده المقصود منها)
+    document.getElementById("totalCount").innerText = filtered.filter(o => !isOpexD(o)).length;
+    document.getElementById("activeUser").innerText = userPicks.length ? userPicks.join("، ") : "كل الموظفين";
 
     /* 💰 الحسابات بتظهر لوحدها أول ما يتطبق أي فلتر، وترجع تتخفي
        لما ترجّع الفلاتر كلها فاضية — إلا لو المستخدم فتحها بإيده
@@ -1109,8 +1493,9 @@ return dateMatch && searchMatch && statusMatch && arrivalMatch && userMatch;
     const activeFilters = [
       search && "بحث",
       status && "حالة: " + status,
-      userFilter && "موظف: " + userFilter,
-      (arrivalPick || arrivalSearch) && "موعد وصول",
+      userPicks.length && "موظف: " + userPicks.join("، "),
+      arrivalPicks.length && "موعد وصول: " + arrivalPicks.map(k => k === "__none" ? "بدون موعد" : (ARR_LABEL_D.get(k) || k)).join("، "),
+      arrivalSearch && "موعد فيه \"" + arrivalSearch + "\"",
       (from || to) && "تاريخ",
       srcFilter && (srcFilter === "rama" ? "RAMA" : "طلبات الموقع")
     ].filter(Boolean);
@@ -1228,8 +1613,10 @@ function generateLabelHTML(data, isBulk = false) {
     const totalW = parseFloat(data.totalWeight || data.weight || 0).toFixed(2);
     const totalQ = data.totalQty || data.quantity || 1;
 
-    const rawPhone   = (data.phone || '').toString().replace(/\s/g, '');
-    const barcodeVal = tsEscapeHtml(rawPhone.replace(/\D/g, '') || data.order.toString());
+    // 🔢 tsToEnDigits: الموبايل المتسجل بأرقام عربي كان بيتمسح كله هنا،
+    // فالباركود كان بيطلع برقم الطلب بدل الموبايل، والموبايل نفسه بأرقام عربي
+    const rawPhone   = tsToEnDigits(data.phone || '').replace(/\s/g, '');
+    const barcodeVal = tsEscapeHtml(rawPhone.replace(/\D/g, '') || String(data.order || ''));
 
     return `
     <div class="label${isBulk ? ' bulk' : ''}">
@@ -1253,7 +1640,7 @@ function generateLabelHTML(data, isBulk = false) {
                 </tr>
                 <tr>
                     <td class="info-icon">&#128222;</td>
-                    <td class="info-val phone-num">${tsEscapeHtml(data.phone)}</td>
+                    <td class="info-val phone-num">${tsEscapeHtml(tsDisplayPhone(data.phone) || data.phone || '')}</td>
                 </tr>
             </table>
         </div>
@@ -1370,13 +1757,17 @@ function getBarcodeScript() {
     <\/script>`;
 }
 
+/* 🐛→✅ البوليصة كانت بتدوّر على الطلب بمقارنة الموبايل الخام من الشيت
+   بالموبايل بعد تحويله لأرقام إنجليزي — فأي عميل رقمه متسجل بأرقام عربي
+   (٠١٠…) زرار الطباعة بتاعه مكانش بيعمل أي حاجة، وكمان الطلب اللي من
+   غير موبايل. دلوقتي بندوّر برقم الطلب نفسه (وهو مميّز)، في البيانات
+   المعروضة حاليًا — فالصف المُجمّع بيطبع بإجمالياته زي ما هو ظاهر. */
 function printLabel(phone, orderId) {
-    const subset  = ordersData.filter(x => x.phone && x.phone.toString().replace(/\s/g, '') === phone);
-    let toPrint = isGrouped
-        ? currentFilteredData.find(x => x.phone.toString().replace(/\s/g, '') === phone)
-        : subset.find(x => x.order.toString() === orderId.toString());
+    const id = String(orderId);
+    const toPrint = currentFilteredData.find(x => !x.isRama && orderIdsOf(x)[0] === id)
+                 || ordersData.find(x => String(x.order) === id);
 
-    if (!toPrint) return;
+    if (!toPrint) return alert("⚠️ مش لاقي الطلب " + id + " — حدّث الصفحة وجرّب تاني.");
 
     tsOpenHtmlDoc(`<!DOCTYPE html>
         <html dir="rtl" lang="ar">
@@ -1385,8 +1776,12 @@ function printLabel(phone, orderId) {
 }
 
 function printAllDisplayed() {
+    // 🐛→✅ صفوف RAMA المُجمّعة وصفوف الـ OPEX كانت بتطلع بوالص هي كمان
+    // (بوليصة باسم "RAMA — إجمالي الموعد" أو "OPEX" وسط بوالص العملاء)
+    const items = currentFilteredData.filter(item => !item.isRama && !isOpexD(item));
+    if (!items.length) return alert("مفيش بوالص للطباعة في الفلتر الحالي.");
     let allHTML = '';
-    currentFilteredData.forEach(item => { allHTML += generateLabelHTML(item, true); });
+    items.forEach(item => { allHTML += generateLabelHTML(item, true); });
     tsOpenHtmlDoc(`<!DOCTYPE html>
         <html dir="rtl" lang="ar">
         <head><meta charset="UTF-8">${getLabelStyles()}</head>
@@ -1407,34 +1802,47 @@ function exportCSV(){
         let csv = '\uFEFF'; 
         csv += "اسم العميل,العنوان,رقم التليفون,إجمالي الأوردر,المدفوع,المطلوب عند الاستلام\n";
 
-        currentFilteredData.forEach(o => {
+        // 🐛→✅ (1) صفوف RAMA والـ OPEX مش عملاء — كانت بتطلع في ملف الشحن
+        // (2) في وضع التجميع الشحن كان بيتاخد من أول طلب بس مش الإجمالي
+        // (3) علامة " جوه العنوان كانت بتكسر أعمدة الملف، وأي خلية بتبدأ
+        //     بـ = أو + كان Excel بيشغّلها كمعادلة
+        const cell = v => {
+            let s = String(v == null ? "" : v).replace(/\r?\n/g, " ").replace(/"/g, '""');
+            if (/^[=+\-@]/.test(s)) s = "'" + s;
+            return '"' + s + '"';
+        };
+        currentFilteredData.filter(o => !o.isRama && !isOpexD(o)).forEach(o => {
             const finalP = parseFloat(o.finalPrice) || 0;
-            const ship = parseFloat(o.shipping) || 0;
+            const ship = isGrouped ? (parseFloat(o.totalShipping) || 0) : (parseFloat(o.shipping) || 0);
             const dep = parseFloat(o.deposit) || 0;
             const net = finalP + ship - dep;
 
-            const name = (o.customerName || "").replace(/,/g, " ");
-            const address = (o.address || "").replace(/,/g, " - ") + " " + (o.governorate || "");
-            const phone = (tsDisplayPhone(o.phone) || "").replace(/,/g, "");
-
-            csv += `"${name}","${address}","${phone}","${finalP}","${dep}","${net}"\n`;
+            const address = (o.address || "").trim() + " " + (o.governorate || "");
+            csv += [o.customerName || "", address, tsDisplayPhone(o.phone) || "", finalP, dep, net].map(cell).join(",") + "\n";
         });
 
         const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.download = "TryShoppy_Orders_" + new Date().toISOString().slice(0,10) + ".csv";
+        link.download = "TryShoppy_Orders_" + dayKeyD(new Date()) + ".csv";
         link.click();
     }
 // ✅ تحديد الكل بيشتغل على كل currentFilteredData (كل نتائج
 // الفلتر الحالي)، مش بس الصفوف المرسومة فعليًا في الـDOM دلوقتي —
 // بيغطي حتى الصفوف اللي لسه في طريقها تترسم في الخلفية
+/* 🐛→✅ أرقام الطلبات اللي في الصف ده:
+   • صف مُجمّع (وضع التجميع) = كل طلبات العميل، مش أول واحد بس. قبل كده
+     تحديد صف مُجمّع كان بيحدد أول طلب بس، فتغيير الحالة الجماعي كان
+     بيغيّر طلب واحد لكل عميل ويسيب الباقي على حالته من غير ما حد ياخد باله.
+   • صف RAMA = ولا حاجة (نظام تاني، مينفعش يتبعتله updateStatus). */
+function orderIdsOf(o){
+    if(!o || o.isRama) return [];
+    return String(o.order || "").split(' + ').map(s => s.trim()).filter(Boolean);
+}
+
 function toggleAll(el){
     if(el.checked){
-        currentFilteredData.forEach(o => {
-            const id = o.order ? o.order.toString().split(' + ')[0] : 'N/A';
-            selectedOrderIds.add(id);
-        });
+        currentFilteredData.forEach(o => orderIdsOf(o).forEach(id => selectedOrderIds.add(id)));
     } else {
         selectedOrderIds.clear();
     }
@@ -1447,8 +1855,8 @@ function toggleAll(el){
 
 // كل ما تشيك/تشيل تحديد صف لوحده، نحدّث الـSet وحالة الهيدر
 function onRowCheckChange(el){
-    if(el.checked) selectedOrderIds.add(el.value);
-    else selectedOrderIds.delete(el.value);
+    const ids = (el.getAttribute("data-orders") || el.value).split("|").filter(Boolean);
+    ids.forEach(id => el.checked ? selectedOrderIds.add(id) : selectedOrderIds.delete(id));
     const tr = el.closest("tr"); if(tr) tr.classList.toggle("is-sel", el.checked);
     updateSelectionUI();
 }
@@ -1465,11 +1873,9 @@ function updateSelectionUI(){
 
     const checkAll = document.getElementById("checkAll");
     if(checkAll){
-        const total = currentFilteredData.length;
-        const selectedInFilter = currentFilteredData.filter(o => {
-            const id = o.order ? o.order.toString().split(' + ')[0] : 'N/A';
-            return selectedOrderIds.has(id);
-        }).length;
+        const selectable = currentFilteredData.filter(o => orderIdsOf(o).length);
+        const total = selectable.length;
+        const selectedInFilter = selectable.filter(o => selectedOrderIds.has(orderIdsOf(o)[0])).length;
         checkAll.checked = total > 0 && selectedInFilter === total;
         checkAll.indeterminate = selectedInFilter > 0 && selectedInFilter < total;
     }
