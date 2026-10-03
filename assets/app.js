@@ -117,18 +117,44 @@ function tsOpenHtmlDoc(html){
 const TS_TRACK_URL = 'https://try-shoppy.com/track.html';
 const TS_WA_RULE = '━━━━━━━━━━━━━━━';
 
-/* رقم بصيغة العملة المصرية */
-function tsWaMoney(v){
+/* 🌐 لغة رسالة الواتساب
+   ---------------------------------------------------------------
+   🐛→✅ كل الرسائل كانت عربي بس — العميل اللي بيتعامل إنجليزي كان بيبعت
+   للشركة رسالة عربي متجهزة باسمه، وبيستقبل من المندوب والموظفين عربي.
+   دلوقتي كل رسالة ليها lang:
+     • رسايل العميل من الموقع  → لغة الموقع وقتها (TS_LANG)
+     • رسايل الموظفين للعميل   → لغة العميل المتسجلة مع طلبه (عمود lang)
+   tsWaLang بيوحّد أي قيمة لـ 'en' أو 'ar' (الفاضي = عربي). */
+function tsWaLang(v){ return String(v || '').trim().toLowerCase() === 'en' ? 'en' : 'ar'; }
+const TS_WA_TXT = {
+  ar: { item:'منتج', product:'الصنف', qty:'العدد', unit:'سعر القطعة', line:'إجمالي القطعة', specs:'المواصفات',
+        arrival:'موعد الوصول', arrivalTbd:'يتم تحديده بعد تأكيد الطلب', status:'الحالة', total:'الإجمالي الكلي',
+        paid:'المدفوع مقدمًا', due:'المطلوب عند الاستلام', name:'الاسم', phone:'الموبايل', gov:'المحافظة', addr:'العنوان',
+        hiCust:n => 'السلام عليكم ' + (n ? 'أ/ ' + n : 'حضرتك') + ' 👋', registered:'تم تسجيل طلبك في Try Shoppy ✅',
+        newOrder:'🛒 طلب جديد — Try Shoppy', track:'تابع طلبك في أي وقت من هنا:', anyQ:'لأي استفسار إحنا معاك 🙏',
+        waiting:'مستني تأكيدكم 🙏', cur:' ج.م' },
+  en: { item:'Item', product:'Product', qty:'Qty', unit:'Unit price', line:'Line total', specs:'Details',
+        arrival:'Expected arrival', arrivalTbd:'set once the order is confirmed', status:'Status', total:'Grand total',
+        paid:'Paid in advance', due:'Due on delivery', name:'Name', phone:'Phone', gov:'Governorate', addr:'Address',
+        hiCust:n => 'Hi ' + (n || 'there') + ' 👋', registered:'Your Try Shoppy order has been registered ✅',
+        newOrder:'🛒 New order — Try Shoppy', track:'Track your order anytime here:', anyQ:"We're here if you have any questions 🙏",
+        waiting:'Looking forward to your confirmation 🙏', cur:' EGP' }
+};
+function tsWaT(lang){ return TS_WA_TXT[tsWaLang(lang)]; }
+
+/* رقم بصيغة العملة المصرية (ج.م بالعربي / EGP بالإنجليزي) */
+function tsWaMoney(v, lang){
   const n = parseFloat(v) || 0;
-  return n.toLocaleString('en-US', { maximumFractionDigits: 2 }) + ' ج.م';
+  return n.toLocaleString('en-US', { maximumFractionDigits: 2 }) + tsWaT(lang).cur;
 }
 
 /* موعد الوصول بيتقرا من الشيت (عمود arrivaldate). وقت إنشاء الطلب
    الموعد لسه مش موجود — الطلب بيبقى "قيد المراجعة" — فبنكتب
-   للعميل الحقيقة بدل ما نسيب السطر فاضي أو نخترع تاريخ. */
-function tsWaArrival(date){
+   للعميل الحقيقة بدل ما نسيب السطر فاضي أو نخترع تاريخ.
+   🆕 بيتكتب بشكل مفهوم (27 سبتمبر 2026 / 27 Sep 2026) مش O-27SEP2026 */
+function tsWaArrival(date, lang){
   const d = String(date == null ? '' : date).trim();
-  return d ? d : 'يتم تحديده بعد تأكيد الطلب';
+  return d ? tsFormatArrival(d, tsWaLang(lang)) : tsWaT(lang).arrivalTbd;
 }
 
 /* 🚦 حالة الطلب بالعربي.
@@ -153,9 +179,17 @@ const TS_STATUS_AR = {
   'Returned':         'مرتجع',
   'Lost':             'مفقود'
 };
-function tsStatusLabel(s){
+/* نفس الحالات بصياغة إنجليزي مفهومة للعميل (مش أسماء الشيت الداخلية) */
+const TS_STATUS_EN = {
+  'Pending Review':'Under review', 'Confirmed Via Try':'Confirmed', 'Processing':'Processing',
+  'Placed':'Purchased from the store', 'Arrived USA HUB':'At our USA hub', 'In transit':'On its way to Egypt',
+  'Arrived Cairo HUB':'Arrived in Cairo', 'Shipped To You':'Out for delivery', 'Delivered':'Delivered',
+  'On Hold':'On hold', 'Delayed':'Delayed', 'Canceled':'Canceled', 'Returned':'Returned', 'Lost':'Lost'
+};
+function tsStatusLabel(s, lang){
   const k = String(s == null ? '' : s).trim();
   if(!k) return '';
+  if(tsWaLang(lang) === 'en') return TS_STATUS_EN[k] || k;
   return TS_STATUS_AR[k] || k;
 }
 
@@ -360,7 +394,8 @@ function tsFormatSheetDate(v){
    لو unitPrice مش متبعت، بتتحسب من الإجمالي ÷ العدد.
    index → بيرقّم المنتجات (منتج 1: / منتج 2:) في الرسائل اللي
    فيها أكتر من صنف، عشان العميل يقدر يشاور على واحد بعينه. */
-function tsWaItemBlock(item){
+function tsWaItemBlock(item, lang){
+  const T = tsWaT(lang);
   const qty  = parseInt(item.qty, 10) || 1;
   const line = parseFloat(item.lineTotal) || 0;
   const unit = (item.unitPrice !== undefined && item.unitPrice !== null && item.unitPrice !== '')
@@ -368,18 +403,23 @@ function tsWaItemBlock(item){
     : (qty > 0 ? line / qty : line);
 
   const rows = [];
-  const label = item.index ? 'منتج ' + item.index + ': ' : '';
+  const label = item.index ? T.item + ' ' + item.index + ': ' : '';
   if(item.orderNo) rows.push('🔖 *' + item.orderNo + '*');
   if(item.link)    rows.push('🔗 ' + label + item.link);
   else if(item.name) rows.push('🔗 ' + label + item.name);
-  if(item.link && item.name) rows.push('الصنف: ' + item.name);
+  if(item.link && item.name) rows.push(T.product + ': ' + item.name);
 
-  rows.push('العدد: *' + qty + '*');
-  rows.push('سعر القطعة: *' + tsWaMoney(unit) + '*');
-  rows.push('إجمالي القطعة: *' + tsWaMoney(line) + '*');
+  rows.push(T.qty + ': *' + qty + '*');
+  /* سعر القطعة وإجماليها نفس الرقم لو العدد 1 — سطر واحد كفاية بدل تكرار */
+  if(qty > 1){
+    rows.push(T.unit + ': *' + tsWaMoney(unit, lang) + '*');
+    rows.push(T.line + ': *' + tsWaMoney(line, lang) + '*');
+  } else {
+    rows.push(T.unit + ': *' + tsWaMoney(line, lang) + '*');
+  }
 
   const specs = String(item.specs == null ? '' : item.specs).trim();
-  if(specs) rows.push('المواصفات: ' + specs);
+  if(specs) rows.push(T.specs + ': ' + specs);
 
   (item.extraLines || []).forEach(l => { if(l) rows.push(l); });
 
@@ -387,10 +427,10 @@ function tsWaItemBlock(item){
      الموعد مكتوب في عنوان المجموعة فوق. من غيرها كانت رسالة
      "طلبك وصل وجاهز للتسليم" هتقول تحتيها "موعد الوصول: يتم
      تحديده بعد تأكيد الطلب" — تناقض قدام العميل. */
-  if(!item.hideArrival) rows.push('موعد الوصول: ' + tsWaArrival(tsFormatSheetDate(item.arrivalDate)));
+  if(!item.hideArrival) rows.push(T.arrival + ': ' + tsWaArrival(tsFormatSheetDate(item.arrivalDate), lang));
 
-  const status = tsStatusLabel(item.status);
-  if(status) rows.push('🚦 الحالة: *' + status + '*');
+  const status = tsStatusLabel(item.status, lang);
+  if(status) rows.push('🚦 ' + T.status + ': *' + status + '*');
 
   return rows.join('\n');
 }
@@ -398,6 +438,7 @@ function tsWaItemBlock(item){
 /* الرسالة الكاملة.
    opts = {
      to: 'customer' | 'shop',
+     lang: 'ar' | 'en'   ← 🌐 لغة الرسالة (الافتراضي عربي)
      customerName, phone, governorate, address,
      items: [...], total,
      intro, outro, extraTotals[]
@@ -406,6 +447,8 @@ function tsWaItemBlock(item){
    to:'customer' → رسالة للعميل، بتتضمن لينك التتبع            */
 function tsWaMessage(opts){
   const o = opts || {};
+  const lang = tsWaLang(o.lang);
+  const T = tsWaT(lang);
   const toCustomer = o.to !== 'shop';
   const items = o.items || [];
   const name = String(o.customerName || '').trim();
@@ -415,16 +458,16 @@ function tsWaMessage(opts){
   if(o.intro){
     parts.push(o.intro);
   } else if(toCustomer){
-    parts.push('السلام عليكم ' + (name ? 'أ/ ' + name : 'حضرتك') + ' 👋');
-    parts.push('تم تسجيل طلبك في Try Shoppy ✅');
+    parts.push(T.hiCust(name));
+    parts.push(T.registered);
   } else {
-    parts.push('🛒 طلب جديد — Try Shoppy');
+    parts.push(T.newOrder);
   }
 
   parts.push('');
   items.forEach(it => {
     parts.push(TS_WA_RULE);
-    parts.push(tsWaItemBlock(it));
+    parts.push(tsWaItemBlock(it, lang));
   });
   if(items.length) parts.push(TS_WA_RULE);
 
@@ -433,7 +476,7 @@ function tsWaMessage(opts){
     : items.reduce((s, i) => s + (parseFloat(i.lineTotal) || 0), 0);
 
   parts.push('');
-  parts.push('💰 *الإجمالي الكلي: ' + tsWaMoney(total) + '*');
+  parts.push('💰 *' + T.total + ': ' + tsWaMoney(total, lang) + '*');
 
   /* 💵 العربون — بيظهر بس لو فيه مبلغ مدفوع فعلاً. في الطلبات
      الجديدة العربون لسه ما اتحصّلش، فسطر "المدفوع مقدمًا: 0"
@@ -441,30 +484,32 @@ function tsWaMessage(opts){
      فعلاً هو المتبقي عند الاستلام مش الإجمالي. */
   const deposit = parseFloat(o.deposit) || 0;
   if(deposit > 0){
-    parts.push('💵 المدفوع مقدمًا: ' + tsWaMoney(deposit));
-    parts.push('📌 *المطلوب عند الاستلام: ' + tsWaMoney(total - deposit) + '*');
+    parts.push('💵 ' + T.paid + ': ' + tsWaMoney(deposit, lang));
+    parts.push('📌 *' + T.due + ': ' + tsWaMoney(Math.max(0, total - deposit), lang) + '*');
   }
 
   (o.extraTotals || []).forEach(l => { if(l) parts.push(l); });
 
   if(!toCustomer){
     parts.push('');
-    if(name)           parts.push('👤 الاسم: ' + name);
-    if(o.phone)        parts.push('📞 الموبايل: ' + tsDisplayPhone(o.phone));
-    if(o.governorate)  parts.push('📍 المحافظة: ' + o.governorate);
-    if(o.address)      parts.push('🏠 العنوان: ' + o.address);
+    if(name)           parts.push('👤 ' + T.name + ': ' + name);
+    if(o.phone)        parts.push('📞 ' + T.phone + ': ' + tsDisplayPhone(o.phone));
+    if(o.governorate)  parts.push('📍 ' + T.gov + ': ' + o.governorate);
+    if(o.address)      parts.push('🏠 ' + T.addr + ': ' + o.address);
   }
 
   parts.push('');
   if(o.outro){
     parts.push(o.outro);
   } else if(toCustomer){
-    parts.push('تابع طلبك في أي وقت من هنا:');
-    parts.push(TS_TRACK_URL);
+    parts.push(T.track);
+    // 🆕 لينك التتبع بيفتح أول طلب على طول (track.html?order=…) بدل صفحة فاضية
+    const first = (items.find(i => i.orderNo) || {}).orderNo;
+    parts.push(first ? TS_TRACK_URL + '?order=' + encodeURIComponent(first) : TS_TRACK_URL);
     parts.push('');
-    parts.push('لأي استفسار إحنا معاك 🙏');
+    parts.push(T.anyQ);
   } else {
-    parts.push('مستني تأكيدكم 🙏');
+    parts.push(T.waiting);
   }
 
   return parts.join('\n');
