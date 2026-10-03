@@ -472,6 +472,7 @@ function renderCustomer(){
   const c = current;
   const view = document.getElementById("view");
   if(!c){ view.innerHTML = ""; return; }
+  custLang();   // نحفظ لغة العميل قبل أي تسليم (شوف custLang)
 
   const active = c.rows.filter(o => ACTIVE.indexOf(String(o.status).trim()) !== -1);
   const held = c.rows.filter(o => String(o.status).trim() === "On Hold");
@@ -564,22 +565,38 @@ function waOnTheWay(){
   const sel = selectedRows().length ? selectedRows() : current.rows.filter(o => ACTIVE.indexOf(String(o.status).trim()) !== -1);
   const due = sel.reduce((s, o) => s + dueOf(o), 0);
   const first = String(current.name || "").trim().split(/\s+/)[0] || "";
-  const lines = [
-    "أهلًا " + first + " 👋",
-    "معاك مندوب Try Shoppy 🛵 — طلبك في الطريق ليك النهارده إن شاء الله 📦",
-    ""
-  ].concat(sel.map(o => "• " + o.order)).concat([""]);
+  // 🌐 العميل اللي طلب بالإنجليزي (عمود lang) بتوصله الرسالة إنجليزي
+  const en = custLang() === "en";
+  const lines = (en
+    ? ["Hi " + (first || "there") + " 👋", "This is your Try Shoppy courier 🛵 — your order is on its way to you today 📦", ""]
+    : ["أهلًا " + first + " 👋", "معاك مندوب Try Shoppy 🛵 — طلبك في الطريق ليك النهارده إن شاء الله 📦", ""]
+  ).concat(sel.map(o => "• " + o.order)).concat([""]);
   if(due > 0){
-    lines.push("💵 المطلوب عند الاستلام: " + money(due) + " ج.م");
-    lines.push("الدفع زي ما يريحك: إنستاباي، أو تحويل بنكي، أو كاش وقت الاستلام — والمحفظة الإلكترونية كمان متاحة لو أسهل ليك. لو هتحوّل، قولّي وهبعتلك البيانات 🙏");
+    if(en){
+      lines.push("💵 Amount due on delivery: " + money(due) + " EGP");
+      lines.push("Pay however suits you: InstaPay, bank transfer, or cash on delivery — a mobile wallet works too if that's easier. If you'd like to transfer, just tell me and I'll send the details 🙏");
+    } else {
+      lines.push("💵 المطلوب عند الاستلام: " + money(due) + " ج.م");
+      lines.push("الدفع زي ما يريحك: إنستاباي، أو تحويل بنكي، أو كاش وقت الاستلام — والمحفظة الإلكترونية كمان متاحة لو أسهل ليك. لو هتحوّل، قولّي وهبعتلك البيانات 🙏");
+    }
   } else {
-    lines.push("✅ طلبك مدفوع بالكامل — مفيش أي مبلغ مطلوب عند الاستلام.");
+    lines.push(en ? "✅ Your order is fully paid — nothing to pay on delivery." : "✅ طلبك مدفوع بالكامل — مفيش أي مبلغ مطلوب عند الاستلام.");
   }
   lines.push("");
-  lines.push("📍 لو تسمح، ابعتلي اللوكيشن هنا، وأي تفاصيل تسهّل الوصول (رقم العمارة، الدور، علامة مميزة) لو مش موجودة في العنوان.");
+  lines.push(en
+    ? "📍 Please share your location here, plus anything that helps me find you (building number, floor, a landmark) if it's not in the address."
+    : "📍 لو تسمح، ابعتلي اللوكيشن هنا، وأي تفاصيل تسهّل الوصول (رقم العمارة، الدور، علامة مميزة) لو مش موجودة في العنوان.");
   lines.push("");
-  lines.push("شكرًا لثقتك في Try Shoppy 🌟");
+  lines.push(en ? "Thank you for trusting Try Shoppy 🌟" : "شكرًا لثقتك في Try Shoppy 🌟");
   tsWaOpen(current.phone || "", lines.join("\n"));
+}
+/** لغة العميل الحالي — لو أي طلب من طلباته متسجل إنجليزي (عمود lang) */
+function custLang(){
+  if(!current) return "ar";
+  // بعد التسليم current.rows بتتفضى (العميل بيختفي من القايمة) — فاللغة بتتحفظ
+  // على current نفسه أول ما تتحسب، والإيصال بعد كده بياخدها من هنا
+  if(current.rows.length) current.langCache = current.rows.some(o => tsWaLang(o.lang) === "en") ? "en" : "ar";
+  return current.langCache || "ar";
 }
 let LAST_RECEIPT = null;
 function waReceipt(){ if(LAST_RECEIPT) tsWaOpen(LAST_RECEIPT.phone, LAST_RECEIPT.text); }
@@ -742,8 +759,14 @@ async function askDeliver(){
   }
   const okCount = updates.length - failed.length;
   if(okCount) logCollection(current.name, updates.filter(u => failed.indexOf(u) === -1));
-  LAST_RECEIPT = { phone: current.phone || "", text: "أهلًا " + (current.name || "") + " 👋\nتم تسليم طلبك من Try Shoppy ✅\n" +
-    updates.map(u => "• " + u.order).join("\n") + "\nالمبلغ المدفوع: " + money(amount) + " ج.م\nشكرًا لثقتك 🌟" };
+  // 🐛→✅ الإيصال كان بيعدّ كل الطلبات حتى اللي ماتسجلتش — دلوقتي اللي نجح بس
+  // 🌐 وبلغة العميل
+  const okList = updates.filter(u => failed.indexOf(u) === -1).map(u => "• " + u.order).join("\n");
+  LAST_RECEIPT = { phone: current.phone || "", text: custLang() === "en"
+    ? "Hi " + (current.name || "") + " 👋\nYour Try Shoppy order has been delivered ✅\n" + okList +
+      "\nAmount paid: " + money(amount) + " EGP\nThank you for your trust 🌟"
+    : "أهلًا " + (current.name || "") + " 👋\nتم تسليم طلبك من Try Shoppy ✅\n" + okList +
+      "\nالمبلغ المدفوع: " + money(amount) + " ج.م\nشكرًا لثقتك 🌟" };
   if(failed.length){
     toast("err", "⚠️ اتسجل " + okCount + " من " + updates.length + ". دول ماتسجلوش: " + failed.map(f => f.order).join("، ") + " — جرّب تاني ليهم بس.");
   } else {

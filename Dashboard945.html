@@ -478,6 +478,9 @@ body.sb-open{overflow:hidden}
           </select>
         </div>
         <div class="ao-f"><label>مسجّل باسم</label><input id="aoUser" type="text" readonly></div>
+        <!-- 🌐 لغة العميل — إيميل التأكيد وكل إيميلات ورسايل الحالة بعد كده بيها -->
+        <div class="ao-f"><label>لغة العميل</label>
+          <select id="aoLang"><option value="ar">العربية</option><option value="en">English</option></select></div>
       </div>
 
       <!-- 🙈 "مخفي عن" — نفس فكرة عمود hiddenFrom في الشيت: أسماء
@@ -1051,24 +1054,44 @@ function rateForArrival(raw){
     return (k && EXP_RATE_BY_ARR.get(k)) || EXP_DEFAULT_RATE;
 }
 
+/* 🐛→✅ الزرار كان بيستخبى في صمت لو أي شرط ناقص، فالأدمن مكانش عارف
+   ليه مش ظاهر. دلوقتي بيظهر لأي حد عنده الصلاحية أو أدمن، ولو المصروفات
+   مااشتغلتش، الضغط عليه بيقول السبب بالظبط (EXP_REASON). */
+let EXP_REASON = "";
 async function loadExpenses(){
     EXP_ON = false;
+    EXP_REASON = "";
     EXP_RATE_BY_ARR = new Map();
-    if(!tsHasTool("expenses")){ EXPENSES = []; syncExpenseUi(); return; }
+    if(!tsHasTool("expenses")){
+        EXPENSES = [];
+        EXP_REASON = "جلستك الحالية مافيهاش صلاحية المصروفات.\n\n" +
+            "١) سجّل خروج من اللوحة وادخل تاني.\n" +
+            "٢) لو لسه: اتأكد إن Staff_Code.gs اتعمله ديبلوي بالنسخة الجديدة، وإن عمود Expenses في شيت الموظفين متعلّم قدام اسمك (الأدمن بياخدها لوحده).";
+        syncExpenseUi(); return;
+    }
     try{
         const res = await fetch(scriptURL + "?scope=expenses&staffToken=" + encodeURIComponent(getStaffToken()));
         const data = await res.json();
-        if(Array.isArray(data)){ EXPENSES = data; EXP_ON = true; buildArrivalRates(); }
-        else EXPENSES = [];
+        // ⚠️ لازم يكون شكل مصروفات فعلاً: نسخة Orders_Code القديمة بترجّع
+        // قايمة **الطلبات** على نفس الرابط، وكانت هتتحسب كأنها مصروفات
+        const looksRight = Array.isArray(data) && data.every(e => e && "amount" in e && "currency" in e);
+        if(looksRight){ EXPENSES = data; EXP_ON = true; buildArrivalRates(); }
+        else {
+            EXPENSES = [];
+            EXP_REASON = data && data.code === "forbidden"
+                ? "السيرفر رافض: حسابك مالوش صلاحية Expenses — علّمها في شيت الموظفين وسجّل دخول تاني."
+                : "السيرفر لسه بالنسخة القديمة — اعمل ديبلوي (New version) لـ Orders_Code.gs وحدّث الصفحة.";
+        }
     }catch(e){
         EXPENSES = [];          // السكريبت لسه مااتعملوش ديبلوي مثلاً — نكمّل بالطريقة القديمة
+        EXP_REASON = "تعذر الاتصال بالسيرفر لتحميل المصروفات — حدّث الصفحة وجرّب تاني.";
         console.warn("تعذر تحميل المصروفات:", e);
     }
     syncExpenseUi();
 }
 
 function syncExpenseUi(){
-    document.getElementById("exBtn").style.display = EXP_ON ? "" : "none";
+    document.getElementById("exBtn").style.display = (EXP_ON || tsHasTool("expenses") || aoIsAdmin()) ? "" : "none";
     document.getElementById("kpiExp").style.display = EXP_ON ? "" : "none";
     document.getElementById("kpiNetProfit").style.display = EXP_ON ? "" : "none";
     document.getElementById("share25Title").innerText = EXP_ON ? "25% من صافي الربح" : "25% من الأرباح";
@@ -1090,7 +1113,7 @@ function expenseMatches(e, f){
 function fmtEgp(n){ return Math.round(n).toLocaleString() + " ج.م"; }
 
 function openExpenses(){
-    if(!EXP_ON) return;
+    if(!EXP_ON){ alert("💸 المصروفات مش شغالة دلوقتي\n\n" + (EXP_REASON || "حدّث الصفحة وجرّب تاني.")); return; }
     const typeSel = document.getElementById("exType");
     if(!typeSel.options.length) typeSel.innerHTML = EXP_TYPES.map(t => `<option>${tsEscapeHtml(t)}</option>`).join("");
     document.getElementById("exArrivalList").innerHTML =
@@ -2292,6 +2315,10 @@ function aoPickCustomer(i){
   const gov = document.getElementById("aoGov");
   // المحافظة بتتحط بس لو موجودة فعلاً في الليستة
   if(c.gov && [...gov.options].some(op => op.value === c.gov)) gov.value = c.gov;
+  // 🌐 لغة العميل من آخر طلب ليه فيه لغة متسجلة
+  const key = normPhoneD(c.phone);
+  const withLang = ordersData.filter(o => key && normPhoneD(o.phone) === key && o.lang).pop();
+  document.getElementById("aoLang").value = tsWaLang(withLang ? withLang.lang : "");
   document.getElementById("aoResults").className = "ao-res";
   document.getElementById("aoSearch").value = "";
   document.getElementById("aoLink").focus();
@@ -2349,6 +2376,8 @@ function aoSetupHideSection(){
 }
 
 function openAddOrder(){
+  // عميل جديد = عربي لحد ما يتختار غير كده (لو الفورم فيه بيانات متسابة، اللغة بتفضل زي ما هي)
+  if(!document.getElementById("aoName").value) document.getElementById("aoLang").value = "ar";
   const gov = document.getElementById("aoGov");
   if(!gov.options.length){
     gov.innerHTML = '<option value="">— اختر المحافظة —</option>' +
@@ -2477,7 +2506,8 @@ async function submitAddOrder(){
        إيميل واحد بس ومستقل عن التاني (مش زي suppressEmail
        القديمة اللي كانت بتقفل الاتنين مع بعض) */
     notifyStaff: notifyStaff,
-    notifyCustomer: notifyCustomer
+    notifyCustomer: notifyCustomer,
+    lang: document.getElementById("aoLang").value
   });
 
   /* ⚠️ بالتتابع مش Promise.all — نفس السبب المشروح في calculator.html

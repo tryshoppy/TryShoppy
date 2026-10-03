@@ -797,7 +797,7 @@ document.getElementById('placeOrderBtn').addEventListener('click',async function
         // 🐛→✅ بقت بترجع true لو الطلب وصل للسيرفر (مش Response نقرا
         // نصه) — الشرح الكامل جوه tsPostScript في assets/app.js
         // martId: السيرفر بيجيب السعر من الكاتالوج بيه ويقلل المخزون (applyMartCatalog_)
-        await tsSubmitOrderRow({order:o,martId:item.id,customerName:name,phone,email,country:"Try Shoppy Mart",address:addr,governorate:gov,link:'',quantity:item.qty,usd:'',weight:'',dimensions:(item.name&&item.name.en)||'',category:'Mart - '+item.cat,finalPrice:item.price*item.qty,status:'Pending Review',
+        await tsSubmitOrderRow({order:o,martId:item.id,lang:TS_LANG,customerName:name,phone,email,country:"Try Shoppy Mart",address:addr,governorate:gov,link:'',quantity:item.qty,usd:'',weight:'',dimensions:(item.name&&item.name.en)||'',category:'Mart - '+item.cat,finalPrice:item.price*item.qty,status:'Pending Review',
           suppressEmail:idx>0,                                  // إيميل واحد فقط للطلب كله
           emailSummary:idx===0?emailSummary:'',
           cartTotal:idx===0?tsCartSubtotal():undefined});       // ✅ إجمالي السلة الحقيقي، منفصل عن finalPrice بتاع الصف الأول بس
@@ -883,10 +883,14 @@ document.getElementById('cartWhatsAppBtn').addEventListener('click',()=>{
     };
   });
 
+  // 🌐 بلغة العميل — والمحافظة بالاسم الظاهر له في القايمة
+  const govSel=document.getElementById('coGov');
+  const govOpt=[...govSel.options].find(op=>op.value===s.gov);
   const msg=tsWaMessage({
     to:'shop',
-    intro:'🛒 طلب جديد — Try Shoppy Mart',
-    customerName:s.name, phone:s.phone, governorate:s.gov, address:s.addr,
+    lang:TS_LANG,
+    intro:TS_LANG==='en'?'🛒 New order — Try Shoppy Mart':'🛒 طلب جديد — Try Shoppy Mart',
+    customerName:s.name, phone:s.phone, governorate:govOpt?govOpt.textContent:s.gov, address:s.addr,
     items:items, total:s.total
   });
 

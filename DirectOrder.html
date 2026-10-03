@@ -156,7 +156,7 @@
     </select>
   </div>
   <div class="input-group">
-    <label>الفئة | Category</label>
+    <label>الفئة | Category <span style="color:#DC2626">*</span></label>
     <select id="category">
       <option value="">اختر الفئة (Select)...</option>
       <option value="Clothes (Regular)">ملابس عادية | Clothes (Regular)</option>
@@ -320,6 +320,15 @@
 <label>العنوان بالتفصيل | Address</label>
 <textarea id="address" rows="2" placeholder="المنطقة، الشارع، رقم العقار..."></textarea>
 </div>
+<!-- 🌐 لغة العميل — إيميل التأكيد ورسايل الواتساب (من هنا ومن المندوب والداشبورد
+     بعد كده) بتتكتب بيها، لأنها بتتسجل مع الطلب في عمود lang -->
+<div class="input-group">
+<label>لغة العميل | Customer language</label>
+<select id="custLang">
+  <option value="ar">العربية</option>
+  <option value="en">English</option>
+</select>
+</div>
 <button class="btn-main" id="confirmBtn" onclick="confirmOrder()">Confirm All Orders | تأكيد كل الطلبات</button>
 <button class="btn-secondary" style="margin-top:12px" onclick="showStep('cart')">← رجوع للسلة | Back to Cart</button>
 </div>
@@ -465,15 +474,29 @@ function showConfirm() {
   let priceUSD = parseFloat(document.getElementById("priceUSD").value) || 0;
   let qty = parseInt(document.getElementById("quantity").value) || 1;
   if (!priceEGP || !priceUSD) { alert("من فضلك أدخل السعر بالدولار والمصري"); return; }
+  if (!requireCategory()) return;
   document.getElementById("finalPriceDisplay").innerText = (priceEGP * qty) + " EGP";
   document.getElementById("confirmSection").classList.remove("hidden");
   document.getElementById("confirmSection").scrollIntoView({ behavior: 'smooth' });
+}
+
+/* 🏷️ الفئة إجباري — بتتسجل في الشيت وبتحدد التسعير والتقارير، والطلب
+   اللي من غيرها كان بيظهر "بدون فئة" في الداشبورد والإيميل */
+function requireCategory(){
+  const sel = document.getElementById("category");
+  if (sel.value) return true;
+  alert("⚠️ اختار فئة المنتج الأول | Please choose a category");
+  sel.focus();
+  sel.scrollIntoView({ behavior: "smooth", block: "center" });
+  return false;
 }
 
 function addCurrentToCart(){
   const priceEGP = parseFloat(document.getElementById("priceEGP").value) || 0;
   const priceUSD = parseFloat(document.getElementById("priceUSD").value) || 0;
   const qty = parseInt(document.getElementById("quantity").value) || 1;
+  if (!priceEGP || !priceUSD) { alert("من فضلك أدخل السعر بالدولار والمصري"); return; }
+  if (!requireCategory()) return;
 
   tsAddToDirectCart({
     link: document.getElementById("productLink").value,
@@ -532,6 +555,8 @@ function backToAddItem(){ showStep('product'); }
 
 function goToCheckout(){
   if (tsGetDirectCart().length === 0) { alert("السلة فاضية — أضف منتج واحد على الأقل الأول"); return; }
+  // منتج متسيب في السلة من قبل ما الفئة تبقى إجباري
+  if (tsGetDirectCart().some(i => !i.category)) { alert("⚠️ فيه منتج في السلة من غير فئة — امسحه وضيفه تاني بالفئة"); return; }
   showStep('checkout');
 }
 
@@ -660,6 +685,7 @@ async function confirmOrder() {
   if (!name) { alert("من فضلك أدخل اسم العميل"); return; }
   const cart = tsGetDirectCart();
   if (!cart.length) { alert("السلة فاضية"); showStep('cart'); return; }
+  if (cart.some(i => !i.category)) { alert("⚠️ فيه منتج في السلة من غير فئة — امسحه وضيفه تاني بالفئة"); showStep('cart'); return; }
 
   const btn = document.getElementById("confirmBtn");
   tsSetBtnLoading(btn, "جاري التأكيد...");
@@ -677,10 +703,12 @@ async function confirmOrder() {
   const cartWithOrders = cart.map(item => ({ item, orderNo: generateOrder() }));
   // 🆕 حقل سادس للمواصفات (مقاس/لون/ملاحظات) — شوف calculator.html
   const cleanSpec = v => String(v||'').replace(/::/g,':').replace(/[\r\n]+/g,' ').trim();
+  const lang = document.getElementById("custLang").value;   // 🌐 بيتسجل مع الطلب
+  const en = lang === "en";
   const specsFor = it => [
-    it.size  ? 'المقاس: ' + cleanSpec(it.size)  : '',
-    it.color ? 'اللون: '  + cleanSpec(it.color) : '',
-    it.notes ? 'ملاحظات: '+ cleanSpec(it.notes) : ''
+    it.size  ? (en ? 'Size: '  : 'المقاس: ')  + cleanSpec(it.size)  : '',
+    it.color ? (en ? 'Color: ' : 'اللون: ')   + cleanSpec(it.color) : '',
+    it.notes ? (en ? 'Notes: ' : 'ملاحظات: ') + cleanSpec(it.notes) : ''
   ].filter(Boolean).join(' • ');
 
   const emailSummary = cartWithOrders.map(({item,orderNo}) =>
@@ -710,7 +738,7 @@ async function confirmOrder() {
         await tsPostScript(ORDER_SCRIPT_URL, {
           order: orderNo, customerName: name, phone, email, country, address, governorate,
           link: item.link, quantity: item.qty, usd: item.usdTotal, weight: item.weight,
-          dimensions, category: item.category, finalPrice: item.finalEGP, user,
+          dimensions, category: item.category, finalPrice: item.finalEGP, user, lang,
           suppressEmail: idx > 0,
           emailSummary: idx === 0 ? emailSummary : '',
           cartTotal: idx === 0 ? cartTotal : undefined
@@ -746,19 +774,20 @@ async function confirmOrder() {
 }
 
 /* القالب الموحّد لكل رسائل واتساب موجود في assets/app.js */
-function directOrderWaItems() {
+function directOrderWaItems(lang) {
+  const en = lang === "en";
   return lastOrders.map(o => {
     const item = o.item;
     return {
       orderNo: o.orderNo,
       link: item.link || "",
-      name: item.link ? "" : (item.category || ""),
+      name: item.category || "",          // الفئة بتظهر دايمًا (كانت بتختفي لو فيه لينك)
       qty: item.qty,
       lineTotal: item.finalEGP,
       specs: tsWaSpecs([
-        item.size  ? "المقاس: " + item.size   : "",
-        item.color ? "اللون: " + item.color   : "",
-        item.notes ? "ملاحظات: " + item.notes : ""
+        item.size  ? (en ? "Size: "  : "المقاس: ")  + item.size  : "",
+        item.color ? (en ? "Color: " : "اللون: ")   + item.color : "",
+        item.notes ? (en ? "Notes: " : "ملاحظات: ") + item.notes : ""
       ]),
       arrivalDate: item.arrivaldate || "",
       status: "Pending Review"   // كل طلب جديد بيبدأ بالحالة دي
@@ -775,17 +804,19 @@ function sendWhatsApp() {
     phone: document.getElementById("phone").value,
     governorate: document.getElementById("governorate").value,
     address: document.getElementById("address").value,
-    items: directOrderWaItems(), total: total
+    items: directOrderWaItems("ar"), total: total   // رسالة داخلية للفريق — عربي
   });
   tsWaOpen("201005609642", msg);
 }
 
 function sendCustomerSummary() {
   const total = lastOrders.reduce((s,o)=>s+o.item.finalEGP, 0);
+  const lang = document.getElementById("custLang").value;   // 🌐 بلغة العميل
   const msg = tsWaMessage({
     to: "customer",
+    lang,
     customerName: document.getElementById("customerName").value,
-    items: directOrderWaItems(), total: total
+    items: directOrderWaItems(lang), total: total
   });
   tsWaOpen(document.getElementById("phone").value, msg);
 }

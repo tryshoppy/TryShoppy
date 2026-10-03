@@ -348,7 +348,7 @@ function renderByOrder(d){
        // 📝 ملاحظة الفريق (السبب أو المطلوب من العميل) — للمعلّق والمفقود بس
        (TS_NOTE_STATUSES.indexOf(found.status)!==-1&&found.statusNote
          ?'<div class="sb-note"><span>'+TL('📝 ملاحظة من فريقنا','📝 Note from our team')+'</span>'+tsEscapeHtml(found.statusNote)+'</div>':'')+
-       (ban.wa?'<a class="sb-wa" href="https://wa.me/'+SUPPORT_PHONE+'?text='+encodeURIComponent('استفسار عن الطلب '+found.order)+'" target="_blank" rel="noopener">'+tsT('trk_helpCta')+'</a>':'')+
+       (ban.wa?'<a class="sb-wa" href="https://wa.me/'+SUPPORT_PHONE+'?text='+encodeURIComponent(TL('أهلًا Try Shoppy 👋 عندي استفسار عن الطلب ','Hi Try Shoppy 👋 I have a question about order ')+found.order)+'" target="_blank" rel="noopener">'+tsT('trk_helpCta')+'</a>':'')+
        '</div>';
   }
   else h+='<div class="stage-title">'+tsT('trk_stage_title')+'</div>'+buildStepper(found.status,stageDates(found.history));
@@ -368,7 +368,7 @@ function renderByOrder(d){
       '</button>';
     });
   }
-  h+='<div class="help-line">'+tsT('trk_helpQuestion')+' <a href="https://wa.me/'+SUPPORT_PHONE+'?text='+encodeURIComponent('استفسار عن الطلب '+found.order)+'" target="_blank" rel="noopener">'+tsT('trk_helpCta')+'</a></div>';
+  h+='<div class="help-line">'+tsT('trk_helpQuestion')+' <a href="https://wa.me/'+SUPPORT_PHONE+'?text='+encodeURIComponent(TL('أهلًا Try Shoppy 👋 عندي استفسار عن الطلب ','Hi Try Shoppy 👋 I have a question about order ')+found.order)+'" target="_blank" rel="noopener">'+tsT('trk_helpCta')+'</a></div>';
   h+='</div>';
   res.innerHTML=h;res.style.display='block';
   // دوسة على طلب تاني = تتبّعه هو في نفس الصفحة

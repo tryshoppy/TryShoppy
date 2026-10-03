@@ -138,6 +138,15 @@ button:hover{ opacity:.9; }
   <label>البريد الإلكتروني (اختياري) — لإرسال تأكيد الطلب</label>
   <input type="email" id="customerEmail" placeholder="name@example.com">
 </div>
+<!-- 🌐 لغة العميل — بتتملى لوحدها من آخر طلب ليه (عمود lang)، والإيميل
+     ورسايل الواتساب بعد كده بتتكتب بيها -->
+<div class="input-group">
+  <label>لغة العميل | Customer language</label>
+  <select id="custLang">
+    <option value="ar">العربية</option>
+    <option value="en">English</option>
+  </select>
+</div>
 
 <!-- ================= STEP 1: إضافة منتج ================= -->
 <div id="stepProduct">
@@ -431,6 +440,10 @@ function pickNameMatch(phone) {
 // عشان مفيش تكرار كود بين المسارات التلاتة
 function applySelectedCustomer(customer) {
   selectedCustomer = customer;
+  // لغة العميل من أحدث طلب ليه فيه لغة متسجلة (الطلبات القديمة فاضية = عربي)
+  const key = tsNormalizePhone(customer.phone);
+  const withLang = ordersData.filter(o => tsNormalizePhone(o.phone) === key && o.lang).pop();
+  document.getElementById("custLang").value = tsWaLang(withLang ? withLang.lang : customer.lang);
   document.getElementById("customerSearch").value = tsDisplayPhone(customer.phone); // نوري رقمه في الخانة تأكيدًا
   document.getElementById("customerBox").style.display = "block";
   document.getElementById("customerName").innerText = "👤 " + (selectedCustomer.customerName || "-");
@@ -615,6 +628,7 @@ function checkoutAll(){
           category: item.category || c.category,
           finalPrice: item.totalEgp,
           user: getCurrentUser(),
+          lang: document.getElementById("custLang").value,   // 🌐 لغة العميل
           // 🔇 كل منتج بعد الأول ميبعتش إيميل مستقل — الملخص المجمّع
           // بيتبعت مرة واحدة بس مع أول منتج في الدفعة
           suppressEmail: idx > 0,
@@ -664,6 +678,7 @@ function quickOrderWaItems() {
     return {
       orderNo: o.orderNo,
       link: item.link || "",
+      name: item.category || "",   // الفئة كانت ناقصة من الرسالة خالص
       qty: item.qty,
       unitPrice: item.unitEgp,
       lineTotal: item.totalEgp,
@@ -694,6 +709,7 @@ function sendCustomerSummary() {
   const total = lastOrders.reduce((s,o)=>s+(o.item.totalEgp||0), 0);
   const msg = tsWaMessage({
     to: "customer",
+    lang: document.getElementById("custLang").value,   // 🌐 بلغة العميل
     customerName: c.customerName || "",
     items: quickOrderWaItems(), total: total
   });

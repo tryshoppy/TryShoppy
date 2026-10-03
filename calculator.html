@@ -137,13 +137,76 @@ html[lang="ar"] .aside-card h4{letter-spacing:0;text-transform:none}
 .aside-help h4{color:var(--yellow)}
 .aside-help p{color:#B9C0DA;font-size:13px;line-height:1.6;margin:0 0 14px}
 
+/* ═══ v6 — أقسام مرقّمة، إجباري/اختياري واضح، وحدات، وسعر حي ═══ */
+.req{color:#DC2626;font-weight:800}
+.opt{font-size:11px;font-weight:700;color:var(--ink-3);background:var(--line-2, #EEF2F8);border-radius:999px;padding:3px 9px;white-space:nowrap}
+.fsec-head .ic.num{background:var(--blue-700);color:#fff;font-family:var(--fm);font-weight:800;font-size:13px}
+.ic.num.sm{width:24px;height:24px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;background:var(--blue-700);color:#fff;font-family:var(--fm);font-weight:800}
+.field .fhint{margin:7px 0 0}
+.row-price{margin-bottom:0}
+.row-price + .fhint{margin:-6px 0 16px}
+.affix{display:flex;align-items:stretch;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--white)}
+.affix:focus-within{border-color:var(--blue-link)}
+.affix-sym{display:flex;align-items:center;padding:0 12px;background:var(--blue-50);color:var(--blue-700);font-weight:800;font-family:var(--fm)}
+.affix input{border:0!important;box-shadow:none!important;border-radius:0;direction:ltr;text-align:left;font-family:var(--fm)}
+.qty-step{display:flex;align-items:stretch;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--white)}
+.qty-step button{width:46px;border:0;background:var(--blue-50);color:var(--blue-700);font-size:20px;font-weight:800;cursor:pointer;flex-shrink:0}
+.qty-step button:active{background:var(--line)}
+.qty-step input{border:0!important;box-shadow:none!important;border-radius:0;text-align:center;font-family:var(--fm);font-weight:700;-moz-appearance:textfield}
+.qty-step input::-webkit-inner-spin-button,.qty-step input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.unit-in{display:flex;gap:8px}
+.unit-in input{flex:1;min-width:0;direction:ltr;text-align:left;font-family:var(--fm)}
+.unit-in select,.dims-in select{width:auto;flex-shrink:0;min-width:74px}
+.usa-note{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;color:var(--ink-2);
+  background:var(--blue-50);border-radius:999px;padding:6px 13px}
+.opt-box{border:1px solid var(--line);border-radius:var(--r2);padding:0 16px;margin:4px 0 18px;background:var(--white)}
+.opt-box[open]{padding-bottom:16px;border-color:var(--line-2, var(--line))}
+.opt-box summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:14px 0;font-weight:800;font-size:13.5px;color:var(--ink)}
+.opt-box summary::-webkit-details-marker{display:none}
+.opt-box summary .ob-t{display:inline-flex;align-items:center;gap:8px}
+.opt-box summary::after{content:'+';font-size:18px;font-weight:700;color:var(--ink-3);margin-inline-start:6px}
+.opt-box[open] summary::after{content:'−'}
+.opt-box summary .opt{margin-inline-start:auto}
+.opt-box .fhint{margin:0 0 12px}
+.opt-sec{margin-bottom:22px}
+.dims-in{display:flex;align-items:center;gap:6px}
+.dims-in input{flex:1;min-width:0;direction:ltr;text-align:center;font-family:var(--fm);padding-inline:6px}
+.dims-in .x{color:var(--ink-3);font-weight:700}
+.dims-lbl{margin-bottom:0}
+.dims-lbl .field{margin-bottom:0}
+.live-sum{margin-top:6px}
+.ls-wait{border:1.5px dashed var(--line-2, var(--line));border-radius:var(--r3);padding:20px;text-align:center;margin-bottom:14px;background:var(--page, #F7F8FC)}
+.ls-wait-t{font-weight:800;font-size:14px;color:var(--ink-2)}
+.ls-wait-d{font-size:12.5px;color:var(--ink-3);margin-top:6px;line-height:1.6}
+.ls-per{font-size:12.5px;color:#C4CADF;font-variant-numeric:tabular-nums}
+.weight-basis.vol{color:var(--yellow);font-weight:700}
+/* الأرقام نفسها بخط الأرقام، لكن الـ placeholder العربي ("الطول"، "مثلاً") بخط
+   الصفحة — خط الأرقام بيفصّل الحروف العربي عن بعض (ا ر ت ف ا ع) */
+#stepCalc input::placeholder{font-family:var(--f);letter-spacing:0}
+html[lang="ar"] #stepCalc input::placeholder{font-family:var(--f-ar, var(--f))}
+#addCartBtn[disabled]{opacity:.45;cursor:not-allowed}
+@media(max-width:560px){
+  .row.row-price{grid-template-columns:1.2fr 1fr;gap:10px}
+  .qty-step button{width:38px}
+  .dims-in{flex-wrap:wrap}
+  .dims-in input{flex:1 1 26%}
+  .dims-in .x{display:none}
+  .dims-in select{flex:1 1 100%}
+}
+
 @media(max-width:940px){
   .calc-wrap{grid-template-columns:1fr;margin-top:-58px}
   .calc-aside{position:static}
 }
 @media(max-width:560px){
   .calc-card{padding:22px 18px;border-radius:var(--r3)}
-  .calc-top{padding:32px 0 84px}
+  /* الهيدر كان واخد شاشة كاملة تقريبًا قبل أول حقل على الموبايل */
+  .calc-top{padding:20px 0 72px}
+  .calc-top .eyebrow{display:none}
+  .calc-top h1{font-size:1.45rem;margin:0 0 6px}
+  .calc-top p{font-size:.88rem;line-height:1.6}
+  .calc-steps{margin-top:16px}
   .cs .t{font-size:10.5px}
 }
 @media(max-width:760px){.site-footer .container{padding-bottom:30px}}
@@ -196,70 +259,79 @@ html[lang="ar"] .aside-card h4{letter-spacing:0;text-transform:none}
 
     <!-- ================= STEP 1: product entry + calculate ================= -->
     <div id="stepCalc">
+      <!-- ═══ v6: الحاسبة بقت 3 أقسام مرقّمة + سعر بيتحسب لوحده ═══
+           ليه؟ الناس كانت بتتلخبط: مين إجباري ومين اختياري، السعر للقطعة
+           ولا للكل، الوزن بالجرام إزاي، والأبعاد دي إيه أصلاً. دلوقتي:
+             • كل حقل إجباري عليه * والاختياري مكتوب جنبه "اختياري"
+             • السعر والوزن والأبعاد مكتوب صراحة إنهم "للقطعة الواحدة"
+               (المعادلة في function_calc.js بتحسب قطعة وتضرب في الكمية)
+             • الوزن بأي وحدة (جم/كجم/رطل/أوقية) والأبعاد بسم أو بوصة —
+               بتتحول لجرام/سم قبل الحساب
+             • الأبعاد والمقاس/اللون مقفولين في "اختياري" لحد ما يحتاجهم
+             • السعر بيظهر لوحده أول ما البيانات الأساسية تكمل — مفيش
+               زرار "احسب" ولا سعر قديم يفضل ظاهر بعد ما تغيّر حاجة
+           كل الـ IDs القديمة زي ما هي (الإرسال والسلة مابيتغيروش). -->
 
+      <!-- ① المنتج -->
       <div class="fsec">
-        <div class="fsec-head"><span class="ic">🔗</span><h3 data-i18n="calc_sec_product">Product details</h3></div>
-        <div class="field">
-          <label for="productLink" data-i18n="calc_link_label">Product Link</label>
-          <input id="productLink" type="url" inputmode="url" placeholder="https://amazon.com/...">
-        </div>
-        <p class="fhint" data-i18n="calc_link_hint">Copy the product page link from the US store and paste it here.</p>
+        <div class="fsec-head"><span class="ic num">1</span><h3 data-i18n="c2_sec1">The product</h3></div>
 
-        <div class="row">
-          <div class="field"><label for="quantity" data-i18n="calc_qty_label">Quantity</label><input id="quantity" type="number" value="1" min="1"></div>
+        <div class="field">
+          <label for="productLink"><span data-i18n="calc_link_label">Product Link</span> <span class="req">*</span></label>
+          <input id="productLink" type="url" inputmode="url" autocomplete="off" placeholder="https://www.amazon.com/...">
+          <p class="fhint" data-i18n="calc_link_hint">Copy the product page link from the US store and paste it here.</p>
+        </div>
+
+        <div class="row row-price">
           <div class="field">
-            <label for="country" data-i18n="calc_country_label">Country</label>
-            <select id="country" onchange="checkCountry()">
-              <option value="USA" data-i18n="calc_country_usa">USA 🇺🇸</option>
-              <option value="OTHER" data-i18n="calc_country_other">Other Countries</option>
-            </select>
+            <label for="price"><span data-i18n="c2_price_label">Price of ONE item</span> <span class="req">*</span></label>
+            <div class="affix"><span class="affix-sym">$</span><input id="price" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00"></div>
+          </div>
+          <div class="field">
+            <label for="quantity"><span data-i18n="calc_qty_label">Quantity</span> <span class="req">*</span></label>
+            <div class="qty-step">
+              <button type="button" data-qstep="-1" aria-label="−">−</button>
+              <input id="quantity" type="number" value="1" min="1" max="999" inputmode="numeric">
+              <button type="button" data-qstep="1" aria-label="+">+</button>
+            </div>
           </div>
         </div>
+        <p class="fhint" data-i18n="c2_price_hint">The price of a single piece as shown on the store, in US dollars. If the store charges shipping inside the US, add it. Ordering 3? Keep the price of one and set quantity to 3.</p>
 
+        <!-- الخدمة من أمريكا بس — كانت قايمة فيها "دول أخرى" بتطلع رسالة اعتذار.
+             القايمة متشالة من العرض بس (قيمتها USA) عشان أي كود بيقراها يفضل شغال -->
+        <div class="usa-note">🇺🇸 <span data-i18n="c2_usa_only">We currently buy from US stores only.</span></div>
+        <select id="country" hidden aria-hidden="true"><option value="USA" selected>USA</option><option value="OTHER">Other</option></select>
         <div id="countryMsg" class="country-msg hidden" data-i18n="calc_country_msg">Sorry, we only serve orders from USA currently.</div>
-
-        <div class="field"><label for="price" data-i18n="calc_unit_price_label">Price per item in USD (incl. store shipping) *</label><input id="price" type="number" inputmode="decimal" placeholder="0.00"></div>
       </div>
 
+      <!-- ② النوع والوزن -->
       <div class="fsec">
-        <div class="fsec-head"><span class="ic">⚖️</span><h3 data-i18n="calc_sec_ship">Shipping basis</h3></div>
-        <div class="row">
-          <div class="field">
-            <label for="weight" data-i18n="calc_weight_label">Weight (g) *</label>
-            <input id="weight" type="number" inputmode="numeric" data-i18n-ph="calc_weight_ph" placeholder="e.g. 500">
-            <div id="weightAutoNote" class="sup-note hidden"></div>
-          </div>
-          <div class="field">
-            <label for="category" data-i18n="calc_category_label">Category *</label>
-            <select id="category" onchange="onCategoryChange()">
-              <option value="" data-i18n="calc_category_select">Select category...</option>
-              <option value="Clothes (Regular)" data-i18n="cat_clothes">Clothes (Regular)</option>
-              <option value="Jacket or BALTO" data-i18n="cat_jacket">Jacket or BALTO</option>
-              <option value="Electronics" data-i18n="cat_electronics">Electronics</option>
-              <option value="Shoes (Regular)" data-i18n="cat_shoes_regular">Shoes (Regular)</option>
-              <option value="Shoes (Boot)" data-i18n="cat_shoes_boot">Shoes (Boot)</option>
-              <option value="Watches" data-i18n="cat_watches">Watches</option>
-              <option value="Accessories" data-i18n="cat_accessories">Accessories</option>
-              <option value="Cosmetics" data-i18n="cat_cosmetics">Cosmetics</option>
-              <option value="Sunglasses" data-i18n="cat_sunglasses">Sunglasses</option>
-              <option value="Food" data-i18n="cat_food">Food</option>
-              <option value="CarParts" data-i18n="cat_carparts">Car Parts</option>
-              <option value="Vitamin or Supplements" data-i18n="cat_vitamins">Vitamins &amp; Supplements</option>
-              <option value="Shampoo or Conditioner" data-i18n="cat_shampoo">Shampoo or Conditioner</option>
-              <option value="Small Size Hand bag (women)" data-i18n="cat_bag_small">Small Hand Bag (Women)</option>
-              <option value="Back bag (or Lap bag)" data-i18n="cat_bag_back">Back Bag / Laptop Bag</option>
-              <option value="Large Size Hand bag (women)" data-i18n="cat_bag_large">Large Hand Bag (Women)</option>
-              <option value="Stationary" data-i18n="cat_stationary">Stationary</option>
-            </select>
-            <div id="shoeBoxNote" class="shoe-note hidden"></div>
-          </div>
-        </div>
+        <div class="fsec-head"><span class="ic num">2</span><h3 data-i18n="c2_sec2">Type &amp; weight</h3></div>
 
-        <label data-i18n="calc_dims_label" style="margin-bottom:8px">Dimensions in CM (optional)</label>
-        <div class="dims">
-          <input id="dimLength" type="number" min="0" step="any" inputmode="decimal" data-i18n-ph="calc_length_ph" placeholder="Length (L)">
-          <input id="dimWidth" type="number" min="0" step="any" inputmode="decimal" data-i18n-ph="calc_width_ph" placeholder="Width (W)">
-          <input id="dimHeight" type="number" min="0" step="any" inputmode="decimal" data-i18n-ph="calc_height_ph" placeholder="Height (H)">
+        <div class="field">
+          <label for="category"><span data-i18n="c2_category_label">Category</span> <span class="req">*</span></label>
+          <select id="category" onchange="onCategoryChange()">
+            <option value="" data-i18n="calc_category_select">Select category...</option>
+            <option value="Clothes (Regular)" data-i18n="cat_clothes">Clothes (Regular)</option>
+            <option value="Jacket or BALTO" data-i18n="cat_jacket">Jacket or BALTO</option>
+            <option value="Electronics" data-i18n="cat_electronics">Electronics</option>
+            <option value="Shoes (Regular)" data-i18n="cat_shoes_regular">Shoes (Regular)</option>
+            <option value="Shoes (Boot)" data-i18n="cat_shoes_boot">Shoes (Boot)</option>
+            <option value="Watches" data-i18n="cat_watches">Watches</option>
+            <option value="Accessories" data-i18n="cat_accessories">Accessories</option>
+            <option value="Cosmetics" data-i18n="cat_cosmetics">Cosmetics</option>
+            <option value="Sunglasses" data-i18n="cat_sunglasses">Sunglasses</option>
+            <option value="Food" data-i18n="cat_food">Food</option>
+            <option value="CarParts" data-i18n="cat_carparts">Car Parts</option>
+            <option value="Vitamin or Supplements" data-i18n="cat_vitamins">Vitamins &amp; Supplements</option>
+            <option value="Shampoo or Conditioner" data-i18n="cat_shampoo">Shampoo or Conditioner</option>
+            <option value="Small Size Hand bag (women)" data-i18n="cat_bag_small">Small Hand Bag (Women)</option>
+            <option value="Back bag (or Lap bag)" data-i18n="cat_bag_back">Back Bag / Laptop Bag</option>
+            <option value="Large Size Hand bag (women)" data-i18n="cat_bag_large">Large Hand Bag (Women)</option>
+            <option value="Stationary" data-i18n="cat_stationary">Stationary</option>
+          </select>
+          <div id="shoeBoxNote" class="shoe-note hidden"></div>
         </div>
 
         <div id="supplementBox" class="sup-box hidden">
@@ -281,28 +353,63 @@ html[lang="ar"] .aside-card h4{letter-spacing:0;text-transform:none}
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="fsec">
-        <div class="fsec-head"><span class="ic">📝</span><h3 data-i18n="calc_sec_extra">Optional details</h3></div>
-        <label data-i18n="calc_desc_label" style="margin-bottom:8px">Additional Description (optional)</label>
-        <div class="dims">
-          <input id="length" type="text" data-i18n-ph="calc_size_ph" placeholder="Size">
-          <input id="width" type="text" data-i18n-ph="calc_color_ph" placeholder="Color">
-          <input id="height" type="text" data-i18n-ph="calc_notes_ph" placeholder="Other Notes">
+        <div class="field">
+          <label for="weight"><span data-i18n="c2_weight_label">Weight of ONE item</span> <span class="req">*</span></label>
+          <div class="unit-in">
+            <input id="weight" type="number" inputmode="decimal" min="0" step="any" data-i18n-ph="calc_weight_ph" placeholder="e.g. 500">
+            <select id="weightUnit" aria-label="Weight unit">
+              <option value="g" data-i18n="c2_u_g">g</option>
+              <option value="kg" data-i18n="c2_u_kg">kg</option>
+              <option value="lb">lb</option>
+              <option value="oz">oz</option>
+            </select>
+          </div>
+          <div id="weightAutoNote" class="sup-note hidden"></div>
+          <p class="fhint" data-i18n="c2_weight_hint">On Amazon it's under "Item Weight" or "Shipping Weight" (often in lb or oz — just pick the unit). Not sure? Enter your best estimate; we review every order before buying.</p>
         </div>
+
+        <details class="opt-box" id="dimsBox">
+          <summary><span class="ob-t">📦 <span data-i18n="c2_dims_title">Box dimensions</span></span><span class="opt" data-i18n="c2_optional">optional</span></summary>
+          <p class="fhint" data-i18n="c2_dims_hint">Only matters for big, light items (a pillow, a toy in a large box). Carriers charge the bigger of the real weight and the box size. Don't know them? Leave empty.</p>
+          <div class="dims-in">
+            <input id="dimLength" type="number" min="0" step="any" inputmode="decimal" data-i18n-ph="calc_length_ph" placeholder="Length (L)">
+            <span class="x">×</span>
+            <input id="dimWidth" type="number" min="0" step="any" inputmode="decimal" data-i18n-ph="calc_width_ph" placeholder="Width (W)">
+            <span class="x">×</span>
+            <input id="dimHeight" type="number" min="0" step="any" inputmode="decimal" data-i18n-ph="calc_height_ph" placeholder="Height (H)">
+            <select id="dimUnit" aria-label="Dimension unit">
+              <option value="cm" data-i18n="c2_u_cm">cm</option>
+              <option value="in" data-i18n="c2_u_in">in</option>
+            </select>
+          </div>
+        </details>
       </div>
 
-      <button class="btn btn-primary btn-lg btn-block" type="button" onclick="calculatePrice()" data-i18n="calc_btn_calculate">Calculate Price</button>
+      <!-- ③ المواصفات (اختياري) -->
+      <details class="opt-box opt-sec" id="specsBox">
+        <summary><span class="ob-t"><span class="ic num sm">3</span> <span data-i18n="c2_sec3">Size, color &amp; notes</span></span><span class="opt" data-i18n="c2_optional">optional</span></summary>
+        <div class="dims dims-lbl">
+          <div class="field"><label for="length" data-i18n="calc_size_ph">Size</label><input id="length" type="text" data-i18n-ph="c2_size_ex" placeholder="e.g. M, 42"></div>
+          <div class="field"><label for="width" data-i18n="calc_color_ph">Color</label><input id="width" type="text" data-i18n-ph="c2_color_ex" placeholder="e.g. Black"></div>
+          <div class="field"><label for="height" data-i18n="calc_notes_ph">Other Notes</label><input id="height" type="text" data-i18n-ph="c2_notes_ex" placeholder="Anything we should know"></div>
+        </div>
+      </details>
 
-      <div id="resultArea" class="hidden">
-        <div class="result-box">
+      <!-- 💰 السعر — بيتحدّث لوحده (liveUpdate) -->
+      <div id="resultArea" class="live-sum">
+        <div class="ls-wait" id="lsWait">
+          <div class="ls-wait-t" data-i18n="c2_wait_t">Your price appears here</div>
+          <div class="ls-wait-d" id="lsMissing"></div>
+        </div>
+        <div class="result-box hidden" id="lsReady">
           <div class="result-label" data-i18n="calc_result_total_label">Total Cost (Shipping &amp; Customs included)</div>
-          <div id="priceDetails" class="result-price">— EGP</div>
+          <div id="priceDetails" class="result-price" dir="ltr">— EGP</div>
+          <div class="ls-per" id="lsPer"></div>
           <div id="weightBasisMsg" class="weight-basis"></div>
           <div class="result-note">✓ <span data-i18n="calc_result_cod_note">Cash on Delivery up to 10,000 EGP ✓</span></div>
         </div>
-        <button class="btn btn-dark btn-lg btn-block" type="button" onclick="addCurrentToCart()" data-i18n="calc_btn_addcart">➕ Add to Cart</button>
+        <button class="btn btn-dark btn-lg btn-block" id="addCartBtn" type="button" onclick="addCurrentToCart()" disabled data-i18n="calc_btn_addcart">➕ Add to Cart</button>
       </div>
     </div>
 
@@ -484,10 +591,14 @@ function onCategoryChange(){
     onSupplementTypeChange();
   } else {
     box.classList.add('hidden');
+    // الوزن بيتمسح بس لو كان متحدد تلقائي من المكملات — قبل كده كان بيتمسح
+    // مع أي تغيير للفئة، فالعميل اللي كتب الوزن وبعدين غيّر الفئة كان بيلاقيه فاضي
+    if(weightInput.readOnly) weightInput.value='';
     weightInput.readOnly=false;
-    weightInput.value='';
+    setWeightUnitLocked(false);
     note.classList.add('hidden');
   }
+  liveUpdate();
 }
 
 function buildSupplementRangeOptions(){
@@ -520,6 +631,7 @@ function onSupplementTypeChange(){
     rangeSel.classList.add('hidden');
     weightInput.readOnly=false;
     weightInput.value='';
+    setWeightUnitLocked(false);
     autoNote.classList.add('hidden');
     manualNote.textContent = type==='powder' ? tsT('calc_sup_note_powder') : tsT('calc_sup_note_liquid');
     manualNote.classList.remove('hidden');
@@ -542,6 +654,8 @@ function onSupplementRangeChange(){
   const note=document.getElementById('weightAutoNote');
   weightInput.value=range.weight;
   weightInput.readOnly=true;
+  setWeightUnitLocked(true);           // الوزن التلقائي بالجرام — الوحدة بتتقفل عليه
+  liveUpdate();
   note.textContent = `⚙️ ${tsT('calc_sup_note_auto')} (${range.weight}${TS_LANG==='ar'?' جم':'g'}) ${tsT('calc_sup_note_auto2')}`;
   note.classList.remove('hidden');
 }
@@ -567,7 +681,11 @@ document.addEventListener('ts-lang-changed', ()=>{ if(!document.getElementById('
 function renderWeightBasis(usedVolumetric){
   const el=document.getElementById('weightBasisMsg');
   if(!el) return;
-  el.textContent = usedVolumetric ? tsT('calc_weight_basis_volumetric') : tsT('calc_weight_basis_actual');
+  // الوزن اللي اتحسب بيه بيظهر جنب الرسالة — الوزن الحجمي ممكن يكبّر
+  // السعر جامد، فلازم العميل يشوف الرقم ويقدر يراجع الأبعاد لو غلط
+  const kg = lastChargeableWeight>0 ? ' (' + (lastChargeableWeight/1000).toLocaleString('en-US',{maximumFractionDigits:2}) + (TS_LANG==='ar'?' كجم للقطعة)':' kg per item)') : '';
+  el.textContent = (usedVolumetric ? tsT('calc_weight_basis_volumetric') : tsT('calc_weight_basis_actual')) + kg;
+  el.classList.toggle('vol', !!usedVolumetric);
 }
 
 document.addEventListener('ts-lang-changed', ()=>{
@@ -575,29 +693,53 @@ document.addEventListener('ts-lang-changed', ()=>{
   if(result && !result.classList.contains('hidden')) renderWeightBasis(lastUsedVolumetric);
 });
 
+/* ⚖️ الوحدات — الحساب كله بالجرام والسنتيمتر (function_calc.js)، والعميل
+   بيكتب بالوحدة اللي قدامه في صفحة المنتج (أمازون غالبًا lb/oz و inches) */
+const WEIGHT_TO_G = { g:1, kg:1000, lb:453.592, oz:28.3495 };
+const DIM_TO_CM   = { cm:1, in:2.54 };
+function weightGramsFromForm(){
+  const v=parseFloat(document.getElementById('weight').value);
+  const u=document.getElementById('weightUnit').value||'g';
+  return v>0 ? Math.round(v*(WEIGHT_TO_G[u]||1)) : NaN;
+}
+function setWeightUnitLocked(locked){
+  const u=document.getElementById('weightUnit');
+  if(locked) u.value='g';
+  u.disabled=!!locked;
+}
+
 /* 🧮 قراءة بيانات المنتج من الفورم + حساب السعر — مكان واحد بيستخدمه
-   "احسب السعر" و"أضف للسلة" الاتنين.
+   السعر الحي و"أضف للسلة".
    🐛→✅ "أضف للسلة" كان بياخد السعر المحسوب آخر مرة (finalPrice) زي ما
    هو، فلو العميل حسب السعر وبعدين غيّر الكمية أو السعر أو الفئة ودوس
    "أضف للسلة" على طول، الطلب كان بيتسجل بالسعر القديم الغلط.
-   كمان الكمية السالبة (-3) والسعر/الوزن بالسالب كانوا بيعدّوا. */
-function readItemForm(){
-  ['quantity','productLink'].forEach(id=>tsFieldError(document.getElementById(id),''));
+   كمان الكمية السالبة (-3) والسعر/الوزن بالسالب كانوا بيعدّوا.
+   opts.forCart: بيطلب رابط المنتج (السعر نفسه بيتحسب من غيره)
+   opts.silent : من غير علامات حمرا على الحقول (للتحديث الحي وهو بيكتب) */
+function readItemForm(opts){
+  opts=opts||{};
+  const mark=(id,key)=>{ if(!opts.silent) tsFieldError(document.getElementById(id), tsT(key)); };
+  ['quantity','productLink','price','weight','category'].forEach(id=>tsFieldError(document.getElementById(id),''));
   if(document.getElementById('country').value==='OTHER') return {err:tsT('calc_alert_country')};
   const usd=parseFloat(document.getElementById('price').value);
-  const actualWeight=parseFloat(document.getElementById('weight').value);
+  const actualWeight=weightGramsFromForm();
   const cat=document.getElementById('category').value;
   const qtyRaw=parseInt(document.getElementById('quantity').value);
   const link=document.getElementById('productLink').value.trim();
 
-  const l=Math.max(0,parseFloat(document.getElementById('dimLength').value)||0);
-  const w=Math.max(0,parseFloat(document.getElementById('dimWidth').value)||0);
-  const h=Math.max(0,parseFloat(document.getElementById('dimHeight').value)||0);
+  const f=DIM_TO_CM[document.getElementById('dimUnit').value]||1;
+  const l=Math.max(0,parseFloat(document.getElementById('dimLength').value)||0)*f;
+  const w=Math.max(0,parseFloat(document.getElementById('dimWidth').value)||0)*f;
+  const h=Math.max(0,parseFloat(document.getElementById('dimHeight').value)||0)*f;
   const volumetricWeight=(l*w*h/6000)*1000;
 
-  if(!(usd>0)||!cat||!(actualWeight>0)) return {err:tsT('calc_alert_missing')};
-  if(!(qtyRaw>=1)) { tsFieldError(document.getElementById('quantity'), tsT('calc_err_qty')); return {err:tsT('calc_err_qty')}; }
-  if(link && !/^https?:\/\//i.test(link)) { tsFieldError(document.getElementById('productLink'), tsT('calc_err_link')); return {err:tsT('calc_err_link')}; }
+  // الناقص بالترتيب اللي ظاهر في الصفحة — بيتعرض في خانة السعر
+  const missing=[];
+  if(!(usd>0)) { missing.push('c2_m_price'); mark('price','c2_req_msg'); }
+  if(!cat) { missing.push('c2_m_cat'); mark('category','c2_req_msg'); }
+  if(!(actualWeight>0)) { missing.push('c2_m_weight'); mark('weight','c2_req_msg'); }
+  if(missing.length) return {err:tsT('calc_alert_missing'), missing};
+  if(!(qtyRaw>=1)) { mark('quantity','calc_err_qty'); return {err:tsT('calc_err_qty'), missing:['calc_err_qty']}; }
   const qty=Math.min(qtyRaw, 999);
 
   // نفس منطق CalculatorOP: نستخدم الأكبر بين الوزن الفعلي والوزن الحجمي.
@@ -605,32 +747,66 @@ function readItemForm(){
   const chargeable=Math.max(actualWeight,volumetricWeight);
   /* ✅ المعادلة من function_calc.js — عدّل الأسعار هناك فقط */
   const result=tryShoppyCalculatePrice({usd,category:cat,weightGrams:chargeable,quantity:qty});
-  return {usd, qty, cat, link, actualWeight, l, w, h, chargeable,
-          usedVolumetric: volumetricWeight>actualWeight, finalPrice: result.finalPrice};
+  const it={usd, qty, cat, link, actualWeight, l:+l.toFixed(1), w:+w.toFixed(1), h:+h.toFixed(1), chargeable,
+            usedVolumetric: volumetricWeight>actualWeight, finalPrice: result.finalPrice};
+
+  // 🔗 الرابط إجباري للسلة بس: من غيره مش هنعرف نشتري المنتج. السعر بيظهر من غيره عادي
+  if(opts.forCart){
+    if(!link){ mark('productLink','c2_err_link_req'); return {...it, err:tsT('c2_err_link_req')}; }
+    if(!/^https?:\/\/\S+\.\S+/i.test(link)){ mark('productLink','calc_err_link'); return {...it, err:tsT('calc_err_link')}; }
+  }
+  return it;
 }
 
-/* لو العميل غيّر أي حاجة بعد ما حسب السعر، النتيجة القديمة بتستخبى —
-   عشان ميشوفش (ولا يضيف) سعر مش بتاع البيانات اللي قدامه */
-['productLink','quantity','price','weight','category','dimLength','dimWidth','dimHeight','country','supplementType','supplementRange'].forEach(id=>{
+/* 💰 السعر الحي — بيتحدّث مع كل تغيير، فمفيش سعر قديم يفضل ظاهر
+   لبيانات اتغيرت، ومفيش زرار "احسب" العميل ينساه */
+let liveTimer=null;
+function liveUpdate(){
+  clearTimeout(liveTimer);
+  liveTimer=setTimeout(()=>{
+    const it=readItemForm({silent:true});
+    const wait=document.getElementById('lsWait'), ready=document.getElementById('lsReady'), btn=document.getElementById('addCartBtn');
+    if(it.err){
+      wait.classList.remove('hidden'); ready.classList.add('hidden'); btn.disabled=true;
+      document.getElementById('lsMissing').textContent = tsT('c2_need') + ' ' + (it.missing||[]).map(k=>tsT(k)).join(TS_LANG==='ar'?' ، ':' , ');
+      finalPrice=0;
+      return;
+    }
+    usdTotal=it.usd*it.qty;
+    lastChargeableWeight=it.chargeable;
+    lastUsedVolumetric=it.usedVolumetric;
+    finalPrice=it.finalPrice;
+    document.getElementById('priceDetails').textContent=finalPrice.toLocaleString('en-US')+' EGP';
+    document.getElementById('lsPer').textContent = it.qty>1
+      ? (TS_LANG==='ar' ? ('≈ '+Math.round(finalPrice/it.qty).toLocaleString('en-US')+' جنيه للقطعة × '+it.qty)
+                        : ('≈ '+Math.round(finalPrice/it.qty).toLocaleString('en-US')+' EGP per item × '+it.qty))
+      : '';
+    renderWeightBasis(lastUsedVolumetric);
+    wait.classList.add('hidden'); ready.classList.remove('hidden'); btn.disabled=false;
+  },120);
+}
+['productLink','quantity','price','weight','weightUnit','category','dimLength','dimWidth','dimHeight','dimUnit','supplementType','supplementRange'].forEach(id=>{
   const el=document.getElementById(id);
   if(!el) return;
-  const hide=()=>{ const r=document.getElementById('resultArea'); if(r && !r.classList.contains('hidden')){ r.classList.add('hidden'); tsToast(tsT('calc_recalc_note')); } };
-  el.addEventListener('input', hide);
-  el.addEventListener('change', hide);
+  el.addEventListener('input', liveUpdate);
+  el.addEventListener('change', liveUpdate);
 });
+document.addEventListener('ts-lang-changed', liveUpdate);
 
+/* ➖➕ أزرار الكمية */
+document.querySelectorAll('[data-qstep]').forEach(b=>b.addEventListener('click',()=>{
+  const q=document.getElementById('quantity');
+  q.value=Math.min(999,Math.max(1,(parseInt(q.value)||1)+parseInt(b.dataset.qstep)));
+  liveUpdate();
+}));
+liveUpdate();   // أول ما الصفحة تفتح: "سعرك هيظهر هنا — ناقص: …"
+
+/* متسابة عشان أي كود قديم بيناديها — بقت بتعمل نفس السعر الحي + تنزل عليه */
 function calculatePrice(){
   const it=readItemForm();
   if(it.err){alert(it.err);return;}
-  usdTotal=it.usd*it.qty;
-  lastChargeableWeight=it.chargeable;
-  lastUsedVolumetric=it.usedVolumetric;
-  finalPrice=it.finalPrice;
-
-  document.getElementById('priceDetails').innerHTML=finalPrice.toLocaleString()+' EGP';
-  renderWeightBasis(lastUsedVolumetric);
-  document.getElementById('resultArea').classList.remove('hidden');
-  document.getElementById('resultArea').scrollIntoView({behavior:'smooth'});
+  liveUpdate();
+  document.getElementById('resultArea').scrollIntoView({behavior:'smooth',block:'center'});
 }
 
 /* ============================================
@@ -639,8 +815,14 @@ function calculatePrice(){
    ============================================ */
 function addCurrentToCart(){
   // السعر بيتحسب تاني هنا من البيانات اللي قدام العميل دلوقتي (مش آخر حساب)
-  const it=readItemForm();
-  if(it.err){alert(it.err);return;}
+  const it=readItemForm({forCart:true});
+  if(it.err){
+    // الخطأ متكتب تحت الحقل نفسه — بنروح عليه بدل alert
+    const bad=document.querySelector('#stepCalc .field-err');
+    if(bad){ bad.scrollIntoView({behavior:'smooth',block:'center'}); try{bad.focus({preventScroll:true});}catch(e){} }
+    else alert(it.err);
+    return;
+  }
   const size=document.getElementById('length').value.trim();
   const color=document.getElementById('width').value.trim();
   const notes=document.getElementById('height').value.trim();
@@ -669,7 +851,12 @@ function addCurrentToCart(){
   lastUsedVolumetric=false;
   document.getElementById('supplementBox').classList.add('hidden');
   document.getElementById('weightAutoNote').classList.add('hidden');
-  document.getElementById('resultArea').classList.add('hidden');
+  setWeightUnitLocked(false);
+  document.getElementById('weightUnit').value='g';
+  document.getElementById('dimUnit').value='cm';
+  document.getElementById('dimsBox').open=false;
+  document.getElementById('specsBox').open=false;
+  liveUpdate();
 
   renderCart();
   showStep('cart');
@@ -771,10 +958,12 @@ async function confirmOrder(){
   // فالعميل والموظف مكنوش بيشوفوها في تأكيد الطلب.
   // بننضّف "::" و"\n" من النص عشان ميكسروش تنسيق السطر.
   const cleanSpec = v => String(v||'').replace(/::/g,':').replace(/[\r\n]+/g,' ').trim();
+  // 🌐 بلغة العميل — المواصفات دي بتظهر في إيميل تأكيده
+  const en = TS_LANG === 'en';
   const specsFor = it => [
-    it.size  ? 'المقاس: ' + cleanSpec(it.size)  : '',
-    it.color ? 'اللون: '  + cleanSpec(it.color) : '',
-    it.notes ? 'ملاحظات: '+ cleanSpec(it.notes) : ''
+    it.size  ? (en ? 'Size: '  : 'المقاس: ')  + cleanSpec(it.size)  : '',
+    it.color ? (en ? 'Color: ' : 'اللون: ')   + cleanSpec(it.color) : '',
+    it.notes ? (en ? 'Notes: ' : 'ملاحظات: ') + cleanSpec(it.notes) : ''
   ].filter(Boolean).join(' • ');
 
   const emailSummary = cartWithOrders.map(({item,orderNo}) =>
@@ -808,6 +997,7 @@ async function confirmOrder(){
           order:orderNo, customerName:name, phone, email, country, address, governorate,
           link:item.link, quantity:item.qty, usd:(item.usd*item.qty), weight:item.weightGrams,
           dimensions, category:item.category, finalPrice:item.finalPrice,
+          lang: TS_LANG,                                // 🌐 لغة العميل — الإيميلات والواتساب بعد كده بيها
           suppressEmail: idx>0,                         // إيميل واحد بس للطلب كله
           emailSummary: idx===0 ? emailSummary : '',
           cartTotal: idx===0 ? cartTotal : undefined      // إجمالي السلة الحقيقي
@@ -865,7 +1055,10 @@ async function confirmOrder(){
 function sendWhatsApp(){
   const name=document.getElementById('customerName').value;
   const phone=document.getElementById('phone').value;
-  const gov=document.getElementById('governorate').value;
+  // 🌐 الرسالة بلغة العميل (لغة الموقع وهو بيطلب) — المحافظة بالاسم الظاهر له
+  const en = TS_LANG === 'en';
+  const govSel=document.getElementById('governorate');
+  const gov=govSel.value ? (govSel.options[govSel.selectedIndex].textContent || govSel.value) : '';
   const addr=document.getElementById('address').value;
   const total=lastOrders.reduce((s,o)=>s+o.item.finalPrice,0);
 
@@ -875,15 +1068,16 @@ function sendWhatsApp(){
     return {
       orderNo: o.orderNo,
       link: item.link || '',
-      name: item.link ? '' : (item.category||''),
+      // 🐛→✅ الفئة كانت بتختفي من الرسالة لو فيه لينك — الفريق محتاجها في الحالتين
+      name: tsCategoryLabel(item.category),
       qty: item.qty,
       lineTotal: item.finalPrice,          // محسوب أصلاً × الكمية
       specs: tsWaSpecs([
-        item.size  ? 'المقاس: '+item.size   : '',
-        item.color ? 'اللون: '+item.color   : '',
-        item.notes ? 'ملاحظات: '+item.notes : '',
+        item.size  ? (en?'Size: ':'المقاس: ')+item.size   : '',
+        item.color ? (en?'Color: ':'اللون: ')+item.color   : '',
+        item.notes ? (en?'Notes: ':'ملاحظات: ')+item.notes : '',
         (item.dimLength && item.dimWidth && item.dimHeight)
-          ? 'الأبعاد: '+item.dimLength+' × '+item.dimWidth+' × '+item.dimHeight+' سم' : ''
+          ? (en?'Box: ':'الأبعاد: ')+item.dimLength+' × '+item.dimWidth+' × '+item.dimHeight+(en?' cm':' سم') : ''
       ]),
       arrivalDate: item.arrivaldate || '', // لسه فاضي وقت الإنشاء
       status: 'Pending Review'             // كل طلب جديد بيبدأ بالحالة دي
@@ -892,7 +1086,8 @@ function sendWhatsApp(){
 
   const msg = tsWaMessage({
     to: 'shop',
-    intro: 'مرحبًا Try Shoppy 👋\nعايز أأكد الطلب ده:',
+    lang: TS_LANG,
+    intro: en ? 'Hi Try Shoppy 👋\nI\'d like to confirm this order:' : 'مرحبًا Try Shoppy 👋\nعايز أأكد الطلب ده:',
     customerName: name, phone: phone, governorate: gov, address: addr,
     items: items, total: total
   });

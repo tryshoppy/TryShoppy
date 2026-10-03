@@ -289,8 +289,8 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
       <input type="text" id="dupOrderId" placeholder="رقم الأوردر الجديد">
       <input type="text" id="dupLink" placeholder="رابط المنتج الجديد">
       <input type="number" id="dupQty" placeholder="الكمية" min="1" value="1">
-      <input type="number" id="dupUsd" placeholder="السعر بالدولار ($)">
-      <input type="number" id="dupEgp" placeholder="السعر بالمصري (EGP)">
+      <input type="number" id="dupUsd" placeholder="سعر القطعة بالدولار ($)">
+      <input type="number" id="dupEgp" placeholder="سعر القطعة بالمصري (EGP) — بيتضرب في الكمية">
       <!-- 🏷️ الصنف إجباري — قبل كده كان بيتنسخ من الطلب القديم، فمنتج جديد
            مختلف كان بيتسجل بصنف غلط -->
       <select id="dupCategory"></select>
@@ -474,7 +474,10 @@ function renderCards(data, append = false){
   let htmlString = "";
 
   data.forEach(o => {
-    let phone = tsToEnDigits(o.phone || "").replace(/\D/g, "").replace(/^0/, "");
+    // 🐛→✅ tsNormalizePhone بيشيل كود الدولة كمان — رقم متخزن 2010… كان
+    // بيطلع لينك wa.me/202010… (رقم غلط) في زرار واتساب "وصل مصر"
+    let phone = tsNormalizePhone(o.phone);
+    const waLang = tsWaLang(o.lang);   // 🌐 لغة العميل المتسجلة مع طلبه
     const orderId = o.order;
     const cleanOrderId = orderId.toString().split(' + ')[0];
     const qty = o.quantity || 1;
@@ -503,7 +506,20 @@ function renderCards(data, append = false){
       `;
     }
 
-   let message = `السلام عليكم ${o.customerName ? "أ/ " + o.customerName : "حضرتك"} 👋
+   const en = waLang === "en";
+   let message = en
+? `Hi ${o.customerName || "there"} 👋
+Your Try Shoppy order has arrived in Egypt 🇪🇬 and is ready for delivery 🚚
+
+Delivery time:
+📍 2 working days inside Cairo
+📍 3 working days for other governorates
+
+📍 Address: ${o.address || "not provided"}
+📞 Phone: ${tsDisplayPhone(o.phone) || "not provided"}
+
+📦 Details:\n`
+: `السلام عليكم ${o.customerName ? "أ/ " + o.customerName : "حضرتك"} 👋
 الأوردر الخاص بحضرتك من تراي شوبي -Try Shoppy وصل مصر 🇪🇬 وجاهز للتسليم 🚚
 
 سيتم التوصيل خلال:
@@ -530,7 +546,7 @@ if (isGrouped && o.items) {
       lineTotal: item.price || 0,
       specs: item.dimensions || "",
       hideArrival: true
-    }) + "\n";
+    }, waLang) + "\n";
   });
 } else {
   totalQty = parseInt(o.quantity || 1);
@@ -540,17 +556,26 @@ if (isGrouped && o.items) {
     lineTotal: o.finalPrice || 0,
     specs: o.dimensions || "",
     hideArrival: true
-  }) + "\n";
+  }, waLang) + "\n";
 }
 
-message += TS_WA_RULE + `
+message += TS_WA_RULE + (en
+? `
+📦 Total items: *${totalQty}*
+💰 Order total: *${total.toLocaleString()} EGP*
+${ship > 0 ? "🚚 Local delivery: " + ship.toLocaleString() + " EGP" : "🚚 Local delivery: on us 🎁"}
+💵 Paid in advance: ${dep.toLocaleString()} EGP
+📌 Due on delivery: *${net.toLocaleString()} EGP*
+
+Please confirm you'll be available to receive it 🙏`
+: `
 📦 إجمالي عدد المنتجات: *${totalQty}*
 💰 إجمالي الحساب: *${total.toLocaleString()} ج.م*
-🚚 الشحن الداخلي: هدية مننا لحضرتك 🎁
+${ship > 0 ? "🚚 الشحن الداخلي: " + ship.toLocaleString() + " ج.م" : "🚚 الشحن الداخلي: هدية مننا لحضرتك 🎁"}
 💵 المدفوع مقدمًا: ${dep.toLocaleString()} ج.م
 📌 المطلوب عند الاستلام: *${net.toLocaleString()} ج.م*
 
-برجاء تأكيد تواجد حضرتك للاستلام 🙏`;
+برجاء تأكيد تواجد حضرتك للاستلام 🙏`);
 
 let summaryBtn = "";
 
@@ -861,10 +886,10 @@ function applyFilters(){
              مش على مستوى المجموعة بس — رسالة "ملخص الطلبات غير
              المستلمة" بتشتغل على الأصناف واحد واحد، فمن غيرهم
              العربون بيتحسب صفر وسطر المواصفات بيطلع فاضي. */
-          items: [{link: o.link, price: o.finalPrice, qty: parseInt(o.quantity)||1, status: o.status || "", arrivaldate: o.arrivaldate || "", order: o.order || "", deposit: parseFloat(o.deposit)||0, dimensions: o.dimensions || ""}]
+          items: [{link: o.link, price: o.finalPrice, qty: parseInt(o.quantity)||1, status: o.status || "", arrivaldate: o.arrivaldate || "", order: o.order || "", deposit: parseFloat(o.deposit)||0, dimensions: o.dimensions || "", lang: o.lang || ""}]
         };
       }else{
-        groups[key].items.push({link: o.link, price: o.finalPrice, qty: parseInt(o.quantity)||1, status: o.status || "", arrivaldate: o.arrivaldate || "", order: o.order || "", deposit: parseFloat(o.deposit)||0, dimensions: o.dimensions || ""});
+        groups[key].items.push({link: o.link, price: o.finalPrice, qty: parseInt(o.quantity)||1, status: o.status || "", arrivaldate: o.arrivaldate || "", order: o.order || "", deposit: parseFloat(o.deposit)||0, dimensions: o.dimensions || "", lang: o.lang || ""});
         groups[key].quantity = (parseInt(groups[key].quantity)||0) + (parseInt(o.quantity)||1);
         groups[key].weight = (parseFloat(groups[key].weight)||0) + (parseFloat(o.weight)||0);
         groups[key].finalPrice = (parseFloat(groups[key].finalPrice)||0) + (parseFloat(o.finalPrice)||0);
@@ -872,6 +897,7 @@ function applyFilters(){
         groups[key].shipping = (parseFloat(groups[key].shipping)||0) + (parseFloat(o.shipping)||0);
         groups[key].usd = (parseFloat(groups[key].usd)||0) + (parseFloat(o.usd)||0);
         groups[key].order += " + " + o.order;
+        if (o.lang === "en") groups[key].lang = "en";   // 🌐 أي طلب إنجليزي = العميل إنجليزي
       }
     });
     filtered = Object.values(groups);
@@ -1100,7 +1126,8 @@ function generateUndeliveredSummary(o) {
       status: it.status || o.status || "",
       arrivaldate: (it.arrivaldate || "").toString().trim(),
       dimensions: it.dimensions || "",
-      deposit: parseFloat(it.deposit || 0)
+      deposit: parseFloat(it.deposit || 0),
+      lang: it.lang || ""
     }));
   } else {
     allItems = [{
@@ -1140,7 +1167,12 @@ function generateUndeliveredSummary(o) {
     return a.localeCompare(b, 'ar');
   });
 
-  let message = `السلام عليكم ${o.customerName ? "أ/ " + o.customerName : "حضرتك"} 👋
+  // 🌐 بلغة العميل — لو أي طلب من طلباته متسجل إنجليزي
+  const sLang = pendingItems.some(it => tsWaLang(it.lang) === "en") || tsWaLang(o.lang) === "en" ? "en" : "ar";
+  const sEn = sLang === "en";
+  let message = sEn
+    ? `Hi ${o.customerName || "there"} 👋\nHere's a summary of all your orders that are still on the way 📦✨\n`
+    : `السلام عليكم ${o.customerName ? "أ/ " + o.customerName : "حضرتك"} 👋
 ده ملخص بكل طلبات حضرتك اللي لسه في الطريق ولم يتم استلامها 📦✨\n`;
 
   let grandTotal = 0;
@@ -1149,7 +1181,12 @@ function generateUndeliveredSummary(o) {
     const items = dateGroups[dateKey];
     let groupTotal = 0;
 
-    message += `\n━━━━━━━━━━━━\n📅👇ملخص طلبات موعد وصولها: ${dateKey === NO_DATE_KEY ? dateKey.replace("📌 ", "") : dateKey}\n━━━━━━━━━━━━\n`;
+    const dateTxt = dateKey === NO_DATE_KEY
+      ? (sEn ? "not set yet" : dateKey.replace("📌 ", ""))
+      : tsFormatArrival(dateKey, sLang);   // O-27SEP2026 → 27 سبتمبر 2026 / 27 Sep 2026
+    message += sEn
+      ? `\n━━━━━━━━━━━━\n📅👇 Orders arriving: ${dateTxt}\n━━━━━━━━━━━━\n`
+      : `\n━━━━━━━━━━━━\n📅👇ملخص طلبات موعد وصولها: ${dateTxt}\n━━━━━━━━━━━━\n`;
 
     items.forEach(it => {
       groupTotal += it.price;
@@ -1163,22 +1200,34 @@ function generateUndeliveredSummary(o) {
         lineTotal: it.price,
         specs: it.dimensions || "",
         arrivalDate: dateKey === NO_DATE_KEY ? "" : dateKey,
-        status: it.status || "—"
-      }) + "\n";
+        status: it.status || "—",
+        hideArrival: true          // الموعد مكتوب في عنوان المجموعة فوق
+      }, sLang) + "\n";
     });
 
     grandTotal += groupTotal;
-    message += `\n📌 إجمالي طلبات هذا الموعد: *${groupTotal.toLocaleString()} ج.م*\n`;
+    message += sEn
+      ? `\n📌 Total for this date: *${groupTotal.toLocaleString()} EGP*\n`
+      : `\n📌 إجمالي طلبات هذا الموعد: *${groupTotal.toLocaleString()} ج.م*\n`;
   });
 
   const grandDeposit = pendingItems.reduce((s, it) => s + (parseFloat(it.deposit) || 0), 0);
 
-  message += `\n═══════════════\n💰 *الإجمالي الكلي لكل الطلبات غير المستلمة: ${grandTotal.toLocaleString()} ج.م*`;
-  if (grandDeposit > 0) {
-    message += `\n💵 المدفوع مقدمًا: ${grandDeposit.toLocaleString()} ج.م`;
-    message += `\n📌 *المطلوب عند الاستلام: ${(grandTotal - grandDeposit).toLocaleString()} ج.م*`;
+  if (sEn) {
+    message += `\n═══════════════\n💰 *Grand total of all orders still on the way: ${grandTotal.toLocaleString()} EGP*`;
+    if (grandDeposit > 0) {
+      message += `\n💵 Paid in advance: ${grandDeposit.toLocaleString()} EGP`;
+      message += `\n📌 *Due on delivery: ${(grandTotal - grandDeposit).toLocaleString()} EGP*`;
+    }
+    message += `\n═══════════════\n\nTrack your orders anytime here:\n${TS_TRACK_URL}\n\nWe're here if you have any questions 🙏`;
+  } else {
+    message += `\n═══════════════\n💰 *الإجمالي الكلي لكل الطلبات غير المستلمة: ${grandTotal.toLocaleString()} ج.م*`;
+    if (grandDeposit > 0) {
+      message += `\n💵 المدفوع مقدمًا: ${grandDeposit.toLocaleString()} ج.م`;
+      message += `\n📌 *المطلوب عند الاستلام: ${(grandTotal - grandDeposit).toLocaleString()} ج.م*`;
+    }
+    message += `\n═══════════════\n\nتابع طلباتك في أي وقت من هنا:\n${TS_TRACK_URL}\n\nلأي استفسار إحنا معاك 🙏`;
   }
-  message += `\n═══════════════\n\nتابع طلباتك في أي وقت من هنا:\n${TS_TRACK_URL}\n\nلأي استفسار إحنا معاك 🙏`;
 
   tsWaOpen(phone, message);
 }
@@ -1270,17 +1319,21 @@ function sendDupWhatsApp() {
 
 function sendDupCustomerSummary() {
     const d = lastDupData;
-    const phone = String(d.phone || "").replace(/\D/g, "").replace(/^0/, "");
+    // 🐛→✅ الرقم بيروح لـ tsWaOpen زي ما هو (هي بتحوّل الأرقام العربي) —
+    // replace(/\D/) هنا كانت بتمسح ٠١٠… كله، فالرسالة كانت بتفتح على رقم الشركة
+    const phone = d.phone || "";
     const qty = parseInt(d.quantity || 1);
     const piecePrice = parseFloat(d.newEgp || 0);
     const total = piecePrice * qty;
 
     const msg = tsWaMessage({
       to: "customer",
+      lang: d.lang,                     // 🌐 بلغة العميل (من طلبه الأصلي)
       customerName: d.customerName,
       items: [{
         orderNo: d.newOrder,
         link: d.newLink || "",
+        name: d.category || "",
         qty: qty,
         unitPrice: piecePrice,
         lineTotal: total,
@@ -1348,6 +1401,9 @@ function submitDuplicate() {
         tsClearBtnLoading(btn);
         alert("✅ تم إضافة منتج لنفس العميل بنجاح! - بواسطة الموظف: " + dupUser);
 
+        // 🐛→✅ كان بياخد حالة وموعد وصول وعربون الطلب **القديم** — فرسالة
+        // الواتساب للمنتج الجديد كانت بتقول "مدفوع مقدمًا 2000" و"وصل القاهرة"
+        // لمنتج لسه متسجل حالًا. الجديد: قيد المراجعة، من غير موعد ولا عربون.
         lastDupData = {
             ...originalOrder,
             newOrder,
@@ -1355,7 +1411,11 @@ function submitDuplicate() {
             quantity: qty,
             newUsd: usd,
             newEgp: egp,
-            dimensions: dimensions
+            dimensions: dimensions,
+            category,
+            status: "Pending Review",
+            arrivaldate: "",
+            deposit: 0
         };
 
         document.getElementById("dupWhatsappContainer").style.display = "block";
