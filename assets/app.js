@@ -738,6 +738,58 @@ function tsDisplayPhone(v){
   return raw;                                                     // شكل مش متوقع — منلمسوش
 }
 
+/* ✅ موبايل مصري صالح للتواصل (واتساب/مندوب) — 01[0/1/2/5] + 8 أرقام.
+   بيقبل أرقام عربي ومسافات و+20/0020، وبيرجّع 01xxxxxxxxx أو "" لو مش صالح. */
+function tsValidEgMobile(v){
+  const d = tsDisplayPhone(v);
+  return /^01[0125]\d{8}$/.test(d) ? d : '';
+}
+
+/* 🧾 التحقق من بيانات الشحن في صفحات الدفع (الحاسبة + المارت)
+   ---------------------------------------------------------------
+   🐛→✅ الحاسبة كانت بتطلب الاسم بس، والمارت الاسم والموبايل بس (أي
+   نص). فكانت بتوصلنا طلبات من غير موبايل أو برقم ناقص أو من غير
+   عنوان، ومحدش يقدر يوصل للعميل يأكّد الطلب ولا المندوب يوصّله.
+   fields = { name, phone, email, gov, address } كل واحد { el } (عنصر الإدخال)
+   بترجّع { ok, phone } — phone بالشكل الموحّد 01xxxxxxxxx — ولو فيه
+   خطأ بتعلّم الحقل بالأحمر وتكتب السبب تحته وتعمل focus عليه. */
+function tsCheckoutValidate(fields){
+  Object.values(fields).forEach(f => f && f.el && tsFieldError(f.el, ''));
+  const val = k => (fields[k] && fields[k].el ? String(fields[k].el.value || '').trim() : '');
+  const fail = (k, key) => { const el = fields[k].el; tsFieldError(el, tsT(key)); try{ el.focus({preventScroll:true}); el.scrollIntoView({behavior:'smooth', block:'center'}); }catch(e){} return { ok:false }; };
+
+  if(fields.name && val('name').length < 3) return fail('name', 'co_err_name');
+  const phone = tsValidEgMobile(val('phone'));
+  if(fields.phone && !phone) return fail('phone', 'co_err_phone');
+  const email = val('email');
+  if(fields.email && email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return fail('email', 'co_err_email');
+  if(fields.gov && !val('gov')) return fail('gov', 'co_err_gov');
+  if(fields.address && val('address').length < 8) return fail('address', 'co_err_address');
+  return { ok:true, phone };
+}
+/** أرقام الطلبات في شاشة النجاح كروابط تتبع (track.html?order=…) بدل نص بس */
+function tsRenderOrderLinks(el, orderNos){
+  if(!el) return;
+  el.innerHTML = orderNos.map(n =>
+    '<a href="track.html?order=' + encodeURIComponent(n) + '" style="color:inherit;text-decoration:underline;text-underline-offset:3px">' + tsEscapeHtml(n) + '</a>'
+  ).join(' · ');
+}
+/** رسالة خطأ تحت الحقل نفسه (بدل alert) — msg فاضي = تشيلها */
+function tsFieldError(el, msg){
+  if(!el) return;
+  const wrap = el.closest('.field') || el.parentNode;
+  let box = wrap.querySelector(':scope > .field-err-msg');
+  el.classList.toggle('field-err', !!msg);
+  if(!msg){ if(box) box.remove(); return; }
+  if(!box){ box = document.createElement('div'); box.className = 'field-err-msg'; wrap.appendChild(box); }
+  box.textContent = msg;
+  if(!el.dataset.errHook){
+    el.dataset.errHook = '1';
+    el.addEventListener('input', () => tsFieldError(el, ''));
+    el.addEventListener('change', () => tsFieldError(el, ''));
+  }
+}
+
 /* ---------- Users API (Google Apps Script) ---------- */
 function tsUsersApi(payload){
   return fetch(TS_CONFIG.USERS_API_URL, {
@@ -912,16 +964,8 @@ function tsFetchMartProductInfo(link, username, password){
     body: JSON.stringify({ action: 'fetchMartProductInfo', link, username, password })
   }).then(res => res.json());
 }
-/* بعد شراء منتج فعليًا من المارت، بننقص الكمية في الشيت مباشرة —
-   من غير adminKey لأنه فعل عميل عادي. السيرفر بيتأكد إن الرقم
-   ميقلش عن صفر، ولو فشل النداء لأي سبب الطلب برضه بيكون اتسجل
-   بنجاح في شيت الطلبات (النقصان في المخزون مش شرط لنجاح الطلب). */
-function tsDecrementMartStock(id, qty){
-  return fetch(TS_CONFIG.MART_PRODUCTS_SCRIPT_URL, {
-    method: 'POST',
-    body: JSON.stringify({ action: 'decrementStock', id, qty })
-  }).then(res => res.json());
-}
+/* 📉 تقليل مخزون المارت مبقاش من المتصفح — السيرفر بيعمله لحظة حفظ
+   الطلب (applyMartCatalog_ في Orders_Code.gs) بعد ما يراجع السعر. */
 
 /* ---------- Try Shoppy Mart cart (localStorage, keyed per browser) ----------
    Cart item shape: { id, name:{en,ar}, price, qty, cat } */

@@ -407,3 +407,7 @@ body.has-sticky-bar .ts-wa-fab{bottom:84px}
 }
 .sticky-bar .btn{flex:1}
 @media(max-width:760px){.sticky-bar{display:flex;gap:10px}}
+
+/* ✅ أخطاء حقول الدفع (tsCheckoutValidate في app.js) */
+.field-err{border-color:#DC2626 !important;box-shadow:0 0 0 3px rgba(220,38,38,.12) !important}
+.field-err-msg{font-size:12px;font-weight:700;color:#DC2626;margin-top:5px;line-height:1.5}

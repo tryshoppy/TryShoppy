@@ -8,7 +8,7 @@
 const TS_CONFIG = {
   /* ── رابط سكريبت الطلبات الموحّد (GET + POST) ──
      نفس الرابط من ملف script_link.js بتاعك             */
-  ORDERS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbwCFb5hW9mKeuYDohPxa7EoG5TGfe4hVidgTJpAAV5EOfK7BkRwG_DyD8wRViry7Bww/exec",
+  ORDERS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbwORLRcNcLr788zMQw615EUdh6rLrlMc7IMWc4vzZ29LXe6psbIfUJclcvmOYEhqPY7/exec",
 
   /* ── رابط سكريبت الحسابات (حسابات العملاء) ──
      انشر Users_Code.gs واحط الرابط هنا              */
@@ -17,7 +17,7 @@ const TS_CONFIG = {
   /* ── رابط سكريبت منتجات المارت (شيت منفصل تمامًا) ──
      انشر backend/MartProducts_Code.gs على شيت جديد
      مستقل، واحط الرابط هنا                          */
-  MART_PRODUCTS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbz6J-BjsME8PowOovnR-1Kg9xULT6_tXGfPdsfFi_O9rel4E9BeTgJjd7yP3_W16ccx5w/exec",
+  MART_PRODUCTS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbwMryPg3e39cghCk2Q43ZjW1X4AH6Qy2jxD9VE3EqkvH5Oxw3okuVFH2FcLqTlo35jfyQ/exec",
 
   SUPPORT_PHONE: "201005609642",
 
