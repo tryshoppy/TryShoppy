@@ -411,6 +411,11 @@ html[dir="rtl"] .quick-track{padding:6px 12px 6px 6px}
 .ml-price b{color:var(--yellow);font-family:var(--fm);font-size:14px}
 .ml-price s{color:#8E97B8;font-family:var(--fm);font-size:11.5px}
 .ml-off{font-size:10.5px;font-weight:800;color:var(--ink);background:var(--yellow);border-radius:999px;padding:2px 7px}
+.ml-grid{transition:opacity .32s ease,transform .32s ease}
+.ml-grid.ml-fade{opacity:0;transform:translateY(6px)}
+.ml-dots{display:flex;justify-content:center;gap:7px;margin-top:14px}
+.ml-dot{width:8px;height:8px;border-radius:999px;border:0;padding:0;background:rgba(255,255,255,.28);cursor:pointer;transition:width .25s,background .25s}
+.ml-dot.on{width:22px;background:var(--yellow)}
 
 /* ── 📱 mobile: smaller cover so the headline + link box show up first ──
    على الموبايل الكوفر كان واخد شاشة كاملة تقريبًا (≈300px) قبل العنوان
@@ -655,6 +660,7 @@ html[dir="rtl"] .quick-track{padding:6px 12px 6px 6px}
       <div class="mart-live hidden" id="martLive">
         <div class="ml-head"><span class="ml-dot"></span><span data-i18n="home_mart_live">Available now</span></div>
         <div class="ml-grid" id="martLiveGrid"></div>
+        <div class="ml-dots" id="martLiveDots"></div>
       </div>
       <div class="mart-tiles" id="martTiles">
         <div class="mart-tile"><div class="t" data-i18n="lbl_brand_new">Brand New</div><div class="s" data-i18n="mart_tab_highdemand">High Demand</div></div>
@@ -929,47 +935,105 @@ tsInitNav();
   });
 })();
 
-/* ── 🛍️ live Mart products ────────────────────────────────────────
-   4 منتجات حقيقية متاحة من الكاتالوج بدل الكروت الثابتة. الأولوية:
-   أكبر خصم، وبعدين الأكثر طلبًا. بيستخدم نفس كاش mart.html
-   (ts_mart_cache_v1، 10 دقايق) عشان السكريبت بطيء أحيانًا — ولو فشل
-   كل حاجة، الكروت الثابتة بتفضل زي ما هي. كل كارت بيفتح المنتج نفسه
-   في المارت (mart.html?product=ID). */
+/* ── 🛍️ live Mart products (بتتبدّل) ──────────────────────────────
+   منتجات حقيقية متاحة من الكاتالوج بدل الكروت الثابتة:
+     • كل زيارة بترتيب عشوائي (مش دايمًا نفس الأربعة / الأعلى خصم)
+     • كل 7 ثواني الأربعة بيتبدلوا بالأربعة اللي بعدهم بانتقال هادي،
+       لحد ما يلف على كل المنتجات المتاحة ويرجع من الأول
+     • بيقف لو الزائر واقف بالماوس أو لمس كارت (عشان مايتغيرش تحت
+       صباعه)، ولو التاب مش ظاهر، ولو القسم مش ظاهر في الشاشة
+     • "تقليل الحركة" في إعدادات الجهاز = عشوائي من غير تبديل تلقائي
+     • صور الدفعة الجاية بتتحمّل قبل التبديل — مفيش كروت فاضية
+   بيستخدم نفس كاش mart.html (ts_mart_cache_v1، 10 دقايق)، ولو فشل كل
+   حاجة الكروت الثابتة بتفضل. كل كارت بيفتح المنتج (mart.html?product=ID). */
 (function(){
   const CACHE_KEY = 'ts_mart_cache_v1', MAX_AGE = 10 * 60 * 1000;
-  let last = null;
-  function pick(list){
-    return (list || [])
-      .map(p => ({ ...p, price: parseFloat(p.price) || 0, oldPrice: parseFloat(p.oldPrice) || 0, stock: parseInt(p.stock) || 0 }))
-      .filter(p => p.id && p.price > 0 && p.stock > 0 && String(p.image || '').trim())
-      .sort((a, b) => {
-        const da = a.oldPrice > a.price ? (a.oldPrice - a.price) / a.oldPrice : 0;
-        const db = b.oldPrice > b.price ? (b.oldPrice - b.price) / b.oldPrice : 0;
-        if (db !== da) return db - da;
-        return (b.section === 'highdemand') - (a.section === 'highdemand');
-      })
-      .slice(0, 4);
+  const PER = 4, EVERY = 7000;
+  const grid = document.getElementById('martLiveGrid');
+  const dots = document.getElementById('martLiveDots');
+  const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let pool = [], page = 0, timer = null, holdUntil = 0, hover = false, inView = false;
+
+  const clean = list => (list || [])
+    .map(p => ({ ...p, price: parseFloat(p.price) || 0, oldPrice: parseFloat(p.oldPrice) || 0, stock: parseInt(p.stock) || 0 }))
+    .filter(p => p.id && p.price > 0 && p.stock > 0 && String(p.image || '').trim());
+  const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const pages = () => Math.max(1, Math.ceil(pool.length / PER));
+  // آخر دفعة بتكمل من أول القايمة — عشان الشبكة تفضل 4 كروت دايمًا (مفيش خانة فاضية)
+  const batch = n => pool.length <= PER ? pool.slice()
+    : Array.from({ length: PER }, (_, i) => pool[(n * PER + i) % pool.length]);
+  const imgOf = p => String(p.image).split('|')[0].trim();
+
+  /* بيانات جديدة (من الكاش وبعدين من الشبكة): المنتجات اللي ظاهرة بتفضل في
+     مكانها بأحدث سعر/مخزون، والجديدة بتتضاف عشوائي في الآخر، واللي خلص بيتشال */
+  function setData(list){
+    const fresh = clean(list);
+    const byId = new Map(fresh.map(p => [String(p.id), p]));
+    const kept = pool.filter(p => byId.has(String(p.id))).map(p => byId.get(String(p.id)));
+    const keptIds = new Set(kept.map(p => String(p.id)));
+    pool = kept.concat(shuffle(fresh.filter(p => !keptIds.has(String(p.id)))));
+    if (page >= pages()) page = 0;
   }
-  function render(list){
-    const items = pick(list);
-    if (items.length < 2) return;            // منتج واحد شكله فاضي — نسيب الكروت الثابتة
-    last = list;
+
+  function cardsHtml(items){
     const ar = TS_LANG === 'ar';
-    document.getElementById('martLiveGrid').innerHTML = items.map(p => {
+    return items.map(p => {
       const name = (ar ? (p.nameAr || p.nameEn) : (p.nameEn || p.nameAr)) || '';
-      const img = String(p.image).split('|')[0].trim();
       const off = p.oldPrice > p.price ? Math.round((p.oldPrice - p.price) / p.oldPrice * 100) : 0;
       return '<a class="ml-card" href="mart.html?product=' + encodeURIComponent(p.id) + '">' +
-        '<div class="ml-img"><img src="' + tsSafeHref(img) + '" alt="' + tsEscapeHtml(name) + '" loading="lazy"></div>' +
+        '<div class="ml-img"><img src="' + tsSafeHref(imgOf(p)) + '" alt="' + tsEscapeHtml(name) + '" loading="lazy"></div>' +
         // dir="auto": اسم إنجليزي في صفحة عربي يتقص من آخره صح (مش "...7.5mg, Organic")
         '<div class="ml-body"><div class="ml-name" dir="auto">' + tsEscapeHtml(name) + '</div>' +
           '<div class="ml-price"><b dir="ltr">' + p.price.toLocaleString('en-US') + ' EGP</b>' +
             (off ? '<s dir="ltr">' + p.oldPrice.toLocaleString('en-US') + '</s><span class="ml-off" dir="ltr">-' + off + '%</span>' : '') +
           '</div></div></a>';
     }).join('');
+  }
+  function drawDots(){
+    if (!dots) return;
+    const n = pages();
+    dots.innerHTML = n > 1 ? Array.from({ length: n }, (_, i) =>
+      '<button type="button" class="ml-dot' + (i === page ? ' on' : '') + '" data-p="' + i + '" aria-label="' + (i + 1) + '"></button>').join('') : '';
+  }
+  function show(n, animate){
+    const items = batch(n);
+    if (items.length < 2 && page === 0) return false;       // منتج واحد شكله فاضي — نسيب الكروت الثابتة
+    const paint = () => { grid.innerHTML = cardsHtml(items); grid.classList.remove('ml-fade'); drawDots(); };
+    if (animate && !reduce) { grid.classList.add('ml-fade'); setTimeout(paint, 320); } else paint();
     document.getElementById('martLive').classList.remove('hidden');
     document.getElementById('martTiles').classList.add('hidden');
+    return true;
   }
+  /* صور الدفعة الجاية بتتحمّل قبلها بشوية — عشان التبديل مايبانش فيه كروت فاضية */
+  function preload(n){ batch(n).forEach(p => { const i = new Image(); i.src = imgOf(p); }); }
+
+  function tick(){
+    if (pages() < 2 || hover || !inView || document.hidden || Date.now() < holdUntil) return;
+    page = (page + 1) % pages();
+    show(page, true);
+    preload((page + 1) % pages());
+  }
+  function start(){ if (!timer && !reduce) timer = setInterval(tick, EVERY); }
+
+  function render(list){
+    setData(list);
+    if (show(page, false)) { preload((page + 1) % pages()); start(); }
+  }
+
+  // ⏸️ إيقاف مؤقت: ماوس فوق المنتجات، لمسة (10 ثواني)، أو فوكس بالكيبورد
+  const box = document.getElementById('martLive');
+  box.addEventListener('mouseenter', () => { hover = true; });
+  box.addEventListener('mouseleave', () => { hover = false; });
+  box.addEventListener('touchstart', () => { holdUntil = Date.now() + 10000; }, { passive: true });
+  box.addEventListener('focusin', () => { holdUntil = Date.now() + 15000; });
+  if (dots) dots.addEventListener('click', e => {
+    const b = e.target.closest('.ml-dot'); if (!b) return;
+    page = +b.dataset.p; holdUntil = Date.now() + 12000; show(page, true); preload((page + 1) % pages());
+  });
+  // بيلف بس والقسم قدام الزائر — فأول ما ينزل له يشوف أول دفعة مش دفعة في النص
+  if ('IntersectionObserver' in window) new IntersectionObserver(es => { inView = es[0].isIntersecting; }, { threshold: .35 }).observe(box);
+  else inView = true;
+
   try {
     const c = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
     if (c && Array.isArray(c.products) && (Date.now() - c.t) < MAX_AGE) render(c.products);
@@ -981,9 +1045,8 @@ tsInitNav();
       render(list);
     }).catch(() => {});
   }
-  document.addEventListener('ts-lang-changed', () => { if (last) render(last); });
+  document.addEventListener('ts-lang-changed', () => { if (pool.length) show(page, false); });
 })();
-
 /* ── US store examples ─────────────────────────────────────────────
    Real store logos (Clearbit → Google favicon → text-only fallback).
    Presented as examples of where customers shop, not as partners —
