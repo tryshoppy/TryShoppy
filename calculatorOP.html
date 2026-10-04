@@ -9,27 +9,78 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="assets/style.css">
 <style>
-.calc-bg{min-height:calc(100vh - 66px);display:flex;align-items:flex-start;justify-content:center;padding:44px 16px 90px;background:radial-gradient(ellipse 600px 400px at 30% 0%,var(--gold-wash) 0%,transparent 65%)}
-.calc-card{width:100%;max-width:600px;padding:36px}
-.op-badge{display:flex;justify-content:center;margin-bottom:14px}
+/* ═══ حاسبة التشغيل — نفس حاسبة الموقع (calculator.html) بالظبط، من غير
+   خانة اللينك، ومن غير سلة ولا طلب. نفس المعادلة (function_calc.js)،
+   نفس الوحدات (جم/كجم/lb/oz و سم/بوصة)، ونفس السعر الحي — فالموظف
+   مابيحوّلش وحدات بإيده ومايغلطش في "السعر للقطعة ولا للكل". ═══ */
+.calc-bg{min-height:calc(100vh - 66px);display:flex;align-items:flex-start;justify-content:center;padding:34px 16px 90px;background:radial-gradient(ellipse 600px 400px at 30% 0%,var(--gold-wash) 0%,transparent 65%)}
+.calc-card{width:100%;max-width:620px;padding:30px}
+.op-badge{display:flex;justify-content:center;margin-bottom:10px}
 .op-badge span{font-family:var(--fm);font-size:10.5px;font-weight:700;letter-spacing:.08em;padding:5px 14px;border-radius:var(--pill);background:var(--ink);color:var(--gold-light)}
-.calc-logo{text-align:center;margin-bottom:10px}
-.calc-logo img{height:48px;margin:0 auto 8px}
-.calc-card h2{text-align:center;font-size:1.4rem;font-weight:800;margin:0 0 6px}
-.calc-sub{text-align:center;font-size:12.5px;color:var(--ink-2);margin-bottom:26px}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:13px}
-.dims{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:6px}
-.sup-box{background:var(--gold-wash);border:1.5px dashed var(--gold);border-radius:var(--r2);padding:18px;margin-bottom:18px}
-.sup-box .sup-title{font-weight:800;font-size:14px;color:var(--gold-deep);margin-bottom:14px;display:flex;align-items:center;gap:7px}
+html[lang="ar"] .op-badge span{font-family:inherit;letter-spacing:0}   /* خط الأرقام بيفصّل الحروف العربي */
+.calc-card h2{text-align:center;font-size:1.35rem;font-weight:800;margin:0 0 4px}
+.calc-sub{text-align:center;font-size:12.5px;color:var(--ink-2);margin-bottom:22px}
+
+.fsec{margin-bottom:22px}
+.fsec-head{display:flex;align-items:center;gap:10px;margin:0 0 14px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.fsec-head .num{width:28px;height:28px;border-radius:9px;background:var(--blue-700, #2D3250);color:#fff;font-family:var(--fm);font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.fsec-head h3{font-size:14px;font-weight:800;margin:0}
+.fhint{font-size:12.5px;color:var(--ink-3);margin:7px 0 0;line-height:1.55}
+.row{display:grid;grid-template-columns:1.2fr 1fr;gap:12px}
+.req{color:#DC2626;font-weight:800}
+.opt{font-size:11px;font-weight:700;color:var(--ink-3);background:var(--line-2, #EEF2F8);border-radius:999px;padding:3px 9px;white-space:nowrap}
+
+.affix,.qty-step{display:flex;align-items:stretch;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--white)}
+.affix:focus-within{border-color:var(--blue-link)}
+.affix-sym{display:flex;align-items:center;padding:0 12px;background:var(--blue-50);color:var(--blue-700);font-weight:800;font-family:var(--fm)}
+.affix input,.qty-step input{border:0!important;box-shadow:none!important;border-radius:0;font-family:var(--fm)}
+.affix input{direction:ltr;text-align:left}
+.qty-step button{width:40px;border:0;background:var(--blue-50);color:var(--blue-700);font-size:20px;font-weight:800;cursor:pointer;flex-shrink:0}
+.qty-step input{text-align:center;font-weight:700;-moz-appearance:textfield}
+.qty-step input::-webkit-inner-spin-button,.qty-step input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.unit-in{display:flex;gap:8px}
+.unit-in input{flex:1;min-width:0;direction:ltr;text-align:left;font-family:var(--fm)}
+.unit-in select,.dims-in select{width:auto;flex-shrink:0;min-width:74px}
+#stepCalc input::placeholder{font-family:var(--f);letter-spacing:0}
+html[lang="ar"] #stepCalc input::placeholder{font-family:var(--f-ar, var(--f))}
+
+.sup-box{background:var(--gold-wash);border:1.5px dashed var(--gold);border-radius:var(--r2);padding:16px;margin-bottom:16px}
+.sup-box .sup-title{font-weight:800;font-size:14px;color:var(--gold-deep);margin-bottom:12px;display:flex;align-items:center;gap:7px}
 .sup-box .field{margin-bottom:0}
 .sup-note{font-size:12.5px;color:var(--ink-2);margin-top:7px;line-height:1.5}
 .sup-note.warn{color:var(--gold-deep);font-weight:700}
+.shoe-note{font-size:12px;line-height:1.6;color:var(--gold-deep);background:var(--gold-wash);border:1px solid var(--gold);border-radius:var(--r-sm, 8px);padding:9px 12px;margin-top:8px}
 input:read-only{background:var(--gold-wash);color:var(--gold-deep);font-weight:700;border-color:var(--gold)}
-.result-box{background:linear-gradient(135deg,var(--gold-wash) 0%,var(--gold-pale) 100%);border-radius:20px;padding:26px;margin:24px 0;text-align:center;animation:fadeUp .4s ease-out;border:1px solid rgba(245,184,32,.2)}
-.result-price{font-family:var(--fm);font-size:2.6rem;font-weight:700;margin:10px 0;color:var(--ink)}
-.result-note{font-size:13px;color:var(--ok);font-weight:700}
+
+.opt-box{border:1px solid var(--line);border-radius:var(--r2);padding:0 16px;margin:4px 0 4px;background:var(--white)}
+.opt-box[open]{padding-bottom:16px}
+.opt-box summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:13px 0;font-weight:800;font-size:13.5px}
+.opt-box summary::-webkit-details-marker{display:none}
+.opt-box summary .opt{margin-inline-start:auto}
+.opt-box summary::after{content:'+';font-size:18px;font-weight:700;color:var(--ink-3)}
+.opt-box[open] summary::after{content:'−'}
+.opt-box .fhint{margin:0 0 12px}
+.dims-in{display:flex;align-items:center;gap:6px}
+.dims-in input{flex:1;min-width:0;direction:ltr;text-align:center;font-family:var(--fm);padding-inline:6px}
+.dims-in .x{color:var(--ink-3);font-weight:700}
+
+.ls-wait{border:1.5px dashed var(--line);border-radius:18px;padding:18px;text-align:center;margin-top:18px}
+.ls-wait-t{font-weight:800;font-size:14px;color:var(--ink-2)}
+.ls-wait-d{font-size:12.5px;color:var(--ink-3);margin-top:5px}
+.result-box{background:linear-gradient(135deg,var(--gold-wash) 0%,var(--gold-pale) 100%);border-radius:20px;padding:24px;margin:18px 0 0;text-align:center;animation:fadeUp .3s ease-out;border:1px solid rgba(245,184,32,.25)}
+.result-price{font-family:var(--fm);font-size:2.5rem;font-weight:700;margin:8px 0 4px;color:var(--ink)}
+.ls-per{font-size:13px;color:var(--ink-2);font-weight:700}
 .weight-basis{font-size:12.5px;color:var(--ink-2);margin-top:6px}
-@media(max-width:560px){.row,.dims{grid-template-columns:1fr}.calc-card{padding:22px}}
+.weight-basis.vol{color:#B45309;font-weight:800}
+.result-note{font-size:12.5px;color:var(--ok);font-weight:700;margin-top:10px}
+.copy-btn{margin-top:14px}
+/* 🔗 ملاحظة ثابتة بالأصفر تحت خانة اللينك */
+.link-note{margin-top:8px;background:#FEF3C7;border:1.5px solid #F5B820;color:#78350F;border-radius:10px;padding:9px 12px;font-size:12.5px;font-weight:800;line-height:1.6}
+.risk-box{margin-top:16px}
+@media(max-width:560px){
+  .calc-card{padding:20px 16px}
+  .dims-in{flex-wrap:wrap}.dims-in input{flex:1 1 26%}.dims-in .x{display:none}.dims-in select{flex:1 1 100%}
+}
 </style>
 </head>
 <body>
@@ -54,16 +105,42 @@ input:read-only{background:var(--gold-wash);color:var(--gold-deep);font-weight:7
 </header>
 
 <div class="calc-bg">
-  <div class="card calc-card animate-in">
+  <div class="card calc-card animate-in" id="stepCalc">
     <div class="op-badge"><span data-i18n="calcop_badge">INTERNAL TOOL</span></div>
-    <div class="calc-logo"><img src="assets/logo.png" alt="Try Shoppy"></div>
     <h2 data-i18n="calcop_title">Quick Price Estimate</h2>
     <div class="calc-sub" data-i18n="calcop_sub">For staff use — estimates only, no order is created.</div>
 
-    <div class="row">
-      <div class="field"><label data-i18n="calc_price_label">Total Price in USD *</label><input id="price" type="number" placeholder="0.00"></div>
+    <!-- ① السعر والكمية -->
+    <div class="fsec">
+      <div class="fsec-head"><span class="num">1</span><h3 data-i18n="c2_sec1">The product</h3></div>
+      <!-- 🔗 اختياري — بس الفحص السريع (tsProductRisk) بيقرا اسم المنتج منه -->
       <div class="field">
-        <label data-i18n="calc_category_label">Category *</label>
+        <label for="opLink"><span data-i18n="calc_link_label">Product Link</span> <span class="opt" data-i18n="c2_optional">optional</span></label>
+        <input id="opLink" type="url" inputmode="url" dir="ltr" autocomplete="off" placeholder="https://www.amazon.com/..." style="font-family:var(--fm);font-size:13.5px">
+        <div class="link-note">⚠️ <span data-i18n="calcop_link_note">Add the link if you're unsure what the product is (battery, spray, perfume, chemicals, supplements…) — the quick check reads the product name from it and warns you right away.</span></div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="price"><span data-i18n="c2_price_label">Price of ONE item</span> <span class="req">*</span></label>
+          <div class="affix"><span class="affix-sym">$</span><input id="price" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00"></div>
+        </div>
+        <div class="field">
+          <label for="quantity"><span data-i18n="calc_qty_label">Quantity</span> <span class="req">*</span></label>
+          <div class="qty-step">
+            <button type="button" data-qstep="-1" aria-label="−">−</button>
+            <input id="quantity" type="number" value="1" min="1" max="999" inputmode="numeric">
+            <button type="button" data-qstep="1" aria-label="+">+</button>
+          </div>
+        </div>
+      </div>
+      <p class="fhint" data-i18n="c2_price_hint">The price of a single piece as shown on the store…</p>
+    </div>
+
+    <!-- ② النوع والوزن -->
+    <div class="fsec">
+      <div class="fsec-head"><span class="num">2</span><h3 data-i18n="c2_sec2">Type &amp; weight</h3></div>
+      <div class="field">
+        <label for="category"><span data-i18n="c2_category_label">Category</span> <span class="req">*</span></label>
         <select id="category" onchange="onCategoryChange()">
           <option value="" data-i18n="calc_category_select">Select category...</option>
           <option value="Clothes (Regular)" data-i18n="cat_clothes">Clothes (Regular)</option>
@@ -84,50 +161,77 @@ input:read-only{background:var(--gold-wash);color:var(--gold-deep);font-weight:7
           <option value="Large Size Hand bag (women)" data-i18n="cat_bag_large">Large Hand Bag (Women)</option>
           <option value="Stationary" data-i18n="cat_stationary">Stationary</option>
         </select>
+        <div id="shoeBoxNote" class="shoe-note hidden"></div>
       </div>
-    </div>
 
-    <div id="supplementBox" class="sup-box hidden">
-      <div class="sup-title">💊 <span data-i18n="calc_sup_title">Vitamins / Supplements Details</span></div>
-      <div class="row">
-        <div class="field">
-          <label data-i18n="calc_sup_type">Product Type</label>
-          <select id="supplementType" onchange="onSupplementTypeChange()">
-            <option value="capsules" data-i18n="sup_opt_capsules">Capsules</option>
-            <option value="gummies" data-i18n="sup_opt_gummies">Gummies</option>
-            <option value="powder" data-i18n="sup_opt_powder">Powder</option>
-            <option value="liquid" data-i18n="sup_opt_liquid">Liquid</option>
+      <div id="supplementBox" class="sup-box hidden">
+        <div class="sup-title">💊 <span data-i18n="calc_sup_title">Vitamins / Supplements Details</span></div>
+        <div class="row">
+          <div class="field">
+            <label data-i18n="calc_sup_type">Product Type</label>
+            <select id="supplementType" onchange="onSupplementTypeChange()">
+              <option value="capsules" data-i18n="sup_opt_capsules">Capsules</option>
+              <option value="gummies" data-i18n="sup_opt_gummies">Gummies</option>
+              <option value="powder" data-i18n="sup_opt_powder">Powder</option>
+              <option value="liquid" data-i18n="sup_opt_liquid">Liquid</option>
+            </select>
+          </div>
+          <div class="field">
+            <label data-i18n="calc_sup_pieces">Piece Count</label>
+            <select id="supplementRange" onchange="onSupplementRangeChange()"></select>
+            <div id="manualWeightNote" class="sup-note warn hidden"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="weight"><span data-i18n="c2_weight_label">Weight of ONE item</span> <span class="req">*</span></label>
+        <div class="unit-in">
+          <input id="weight" type="number" inputmode="decimal" min="0" step="any" data-i18n-ph="calc_weight_ph" placeholder="e.g. 500">
+          <select id="weightUnit" aria-label="Weight unit">
+            <option value="g" data-i18n="c2_u_g">g</option>
+            <option value="kg" data-i18n="c2_u_kg">kg</option>
+            <option value="lb">lb</option>
+            <option value="oz">oz</option>
           </select>
         </div>
-        <div class="field">
-          <label data-i18n="calc_sup_pieces">Piece Count</label>
-          <select id="supplementRange" onchange="onSupplementRangeChange()"></select>
-          <div id="manualWeightNote" class="sup-note warn hidden"></div>
-        </div>
+        <div id="weightAutoNote" class="sup-note hidden"></div>
+        <p class="fhint" data-i18n="calcop_weight_hint">Type the number exactly as the store shows it and pick the same unit — no manual conversion.</p>
       </div>
+
+      <details class="opt-box" id="dimsBox">
+        <summary>📦 <span data-i18n="c2_dims_title">Box dimensions</span><span class="opt" data-i18n="c2_optional">optional</span></summary>
+        <p class="fhint" data-i18n="c2_dims_hint">Only matters for big, light items…</p>
+        <div class="dims-in">
+          <input id="length" type="number" min="0" step="any" inputmode="decimal" data-i18n-ph="calc_length_ph" placeholder="Length">
+          <span class="x">×</span>
+          <input id="width" type="number" min="0" step="any" inputmode="decimal" data-i18n-ph="calc_width_ph" placeholder="Width">
+          <span class="x">×</span>
+          <input id="height" type="number" min="0" step="any" inputmode="decimal" data-i18n-ph="calc_height_ph" placeholder="Height">
+          <select id="dimUnit" aria-label="Dimension unit">
+            <option value="cm" data-i18n="c2_u_cm">cm</option>
+            <option value="in" data-i18n="c2_u_in">in</option>
+          </select>
+        </div>
+      </details>
     </div>
 
-    <div class="field">
-      <label data-i18n="calc_weight_label">Weight (g) *</label>
-      <input id="weight" type="number" data-i18n-ph="calc_weight_ph" placeholder="e.g. 500">
-      <div id="weightAutoNote" class="sup-note hidden"></div>
+    <!-- 🚨 تنبيهات الفحص السريع (ممنوع / بطارية / حجم كبير…) — تنبيه بس مش بيوقف الحساب -->
+    <div id="riskBox" class="risk-box" style="display:none"></div>
+
+    <!-- 💰 السعر الحي -->
+    <div class="ls-wait" id="lsWait">
+      <div class="ls-wait-t" data-i18n="c2_wait_t">Your final price appears here</div>
+      <div class="ls-wait-d" id="lsMissing"></div>
     </div>
-
-    <label data-i18n="calc_dims_label" style="margin-bottom:8px">Dimensions in CM (optional)</label>
-    <div class="dims">
-      <input id="length" type="number" data-i18n-ph="calc_length_ph" placeholder="Length (L)">
-      <input id="width" type="number" data-i18n-ph="calc_width_ph" placeholder="Width (W)">
-      <input id="height" type="number" data-i18n-ph="calc_height_ph" placeholder="Height (H)">
-    </div>
-
-    <button class="btn btn-primary btn-block" style="margin-top:20px" onclick="calculate()" data-i18n="calc_btn_calculate">Calculate Price</button>
-
     <div id="resultArea" class="hidden">
       <div class="result-box">
         <div style="font-size:13px;color:var(--ink-2)" data-i18n="calc_result_total_label">Total Cost (Shipping &amp; Customs included)</div>
-        <div id="priceDetails" class="result-price">— EGP</div>
+        <div id="priceDetails" class="result-price" dir="ltr">— EGP</div>
+        <div class="ls-per" id="lsPer"></div>
         <div id="weightBasisMsg" class="weight-basis"></div>
         <div class="result-note" data-i18n="calc_result_cod_note">Cash on Delivery up to 10,000 EGP ✓</div>
+        <button type="button" class="btn btn-dark btn-block copy-btn" onclick="copyQuote()" data-i18n="calcop_copy">📋 Copy price for the customer</button>
       </div>
     </div>
   </div>
@@ -140,22 +244,43 @@ input:read-only{background:var(--gold-wash);color:var(--gold-deep);font-weight:7
 <script>
 tsInitNav();
 
+/* ⚖️ الوحدات — نفس حاسبة الموقع: الحساب كله بالجرام والسنتيمتر */
+const WEIGHT_TO_G = { g:1, kg:1000, lb:453.592, oz:28.3495 };
+const DIM_TO_CM   = { cm:1, in:2.54 };
+function setWeightUnitLocked(locked){
+  const u=document.getElementById('weightUnit');
+  if(locked) u.value='g';
+  u.disabled=!!locked;
+}
+
 function isManualWeightType(type){ return type==='powder' || type==='liquid'; }
+
+function renderShoeBoxNote(){
+  const cat=document.getElementById('category').value;
+  const el=document.getElementById('shoeBoxNote');
+  el.textContent = TS_LANG==='ar'
+    ? '📦 بوكس الحذاء بيتشال لتقليل تكلفة الشحن — لو العميل عايزه بالبوكس، بتكلفة إضافية.'
+    : '📦 The shoe box is removed to cut shipping cost — boxed delivery costs extra if the customer wants it.';
+  el.classList.toggle('hidden', !(cat==='Shoes (Regular)' || cat==='Shoes (Boot)'));
+}
 
 function onCategoryChange(){
   const cat=document.getElementById('category').value;
   const box=document.getElementById('supplementBox');
   const weightInput=document.getElementById('weight');
   const note=document.getElementById('weightAutoNote');
+  renderShoeBoxNote();
   if(cat==='Vitamin or Supplements'){
     box.classList.remove('hidden');
     onSupplementTypeChange();
   } else {
     box.classList.add('hidden');
+    if(weightInput.readOnly) weightInput.value='';   // بيتمسح بس لو كان تلقائي من المكملات
     weightInput.readOnly=false;
-    weightInput.value='';
+    setWeightUnitLocked(false);
     note.classList.add('hidden');
   }
+  liveUpdate();
 }
 
 function buildSupplementRangeOptions(){
@@ -163,8 +288,7 @@ function buildSupplementRangeOptions(){
   if(!typeSel) return;
   const type=typeSel.value||'capsules';
   const ranges=tryShoppyGetSupplementRanges(type);
-  const unitKey=type==='gummies' ? 'sup_unit_gummies' : 'sup_unit_tablets';
-  const unit=tsT(unitKey);
+  const unit=tsT(type==='gummies' ? 'sup_unit_gummies' : 'sup_unit_tablets');
   const sel=document.getElementById('supplementRange');
   const prevValue=sel.value;
   sel.innerHTML='';
@@ -183,11 +307,11 @@ function onSupplementTypeChange(){
   const manualNote=document.getElementById('manualWeightNote');
   const weightInput=document.getElementById('weight');
   const autoNote=document.getElementById('weightAutoNote');
-
   if(isManualWeightType(type)){
     rangeSel.classList.add('hidden');
     weightInput.readOnly=false;
     weightInput.value='';
+    setWeightUnitLocked(false);
     autoNote.classList.add('hidden');
     manualNote.textContent = type==='powder' ? tsT('calc_sup_note_powder') : tsT('calc_sup_note_liquid');
     manualNote.classList.remove('hidden');
@@ -197,74 +321,136 @@ function onSupplementTypeChange(){
     buildSupplementRangeOptions();
     onSupplementRangeChange();
   }
+  liveUpdate();
 }
 
 function onSupplementRangeChange(){
   const type=document.getElementById('supplementType').value||'capsules';
   if(isManualWeightType(type)) return;
-  const ranges=tryShoppyGetSupplementRanges(type);
-  const idx=parseInt(document.getElementById('supplementRange').value)||0;
-  const range=ranges[idx];
+  const range=tryShoppyGetSupplementRanges(type)[parseInt(document.getElementById('supplementRange').value)||0];
   if(!range) return;
   const weightInput=document.getElementById('weight');
   const note=document.getElementById('weightAutoNote');
   weightInput.value=range.weight;
   weightInput.readOnly=true;
+  setWeightUnitLocked(true);
   note.textContent = `⚙️ ${tsT('calc_sup_note_auto')} (${range.weight}${TS_LANG==='ar'?' جم':'g'}) ${tsT('calc_sup_note_auto2')}`;
   note.classList.remove('hidden');
+  liveUpdate();
+}
+
+/* 🧮 الحساب — نفس readItemForm في calculator.html (من غير اللينك):
+   سعر القطعة × الكمية، الوزن والأبعاد للقطعة الواحدة، والأكبر بين
+   الوزن الفعلي والحجمي. المعادلة نفسها في function_calc.js بس. */
+let lastUsedVolumetric=false, lastChargeable=0, lastQuote=null;
+function readForm(){
+  const usd=parseFloat(document.getElementById('price').value);
+  const cat=document.getElementById('category').value;
+  const wv=parseFloat(document.getElementById('weight').value);
+  const actual=wv>0 ? Math.round(wv*(WEIGHT_TO_G[document.getElementById('weightUnit').value]||1)) : NaN;
+  const qtyRaw=parseInt(document.getElementById('quantity').value);
+  const f=DIM_TO_CM[document.getElementById('dimUnit').value]||1;
+  const l=Math.max(0,parseFloat(document.getElementById('length').value)||0)*f;
+  const w=Math.max(0,parseFloat(document.getElementById('width').value)||0)*f;
+  const h=Math.max(0,parseFloat(document.getElementById('height').value)||0)*f;
+  const vol=(l*w*h/6000)*1000;
+  const missing=[];
+  if(!(usd>0)) missing.push('c2_m_price');
+  if(!cat) missing.push('c2_m_cat');
+  if(!(actual>0)) missing.push('c2_m_weight');
+  if(missing.length) return {missing};
+  if(!(qtyRaw>=1)) return {missing:['calc_err_qty']};
+  const qty=Math.min(qtyRaw,999);
+  const chargeable=Math.max(actual,vol);
+  const {finalPrice}=tryShoppyCalculatePrice({usd,category:cat,weightGrams:chargeable,quantity:qty});
+  return {usd,qty,cat,chargeable,usedVol:vol>actual,finalPrice};
+}
+
+function renderWeightBasis(){
+  const el=document.getElementById('weightBasisMsg');
+  const kg=lastChargeable>0 ? ' (' + (lastChargeable/1000).toLocaleString('en-US',{maximumFractionDigits:2}) + (TS_LANG==='ar'?' كجم للقطعة)':' kg per item)') : '';
+  el.textContent=(lastUsedVolumetric ? tsT('calc_weight_basis_volumetric') : tsT('calc_weight_basis_actual')) + kg;
+  el.classList.toggle('vol', lastUsedVolumetric);
+}
+
+/* 🚨 الفحص السريع — regex على اللينك والفئة + أرقام الوزن والأبعاد، من غير
+   أي نداء شبكة، فبيشتغل مع كل حرف من غير ما يبطّأ الحساب (tsProductRisk في app.js) */
+function runRisk(){
+  const wv=parseFloat(document.getElementById('weight').value)||0;
+  const wG=wv*(WEIGHT_TO_G[document.getElementById('weightUnit').value]||1);
+  const f=DIM_TO_CM[document.getElementById('dimUnit').value]||1;
+  const dims=['length','width','height'].map(id=>(parseFloat(document.getElementById(id).value)||0)*f);
+  const vol=dims[0]*dims[1]*dims[2]/6000*1000;
+  const catSel=document.getElementById('category');
+  tsRenderRisk(document.getElementById('riskBox'), tsProductRisk({
+    link: document.getElementById('opLink').value,
+    category: catSel.value ? catSel.options[catSel.selectedIndex].textContent : '',
+    weightG: wG, dimsCm: dims, volG: vol
+  }));
+}
+
+let liveTimer=null;
+function liveUpdate(){
+  clearTimeout(liveTimer);
+  liveTimer=setTimeout(()=>{
+    runRisk();
+    const it=readForm();
+    const wait=document.getElementById('lsWait'), res=document.getElementById('resultArea');
+    if(it.missing){
+      lastQuote=null;
+      wait.classList.remove('hidden'); res.classList.add('hidden');
+      document.getElementById('lsMissing').textContent=tsT('c2_need')+' '+it.missing.map(k=>tsT(k)).join(TS_LANG==='ar'?' ، ':', ');
+      return;
+    }
+    lastQuote=it; lastUsedVolumetric=it.usedVol; lastChargeable=it.chargeable;
+    document.getElementById('priceDetails').textContent=it.finalPrice.toLocaleString('en-US')+' EGP';
+    document.getElementById('lsPer').textContent = it.qty>1
+      ? (TS_LANG==='ar' ? '≈ '+Math.round(it.finalPrice/it.qty).toLocaleString('en-US')+' جنيه للقطعة × '+it.qty
+                        : '≈ '+Math.round(it.finalPrice/it.qty).toLocaleString('en-US')+' EGP per item × '+it.qty) : '';
+    renderWeightBasis();
+    wait.classList.add('hidden'); res.classList.remove('hidden');
+  },120);
+}
+['opLink','price','quantity','weight','weightUnit','category','length','width','height','dimUnit','supplementType','supplementRange'].forEach(id=>{
+  const el=document.getElementById(id);
+  el.addEventListener('input',liveUpdate);
+  el.addEventListener('change',liveUpdate);
+});
+document.querySelectorAll('[data-qstep]').forEach(b=>b.addEventListener('click',()=>{
+  const q=document.getElementById('quantity');
+  q.value=Math.min(999,Math.max(1,(parseInt(q.value)||1)+parseInt(b.dataset.qstep)));
+  liveUpdate();
+}));
+
+/* 📋 نسخ السعر — جملة جاهزة يبعتها الموظف للعميل على واتساب بلغة الأداة
+   (عربي أو إنجليزي من زرار اللغة فوق) */
+function copyQuote(){
+  if(!lastQuote) return;
+  const q=lastQuote, ar=TS_LANG==='ar';
+  const per=Math.round(q.finalPrice/q.qty).toLocaleString('en-US');
+  const txt = ar
+    ? 'السعر النهائي شامل الشحن والجمارك: *' + q.finalPrice.toLocaleString('en-US') + ' ج.م*' +
+      (q.qty>1 ? ' (' + q.qty + ' قطع × ' + per + ' ج.م)' : '') + '\nالدفع عند الاستلام متاح ✓'
+    : 'Final price incl. shipping & customs: *' + q.finalPrice.toLocaleString('en-US') + ' EGP*' +
+      (q.qty>1 ? ' (' + q.qty + ' pcs × ' + per + ' EGP)' : '') + '\nCash on delivery available ✓';
+  const done=()=>tsToast(ar?'اتنسخ ✓':'Copied ✓');
+  if(navigator.clipboard) navigator.clipboard.writeText(txt).then(done).catch(()=>prompt('',txt));
+  else prompt('',txt);
 }
 
 document.addEventListener('ts-lang-changed', ()=>{
+  renderShoeBoxNote();
   const box=document.getElementById('supplementBox');
   if(!box.classList.contains('hidden')){
     const type=document.getElementById('supplementType').value||'capsules';
     if(isManualWeightType(type)){
-      const manualNote=document.getElementById('manualWeightNote');
-      if(!manualNote.classList.contains('hidden')){
-        manualNote.textContent = type==='powder' ? tsT('calc_sup_note_powder') : tsT('calc_sup_note_liquid');
-      }
-    } else {
-      buildSupplementRangeOptions();
-      onSupplementRangeChange();
-    }
+      const mn=document.getElementById('manualWeightNote');
+      if(!mn.classList.contains('hidden')) mn.textContent = type==='powder' ? tsT('calc_sup_note_powder') : tsT('calc_sup_note_liquid');
+    } else { buildSupplementRangeOptions(); onSupplementRangeChange(); }
   }
-  const result=document.getElementById('resultArea');
-  if(!result.classList.contains('hidden')) renderWeightBasis(lastUsedVolumetric);
+  liveUpdate();
 });
-
-/* ============================================
-   الحساب — بدون إنشاء طلب، تقدير فقط
-   يدعم الوزن الحجمي: (L × W × H) / 6000 × 1000
-   ============================================ */
-let lastUsedVolumetric = false;
-
-function renderWeightBasis(usedVolumetric){
-  const el=document.getElementById('weightBasisMsg');
-  el.textContent = usedVolumetric ? tsT('calc_weight_basis_volumetric') : tsT('calc_weight_basis_actual');
-}
-
-function calculate(){
-  const usd=parseFloat(document.getElementById('price').value);
-  const cat=document.getElementById('category').value;
-  const actualWeight=parseFloat(document.getElementById('weight').value);
-
-  const l=parseFloat(document.getElementById('length').value)||0;
-  const w=parseFloat(document.getElementById('width').value)||0;
-  const h=parseFloat(document.getElementById('height').value)||0;
-  const volWeight=(l*w*h/6000)*1000;
-
-  if(!usd||!cat||!actualWeight){ alert(tsT('calcop_alert_missing')); return; }
-
-  const finalWeight=Math.max(actualWeight, volWeight);
-  lastUsedVolumetric = volWeight > actualWeight;
-
-  const {finalPrice}=tryShoppyCalculatePrice({usd,category:cat,weightGrams:finalWeight,quantity:1});
-
-  document.getElementById('priceDetails').innerHTML=finalPrice.toLocaleString()+' EGP';
-  renderWeightBasis(lastUsedVolumetric);
-  document.getElementById('resultArea').classList.remove('hidden');
-  document.getElementById('resultArea').scrollIntoView({behavior:'smooth'});
-}
+liveUpdate();
 </script>
 <script src="staff-auth.js"></script>
 <script>

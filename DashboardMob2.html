@@ -417,6 +417,15 @@ let renderTimer;
 
 function getStaffToken(){ return localStorage.getItem("staffToken") || ""; }
 
+/* 📅 اقتراحات خانة موعد الوصول — المواعيد الموجودة بالشكل الموحّد، الأحدث الأول */
+function fillArrivalSuggestM(){
+  let dl = document.getElementById("arrSuggestM");
+  if(!dl){ dl = document.createElement("datalist"); dl.id = "arrSuggestM"; document.body.appendChild(dl); }
+  const seen = [...new Set(ordersData.map(o => tsNormArrival(o.arrivaldate)).filter(Boolean))];
+  seen.sort((a, b) => (arrDateValueM(b) || 0) - (arrDateValueM(a) || 0));
+  dl.innerHTML = seen.slice(0, 30).map(v => `<option value="${tsEscapeHtml(v)}">`).join("");
+}
+
 async function loadData(){
   try {
     const url = scriptURL + "?staffToken=" + encodeURIComponent(getStaffToken());
@@ -444,6 +453,7 @@ async function loadData(){
     }
 
     populateArrivalQuick();   // 📅 قايمة آخر 7 مواعيد وصول
+    fillArrivalSuggestM();    // 📅 اقتراحات خانة الموعد في الكروت (بالشكل الموحّد O-27SEP2026)
     applyFilters();
     checkPendingReview();
   } catch(e) { alert("خطأ في التحميل - تأكد من الاتصال"); }
@@ -693,7 +703,7 @@ if (o.status === "Arrived Cairo HUB") {
         </label>
         <label class="fl">
           <span>موعد الوصول</span>
-          <input type="text" id="arrival-${cleanOrderId}" class="arr" value="${safeArrival}" placeholder="—">
+          <input type="text" id="arrival-${cleanOrderId}" class="arr" list="arrSuggestM" value="${safeArrival}" placeholder="O-27SEP2026">
         </label>
       </div>
 
@@ -940,43 +950,17 @@ async function updateOrder(orderId){
   const newStatus=document.getElementById("status-"+orderId).value;
   const newArrival=document.getElementById("arrival-"+orderId).value;
 
-  // 📝 تحويل لـ On Hold / Lost = لازم سبب (بيظهر للعميل) — شوف tsAskStatusNote
+  // 🛡️ الخانات اللي اتغيرت بس + التأكيدات + التأكد بعد الحفظ — كله في
+  // tsSaveOrderEdit (assets/app.js). قبل كده كل حفظ كان بيبعت كل الخانات،
+  // فكان ممكن يرجّع عربون المندوب لقيمته القديمة.
   const cur = ordersData.find(o => String(o.order) === String(orderId)) || {};
-  let statusNote;
-  if (tsNeedsStatusNote(newStatus, cur.status)) {
-    statusNote = await tsAskStatusNote(newStatus, cur.statusNote, orderId + (cur.customerName ? " — " + cur.customerName : ""));
-    if (statusNote === null) {
-      document.getElementById("status-"+orderId).value = cur.status || "Pending Review";
-      return;
-    }
-  }
-
-  const btn=document.querySelector(`button[onclick*="updateOrder('${orderId}')"]`);
-  if(btn) tsSetBtnLoading(btn, "جاري التحديث...");
-
-  // 🐛→✅ مبقاش بنقرا رد السيرفر (كان بيفشل بالغلط رغم نجاح التحديث —
-  // الشرح في tsPostScript جوه assets/app.js). بدل كده بنعمل loadData()
-  // بعد الحفظ، والبيانات اللي بترجع (GET، وده شغال تمام) هي نفسها
-  // التأكيد إن التعديل نزل — ولو الجلسة انتهت، loadData هي اللي
-  // هتكشفها وتطلب تسجيل دخول تاني.
-  tsPostScript(scriptURL, {
-    action:"updateStatus",
-    order:orderId,
-    finalPrice:newEGP,
-    deposit:newDeposit,
-    usd:newUSD,
-    status:newStatus,
-    arrivaldate:newArrival,
-    statusNote:statusNote,   // undefined = العمود مايتلمسش
-    user:getCurrentUser(),   // ✅
-    staffToken:getStaffToken()
-  }).then(()=>{
-    if(btn) tsClearBtnLoading(btn);
-    alert("تم تحديث الطلب #"+orderId);
-    loadData();
-  }).catch(err=>{
-    if(btn) tsClearBtnLoading(btn);
-    alert("❌ تعذر الاتصال بالسيرفر — الطلب مش اتحدّث.\n"+err);
+  await tsSaveOrderEdit({
+    orderId, cur,
+    wanted: { finalPrice:newEGP, deposit:newDeposit, usd:newUSD, status:newStatus, arrivaldate:newArrival },
+    scriptURL, staffToken:getStaffToken(), user:getCurrentUser(),
+    btn: document.querySelector(`button[onclick*="updateOrder('${orderId}')"]`),
+    statusSelect: document.getElementById("status-"+orderId),
+    reload: async () => { await loadData(); return ordersData; }
   });
 }
 

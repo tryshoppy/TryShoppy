@@ -85,6 +85,8 @@
         .btn-rama-admin { border-right: 6px solid #dc2626; }
         .btn-courier { border-right: 6px solid #0F9D6E; }
         .btn-courier i { color: #0F9D6E; }
+        .btn-admin { border-right: 6px solid #101B33; background: linear-gradient(90deg,#fff 70%,#FFF8DB 100%); }
+        .btn-admin i { color: #101B33; }
 
         .lang-switch {
             margin-top: 50px;
@@ -111,6 +113,7 @@
         body.en-mode .btn-ref { border-right: none; border-left: 6px solid #7c3aed; }
         body.en-mode .btn-rama-admin { border-right: none; border-left: 6px solid #dc2626; }
         body.en-mode .btn-courier { border-right: none; border-left: 6px solid #0F9D6E; }
+        body.en-mode .btn-admin { border-right: none; border-left: 6px solid #101B33; background: linear-gradient(270deg,#fff 70%,#FFF8DB 100%); }
 
         footer { margin-top: auto; padding-top: 40px; font-size: 0.8rem; color: #94a3b8; font-weight: 600; }
     </style>
@@ -161,9 +164,19 @@
             <a href="DashboardMob2.html" class="menu-btn btn-dash">
                 <div class="btn-content">
                     <span id="btn4_ar">لوحة التحكم</span>
-                    <span class="btn-text-en">Admin Dashboard</span>
+                    <span class="btn-text-en">Orders Dashboard</span>
                 </div>
                 <i class="fa-solid fa-user-gear"></i>
+            </a>
+
+            <!-- 🆕 لوحة المدير = Dashboard945 (الحسابات والمصروفات والفلاتر الكاملة).
+                 صلاحيتها عمود Dash945 في شيت الموظفين — markTools تحت بيقفلها لغيرهم -->
+            <a href="Dashboard945.html" class="menu-btn btn-admin">
+                <div class="btn-content">
+                    <span id="btn9_ar">لوحة المدير</span>
+                    <span class="btn-text-en">Manager Dashboard</span>
+                </div>
+                <i class="fa-solid fa-chart-line"></i>
             </a>
 
             <a href="courier.html" class="menu-btn btn-courier">
@@ -251,7 +264,8 @@
                 document.getElementById('btn1_ar').innerText = 'Calculator Cost';
                 document.getElementById('btn2_ar').innerText = 'Direct Order';
                 document.getElementById('btn3_ar').innerText = 'Track Order';
-                document.getElementById('btn4_ar').innerText = 'Admin Dashboard';
+                document.getElementById('btn4_ar').innerText = 'Orders Dashboard';
+                document.getElementById('btn9_ar').innerText = 'Manager Dashboard';
                 document.getElementById('btn5_ar').innerText = 'Customer Reference';
                 document.getElementById('btn7_ar').innerText = 'Rama Admin';
                 document.getElementById('btn8_ar').innerText = 'Courier Tool';
@@ -268,6 +282,7 @@
                 document.getElementById('btn2_ar').innerText = 'تسجيل طلب مباشر';
                 document.getElementById('btn3_ar').innerText = 'تتبع حالة طلبك';
                 document.getElementById('btn4_ar').innerText = 'لوحة التحكم';
+                document.getElementById('btn9_ar').innerText = 'لوحة المدير';
                 document.getElementById('btn5_ar').innerText = 'مرجع طلبات العملاء';
                 document.getElementById('btn7_ar').innerText = 'RAMA — لوحة الموظف';
                 document.getElementById('btn8_ar').innerText = 'أداة المندوب — تسليم وتحصيل';

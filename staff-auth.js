@@ -169,3 +169,49 @@ function tsListStaff() {
   }
   return tsFetchStaffFromServer().catch(() => []);
 }
+
+/* ⏳ تنبيه قبل انتهاء الجلسة (8 ساعات من تسجيل الدخول)
+   ---------------------------------------------------------------
+   الجلسة لما بتخلص، أي حفظ بيترفض من السيرفر — والموظف كان بيكتشف ده
+   بعد ما يكون كتب بيانات طلب كاملة. دلوقتي:
+     • آخر 15 دقيقة: شريط أصفر "جلستك هتخلص بعد X دقيقة"
+     • بعد ما تخلص: شريط أحمر "الجلسة خلصت — سجّل دخول تاني قبل ما تحفظ"
+   الشريط فيه زرار تسجيل دخول تاني (بيمسح الجلسة ويعيد تحميل الصفحة،
+   وكل صفحة بتطلب الدخول بنفسها). بيشتغل على أي صفحة فيها staff-auth.js. */
+const TS_SESSION_MS = 8 * 60 * 60 * 1000;
+const TS_SESSION_WARN_MS = 15 * 60 * 1000;
+function tsSessionLeftMs(){
+  if (!localStorage.getItem("staffToken")) return null;
+  const t = +localStorage.getItem("loginTime") || 0;
+  return t ? TS_SESSION_MS - (Date.now() - t) : null;
+}
+function tsSessionWatch(){
+  const left = tsSessionLeftMs();
+  let bar = document.getElementById("tsSessionBar");
+  if (left === null || left > TS_SESSION_WARN_MS) { if (bar) bar.remove(); return; }
+  if (!bar) {
+    bar = document.createElement("div");
+    bar.id = "tsSessionBar";
+    bar.setAttribute("dir", "rtl");
+    bar.style.cssText = "position:fixed;left:12px;right:12px;bottom:12px;z-index:99990;border-radius:14px;padding:12px 14px;" +
+      "display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-family:Cairo,Tahoma,sans-serif;font-weight:800;font-size:13.5px;box-shadow:0 10px 30px rgba(0,0,0,.25)";
+    document.body.appendChild(bar);
+  }
+  const expired = left <= 0;
+  bar.style.background = expired ? "#DC2626" : "#F5B820";
+  bar.style.color = expired ? "#fff" : "#101B33";
+  bar.innerHTML = '<span style="flex:1;min-width:200px">' + (expired
+      ? "⛔ الجلسة خلصت — أي حفظ دلوقتي هيترفض. انسخ أي بيانات مكتوبة وسجّل دخول تاني."
+      : "⏳ جلستك هتخلص بعد " + Math.max(1, Math.ceil(left / 60000)) + " دقيقة — خلّص اللي في إيدك وسجّل دخول تاني.") + '</span>' +
+    '<button type="button" id="tsSessionRe" style="border:0;border-radius:10px;padding:8px 14px;font:inherit;cursor:pointer;background:' +
+      (expired ? "#fff;color:#DC2626" : "#101B33;color:#F5B820") + '">🔑 تسجيل دخول تاني</button>';
+  document.getElementById("tsSessionRe").onclick = () => {
+    if (!expired && !confirm("هتسجل خروج دلوقتي — أي بيانات مكتوبة ومش محفوظة هتضيع. تكمل؟")) return;
+    ["currentUser", "currentUserLabel", "loginTime", "staffToken", "isAdmin", "staffTools"].forEach(k => localStorage.removeItem(k));
+    location.reload();
+  };
+}
+if (typeof document !== "undefined") {
+  const startWatch = () => { tsSessionWatch(); setInterval(tsSessionWatch, 60 * 1000); };
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", startWatch); else startWatch();
+}

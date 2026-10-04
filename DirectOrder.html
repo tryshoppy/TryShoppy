@@ -197,8 +197,14 @@
     <input id="quantity" type="number" value="1" min="1">
   </div>
   <div class="input-group">
-    <label>الوزن (جرام) | Weight (g)</label>
-    <input id="weight" type="number" placeholder="مثلاً: 500">
+    <label>وزن القطعة | Weight per item</label>
+    <!-- ⚖️ بأي وحدة زي ما هو مكتوب في المتجر — بيتحوّل لجرام قبل التسجيل -->
+    <div style="display:flex;gap:8px">
+      <input id="weight" type="number" step="any" min="0" placeholder="مثلاً: 500" style="flex:1;min-width:0">
+      <select id="weightUnit" style="width:auto;min-width:76px">
+        <option value="g">جم</option><option value="kg">كجم</option><option value="lb">lb</option><option value="oz">oz</option>
+      </select>
+    </div>
   </div>
 </div>
 
@@ -353,6 +359,7 @@
 
 <script src="staff-auth.js"></script>
 <script src="assets/config.js"></script>
+<script src="assets/function_calc.js"></script><!-- 💡 سعر الحاسبة المقترح (tsPriceSanity) -->
 <script src="assets/app.js"></script>
 <script>
 const SESSION_TIME = 2 * 60 * 60 * 1000;
@@ -480,6 +487,14 @@ function showConfirm() {
   document.getElementById("confirmSection").scrollIntoView({ behavior: 'smooth' });
 }
 
+/* ⚖️ الوزن بالجرام مهما كانت الوحدة اللي الموظف اختارها */
+function directWeightGrams(){
+  const v = parseFloat(document.getElementById("weight").value) || 0;
+  const f = { g:1, kg:1000, lb:453.592, oz:28.3495 }[document.getElementById("weightUnit").value] || 1;
+  return v > 0 ? Math.round(v * f) : 0;
+}
+tsAttachPriceHint({ usd: "priceUSD", egp: "priceEGP", category: "category", weight: "weight", weightUnit: "weightUnit" });
+
 /* 🏷️ الفئة إجباري — بتتسجل في الشيت وبتحدد التسعير والتقارير، والطلب
    اللي من غيرها كان بيظهر "بدون فئة" في الداشبورد والإيميل */
 function requireCategory(){
@@ -497,13 +512,22 @@ function addCurrentToCart(){
   const qty = parseInt(document.getElementById("quantity").value) || 1;
   if (!priceEGP || !priceUSD) { alert("من فضلك أدخل السعر بالدولار والمصري"); return; }
   if (!requireCategory()) return;
+  // 🔢 الكمية رقم صحيح 1 أو أكتر (كانت بتقبل 1.5 أو سالب)
+  const qtyRaw = parseFloat(document.getElementById("quantity").value);
+  if (!(qtyRaw >= 1) || qtyRaw !== Math.floor(qtyRaw)) { alert("⚠️ الكمية لازم تكون رقم صحيح 1 أو أكتر"); document.getElementById("quantity").focus(); return; }
+  // 🌍 الخدمة من أمريكا — "دول أخرى" بتتسأل عليها بدل ما تعدّي بالغلط
+  if (document.getElementById("country").value === "OTHER" &&
+      !confirm("⚠️ اخترت \"دول أخرى\" — الخدمة أساسًا من أمريكا. متأكد إن الطلب ده من دولة تانية؟")) return;
+  // 💡 مراجعة السعر بمعادلة الحاسبة (أقل من التكلفة / بعيد جدًا عن المقترح)
+  const ps = tsPriceSanity({ usd: priceUSD, egp: priceEGP, category: document.getElementById("category").value, weightGrams: directWeightGrams() });
+  if (ps.warnings.length && !confirm("⚠️ راجع السعر قبل الإضافة:\n\n" + ps.warnings.join("\n\n") + "\n\nتضيفه برضه؟")) return;
 
   tsAddToDirectCart({
     link: document.getElementById("productLink").value,
     country: document.getElementById("country").value,
     category: document.getElementById("category").value,
     priceUSD, priceEGP, qty,
-    weight: document.getElementById("weight").value,
+    weight: directWeightGrams() || "",   // دايمًا بالجرام في الشيت
     size: document.getElementById("size").value,
     color: document.getElementById("color").value,
     notes: document.getElementById("notes").value,
@@ -518,6 +542,7 @@ function addCurrentToCart(){
   document.getElementById("priceEGP").value = "";
   document.getElementById("quantity").value = "1";
   document.getElementById("weight").value = "";
+  document.getElementById("weightUnit").value = "g";
   document.getElementById("category").value = "";
   document.getElementById("size").value = "";
   document.getElementById("color").value = "";
@@ -620,7 +645,7 @@ async function searchExistingCustomer(){
   // والموظف بحث بيه **مع** الصفر ("01008876992")، المقارنة كانت
   // بتفشل لأن النص المطلوب أطول من رقم العميل ومختلف من الأول.
   // التطبيع على الجانبين هنا بيخلي الشكلين يتساووا دايمًا.
-  function normSearchPhone(v){ return String(v||'').replace(/\D/g,'').replace(/^2/,'').replace(/^0/,''); }
+  function normSearchPhone(v){ return tsToEnDigits(v).replace(/\D/g,'').replace(/^2/,'').replace(/^0/,''); }   // ٠١٠… كمان
 
   const qDigits = normSearchPhone(q);
   const qLower = q.toLowerCase();
@@ -654,7 +679,7 @@ function renderCustomerSearchResults(){
   box.innerHTML = customerMatches.map((c,i)=>{
     return '<div class="cart-item search-result-item" onclick="selectExistingCustomer('+i+')">'+
       '<div><div class="cart-item-cat">'+tsEscapeHtml(c.customerName||'—')+'</div>'+
-      '<div class="cart-item-meta">📞 '+tsEscapeHtml(c.phone)+' &nbsp;—&nbsp; 📍 '+tsEscapeHtml(c.governorate||'—')+'</div>'+
+      '<div class="cart-item-meta">📞 '+tsEscapeHtml(tsDisplayPhone(c.phone))+' &nbsp;—&nbsp; 📍 '+tsEscapeHtml(c.governorate||'—')+'</div>'+
       '<div class="cart-item-link">'+tsEscapeHtml(c.address||'')+'</div></div>'+
       '<div class="cart-item-right"><button type="button" class="btn-secondary" style="width:auto;padding:9px 18px;margin:0;" onclick="event.stopPropagation();selectExistingCustomer('+i+')">اختيار</button></div>'+
     '</div>';
@@ -669,7 +694,11 @@ function selectExistingCustomer(idx){
   const c = customerMatches[idx];
   if(!c) return;
   document.getElementById('customerName').value = c.customerName || '';
-  document.getElementById('phone').value = c.phone || '';
+  document.getElementById('phone').value = tsDisplayPhone(c.phone) || '';   // 01xxxxxxxxx بأرقام إنجليزي
+  // 🌐 لغة العميل من آخر طلب ليه فيه لغة متسجلة
+  const key = tsNormalizePhone(c.phone);
+  const withLang = (allCustomersCache || []).filter(o => tsNormalizePhone(o.phone) === key && o.lang).pop();
+  document.getElementById('custLang').value = tsWaLang(withLang ? withLang.lang : '');
   document.getElementById('customerEmail').value = c.email || '';
   document.getElementById('address').value = c.address || '';
   const govSel = document.getElementById('governorate');
@@ -680,9 +709,43 @@ function selectExistingCustomer(idx){
     '<div class="picked-banner">✅ اتملت بيانات: '+tsEscapeHtml(c.customerName||'')+' — راجعها تحت قبل الإرسال</div>';
 }
 
+/* 👥 قبل تسجيل "عميل جديد": لو رقمه موجود في الطلبات، بنسأل — عشان مايبقاش
+   نفس العميل متسجل مرتين بأسماء مختلفة (والبونص والتقارير تتلخبط) */
+async function loadCustomersCache(){
+  if (allCustomersCache) return allCustomersCache;
+  try {
+    const res = await fetch(ORDER_SCRIPT_URL + '?staffToken=' + encodeURIComponent(getStaffToken()));
+    const data = await res.json();
+    if (Array.isArray(data)) allCustomersCache = data;
+  } catch (e) { /* مش هنوقف الطلب عشان البحث فشل */ }
+  return allCustomersCache || [];
+}
+async function confirmNotDuplicate(phone, name){
+  const key = tsNormalizePhone(phone);
+  const list = await loadCustomersCache();
+  const hit = list.find(o => tsNormalizePhone(o.phone) === key);
+  if (!hit) return true;
+  return confirm("👥 الرقم " + tsDisplayPhone(phone) + " متسجل قبل كده لعميل موجود باسم: " + (hit.customerName || "—") +
+    "\n\nلو هو نفس العميل، اضغط Cancel واختاره من \"عميل سابق\" عشان بياناته تفضل واحدة." +
+    "\nاضغط OK لو متأكد إنه عميل تاني وتكمل بالاسم: " + name);
+}
+
 async function confirmOrder() {
-  const name = document.getElementById("customerName").value;
-  if (!name) { alert("من فضلك أدخل اسم العميل"); return; }
+  // ✅ نفس قواعد الموقع: اسم + موبايل مصري صحيح + محافظة + عنوان (والإيميل لو اتكتب)
+  const vChk = tsCheckoutValidate({
+    name:    { el: document.getElementById("customerName") },
+    phone:   { el: document.getElementById("phone") },
+    email:   { el: document.getElementById("customerEmail") },
+    gov:     { el: document.getElementById("governorate") },
+    address: { el: document.getElementById("address") }
+  });
+  if (!vChk.ok) return;
+  const name = document.getElementById("customerName").value.trim();
+  document.getElementById("phone").value = vChk.phone;   // بالشكل الموحّد 01xxxxxxxxx
+
+  // 👥 عميل "جديد" برقم موجود قبل كده = غالبًا نفس العميل بإسم مكتوب مختلف
+  if (customerMode === 'new' && !(await confirmNotDuplicate(vChk.phone, name))) return;
+
   const cart = tsGetDirectCart();
   if (!cart.length) { alert("السلة فاضية"); showStep('cart'); return; }
   if (cart.some(i => !i.category)) { alert("⚠️ فيه منتج في السلة من غير فئة — امسحه وضيفه تاني بالفئة"); showStep('cart'); return; }

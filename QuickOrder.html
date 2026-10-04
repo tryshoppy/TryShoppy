@@ -170,14 +170,16 @@ button:hover{ opacity:.9; }
   <input type="number" id="qty" value="1" min="1">
 </div>
 
+<!-- ⚠️ الأسعار دي للقطعة الواحدة — بتتضرب في الكمية قبل التسجيل.
+     الاسم القديم "السعر بالدولار" كان بيخلّي الموظف يكتب الإجمالي أحيانًا -->
 <div class="input-group">
-  <label>السعر بالدولار ($)</label>
-  <input type="number" id="usd">
+  <label>سعر القطعة بالدولار ($)</label>
+  <input type="number" id="usd" step="any" min="0">
 </div>
 
 <div class="input-group">
-  <label>السعر بالمصري (EGP)</label>
-  <input type="number" id="egp">
+  <label>سعر القطعة بالمصري (EGP)</label>
+  <input type="number" id="egp" step="any" min="0">
 </div>
 
 <div class="input-group">
@@ -217,6 +219,7 @@ button:hover{ opacity:.9; }
 
 <script src="staff-auth.js"></script>
 <script src="assets/config.js"></script>
+<script src="assets/function_calc.js"></script><!-- 💡 سعر الحاسبة المقترح (tsPriceSanity) -->
 <script src="assets/app.js"></script>
 <script>
 const SESSION_TIME = 2 * 60 * 60 * 1000;
@@ -503,6 +506,15 @@ function addCurrentToCart(){
     document.getElementById("category").focus();
     return alert("⚠️ اختار صنف المنتج!");
   }
+  // 🔢 الكمية رقم صحيح 1 أو أكتر (كانت بتقبل 1.5 أو سالب)
+  const qtyRaw = parseFloat(document.getElementById("qty").value);
+  if (!(qtyRaw >= 1) || qtyRaw !== Math.floor(qtyRaw)) {
+    document.getElementById("qty").focus();
+    return alert("⚠️ الكمية لازم تكون رقم صحيح 1 أو أكتر");
+  }
+  // 💡 مراجعة السعر بمعادلة الحاسبة (أقل من التكلفة / بعيد جدًا عن المقترح)
+  const ps = tsPriceSanity({ usd, egp, category });
+  if (ps.warnings.length && !confirm("⚠️ راجع السعر قبل الإضافة:\n\n" + ps.warnings.join("\n\n") + "\n\nتضيفه برضه؟")) return;
 
   tsAddToQuickCart({
     link, qty, unitUsd: usd, unitEgp: egp, dimensions, category,
@@ -524,6 +536,8 @@ function addCurrentToCart(){
 
 /* قائمة الأصناف — نفس قيم حاسبة الموقع (TS_CATEGORIES في assets/app.js) */
 document.getElementById("category").innerHTML = tsCategoryOptionsHtml("");
+// 💡 سعر الحاسبة المقترح تحت خانة المصري (من غير وزن = تقريبي)
+tsAttachPriceHint({ usd: "usd", egp: "egp", category: "category" });
 
 function renderCart(){
   const cart = tsGetQuickCart();

@@ -429,6 +429,9 @@ body.sb-open{overflow:hidden}
            تتسجل. الشيت بيخزّن الإجمالي مش سعر الوحدة (كل حسابات
            الداشبورد بتجمع finalPrice و usd من غير ما تضربهم في
            الكمية)، فالضرب لازم يحصل هنا. -->
+      <!-- 🏷️ الفئة إجباري — كانت ناقصة هنا خالص، فالطلب كان بيتسجل من غير فئة
+           (والفئة بتحدد سعر الحاسبة المقترح تحت وتقارير الأصناف) -->
+      <div class="ao-f"><label>الفئة *</label><select id="aoCategory"></select></div>
       <div class="ao-grid">
         <div class="ao-f"><label>الكمية</label>
           <input id="aoQty" type="number" min="1" value="1" oninput="aoUpdateLineTotal()"></div>
@@ -552,6 +555,8 @@ body.sb-open{overflow:hidden}
   </div>
 </div>
 
+<!-- 📅 اقتراحات موعد الوصول لخانات الجدول (بتتملى من populateArrivalFilter) -->
+<datalist id="arrSuggest"></datalist>
 <aside class="sb" id="sb">
   <div class="sb-brand">
     <div class="lg">TS</div>
@@ -696,6 +701,7 @@ body.sb-open{overflow:hidden}
 </main>
 
 <script src="assets/config.js"></script>
+<script src="assets/function_calc.js"></script><!-- 💡 سعر الحاسبة المقترح (tsPriceSanity) -->
 <script src="assets/app.js"></script>
 <script>
 
@@ -901,6 +907,11 @@ function populateArrivalFilter(){
     });
     // ملاحظة: صفوف RAMA اللي من غير موعد بتتحسب برضه في "بدون موعد"
     const hasEmpty = ordersData.concat(ramaRows, EXP_ON ? EXPENSES : []).some(o=>!String(o.arrivaldate||"").trim());
+    // 📅 نفس المواعيد كاقتراحات لخانة الموعد في كل صف — بالشكل الموحّد
+    // (O-27SEP2026)، عشان الموظف يختار موجود بدل ما يكتب شكل جديد
+    const sug = document.getElementById("arrSuggest");
+    if(sug) sug.innerHTML = [...new Set(keys.map(k => tsNormArrival(ARR_LABEL_D.get(k))))].slice(0, 30)
+        .map(v => `<option value="${tsEscapeHtml(v)}">`).join("");
     msBuild("arrivalSelect",
         (hasEmpty ? [{ v: "__none", label: "— بدون موعد وصول —" }] : [])
         .concat(keys.map(k => ({ v: k, label: ARR_LABEL_D.get(k), icon: "📅" }))));
@@ -1340,7 +1351,7 @@ function createRowHTML(o) {
 
         <td class="c-usd"><input type="number" id="usd-${safeOrder}" class="inp usd" value="${parseFloat(o.usd || 0).toFixed(2)}"></td>
 
-        <td class="c-arr"><input type="text" id="arrival-${safeOrder}" class="inp" value="${safeArrival}" placeholder="موعد الوصول"></td>
+        <td class="c-arr"><input type="text" id="arrival-${safeOrder}" class="inp" list="arrSuggest" value="${safeArrival}" placeholder="O-27SEP2026"></td>
 
         <td class="c-status">
             <!-- 📋 من القائمة الموحّدة في assets/app.js — وأي حالة مش فيها
@@ -1586,46 +1597,21 @@ async function updateOrder(orderId) {
     const newDeposit = document.getElementById(`deposit-${orderId}`).value;
        const newArrival = document.getElementById(`arrival-${orderId}`).value;
 
-    // 📝 تحويل لـ On Hold / Lost = لازم سبب (بيظهر للعميل). لو الموظف لغى
-    // الويندو، الحفظ كله بيتلغي والقائمة بترجع للحالة القديمة.
+    // 🛡️ الخانات اللي اتغيرت بس + التأكيدات (تسليم وفيه فلوس مطلوبة، رجوع
+    // لورا، عربون أكبر من الإجمالي) + سبب On Hold/Lost + التأكد بعد الحفظ —
+    // كله في tsSaveOrderEdit (assets/app.js). قبل كده كل حفظ كان بيبعت كل
+    // الخانات، فكان ممكن يرجّع عربون المندوب لقيمته القديمة.
     const cur = ordersData.find(o => String(o.order) === String(orderId).split(' + ')[0]) || {};
-    let statusNote;
-    if (tsNeedsStatusNote(newStatus, cur.status)) {
-        statusNote = await tsAskStatusNote(newStatus, cur.statusNote, orderId + (cur.customerName ? " — " + cur.customerName : ""));
-        if (statusNote === null) {
-            document.getElementById(`status-${orderId}`).value = cur.status || "Pending Review";
-            return;
-        }
-    }
-
-    const btn = document.querySelector(`button[onclick="updateOrder('${orderId}')"]`);
-    tsSetBtnLoading(btn, "جاري التحديث...");
-
-    // 🐛→✅ مبقاش بنقرا رد السيرفر (كان بيفشل بالغلط رغم نجاح التحديث —
-    // الشرح الكامل في tsPostScript جوه assets/app.js). التأكيد الحقيقي
-    // بقى من loadData() بعد الحفظ: البيانات اللي بترجع (GET، شغال تمام)
-    // بتوضّح إن التعديل نزل، ولو الجلسة انتهت هي اللي بتكشفها.
-    tsPostScript(scriptURL, {
-        action: "updateStatus",
-        order: orderId,
-        status: newStatus,
-        finalPrice: newEGP,
-        usd: newUSD,
-        deposit: newDeposit,
-        arrivaldate: newArrival,
-        statusNote: statusNote,   // undefined لو مفيش ملاحظة = العمود مايتلمسش
+    await tsSaveOrderEdit({
+        orderId, cur,
+        wanted: { status: newStatus, finalPrice: newEGP, usd: newUSD, deposit: newDeposit, arrivaldate: newArrival },
+        scriptURL, staffToken: getStaffToken(),
         user: (typeof getCurrentUser === "function" ? getCurrentUser() : ""),
-        staffToken: getStaffToken()
-    }).then(() => {
-        tsClearBtnLoading(btn);
-        alert("تم تحديث الطلب #" + orderId);
-        loadData();
-    }).catch(err => {
-        tsClearBtnLoading(btn);
-        alert("❌ تعذر الاتصال بالسيرفر — الطلب مش اتحدّث. تأكد من الإنترنت وحاول تاني.\n" + err);
+        btn: document.querySelector(`button[onclick="updateOrder('${orderId}')"]`),
+        statusSelect: document.getElementById(`status-${orderId}`),
+        reload: async () => { await loadData(); return ordersData; }
     });
 }
-
 function generateLabelHTML(data, isBulk = false) {
     const ship   = isGrouped
         ? (parseFloat(data.totalShipping) || 0)
@@ -1933,6 +1919,20 @@ async function applyBulkStatus(){
 
     if(selected.length === 0) return alert("مفيش طلبات محددة");
 
+    // ⚠️ تأكيد بالعدد قبل التغيير الجماعي — دوسة غلط كانت بتغيّر عشرات
+    // الطلبات (وبتبعت إيميلات للعملاء) من غير ما حد يسأل
+    const rows = selected.map(id => ordersData.find(o => String(o.order) === String(id))).filter(Boolean);
+    const extra = [];
+    if (status === "Delivered") {
+        const withDue = rows.filter(o => (parseFloat(o.finalPrice)||0) + (parseFloat(o.shipping)||0) - (parseFloat(o.deposit)||0) > 0.5);
+        if (withDue.length) extra.push("💵 " + withDue.length + " منهم لسه عليهم فلوس مطلوبة (" +
+            Math.round(withDue.reduce((s,o)=>s+(parseFloat(o.finalPrice)||0)+(parseFloat(o.shipping)||0)-(parseFloat(o.deposit)||0),0)).toLocaleString() + " ج.م)");
+    }
+    const back = rows.filter(o => tsOrderWarnings(o, { status }).some(w => w.indexOf("↩️") === 0));
+    if (back.length) extra.push("↩️ " + back.length + " منهم حالتهم هترجع لورا");
+    if (!confirm("هتغيّر حالة " + selected.length + " طلب إلى: " + status + " (" + tsStatusLabel(status) + ")" +
+                 (extra.length ? "\n\n⚠️ " + extra.join("\n⚠️ ") : "") + "\n\nمتأكد؟")) return;
+
     // 📝 تحويل جماعي لـ On Hold / Lost — سبب واحد بيتسجل لكل الطلبات المحددة
     let statusNote;
     if(TS_NOTE_STATUSES.indexOf(status) !== -1){
@@ -2213,8 +2213,24 @@ function aoAddToCart(){
     msg.innerText = "اكتب سعر الوحدة بالجنيه قبل ما تضيف المنتج للسلة.";
     return;
   }
+  const qtyRaw = parseFloat(document.getElementById("aoQty").value);
+  if(!(qtyRaw >= 1) || qtyRaw !== Math.floor(qtyRaw)){
+    msg.className = "ao-msg err";
+    msg.innerText = "الكمية لازم تكون رقم صحيح 1 أو أكتر.";
+    return;
+  }
+  if(!v("aoCategory")){
+    msg.className = "ao-msg err";
+    msg.innerText = "اختار فئة المنتج.";
+    document.getElementById("aoCategory").focus();
+    return;
+  }
+  // 💡 مراجعة السعر بمعادلة الحاسبة (أقل من التكلفة / بعيد جدًا عن المقترح)
+  const ps = tsPriceSanity({ usd: L.unitUsd, egp: L.unitEgp, category: v("aoCategory") });
+  if(ps.warnings.length && !confirm("⚠️ راجع السعر قبل الإضافة:\n\n" + ps.warnings.join("\n\n") + "\n\nتضيفه برضه؟")) return;
 
   AO_CART.push({
+    category:   v("aoCategory"),
     order:      aoGenOrderNo(),
     link:       v("aoLink"),
     quantity:   L.qty,
@@ -2228,7 +2244,7 @@ function aoAddToCart(){
   });
 
   // بنفضّي خانات المنتج بس — بيانات العميل والتشغيل بتفضل زي ما هي
-  ["aoLink","aoUsd","aoPrice","aoDims"].forEach(id => { document.getElementById(id).value = ""; });
+  ["aoLink","aoUsd","aoPrice","aoDims","aoCategory"].forEach(id => { document.getElementById(id).value = ""; });
   document.getElementById("aoQty").value = "1";
   aoUpdateLineTotal();
 
@@ -2376,6 +2392,12 @@ function aoSetupHideSection(){
 }
 
 function openAddOrder(){
+  const aoCat = document.getElementById("aoCategory");
+  if(!aoCat.options.length){
+    aoCat.innerHTML = tsCategoryOptionsHtml("");
+    // 💡 سعر الحاسبة المقترح تحت خانة السعر بالجنيه (من غير وزن = تقريبي)
+    tsAttachPriceHint({ usd: "aoUsd", egp: "aoPrice", category: "aoCategory" });
+  }
   // عميل جديد = عربي لحد ما يتختار غير كده (لو الفورم فيه بيانات متسابة، اللغة بتفضل زي ما هي)
   if(!document.getElementById("aoName").value) document.getElementById("aoLang").value = "ar";
   const gov = document.getElementById("aoGov");
@@ -2460,7 +2482,7 @@ async function submitAddOrder(){
      جدول المنتجات في الإيميل. الصيغة: order::link::label::qty::price::specs
      (نفس صيغة الحاسبة والمارت بالظبط — buildItemsRowsHtml بيقراها) */
   const emailSummary = AO_CART.map(it => [
-    it.order, it.link || "", "Item", it.quantity, it.finalPrice, it.dimensions || ""
+    it.order, it.link || "", it.category || "Item", it.quantity, it.finalPrice, it.dimensions || ""
   ].join("::")).join("\n");
 
   const cartTotal = aoCartTotal();
@@ -2484,11 +2506,12 @@ async function submitAddOrder(){
     quantity: it.quantity,
     usd: it.usd,
     dimensions: it.dimensions,
+    category: it.category,
     finalPrice: it.finalPrice,
     /* 💰 العربون على أول منتج بس — لو اتحط على كل صف كان
        الإجمالي المدفوع هيتضاعف بعدد المنتجات في العرض المجمّع */
     deposit: (idx === 0 && !AO_DEPOSIT_DONE) ? v("aoDeposit") : "",
-    arrivaldate: v("aoArrival"),
+    arrivaldate: tsNormArrival(v("aoArrival")),   // 📅 بالشكل الموحّد O-27SEP2026
     status: document.getElementById("aoStatus").value,
     user: getCurrentUser(),
     /* 🙈 أسماء اليوزرز اللي الطلب مايبانش عندهم — مفصولة بفاصلة،
