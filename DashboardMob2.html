@@ -170,6 +170,39 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .ab.sum{background:var(--blue);border-color:var(--blue);color:#fff}
 .ab:disabled{background:var(--line-2);border-color:var(--line);color:var(--ink-3);cursor:not-allowed}
 
+/* ══ أزرار الكارت — مجمّعة حسب الغرض ══
+   🎨 قبل كده كانت كلها في شبكة واحدة مخلوطة (حفظ + فاتورة + واتساب +
+   ملخص + زرارين رمادي "(مغلق)" مابيعملوش حاجة). دلوقتي 3 مناطق:
+     ✔ حفظ — لوحده، أهم فعل في الكارت
+     💬 تواصل مع العميل — كل رسايل الواتساب
+     ⋯ أدوات — فاتورة / منتج جديد لنفس العميل / إخفاء (أدمن)
+   الزرار اللي مايشتغلش في الوضع الحالي بيستخبى بدل ما يبان رمادي. */
+.acts{display:flex;flex-direction:column;gap:10px}
+.ab.save{width:100%;background:var(--gold);border-color:var(--gold);color:var(--navy);font-weight:900;font-size:14px}
+.ab.save:active{background:var(--gold-2)}
+.acts-sec{border:1px solid var(--line);border-radius:12px;padding:10px;background:#FBFCFE}
+.acts-h{font-size:11px;font-weight:900;color:var(--ink-3);margin:0 2px 8px;display:flex;justify-content:space-between;gap:8px}
+.acts-h small{font-weight:700;color:var(--ink-3)}
+.acts-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.acts-row .full{grid-column:1/-1}
+.ab.contact{background:#E8F9EF;border-color:#B7EBCB;color:#15803D}
+.ab.arrive{background:#16A34A;border-color:#16A34A;color:#fff}
+.ab.pending{background:#FFF7E6;border-color:#F5D58C;color:#9A6400}
+.ab.tool2{background:var(--panel);color:var(--ink-2);font-size:12.5px}
+.ab.hide-on{background:var(--dead-wash);border-color:#F5CFCF;color:var(--dead)}
+.acts-hint{font-size:11.5px;color:var(--ink-3);font-weight:700;text-align:center;line-height:1.6}
+.chip.cat{background:var(--navy);color:var(--gold-2);font-family:var(--f)}
+
+/* 💬 مودال التواصل */
+.ct-opt{display:block;width:100%;text-align:start;padding:13px 14px;border-radius:12px;border:1.5px solid var(--line);background:#fff;margin-bottom:8px;cursor:pointer;font-weight:800;font-size:14px;line-height:1.5}
+.ct-opt small{display:block;font-weight:600;font-size:12px;color:var(--ink-2);margin-top:2px}
+.ct-opt.on{border-color:#16A34A;background:#F0FDF4}
+.ct-warn{background:#FEF3C7;border:1.5px solid #F5B820;color:#78350F;border-radius:12px;padding:11px 13px;font-size:12.5px;font-weight:800;line-height:1.7;margin:4px 0 12px}
+.ct-items{margin:-2px 0 10px}
+.ct-items label{display:flex;gap:9px;align-items:flex-start;padding:8px 6px;border-bottom:1px solid var(--line-2);font-size:13px;font-weight:700;cursor:pointer}
+.ct-items input{width:18px!important;height:18px;min-height:0!important;margin:2px 0 0!important;flex:none;accent-color:#16A34A}
+.ct-prev{white-space:pre-wrap;background:#F8FAFC;border:1px dashed var(--line);border-radius:10px;padding:10px 12px;font-size:12.5px;line-height:1.7;max-height:160px;overflow:auto;margin-bottom:12px}
+
 /* ══ المودال ══ */
 /* الكود بيفتح المودال بـ element.style.display="flex" مباشرة،
    والـ inline style بيتغلّب على ده — فده كافي ومفيش داعي لكلاس */
@@ -304,6 +337,27 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
       <div id="dupWhatsappContainer" style="display:none;margin-top:10px">
         <button class="ab wa" style="width:100%" id="dupWhatsappBtn" onclick="sendDupWhatsApp()">💬 تأكيد الأوردر عبر واتساب</button>
         <button class="ab sum" style="width:100%;margin-top:8px" id="dupCustomerSummaryBtn" onclick="sendDupCustomerSummary()">📩 إرسال ملخص الطلب للعميل</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 💬 مودال التواصل مع العميل (واتساب) ══
+       الموظف بيختار: بخصوص منتج معيّن (اللينك ورقم الطلب بيتحطوا في أول
+       الرسالة) ولا تواصل عام. الرسالة بتفتح في واتساب والموظف يكمّل كلامه. -->
+  <div id="ctModal" class="modal-overlay" onclick="if(event.target===this)closeContact()">
+    <div class="modal-content">
+      <h3>💬 تواصل مع العميل</h3>
+      <p style="font-size:12.5px;color:var(--ink-2);margin:-8px 0 12px;text-align:center"><b id="ctName"></b> · <span id="ctPhone" dir="ltr"></span></p>
+      <div class="ct-warn">⚠️ ده تواصل عادي مع العميل — <u>مش</u> تبليغ وصول الطلب.<br>
+        لو عايز تبلغه إن طلبه وصل وجاهز للتوصيل: فعّل «👥 تجميع» فوق، واستخدم زرار «🚚 بلّغ إن الطلب وصل مصر» عشان الرسالة تاخد كل طلباته والمطلوب تحصيله.</div>
+      <button type="button" class="ct-opt on" data-mode="product" onclick="setContactMode('product')">📦 بخصوص منتج معيّن<small>رقم الطلب ولينك المنتج في أول الرسالة</small></button>
+      <div class="ct-items" id="ctItems"></div>
+      <button type="button" class="ct-opt" data-mode="general" onclick="setContactMode('general')">👋 تواصل عام<small>تحية بس — وانت تكمّل الكلام</small></button>
+      <div class="acts-h" style="margin-top:10px">شكل الرسالة <small id="ctLang"></small></div>
+      <div class="ct-prev" id="ctPreview"></div>
+      <div style="display:flex;gap:10px">
+        <button class="ab" style="flex:1" onclick="closeContact()">إلغاء</button>
+        <button class="ab arrive" style="flex:2" onclick="sendContact()">💬 افتح واتساب</button>
       </div>
     </div>
   </div>
@@ -459,6 +513,9 @@ async function loadData(){
   } catch(e) { alert("خطأ في التحميل - تأكد من الاتصال"); }
 }
 
+/** صف مصروفات (OPEX) مش طلب عميل — نفس isOpexRow في Orders_Code.gs */
+function isOpexM(o){ return /opex/i.test(String(o.customerName || "")) || /opex/i.test(String(o.order || "")); }
+
 function normalizePhone(phone){
   return tsToEnDigits(phone || "")   // ٠١٠ ← 010 (العربي كان بيتمسح كله)
     .replace(/\D/g,'')   // يشيل أي رموز
@@ -587,57 +644,11 @@ ${ship > 0 ? "🚚 الشحن الداخلي: " + ship.toLocaleString() + " ج.�
 
 برجاء تأكيد تواجد حضرتك للاستلام 🙏`);
 
-let summaryBtn = "";
-
-if (isGrouped) {
-  summaryBtn = `
-    <button
-      onclick="sendUndeliveredSummary('${tsJsAttr(cleanOrderId)}')"
-      class="link-btn"
-      style="background:#f59e0b; color:white; border-color:#d97706;"
-    >
-      📊 ملخص الطلبات غير المستلمة
-    </button>
-  `;
-} else {
-  summaryBtn = `
-    <button
-      onclick="alert('⚠️ عفواً، يجب الضغط على زر (تجميع / فك تجميع الطلبات) أعلى الصفحة أولاً لإمكانية إظهار ملخص الطلبات غير المستلمة.');"
-      class="link-btn"
-      style="background:#cbd5e1; color:#475569; border:none; cursor:not-allowed; font-family:'Cairo';"
-    >
-      📊 ملخص الطلبات (مغلق)
-    </button>
-  `;
-}
-
-let whatsappBtn = "";
-
-if (o.status === "Arrived Cairo HUB") {
-  if (isGrouped) {
-    whatsappBtn = `
-      <a 
-        href="https://wa.me/20${phone}?text=${encodeURIComponent(message)}" 
-        target="_blank" 
-        class="link-btn"
-        style="background:#10b981; color:white; border-color:#059669;"
-      >
-        💬 واتساب
-      </a>
-    `;
-  } else {
-    whatsappBtn = `
-      <button 
-        onclick="alert('عفواً، يجب الضغط على زر (تجميع / فك تجميع الطلبات) أعلى الصفحة أولاً لإمكانية إرسال رسالة الواتساب.');" 
-        class="link-btn"
-        style="background:#cbd5e1; color:#475569; border:none; cursor:not-allowed; font-family:'Cairo';"
-      >
-        💬 واتساب (مغلق)
-      </button>
-    `;
-  }
-}
-
+/* 🚚 رسالة "طلبك وصل مصر" — في وضع التجميع بس (عشان تاخد كل طلبات
+   العميل في رسالة واحدة) ولطلب حالته Arrived Cairo HUB.
+   ⚠️ phone هنا من tsNormalizePhone (من غير صفر ولا كود دولة) */
+const arriveHref = (isGrouped && o.status === "Arrived Cairo HUB" && phone)
+  ? `https://wa.me/20${phone}?text=${encodeURIComponent(message)}` : "";
     // 🔒 نفس التنضيف المستخدم في Dashboard945.html — بيانات الطلب
     // (اسم/موبايل/مواصفات/رابط) جاية من العميل زي ما هي، من غير
     // escape كانت بتفتح XSS في متصفح الموظف نفسه (staffToken في
@@ -658,24 +669,26 @@ if (o.status === "Arrived Cairo HUB") {
     // فتح مودال مشترك (hfModal) — مفيش لوحة بتتكرر في كل كارت.
     const hiddenSet = new Set(String(o.hiddenFrom || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean));
     const hiddenFromHtml = (isAdminUI && !isGrouped) ? `
-      <button type="button" class="hf-toggle ${hiddenSet.size ? 'hf-active' : ''}" onclick="openHiddenFromModal('${safeCleanOrderIdJs}')">
-        ${hiddenSet.size ? '🔒 مخفي عن ' + hiddenSet.size + ' موظف' : '🔓 إخفاء الطلب عن موظف معيّن'}
+      <button type="button" class="ab tool2 ${hiddenSet.size ? 'hide-on' : ''}" onclick="openHiddenFromModal('${safeCleanOrderIdJs}')">
+        ${hiddenSet.size ? '🔒 مخفي عن ' + hiddenSet.size : '🔓 إخفاء عن موظف'}
       </button>
     ` : '';
+    // 🏷️ الفئة — كانت مش ظاهرة في الكارت خالص (في المجمّع: الفئات المختلفة)
+    const cats = isGrouped && o.items ? [...new Set(o.items.map(i => i.category).filter(Boolean))] : (o.category ? [o.category] : []);
+    const dateTxt = tsFormatSheetDate(o.date) || '—';   // كان بيظهر ISO خام: 2026-09-01T21:00:00.000Z
 
     htmlString += `
     <article class="ocard ${isGrouped ? 'grouped' : ''}">
       <div class="oc-top">
         <div class="oc-id">
           <b>${safeOrderId}</b>
-          <time>📅 ${tsEscapeHtml(o.date || '—')}</time>
+          <time>📅 ${tsEscapeHtml(dateTxt)}</time>
         </div>
         <div class="oc-tags">
           <span class="st st-${statusTone(o.status)}">${safeStatus}</span>
           ${o.user ? `<span class="who">👤 ${safeUser}</span>` : ''}
         </div>
       </div>
-      ${hiddenFromHtml}
 
       <div class="oc-cust">
         <div class="nm">${safeCustomerName}</div>
@@ -683,8 +696,9 @@ if (o.status === "Arrived Cairo HUB") {
       </div>
 
       <div class="oc-chips">
+        ${cats.map(c => `<span class="chip cat">🏷️ ${tsEscapeHtml(c)}</span>`).join('')}
         <span class="chip">×${qty}</span>
-        <span class="chip">${weight} جم</span>
+        ${parseFloat(weight) > 0 ? `<span class="chip">${tsEscapeHtml(weight)} جم</span>` : ''}
         <span class="chip wide" title="${safeDims}">📝 ${safeDims}</span>
       </div>
 
@@ -724,14 +738,26 @@ if (o.status === "Arrived Cairo HUB") {
 
       <div class="oc-links">${linksHTML}</div>
 
-      <div class="oc-acts">
-        <button class="ab primary" ${isGrouped ? 'disabled' : ''}
-          onclick="${isGrouped ? 'groupLockMsg()' : `updateOrder('${safeCleanOrderIdJs}')`}">✔ حفظ</button>
-        <button class="ab" onclick="openInvoice('${safeCleanOrderIdJs}')">🧾 فاتورة</button>
-        ${whatsappBtn}
-        ${summaryBtn}
-        <button class="ab wide" ${isGrouped ? 'disabled' : ''}
-          onclick="${isGrouped ? 'groupLockMsg()' : `openDuplicateModal('${safeCleanOrderIdJs}')`}">📋 إضافة منتج لنفس العميل</button>
+      <div class="acts">
+        ${isGrouped
+          ? `<div class="acts-hint">✋ التعديل والحفظ من غير تجميع — فك التجميع من فوق</div>`
+          : `<button class="ab save" onclick="updateOrder('${safeCleanOrderIdJs}')">✔ حفظ التعديلات</button>`}
+
+        <div class="acts-sec">
+          <div class="acts-h">💬 تواصل مع العميل ${en ? '<small>🌐 English</small>' : ''}</div>
+          <div class="acts-row">
+            <button class="ab contact full" onclick="openContact('${safeCleanOrderIdJs}')">💬 تواصل واتساب (بخصوص منتج / عام)</button>
+            ${arriveHref ? `<a class="ab arrive full" style="text-align:center;text-decoration:none" href="${arriveHref}" target="_blank" rel="noopener">🚚 بلّغ إن الطلب وصل مصر</a>` : ''}
+            ${isGrouped ? `<button class="ab pending full" onclick="sendUndeliveredSummary('${safeCleanOrderIdJs}')">📊 ملخص الطلبات اللي لسه ماوصلتش</button>` : ''}
+          </div>
+          ${!isGrouped ? `<div class="acts-hint" style="margin-top:8px">🚚 تبليغ الوصول و📊 الملخص بيظهروا لما تفعّل «👥 تجميع» — عشان ياخدوا كل طلبات العميل مرة واحدة</div>` : ''}
+        </div>
+
+        <div class="acts-row">
+          <button class="ab tool2" onclick="openInvoice('${safeCleanOrderIdJs}')">🧾 فاتورة</button>
+          ${!isGrouped ? `<button class="ab tool2" onclick="openDuplicateModal('${safeCleanOrderIdJs}')">➕ منتج لنفس العميل</button>` : ''}
+          ${hiddenFromHtml}
+        </div>
       </div>
     </article>
     `;
@@ -896,10 +922,10 @@ function applyFilters(){
              مش على مستوى المجموعة بس — رسالة "ملخص الطلبات غير
              المستلمة" بتشتغل على الأصناف واحد واحد، فمن غيرهم
              العربون بيتحسب صفر وسطر المواصفات بيطلع فاضي. */
-          items: [{link: o.link, price: o.finalPrice, qty: parseInt(o.quantity)||1, status: o.status || "", arrivaldate: o.arrivaldate || "", order: o.order || "", deposit: parseFloat(o.deposit)||0, dimensions: o.dimensions || "", lang: o.lang || ""}]
+          items: [{link: o.link, price: o.finalPrice, qty: parseInt(o.quantity)||1, status: o.status || "", arrivaldate: o.arrivaldate || "", order: o.order || "", deposit: parseFloat(o.deposit)||0, dimensions: o.dimensions || "", lang: o.lang || "", category: o.category || "", shipping: parseFloat(o.shipping)||0}]
         };
       }else{
-        groups[key].items.push({link: o.link, price: o.finalPrice, qty: parseInt(o.quantity)||1, status: o.status || "", arrivaldate: o.arrivaldate || "", order: o.order || "", deposit: parseFloat(o.deposit)||0, dimensions: o.dimensions || "", lang: o.lang || ""});
+        groups[key].items.push({link: o.link, price: o.finalPrice, qty: parseInt(o.quantity)||1, status: o.status || "", arrivaldate: o.arrivaldate || "", order: o.order || "", deposit: parseFloat(o.deposit)||0, dimensions: o.dimensions || "", lang: o.lang || "", category: o.category || "", shipping: parseFloat(o.shipping)||0});
         groups[key].quantity = (parseInt(groups[key].quantity)||0) + (parseInt(o.quantity)||1);
         groups[key].weight = (parseFloat(groups[key].weight)||0) + (parseFloat(o.weight)||0);
         groups[key].finalPrice = (parseFloat(groups[key].finalPrice)||0) + (parseFloat(o.finalPrice)||0);
@@ -922,7 +948,9 @@ function applyFilters(){
   // خالص في الملف ده تحديدًا، لكن لازم يفضل موجود ومحسوب زي أي طلب
   // عادي في كل حاجة تانية (التجميع، currentViewData) — فبنستبعده هنا
   // بس، لحظة العرض النهائي على الكروت، مش قبل كده.
-  const displayData = finalData.filter(o => (o.customerName || "").trim().toLowerCase() !== "opex");
+  // 🙈 أي صف فيه "opex" في الاسم أو رقم الطلب (نفس قاعدة isOpexRow في السيرفر) — المصروفات
+  // نفسها اتنقلت لتاب Expenses (للأدمن وصاحب الصلاحية بس)، ده احتياطي لو اتسجل صف كده بالغلط
+  const displayData = finalData.filter(o => !isOpexM(o));
 
   renderCards(displayData.slice(0, 30), false);
 
@@ -1039,7 +1067,10 @@ function saveHiddenFrom(){
 }
 
 function checkPendingReview() {
-  const pendingOrders = ordersData.filter(o => o.status === "Pending Review" && (o.customerName || "").trim().toLowerCase() !== "opex");
+  // 🐛→✅ كان alert بيطلع بعد **كل حفظ** (الحفظ بيعيد تحميل الطلبات) — دلوقتي مرة واحدة في الجلسة
+  if (sessionStorage.getItem("ts_pending_alert_shown")) return;
+  sessionStorage.setItem("ts_pending_alert_shown", "1");
+  const pendingOrders = ordersData.filter(o => o.status === "Pending Review" && !isOpexM(o));
   if (pendingOrders.length > 0) {
     let message = `⚠️ عندك ${pendingOrders.length} أوردر Pending Review\n\n`;
     pendingOrders.slice(0,5).forEach(o => { message += `#${o.order} - ${o.customerName}\n`; });
@@ -1048,39 +1079,173 @@ function checkPendingReview() {
   }
 }
 
+/* ═══════════════════════════════════════════════════════════
+   💬 تواصل مع العميل — بخصوص منتج أو عام
+   ═══════════════════════════════════════════════════════════
+   الرسالة بلغة العميل (عمود lang)، فيها اسم الموظف عشان العميل يعرف
+   مين بيكلمه، ولو بخصوص منتج: رقم الطلب + اسم المنتج + اللينك في الأول.
+   بتنتهي بسطر فاضي — الموظف بيكمّل كلامه في واتساب نفسه. */
+let CT = { order: null, mode: "product" };
+
+/** اسم المنتج للعرض: من الملاحظات (Notes) لو مكتوب فيها، أو المواصفات لو
+ *  مكتوبة نص حر (طلبات المارت/Quick Order)، وإلا الفئة. شكل الحاسبة
+ *  "Size: - | Color: - | Notes: -" معناه مفيش اسم → الفئة. */
+function productNameOf(dims, category){
+  const s = String(dims || "").trim();
+  const cat = String(category || "").trim();
+  if (!s || s === "-") return cat;
+  if (/(^|\|)\s*(Package|Size|Color|Notes)\s*:/i.test(s)) {
+    const m = s.match(/Notes\s*:\s*([^|]*)/i);
+    const n = (m ? m[1] : "").trim();
+    return n && n !== "-" ? n : cat;
+  }
+  return s;
+}
+
+function contactItems(o){
+  return (o.items && o.items.length ? o.items : [{ order: o.order, link: o.link, dimensions: o.dimensions, category: o.category, status: o.status }])
+    .map(i => ({ ...i, name: productNameOf(i.dimensions, i.category) }));
+}
+
+function openContact(orderId){
+  const o = currentViewData.find(x => String(x.order).split(' + ')[0] === orderId);
+  if (!o) return;
+  CT = { order: o, mode: "product" };
+  document.getElementById("ctName").textContent = o.customerName || "—";
+  document.getElementById("ctPhone").textContent = tsDisplayPhone(o.phone) || "—";
+  const items = contactItems(o);
+  // منتج واحد = متعلّم على طول؛ أكتر (وضع التجميع) = الموظف يختار
+  document.getElementById("ctItems").innerHTML = items.map((it, i) =>
+    `<label><input type="radio" name="ctItem" value="${i}" ${i === 0 ? "checked" : ""} onchange="renderContactPreview()">
+       <span><b dir="ltr">${tsEscapeHtml(it.order)}</b> — ${tsEscapeHtml(it.name || "منتج")}<br>
+       <small style="color:var(--ink-3)">${tsEscapeHtml(tsStatusLabel(it.status))}</small></span></label>`).join("");
+  setContactMode("product");
+  document.getElementById("ctModal").style.display = "flex";
+}
+function closeContact(){ document.getElementById("ctModal").style.display = "none"; }
+function setContactMode(m){
+  CT.mode = m;
+  document.querySelectorAll("#ctModal .ct-opt").forEach(b => b.classList.toggle("on", b.dataset.mode === m));
+  document.getElementById("ctItems").style.display = m === "product" ? "" : "none";
+  renderContactPreview();
+}
+function contactMessage(){
+  const o = CT.order, en = tsWaLang(o.lang) === "en";
+  const staff = String(getCurrentUser() || "").trim();
+  const name = String(o.customerName || "").trim();
+  const hi = en
+    ? "Hi " + (name || "there") + " 👋\nThis is " + (staff ? staff + " from " : "") + "Try Shoppy."
+    : "أهلًا " + (name ? "أ/ " + name : "بحضرتك") + " 👋\nمعاك " + (staff ? staff + " من " : "") + "Try Shoppy.";
+  if (CT.mode === "general") return hi + "\n\n";
+  const sel = document.querySelector('input[name="ctItem"]:checked');
+  const it = contactItems(o)[sel ? +sel.value : 0] || {};
+  const lines = [hi, "", en ? "About your order *" + it.order + "*:" : "بخصوص طلبك رقم *" + it.order + "*:"];
+  if (it.name) lines.push("📦 " + it.name);
+  if (it.link) lines.push("🔗 " + it.link);
+  lines.push("", "");
+  return lines.join("\n");
+}
+function renderContactPreview(){
+  if (!CT.order) return;
+  document.getElementById("ctPreview").textContent = contactMessage() + (tsWaLang(CT.order.lang) === "en" ? "…(write your message)" : "…(اكتب كلامك هنا)");
+  document.getElementById("ctLang").textContent = tsWaLang(CT.order.lang) === "en" ? "🌐 العميل بيتعامل إنجليزي" : "";
+}
+function sendContact(){
+  if (!CT.order) return;
+  // tsWaOpen من غير رقم بتفتح على رقم الشركة — فلازم نوقف هنا
+  if (!tsNormalizePhone(CT.order.phone)) { alert("⚠️ مفيش رقم موبايل مسجل للعميل ده."); return; }
+  tsWaOpen(CT.order.phone, contactMessage());
+  closeContact();
+}
+
 function openInvoice(orderId) {
   const order = currentViewData.find(o => String(o.order).split(' + ')[0] === orderId);
   if (order) { generateInvoice(order); }
 }
 
+/* 🧾 الفاتورة
+   ---------------------------------------------------------------
+   🎨 كانت جدول بسيط "Personal imported item 1 · Link · السعر". دلوقتي:
+   رقم فاتورة وتاريخ، اسم المنتج الحقيقي (من الملاحظات، وإلا الفئة —
+   productNameOf)، الكمية وسعر القطعة والإجمالي، والشحن والمدفوع
+   والمطلوب، وزرار طباعة / حفظ PDF. بلغة العميل (عمود lang).
+   البيانات الثابتة (العنوان والتليفون وجملة "Personal imported items")
+   زي ما كانت بالظبط. */
 function generateInvoice(order){
-  let itemsHTML = "";
-  let total = 0;
+  const en = tsWaLang(order.lang) === "en";
+  const L = (ar, e) => en ? e : ar;
+  const items = (order.items && order.items.length ? order.items : [{
+      order: order.order, link: order.link, price: order.finalPrice, qty: order.quantity,
+      dimensions: order.dimensions, category: order.category, shipping: order.shipping, deposit: order.deposit }])
+    .filter(i => !tsIsClosedStatus(i.status) || i.status === "Delivered" || !order.items);
+  const money = v => Math.round(parseFloat(v) || 0).toLocaleString("en-US") + (en ? " EGP" : " ج.م");
+  let sub = 0, ship = 0, paid = 0;
+  const rows = items.map((it, i) => {
+    const qty = parseInt(it.qty) || 1, line = parseFloat(it.price) || 0;
+    sub += line; ship += parseFloat(it.shipping) || 0; paid += parseFloat(it.deposit) || 0;
+    const name = productNameOf(it.dimensions, it.category) || L("منتج", "Item");
+    return `<tr><td class="n">${i + 1}</td>
+      <td class="p"><b>${tsEscapeHtml(name)}</b>
+        <div class="sub"><span dir="ltr">${tsEscapeHtml(it.order || "")}</span>${it.link ? ` · <a href="${tsSafeHref(it.link)}" target="_blank" rel="noopener noreferrer">${L("رابط المنتج", "Product link")}</a>` : ""}</div></td>
+      <td>${qty}</td><td dir="ltr">${money(line / qty)}</td><td dir="ltr"><b>${money(line)}</b></td></tr>`;
+  }).join("");
+  if (!order.items) { ship = parseFloat(order.shipping) || 0; paid = parseFloat(order.deposit) || 0; }
+  const due = Math.max(0, sub + ship - paid);
+  const invNo = "INV-" + String(order.order || "").split(" + ")[0];
+  const today = new Date().toLocaleDateString(en ? "en-GB" : "ar-EG-u-nu-latn", { day: "numeric", month: "long", year: "numeric" });
 
-  if(order.items){
-    order.items.forEach((item,i)=>{
-      const price = parseFloat(item.price || 0);
-      total += price;
-      itemsHTML += `<tr><td>Personal imported item ${i+1}</td><td><a href="${tsSafeHref(item.link)}" target="_blank" rel="noopener noreferrer">Link</a></td><td>${price.toLocaleString()} ج.م</td></tr>`;
-    });
-  }else{
-    const price = parseFloat(order.finalPrice || 0);
-    total = price;
-    itemsHTML += `<tr><td>Personal imported item</td><td><a href="${tsSafeHref(order.link)}" target="_blank" rel="noopener noreferrer">Link</a></td><td>${price.toLocaleString()} ج.م</td></tr>`;
-  }
-
-  tsOpenHtmlDoc(`
-    <html dir="rtl"><head><title>Invoice</title>
-      <style>body{font-family:Arial;padding:20px;} h2{margin-bottom:5px;} table{width:100%;border-collapse:collapse;margin-top:20px;} th,td{border:1px solid #ddd;padding:10px;text-align:center;} th{background:#f5f5f5;}</style>
-    </head><body>
-      <h2>TRY SHOPPY</h2><p>Zahraa Maadi Cairo Egypt</p><p>201094112666</p><hr>
-      <h3>بيانات العميل</h3><p>الاسم: ${tsEscapeHtml(order.customerName || "-")}</p><p>العنوان: ${tsEscapeHtml(order.address || "-")}</p><p>التليفون: ${tsEscapeHtml(tsDisplayPhone(order.phone) || "-")}</p><hr>
-      <h3>تفاصيل المنتجات</h3><table><tr><th>المنتج</th><th>الرابط</th><th>السعر</th></tr>${itemsHTML}</table>
-      <h3 style="margin-top:20px;">Total for personal imported items: ${total.toLocaleString()} ج.م</h3>
-    </body></html>
-  `);
+  tsOpenHtmlDoc(`<!DOCTYPE html>
+<html dir="${en ? "ltr" : "rtl"}" lang="${en ? "en" : "ar"}"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${invNo}</title>
+<style>
+  *{box-sizing:border-box} body{font-family:Tahoma,Arial,sans-serif;margin:0;background:#EEF1F7;color:#171C30;padding:18px}
+  .inv{max-width:760px;margin:0 auto;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.08)}
+  .top{background:#2D3250;color:#fff;padding:22px 24px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+  .brand{color:#F9C22E;font-weight:900;font-size:22px;letter-spacing:1px;font-family:Arial,sans-serif}
+  .top small{display:block;color:#AEB6D3;font-size:12px;margin-top:4px;line-height:1.6}
+  .meta{text-align:${en ? "right" : "left"};font-size:12.5px;line-height:1.8}
+  .meta b{color:#F9C22E;font-size:15px}
+  .body{padding:22px 24px}
+  .cust{background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.9;margin-bottom:18px}
+  .cust .h{font-size:11px;font-weight:900;color:#94A3B8;letter-spacing:.04em}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{background:#F1F5F9;color:#475569;font-size:11.5px;padding:9px 8px;text-align:start;border-bottom:2px solid #E2E8F0}
+  td{padding:11px 8px;border-bottom:1px solid #EEF1F6;vertical-align:top}
+  td.n{color:#94A3B8;width:28px} td.p .sub{font-size:11px;color:#64748B;margin-top:3px} td.p a{color:#2563EB;text-decoration:none}
+  .tot{margin-top:16px;margin-inline-start:auto;width:100%;max-width:330px;font-size:13.5px}
+  .tot div{display:flex;justify-content:space-between;padding:6px 2px}
+  .tot .due{border-top:2px solid #2D3250;margin-top:4px;padding-top:10px;font-weight:900;font-size:16px;color:#2D3250}
+  .note{margin-top:20px;font-size:11.5px;color:#64748B;text-align:center;line-height:1.7}
+  .bar{max-width:760px;margin:0 auto 12px;display:flex;gap:8px;justify-content:center}
+  .bar button{border:0;border-radius:10px;padding:11px 18px;font:inherit;font-weight:900;cursor:pointer;background:#F9C22E;color:#2D3250}
+  @media print{body{background:#fff;padding:0}.bar{display:none}.inv{box-shadow:none;border-radius:0}}
+</style></head><body>
+<div class="bar"><button onclick="window.print()">🖨️ ${L("طباعة / حفظ PDF", "Print / Save PDF")}</button></div>
+<div class="inv">
+  <div class="top">
+    <div><div class="brand">TRY SHOPPY</div><small>Zahraa Maadi Cairo Egypt<br><span dir="ltr">201094112666</span></small></div>
+    <div class="meta">${L("فاتورة", "Invoice")}<br><b dir="ltr">${tsEscapeHtml(invNo)}</b><br>${tsEscapeHtml(today)}</div>
+  </div>
+  <div class="body">
+    <div class="cust"><div class="h">${L("بيانات العميل", "BILL TO")}</div>
+      <b>${tsEscapeHtml(order.customerName || "-")}</b><br>
+      <span dir="ltr">${tsEscapeHtml(tsDisplayPhone(order.phone) || "-")}</span><br>
+      ${tsEscapeHtml([order.governorate, order.address].filter(Boolean).join(" — ") || "-")}</div>
+    <table>
+      <tr><th>#</th><th>${L("المنتج", "Item")}</th><th>${L("الكمية", "Qty")}</th><th>${L("سعر القطعة", "Unit")}</th><th>${L("الإجمالي", "Total")}</th></tr>
+      ${rows}
+    </table>
+    <div class="tot">
+      <div><span>${L("إجمالي المنتجات", "Items total")}</span><b dir="ltr">${money(sub)}</b></div>
+      ${ship > 0 ? `<div><span>${L("الشحن الداخلي", "Delivery")}</span><b dir="ltr">${money(ship)}</b></div>` : ""}
+      ${paid > 0 ? `<div><span>${L("المدفوع مقدمًا", "Paid in advance")}</span><b dir="ltr">− ${money(paid)}</b></div>` : ""}
+      <div class="due"><span>${L("المطلوب", "Amount due")}</span><span dir="ltr">${money(due)}</span></div>
+    </div>
+    <div class="note">Total for personal imported items: <b dir="ltr">${money(sub)}</b><br>${L("شكرًا لتعاملك مع Try Shoppy 🌟", "Thank you for shopping with Try Shoppy 🌟")}</div>
+  </div>
+</div>
+</body></html>`);
 }
-
 function groupLockMsg(){
   alert("⚠️ تم تفعيل التجميع\n\n✋ لا يمكن إتمام هذه العملية أثناء التجميع\nيرجى الضغط على زر 'فك التجميع' أعلى الصفحة أولاً");
 }
