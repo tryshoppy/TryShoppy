@@ -358,6 +358,269 @@ function tsFormatArrival(raw, lang){
   return String(raw == null ? '' : raw).trim().replace(/^[A-Za-z0-9]{1,2}[-–—\s]+(?=\d)/, '');
 }
 
+/* 📅 موعد الوصول بشكل موحّد للتخزين: O-27SEP2026
+   ---------------------------------------------------------------
+   "O-27Sep2026" و"27sep2026" و"29032026" كانوا بيتحسبوا شحنات مختلفة
+   في الفلاتر والمصروفات وسعر الدولار لكل شحنة. أي صيغة مفهومة بتتحول
+   للشكل ده؛ اللي مش مفهوم بيتساب زي ما هو (بحروف كبيرة) مابيضيعش. */
+function tsNormArrival(raw){
+  let s = String(raw == null ? '' : raw).trim();
+  if(!s) return '';
+  // خلية متخزنة كتاريخ بتوصل ISO كامل بالساعة — نحوّلها ليوم القاهرة الأول
+  if(/^\d{4}-\d{2}-\d{2}T/.test(s)) s = tsFormatSheetDate(s);
+  const v = tsParseArrival(s);
+  if(v && v.m >= 0 && v.m < 12 && v.d >= 1 && v.d <= 31 && v.y > 2000) return 'O-' + v.d + TS_MONTHS_EN[v.m].toUpperCase() + v.y;
+  return s.toUpperCase().replace(/\s+/g, '');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   🛡️ حفظ طلب من الداشبورد — الخانات اللي اتغيرت بس + حماية
+   ═══════════════════════════════════════════════════════════
+   tsOrderChanges(cur, wanted): بيقارن القيم وقت فتح الصفحة (cur) بالقيم
+   اللي الموظف عايزها (wanted)، وبيرجّع:
+     fields → الخانات اللي اتغيرت بس (هي اللي بتتبعت)
+     expect → قيمتها القديمة (السيرفر بيرفض لو اتغيرت في الشيت من وقتها)
+   السبب: كان كل حفظ بيبعت كل الخانات، فموظف فاتح الصفحة من بدري كان
+   بيرجّع العربون اللي المندوب حصّله لقيمته القديمة. */
+const TS_NUM_FIELDS = ['usd', 'finalPrice', 'shipping', 'deposit'];
+function tsSameOrderValue(field, a, b){
+  if(TS_NUM_FIELDS.indexOf(field) !== -1) return Math.abs((parseFloat(a) || 0) - (parseFloat(b) || 0)) < 0.01;
+  return String(a == null ? '' : a).trim() === String(b == null ? '' : b).trim();
+}
+function tsOrderChanges(cur, wanted){
+  const fields = {}, expect = {};
+  Object.keys(wanted).forEach(f => {
+    if(wanted[f] === undefined) return;
+    if(!tsSameOrderValue(f, cur[f], wanted[f])){ fields[f] = wanted[f]; expect[f] = cur[f] == null ? '' : cur[f]; }
+  });
+  return { fields, expect, count: Object.keys(fields).length };
+}
+
+/* ⚠️ تأكيدات قبل الحفظ — بترجّع قايمة رسايل؛ فاضية = مفيش حاجة تستاهل سؤال
+   • "تم التسليم" وفيه فلوس لسه مطلوبة
+   • الحالة بترجع لورا (Delivered ← Pending Review مثلاً)
+   • العربون أكبر من الإجمالي (غالبًا صفر زيادة بالغلط) */
+const TS_STATUS_FLOW = ['Pending Review', 'Confirmed Via Try', 'Processing', 'Placed', 'Arrived USA HUB',
+                        'In transit', 'Arrived Cairo HUB', 'Shipped To You', 'Delivered'];
+function tsOrderWarnings(cur, next){
+  const out = [];
+  const total = parseFloat(next.finalPrice !== undefined ? next.finalPrice : cur.finalPrice) || 0;
+  const ship  = parseFloat(next.shipping   !== undefined ? next.shipping   : cur.shipping)   || 0;
+  const dep   = parseFloat(next.deposit    !== undefined ? next.deposit    : cur.deposit)    || 0;
+  const oldSt = String(cur.status || '').trim(), newSt = String(next.status !== undefined ? next.status : oldSt).trim();
+  const due = total + ship - dep;
+  if(newSt === 'Delivered' && oldSt !== 'Delivered' && due > 0.5)
+    out.push('💵 لسه مطلوب ' + Math.round(due).toLocaleString('en-US') + ' ج.م على الطلب ده — اتحصّلوا فعلاً؟ (لو اتحصّلوا، زوّد العربون الأول)');
+  const oi = TS_STATUS_FLOW.indexOf(oldSt), ni = TS_STATUS_FLOW.indexOf(newSt);
+  if(newSt !== oldSt && ((oi !== -1 && ni !== -1 && ni < oi) || (tsIsClosedStatus(oldSt) && !tsIsClosedStatus(newSt))))
+    out.push('↩️ الحالة هترجع لورا: ' + tsStatusLabel(oldSt) + ' ← ' + tsStatusLabel(newSt));
+  if(dep > total + ship + 0.5 && total > 0)
+    out.push('💰 العربون (' + Math.round(dep).toLocaleString('en-US') + ') أكبر من إجمالي الطلب (' + Math.round(total + ship).toLocaleString('en-US') + ') — في صفر زيادة؟');
+  return out;
+}
+
+/* 💾 حفظ تعديل طلب من الداشبورد (لوحة الموبايل و945) — مكان واحد:
+     1) الخانات اللي اتغيرت بس + expect (شوف tsOrderChanges)
+     2) تأكيدات قبل الحفظ (tsOrderWarnings) وسبب On Hold/Lost
+     3) بعد الحفظ: الصفحة بتعيد تحميل الطلبات (loadData) وتتأكد إن القيم
+        اتسجلت فعلاً — الإرسال no-cors مابيرجعش رد، فده التأكيد الحقيقي.
+   o = { orderId, cur, wanted, scriptURL, staffToken, user, btn, statusSelect,
+         reload: async () => orders[] }   ← reload بترجّع الطلبات بعد التحديث */
+async function tsSaveOrderEdit(o){
+  const cur = o.cur || {};
+  const wanted = Object.assign({}, o.wanted);
+  if(wanted.arrivaldate !== undefined) wanted.arrivaldate = tsNormArrival(wanted.arrivaldate);
+  const ch = tsOrderChanges(cur, wanted);
+  if(!ch.count){ alert('مفيش أي تغيير في الطلب ' + o.orderId + ' عشان يتحفظ.'); return false; }
+
+  const warns = tsOrderWarnings(cur, ch.fields);
+  if(warns.length && !confirm('⚠️ قبل الحفظ — الطلب ' + o.orderId + ':\n\n' + warns.join('\n\n') + '\n\nتحفظ برضه؟')){
+    if(o.statusSelect && ch.fields.status !== undefined) o.statusSelect.value = cur.status || 'Pending Review';
+    return false;
+  }
+
+  let statusNote;
+  if(ch.fields.status !== undefined && tsNeedsStatusNote(ch.fields.status, cur.status)){
+    statusNote = await tsAskStatusNote(ch.fields.status, cur.statusNote, o.orderId + (cur.customerName ? ' — ' + cur.customerName : ''));
+    if(statusNote === null){ if(o.statusSelect) o.statusSelect.value = cur.status || 'Pending Review'; return false; }
+  }
+
+  if(o.btn) tsSetBtnLoading(o.btn, 'جاري الحفظ...');
+  try{
+    await tsPostScript(o.scriptURL, Object.assign({ action: 'updateStatus', order: o.orderId, user: o.user, staffToken: o.staffToken,
+                                                    expect: ch.expect, statusNote }, ch.fields));
+  }catch(err){
+    if(o.btn) tsClearBtnLoading(o.btn);
+    alert('❌ تعذر الاتصال بالسيرفر — الطلب مااتحدّثش. تأكد من النت وجرّب تاني.');
+    return false;
+  }
+
+  // ✅ التأكد الحقيقي: نقرا الطلب تاني من الشيت ونقارن
+  let after = null;
+  for(let i = 0; i < 2 && !after; i++){
+    if(i) await new Promise(r => setTimeout(r, 1500));
+    const list = await o.reload();
+    const row = (list || []).find(x => String(x.order) === String(o.orderId));
+    if(row && Object.keys(ch.fields).every(f => tsSameOrderValue(f, row[f], ch.fields[f]))) after = { ok: true, row };
+    else if(row && Object.keys(ch.expect).some(f => !tsSameOrderValue(f, row[f], ch.expect[f]) && !tsSameOrderValue(f, row[f], ch.fields[f]))) after = { stale: true, row };
+  }
+  if(o.btn) tsClearBtnLoading(o.btn);
+  if(after && after.ok){ tsToast('✅ اتحفظ — الطلب ' + o.orderId); return true; }
+  if(after && after.stale){
+    alert('⚠️ التعديل مااتحفظش: الطلب ' + o.orderId + ' اتعدل من حد تاني (موظف أو المندوب) من وقت ما فتحت الصفحة.\n\nالصفحة اتحدّثت بالقيم الجديدة — راجعها واعمل تعديلك تاني.');
+    return false;
+  }
+  alert('⚠️ مش متأكدين إن التعديل اتحفظ للطلب ' + o.orderId + ' — حدّث الصفحة وراجعه قبل ما تعيد.');
+  return false;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   🚨 فحص المنتج السريع — تنبيه لو ممكن يكون فيه مشكلة
+   ═══════════════════════════════════════════════════════════
+   بيشتغل في المتصفح بس ومن غير أي نداء شبكة (فمابيأثرش على سرعة
+   الحساب): بيقرا اسم المنتج من اللينك نفسه (أمازون وأغلب المتاجر
+   بيكتبوا الاسم في اللينك)، والملاحظات، والفئة، والوزن، والأبعاد.
+   ⚠️ تنبيه بس مش قرار — مابيوقفش الحساب ولا الطلب. الكلمات اتاخدت
+   من سياسة المنتجات الممنوعة في الموقع (restricted-items.html).
+   المستويات:
+     red    → ممنوع في سياستنا
+     orange → شحن خطر / محتاج مراجعة قبل التأكيد (بطاريات، بخاخات…)
+     yellow → حجم أو وزن كبير
+     info   → اللينك مختصر — الفحص مش شايف اسم المنتج */
+const TS_RISK_RULES = [
+  // 🔴 من سياسة المنتجات الممنوعة
+  ['red', /\b(fire ?arms?|(?<!(glue|massage|heat|nail|spray|staple|caulk|caulking|grease|water|bubble|toy|label|price|tattoo|soldering|hot|paint|foam|air|blow|thermometer|temperature|scan|scanner|barcode|laser|tape|lint) )guns?|pistols?|rifles?|shotguns?|ammo|ammunition|holsters?|airsoft|bb guns?|pellet guns?)\b|مسدس|سلاح|ذخيرة|خرطوش/, 'أسلحة أو ذخيرة أو ملحقاتها'],
+  ['red', /\b(combat|tactical|military|switch ?blade|butterfly)[ -]?knife|\bknives? (combat|tactical)/, 'سكينة قتالية / تكتيكية'],
+  ['red', /\b(tasers?|stun ?guns?|pepper ?spray|bear ?spray|mace spray|self[ -]defen[cs]e spray)\b|صاعق|بخاخ فلفل/, 'صاعق كهربائي أو بخاخ دفاع عن النفس'],
+  ['red', /\b(fireworks?|firecrackers?|sparklers?|explosives?)\b|ألعاب نارية|العاب نارية|صواريخ/, 'ألعاب نارية أو متفجرات'],
+  ['red', /\b(cbd|thc|delta[ -]?[89]|hhc|cannabis|marijuana|weed)\b|حشيش|ماريجوانا/, 'منتجات القنّب (CBD / THC / Delta)'],
+  ['red', /\b(vapes?|vaping|e[ -]?cig(arette)?s?|e[ -]?liquids?|juul|nicotine|zyn|vape pods?)\b|فيب|نيكوتين|سجائر إلكترونية/, 'فيب / سجائر إلكترونية / نيكوتين'],
+  ['red', /\b(cigarettes?|cigars?|tobacco|hookah|shisha)\b|سجائر|سيجار|تبغ|شيشة|معسل/, 'سجائر أو تبغ أو شيشة'],
+  ['red', /\b(wine|vodka|whiske?y|bourbon|tequila|liquor|champagne|beer|rum|gin)\b|خمر|نبيذ|فودكا|ويسكي|بيرة/, 'مشروبات كحولية'],
+  ['red', /\b(prescription(?! (glasses|eyeglasses|sunglasses|lenses|lens|frames|safety glasses|goggles|swim goggles))|rx only|injections?|injectable|syringes?|insulin|steroids?|testosterone|hgh|sarms|botox|dermal filler|lip filler)\b|حقن|حقنة|انسولين|هرمون|ستيرويد|بوتوكس|فيلر/, 'أدوية بروشتة / حقن / هرمونات / فيلر'],
+  ['red', /\b(live (plants?|animals?|fish)|(plant|vegetable|flower|garden|heirloom)[ -]seeds?|seeds? for planting)\b|بذور زراعة|نباتات حية|حيوانات حية/, 'نباتات حية أو بذور زراعة أو حيوانات'],
+  ['red', /\b(sex toys?|vibrators?|dildos?|adult toys?)\b/, 'منتجات للبالغين'],
+  ['red', /\b(walkie[ -]?talkies?|two[ -]way radios?|ham radio|transceivers?|signal jammers?|jammers?|spy cam(era)?s?|hidden cam(era)?s?|nanny cam)\b|لاسلكي|جهاز تشويش|كاميرا تجسس/, 'لاسلكي / تشويش / كاميرا تجسس (محتاج ترخيص أو ممنوع)'],
+  ['red', /\b(body armou?r|plate carriers?|ballistic (vest|plate|helmet)|bulletproof|military uniforms?)\b|درع واقي|زي عسكري/, 'دروع واقية أو زي عسكري'],
+  // 🟠 شحن خطر — مش ممنوع في السياسة بالضرورة، بس محتاج مراجعة قبل التأكيد
+  ['orange', /\b(lithium|li[ -]?ion|lipo|power ?banks?|jump ?starters?|e[ -]?bikes?|electric scooters?|hoverboards?|drones?)\b|ليثيوم|باور ?بانك|سكوتر كهرب/, 'بطارية ليثيوم / باور بانك / جهاز ببطارية كبيرة'],
+  ['orange', /\b(batter(y|ies)|rechargeable)\b|بطارية|بطاريات/, 'فيه بطارية — اتأكد من نوعها وحجمها'],
+  ['orange', /\b(aerosols?|spray ?paint|flammable|lighters?|butane|propane|torch|gasoline|fuel|nail polish)\b|قابل للاشتعال|ولاعة|بوتاجاز/, 'مادة مضغوطة أو قابلة للاشتعال'],
+  ['orange', /\b(perfumes?|colognes?|eau de (parfum|toilette)|fragrance(?![ -]?free))\b|برفان|بارفان|عطر|كولونيا/, 'عطر / برفان (سائل قابل للاشتعال في الشحن)'],
+  ['orange', /\b(pesticides?|insecticides?|herbicides?|poisons?|roach|rat killer|bait stations?|(bug|insect|roach|ant|pest|mosquito|fly|weed) (killer|killing|bait|spray)|killing (bait|gel|indoor)|bleach|(hydrochloric|sulfuric|muriatic|nitric) acid)\b|مبيد|سم فئران/, 'مواد كيميائية أو مبيدات (الخطر منها ممنوع)'],
+  ['orange', /\bneodymium|strong magnets?\b|مغناطيس قوي/, 'مغناطيس قوي'],
+  ['orange', /\b(alcohol(?![ -]?free)|hemp)\b|كحول/, 'فيه كحول أو قنّب — اتأكد من المكونات'],
+  ['orange', /\b(replicas?|counterfeit|knock ?off)\b|تقليد|كوبي/, 'ممكن يكون تقليد لماركة']
+];
+const TS_SHORT_LINK = /^https?:\/\/(a\.co|amzn\.(to|eu)|share\.google|ebay\.io|bit\.ly|tinyurl\.com|iherb\.co|goo\.gl|t\.co)\//i;
+
+/* نص المنتج من اللينك: الدومين + الـ path بعد فك الترميز، والشرط والـ _
+   بيتحولوا مسافات ("/Lokithor-Jump-Starter-3000A/dp/…" ← "lokithor jump starter 3000a") */
+function tsLinkText(link){
+  const s = String(link || '').trim();
+  if(!s) return '';
+  try{
+    const u = new URL(s);
+    let p = u.pathname;
+    try{ p = decodeURIComponent(p); }catch(e){}
+    const q = ['k', 'keywords', 'q', 'search', '_skw', '_nkw'].map(k => u.searchParams.get(k) || '').join(' ');
+    return (p + ' ' + q).replace(/[-_+/.=]+/g, ' ').toLowerCase();
+  }catch(e){ return s.toLowerCase(); }
+}
+
+/** o = { link, text, category, weightG, dimsCm:[l,w,h], volG }
+ *  بترجّع [{ level, msg }] بالترتيب: أحمر ← برتقالي ← أصفر ← معلومة */
+function tsProductRisk(o){
+  o = o || {};
+  const out = [], seen = {};
+  const hay = (tsLinkText(o.link) + ' ' + String(o.text || '') + ' ' + String(o.category || '')).toLowerCase();
+  TS_RISK_RULES.forEach(([level, re, msg]) => {
+    if(seen[msg]) return;
+    const m = hay.match(re);
+    if(m){ seen[msg] = 1; out.push({ level, msg, word: m[0].trim() }); }
+  });
+  // 🐜 مبيد في سرنجة (جل الصراصير) مش حقن طبية — مانقولش "حقن" لو المبيد اتلقط
+  if(out.some(r => r.msg.indexOf('مبيدات') !== -1)) for(let i = out.length - 1; i >= 0; i--) if(/^syringes?$/.test(out[i].word || '')) out.splice(i, 1);
+  // بطارية ليثيوم بتغطي "فيه بطارية" — مانكررش الاتنين
+  if(out.some(r => r.msg.indexOf('ليثيوم') !== -1)) for(let i = out.length - 1; i >= 0; i--) if(out[i].msg.indexOf('فيه بطارية') === 0) out.splice(i, 1);
+
+  const w = parseFloat(o.weightG) || 0;
+  const d = (o.dimsCm || []).map(x => parseFloat(x) || 0);
+  const maxSide = Math.max(0, ...d), sumSides = d.reduce((s, x) => s + x, 0);
+  if(maxSide > 100 || sumSides > 200) out.push({ level: 'yellow', msg: 'أبعاد كبيرة (' + d.map(x => Math.round(x)).join(' × ') + ' سم) — اتأكد إن شركة الشحن بتقبلها' });
+  if(o.volG && w && o.volG > w * 1.5) out.push({ level: 'yellow', msg: 'الوزن الحجمي (' + (o.volG / 1000).toFixed(1) + ' كجم) أكبر من الوزن الفعلي — السعر محسوب على الحجم، راجع الأبعاد' });
+  if(Math.max(w, o.volG || 0) > 10000) out.push({ level: 'yellow', msg: 'شحنة تقيلة (' + (Math.max(w, o.volG || 0) / 1000).toFixed(1) + ' كجم للقطعة) — راجع تكلفة الشحن الفعلية' });
+
+  if(o.link && TS_SHORT_LINK.test(String(o.link).trim()))
+    out.push({ level: 'info', msg: 'اللينك مختصر — اسم المنتج مش باين فيه، فالفحص مش شايفه. افتحه واتأكد بنفسك' });
+
+  const rank = { red: 0, orange: 1, yellow: 2, info: 3 };
+  return out.sort((a, b) => rank[a.level] - rank[b.level]);
+}
+
+/** صندوق التنبيهات — بيترسم في عنصر موجود (box). فاضي = الصندوق بيستخبى */
+function tsRenderRisk(box, risks){
+  if(!box) return;
+  if(!risks || !risks.length){ box.innerHTML = ''; box.style.display = 'none'; return; }
+  const sty = { red: ['#FEF2F2', '#DC2626', '#991B1B', '🔴 ممنوع في سياستنا'], orange: ['#FFF7ED', '#EA580C', '#9A3412', '🟠 راجع قبل التأكيد'],
+                yellow: ['#FEFCE8', '#CA8A04', '#854D0E', '🟡 حجم / وزن'], info: ['#F1F5F9', '#94A3B8', '#475569', 'ℹ️'] };
+  box.style.display = 'block';
+  box.innerHTML = risks.map(r => {
+    const s = sty[r.level];
+    return '<div style="background:' + s[0] + ';border-inline-start:4px solid ' + s[1] + ';color:' + s[2] + ';border-radius:10px;padding:9px 12px;margin-top:8px;font-size:13px;font-weight:700;line-height:1.6;text-align:start">' +
+      '<span style="font-size:11px;font-weight:900;opacity:.85">' + s[3] + '</span><br>' + tsEscapeHtml(r.msg) +
+      (r.word ? ' <span style="font-weight:600;opacity:.7">(«' + tsEscapeHtml(r.word) + '»)</span>' : '') + '</div>';
+  }).join('');
+}
+
+/* 💡 مراجعة السعر بالمصري اللي الموظف بيكتبه بإيده (Direct Order / Quick
+   Order / إضافة طلب) — بنفس معادلة الحاسبة (function_calc.js لازم يكون
+   متحمّل). بيرجّع { suggested, warnings[] }. الوزن لو مش معروف بيتحسب
+   أقل من 300 جم، فالمقترح ساعتها "تقريبي". */
+const TS_LOSS_RATE = 50;   // جنيه للدولار — أي سعر أقل من التكلفة بالدولار × ده = بيع بخسارة
+function tsPriceSanity(o){
+  const usd = parseFloat(o.usd) || 0, egp = parseFloat(o.egp) || 0;
+  const res = { suggested: 0, approx: !(parseFloat(o.weightGrams) > 0), warnings: [] };
+  if(!(usd > 0)) return res;
+  if(typeof tryShoppyCalculatePrice === 'function' && o.category){
+    res.suggested = tryShoppyCalculatePrice({ usd, category: o.category, weightGrams: parseFloat(o.weightGrams) || 0, quantity: 1 }).finalPrice;
+  }
+  if(egp > 0){
+    if(egp < usd * TS_LOSS_RATE)
+      res.warnings.push('🔻 سعر القطعة (' + egp.toLocaleString('en-US') + ' ج.م) أقل من تكلفتها بالدولار (' + Math.round(usd * TS_LOSS_RATE).toLocaleString('en-US') + ' ج.م) — كده بيع بخسارة');
+    else if(res.suggested && egp < res.suggested * 0.6)
+      res.warnings.push('📉 السعر أقل من سعر الحاسبة (' + res.suggested.toLocaleString('en-US') + ' ج.م) بـ ' + Math.round((1 - egp / res.suggested) * 100) + '٪');
+    if(res.suggested && egp > res.suggested * 1.6)
+      res.warnings.push('📈 السعر أعلى من سعر الحاسبة (' + res.suggested.toLocaleString('en-US') + ' ج.م) بـ ' + Math.round((egp / res.suggested - 1) * 100) + '٪ — يمكن اتكتب الإجمالي مكان سعر القطعة؟');
+  }
+  return res;
+}
+/** سطر "💡 سعر الحاسبة" تحت خانة المصري — بيتحدّث مع الكتابة */
+function tsAttachPriceHint(ids){
+  const el = id => document.getElementById(id);
+  const egpIn = el(ids.egp);
+  if(!egpIn) return;
+  let hint = document.getElementById(ids.egp + 'Hint');
+  if(!hint){
+    hint = document.createElement('div');
+    hint.id = ids.egp + 'Hint';
+    hint.style.cssText = 'font-size:12px;font-weight:700;margin-top:6px;line-height:1.6;color:#64748b';
+    egpIn.insertAdjacentElement('afterend', hint);
+  }
+  const upd = () => {
+    const unit = ids.weightUnit && el(ids.weightUnit) ? ({ g:1, kg:1000, lb:453.592, oz:28.3495 }[el(ids.weightUnit).value] || 1) : 1;
+    const r = tsPriceSanity({ usd: el(ids.usd).value, egp: egpIn.value, category: el(ids.category).value,
+                              weightGrams: ids.weight && el(ids.weight) ? (parseFloat(el(ids.weight).value) || 0) * unit : 0 });
+    if(!r.suggested){ hint.textContent = ''; return; }
+    hint.innerHTML = '💡 سعر الحاسبة للقطعة: <b>' + r.suggested.toLocaleString('en-US') + ' ج.م</b>' + (r.approx ? ' (تقريبي — من غير وزن)' : '') +
+      (r.warnings.length ? '<div style="color:#B45309">' + r.warnings.map(tsEscapeHtml).join('<br>') + '</div>' : '');
+  };
+  [ids.usd, ids.egp, ids.category, ids.weight, ids.weightUnit].forEach(id => {
+    if(id && el(id)){ el(id).addEventListener('input', upd); el(id).addEventListener('change', upd); }
+  });
+  upd();
+}
+
 /* 🔢 أرقام عربي/فارسي ← إنجليزي (٠١٠ ← 010). العملاء اللي بيكتبوا
    من كيبورد عربي بيدخلوا الموبايل بالأرقام العربي، و\d في جافاسكريبت
    مش بيعتبرها أرقام أصلاً — فكانت بتتمسح وتطلع الرقم فاضي. */
@@ -798,10 +1061,18 @@ function tsValidEgMobile(v){
    fields = { name, phone, email, gov, address } كل واحد { el } (عنصر الإدخال)
    بترجّع { ok, phone } — phone بالشكل الموحّد 01xxxxxxxxx — ولو فيه
    خطأ بتعلّم الحقل بالأحمر وتكتب السبب تحته وتعمل focus عليه. */
+/* صفحات التشغيل (Direct Order مثلاً) مش بتحمّل i18n.js — فرسايل الأخطاء
+   ليها نسخة عربي احتياطية هنا بدل ما الدالة توقع */
+const TS_CO_ERR_AR = {
+  co_err_name: 'اكتب اسم العميل بالكامل', co_err_phone: 'اكتب رقم موبايل مصري صحيح، مثال: 01012345678',
+  co_err_email: 'الإيميل ده شكله مش مظبوط — صحّحه أو سيبه فاضي', co_err_gov: 'اختار المحافظة',
+  co_err_address: 'اكتب العنوان بالتفصيل (المنطقة، الشارع، رقم العمارة)'
+};
+function tsTSafe(key){ return typeof tsT === 'function' ? tsT(key) : (TS_CO_ERR_AR[key] || key); }
 function tsCheckoutValidate(fields){
   Object.values(fields).forEach(f => f && f.el && tsFieldError(f.el, ''));
   const val = k => (fields[k] && fields[k].el ? String(fields[k].el.value || '').trim() : '');
-  const fail = (k, key) => { const el = fields[k].el; tsFieldError(el, tsT(key)); try{ el.focus({preventScroll:true}); el.scrollIntoView({behavior:'smooth', block:'center'}); }catch(e){} return { ok:false }; };
+  const fail = (k, key) => { const el = fields[k].el; tsFieldError(el, tsTSafe(key)); try{ el.focus({preventScroll:true}); el.scrollIntoView({behavior:'smooth', block:'center'}); }catch(e){} return { ok:false }; };
 
   if(fields.name && val('name').length < 3) return fail('name', 'co_err_name');
   const phone = tsValidEgMobile(val('phone'));
