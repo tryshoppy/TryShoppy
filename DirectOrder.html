@@ -357,10 +357,10 @@
 
 
 
-<script src="staff-auth.js?v=20261005b"></script>
-<script src="assets/config.js?v=20261005b"></script>
-<script src="assets/function_calc.js?v=20261005b"></script><!-- 💡 سعر الحاسبة المقترح (tsPriceSanity) -->
-<script src="assets/app.js?v=20261005b"></script>
+<script src="staff-auth.js?v=20261006a"></script>
+<script src="assets/config.js?v=20261006a"></script>
+<script src="assets/function_calc.js?v=20261006a"></script><!-- 💡 سعر الحاسبة المقترح (tsPriceSanity) -->
+<script src="assets/app.js?v=20261006a"></script>
 <script>
 const SESSION_TIME = 2 * 60 * 60 * 1000;
 const ORDER_SCRIPT_URL = TS_CONFIG.ORDERS_SCRIPT_URL;
@@ -711,37 +711,80 @@ function selectExistingCustomer(idx){
 
 /* 👥 قبل تسجيل "عميل جديد": لو رقمه موجود في الطلبات، بنسأل — عشان مايبقاش
    نفس العميل متسجل مرتين بأسماء مختلفة (والبونص والتقارير تتلخبط) */
-async function loadCustomersCache(){
-  if (allCustomersCache) return allCustomersCache;
-  try {
-    const res = await fetch(ORDER_SCRIPT_URL + '?staffToken=' + encodeURIComponent(getStaffToken()));
-    const data = await res.json();
-    if (Array.isArray(data)) allCustomersCache = data;
-  } catch (e) { /* مش هنوقف الطلب عشان البحث فشل */ }
-  return allCustomersCache || [];
-}
-async function confirmNotDuplicate(phone, name){
+/* 👥 هل الموبايل ده متسجل لعميل قبل كده؟
+   🐛→✅ قبل كده الفحص ده كان بيحمّل *كل* الطلبات من السيرفر لحظة الضغط على
+   "تأكيد" — ثواني طويلة والزرار لسه مش مقفول ولا بيقول "جاري…"، فالموظف
+   كان بيدوس تاني وتالت، وكل دوسة بتسجّل الطلب من جديد وتبعت إيميل جديد
+   (اتسجل نفس الطلب 3 مرات في نفس الدقيقة يوم 5 أكتوبر).
+   دلوقتي:
+     • بنسأل السيرفر عن الرقم ده بس (customerPhone=) — رد صغير وسريع
+     • السؤال بيبدأ أول ما الموظف يخلص كتابة الموبايل (blur)، فغالبًا
+       بيكون جاهز قبل ما يدوس تأكيد
+     • أقصى انتظار 5 ثواني — لو السيرفر اتأخر بنكمّل التسجيل عادي
+       (الفحص ده مساعدة، مش شرط) */
+const phoneLookups = new Map();   // رقم موحّد ← Promise<عميل أو null>
+function lookupPhone(phone){
   const key = tsNormalizePhone(phone);
-  const list = await loadCustomersCache();
-  const hit = list.find(o => tsNormalizePhone(o.phone) === key);
+  if (!key || key.length < 10) return Promise.resolve(null);
+  const local = (allCustomersCache || []).find(o => tsNormalizePhone(o.phone) === key);
+  if (local) return Promise.resolve(local);
+  if (!phoneLookups.has(key)) {
+    phoneLookups.set(key, fetch(ORDER_SCRIPT_URL + '?staffToken=' + encodeURIComponent(getStaffToken()) + '&customerPhone=' + encodeURIComponent(key))
+      .then(r => r.json())
+      .then(d => Array.isArray(d) && d.length ? d[d.length - 1] : null)
+      .catch(() => { phoneLookups.delete(key); return null; }));
+  }
+  return phoneLookups.get(key);
+}
+document.getElementById("phone").addEventListener("blur", e => { if (customerMode === 'new') lookupPhone(e.target.value); });
+
+async function confirmNotDuplicate(phone, name){
+  const timeout = new Promise(r => setTimeout(() => r(null), 5000));
+  const hit = await Promise.race([lookupPhone(phone), timeout]);
   if (!hit) return true;
   return confirm("👥 الرقم " + tsDisplayPhone(phone) + " متسجل قبل كده لعميل موجود باسم: " + (hit.customerName || "—") +
     "\n\nلو هو نفس العميل، اضغط Cancel واختاره من \"عميل سابق\" عشان بياناته تفضل واحدة." +
     "\nاضغط OK لو متأكد إنه عميل تاني وتكمل بالاسم: " + name);
 }
 
+/* 🔒 دوسة واحدة = تسجيل واحد. الزرار بيتقفل من أول لحظة (قبل أي انتظار)،
+   وأي دوسة تانية وهو شغال بتتجاهل — حتى لو الزرار لسه ماتقفلش لأي سبب */
+let submittingOrder = false;
 async function confirmOrder() {
-  // ✅ نفس قواعد الموقع: اسم + موبايل مصري صحيح + محافظة + عنوان (والإيميل لو اتكتب)
+  if (submittingOrder) return;
+  submittingOrder = true;
+  const btn = document.getElementById("confirmBtn");
+  tsSetBtnLoading(btn, "جاري التحقق...");
+  try {
+    await confirmOrderInner(btn);
+  } finally {
+    submittingOrder = false;
+    if (btn.dataset.tsLoading === '1') tsClearBtnLoading(btn);
+  }
+}
+
+async function confirmOrderInner(btn) {
+  // ✅ نفس قواعد الموقع: اسم + موبايل مصري صحيح + محافظة (والإيميل لو اتكتب).
+  // العنوان هنا تنبيه مش شرط (تحت) — الموظف أحيانًا بيكتب "pickup" أو "استلام من المكتب"
   const vChk = tsCheckoutValidate({
     name:    { el: document.getElementById("customerName") },
     phone:   { el: document.getElementById("phone") },
     email:   { el: document.getElementById("customerEmail") },
-    gov:     { el: document.getElementById("governorate") },
-    address: { el: document.getElementById("address") }
+    gov:     { el: document.getElementById("governorate") }
   });
   if (!vChk.ok) return;
   const name = document.getElementById("customerName").value.trim();
   document.getElementById("phone").value = vChk.phone;   // بالشكل الموحّد 01xxxxxxxxx
+
+  // 🏠 عنوان قصير أو كلمة واحدة (زي pickup): سؤال واضح بدل ما التسجيل يقف من غير ما نفهم ليه
+  const addrEl = document.getElementById("address");
+  const addr = addrEl.value.trim();
+  if (addr.length < 8 || !/\s/.test(addr)) {
+    const ok = confirm(addr
+      ? "⚠️ العنوان مكتوب «" + addr + "» بس.\n\nلو ده مقصود (استلام من المكتب مثلاً) اضغط OK ويتسجل الطلب كده.\nلو عايز تكمّل العنوان اضغط Cancel."
+      : "⚠️ خانة العنوان فاضية.\n\nلو العميل هيستلم بنفسه اضغط OK ويتسجل الطلب من غير عنوان.\nلو عايز تكتب العنوان اضغط Cancel.");
+    if (!ok) { addrEl.focus(); addrEl.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+  }
 
   // 👥 عميل "جديد" برقم موجود قبل كده = غالبًا نفس العميل بإسم مكتوب مختلف
   if (customerMode === 'new' && !(await confirmNotDuplicate(vChk.phone, name))) return;
@@ -750,7 +793,7 @@ async function confirmOrder() {
   if (!cart.length) { alert("السلة فاضية"); showStep('cart'); return; }
   if (cart.some(i => !i.category)) { alert("⚠️ فيه منتج في السلة من غير فئة — امسحه وضيفه تاني بالفئة"); showStep('cart'); return; }
 
-  const btn = document.getElementById("confirmBtn");
+  if (btn.dataset.tsLoading === '1') tsClearBtnLoading(btn);
   tsSetBtnLoading(btn, "جاري التأكيد...");
 
   const phone = document.getElementById("phone").value;
