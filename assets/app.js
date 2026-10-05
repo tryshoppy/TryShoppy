@@ -528,6 +528,24 @@ function tsLinkText(link){
   }catch(e){ return s.toLowerCase(); }
 }
 
+/* ⚡ التأكد بعد الحفظ — بيجيب الطلب ده بس من السيرفر (orderId=) ويبدّله جوه
+   list في مكانه، بدل ما كل حفظ يعيد تحميل كل الطلبات (كان بياخد ثواني).
+   بيرجّع true لو نجح. false = السيرفر لسه بالنسخة القديمة أو مفيش رد مفهوم
+   → الصفحة تعمل التحميل الكامل زي الأول. */
+async function tsRefreshOneOrder(scriptURL, staffToken, orderId, list){
+  const id = String(orderId).split(' + ')[0].trim();
+  try{
+    const res = await fetch(scriptURL + '?staffToken=' + encodeURIComponent(staffToken) + '&orderId=' + encodeURIComponent(id));
+    const rows = await res.json();
+    // السيرفر القديم بيتجاهل orderId ويرجّع كل الطلبات — نعرفه من إن فيه طلبات تانية
+    if(!Array.isArray(rows) || !rows.length || rows.some(r => String(r.order).trim() !== id)) return false;
+    let k = 0;
+    for(let i = 0; i < list.length && k < rows.length; i++) if(String(list[i].order).trim() === id) list[i] = rows[k++];
+    while(k < rows.length) list.push(rows[k++]);
+    return true;
+  }catch(e){ return false; }
+}
+
 /* 💧 المكملات السائلة بالمليلتر — الحاسبتين (calculator / calculatorOP)
    خانة الوزن بتتحول لـ "حجم العبوة" بوحدات ml / fl oz، والحساب جوه
    لسه بالجرام: 1 مل ≈ 1 جم (نفس القاعدة اللي كانت مكتوبة للعميل قبل كده).
