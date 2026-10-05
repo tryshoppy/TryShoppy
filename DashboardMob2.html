@@ -995,6 +995,7 @@ async function updateOrder(orderId){
     btn: document.querySelector(`button[onclick*="updateOrder('${orderId}')"]`),
     statusSelect: document.getElementById("status-"+orderId),
     // ⚡ الطلب ده بس من السيرفر + إعادة رسم من الذاكرة (والتحميل الكامل لو السيرفر قديم)
+    onSaved: () => { populateArrivalQuick(); fillArrivalSuggestM(); applyFilters(); },   // ⚡ السيرفر قال Success → نحدّث الكارت من الذاكرة على طول
     reload: async () => {
       if (await tsRefreshOneOrder(scriptURL, getStaffToken(), orderId, ordersData)) { populateArrivalQuick(); fillArrivalSuggestM(); applyFilters(); }
       else await loadData();
@@ -1078,9 +1079,9 @@ function saveHiddenFrom(){
 }
 
 function checkPendingReview() {
-  // 🐛→✅ كان alert بيطلع بعد **كل حفظ** (الحفظ بيعيد تحميل الطلبات) — دلوقتي مرة واحدة في الجلسة
-  if (sessionStorage.getItem("ts_pending_alert_shown")) return;
-  sessionStorage.setItem("ts_pending_alert_shown", "1");
+  // مرة واحدة لكل فتحة للصفحة (مش بعد كل حفظ) — قبل كده كانت مرة واحدة في الجلسة كلها، فإعادة فتح الصفحة في نفس التاب ماكانتش بتنبّه خالص
+  if (window._pendingAlertShown) return;
+  window._pendingAlertShown = true;
   const pendingOrders = ordersData.filter(o => o.status === "Pending Review" && !isOpexM(o));
   if (pendingOrders.length > 0) {
     let message = `⚠️ عندك ${pendingOrders.length} أوردر Pending Review\n\n`;
