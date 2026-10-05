@@ -503,11 +503,11 @@ const TS_RISK_RULES = [
   ['red', /\b(walkie[ -]?talkies?|two[ -]way radios?|ham radio|transceivers?|signal jammers?|jammers?|spy cam(era)?s?|hidden cam(era)?s?|nanny cam)\b|لاسلكي|جهاز تشويش|كاميرا تجسس/, 'لاسلكي / تشويش / كاميرا تجسس (محتاج ترخيص أو ممنوع)'],
   ['red', /\b(body armou?r|plate carriers?|ballistic (vest|plate|helmet)|bulletproof|military uniforms?)\b|درع واقي|زي عسكري/, 'دروع واقية أو زي عسكري'],
   // 🟠 شحن خطر — مش ممنوع في السياسة بالضرورة، بس محتاج مراجعة قبل التأكيد
-  ['orange', /\b(lithium|li[ -]?ion|lipo|power ?banks?|jump ?starters?|e[ -]?bikes?|electric scooters?|hoverboards?|drones?)\b|ليثيوم|باور ?بانك|سكوتر كهرب/, 'بطارية ليثيوم / باور بانك / جهاز ببطارية كبيرة'],
+  ['orange', /\b(lithium|li[ -]?ion|lipo|power ?banks?|power ?core|portable (phone )?chargers?|battery (packs?|banks?)|power ?stations?|solar generators?|jump ?starters?|e[ -]?bikes?|electric scooters?|hoverboards?|drones?)\b|ليثيوم|باور ?بانك|سكوتر كهرب/, 'بطارية ليثيوم / باور بانك / جهاز ببطارية كبيرة'],
   ['orange', /\b(batter(y|ies)|rechargeable)\b|بطارية|بطاريات/, 'فيه بطارية — اتأكد من نوعها وحجمها'],
-  ['orange', /\b(aerosols?|spray ?paint|flammable|lighters?|butane|propane|torch|gasoline|fuel|nail polish)\b|قابل للاشتعال|ولاعة|بوتاجاز/, 'مادة مضغوطة أو قابلة للاشتعال'],
+  ['orange', /\b(aerosols?|sprays?(?! bottles?)|spray ?paint|wd ?40|flammable|lighters?|lighter fluid|butane|propane|torch|gasoline|kerosene|fuel|nail polish|acetone|paint thinner|matches)\b|قابل للاشتعال|ولاعة|بوتاجاز|بخاخ|سبراي|اسبراي/, 'بخاخ مضغوط أو مادة قابلة للاشتعال'],
   ['orange', /\b(perfumes?|colognes?|eau de (parfum|toilette)|fragrance(?![ -]?free))\b|برفان|بارفان|عطر|كولونيا/, 'عطر / برفان (سائل قابل للاشتعال في الشحن)'],
-  ['orange', /\b(pesticides?|insecticides?|herbicides?|poisons?|roach|rat killer|bait stations?|(bug|insect|roach|ant|pest|mosquito|fly|weed) (killer|killing|bait|spray)|killing (bait|gel|indoor)|bleach|(hydrochloric|sulfuric|muriatic|nitric) acid)\b|مبيد|سم فئران/, 'مواد كيميائية أو مبيدات (الخطر منها ممنوع)'],
+  ['orange', /\b(pesticides?|insecticides?|herbicides?|poisons?|roach|rat killer|bait stations?|(bug|insect|roach|ant|pest|mosquito|fly|weed) (killer|killing|bait|spray)|killing (bait|gel|indoor)|bleach|ammonia|chlorine|lye|sodium hydroxide|drain cleaner|(hydrochloric|sulfuric|muriatic|nitric) acid)\b|مبيد|سم فئران/, 'مواد كيميائية أو مبيدات (الخطر منها ممنوع)'],
   ['orange', /\bneodymium|strong magnets?\b|مغناطيس قوي/, 'مغناطيس قوي'],
   ['orange', /\b(alcohol(?![ -]?free)|hemp)\b|كحول/, 'فيه كحول أو قنّب — اتأكد من المكونات'],
   ['orange', /\b(replicas?|counterfeit|knock ?off)\b|تقليد|كوبي/, 'ممكن يكون تقليد لماركة']
@@ -526,6 +526,40 @@ function tsLinkText(link){
     const q = ['k', 'keywords', 'q', 'search', '_skw', '_nkw'].map(k => u.searchParams.get(k) || '').join(' ');
     return (p + ' ' + q).replace(/[-_+/.=]+/g, ' ').toLowerCase();
   }catch(e){ return s.toLowerCase(); }
+}
+
+/* 💧 المكملات السائلة بالمليلتر — الحاسبتين (calculator / calculatorOP)
+   خانة الوزن بتتحول لـ "حجم العبوة" بوحدات ml / fl oz، والحساب جوه
+   لسه بالجرام: 1 مل ≈ 1 جم (نفس القاعدة اللي كانت مكتوبة للعميل قبل كده).
+   on=false بيرجّع وحدات الوزن العادية. */
+const TS_LIQUID_TO_G = { ml: 1, floz: 29.5735 };
+function tsSetLiquidUnits(on){
+  const sel = document.getElementById('weightUnit');
+  const lab = document.querySelector('label[for="weight"] [data-i18n]');
+  if(!sel) return;
+  const isLiquid = sel.dataset.liquid === '1';
+  if(!!on !== isLiquid){
+    sel.dataset.liquid = on ? '1' : '';
+    sel.innerHTML = on
+      ? '<option value="ml" data-i18n="c2_u_ml">ml</option><option value="floz">fl oz</option>'
+      : '<option value="g" data-i18n="c2_u_g">g</option><option value="kg" data-i18n="c2_u_kg">kg</option><option value="lb">lb</option><option value="oz">oz</option>';
+    if(lab) lab.setAttribute('data-i18n', on ? 'c2_volume_label' : 'c2_weight_label');
+  }
+  if(typeof tsT === 'function'){
+    sel.querySelectorAll('[data-i18n]').forEach(o => { o.textContent = tsT(o.getAttribute('data-i18n')); });
+    if(lab) lab.textContent = tsT(lab.getAttribute('data-i18n'));
+  }
+}
+/** معامل التحويل لجرام للوحدة المختارة (وزن أو حجم) */
+function tsUnitToG(u){ return ({ g: 1, kg: 1000, lb: 453.592, oz: 28.3495 })[u] || TS_LIQUID_TO_G[u] || 1; }
+
+/* هل اللينك فيه كلمة واحدة على الأقل من اسم المنتج؟ (حروف بس، 4 حروف أو أكتر،
+   ومش من كلمات الروابط زي product / item / html) */
+const TS_LINK_NOISE = /^(product|products|item|items|html|shop|store|detail|details|www|https?|amazon|ebay|walmart|iherb|com|search|keywords)$/;
+function tsLinkHasName(link){
+  let host = '';
+  try{ host = new URL(String(link).trim()).hostname.toLowerCase(); }catch(e){}
+  return tsLinkText(link).split(/\s+/).some(w => /^[a-z؀-ۿ]{4,}$/.test(w) && !TS_LINK_NOISE.test(w) && host.indexOf(w) === -1);
 }
 
 /** o = { link, text, category, weightG, dimsCm:[l,w,h], volG }
@@ -553,6 +587,10 @@ function tsProductRisk(o){
 
   if(o.link && TS_SHORT_LINK.test(String(o.link).trim()))
     out.push({ level: 'info', msg: 'اللينك مختصر — اسم المنتج مش باين فيه، فالفحص مش شايفه. افتحه واتأكد بنفسك' });
+  // 🐛→✅ لينك زي amazon.com/dp/B07… أو ebay.com/itm/123 مفيهوش اسم المنتج خالص،
+  // فالفحص كان بيسكت تمامًا والموظف يفتكر إن المنتج سليم
+  else if(o.link && /^https?:\/\//i.test(String(o.link).trim()) && !tsLinkHasName(o.link))
+    out.push({ level: 'info', msg: 'اللينك مفيهوش اسم المنتج (رقم بس) — الفحص مش شايف المنتج. افتحه واتأكد بنفسك إنه مش بطارية أو بخاخ أو ممنوع' });
 
   const rank = { red: 0, orange: 1, yellow: 2, info: 3 };
   return out.sort((a, b) => rank[a.level] - rank[b.level]);

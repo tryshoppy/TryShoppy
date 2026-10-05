@@ -393,6 +393,8 @@ const I18N = {
   c2_category_label: { en: "Category", ar: "الفئة" },
   c2_weight_label:{ en: "Weight of ONE item", ar: "وزن القطعة الواحدة" },
   c2_weight_hint: { en: "On Amazon it is listed as Item Weight or Shipping Weight, often in lb or oz — just pick that unit next to the box. Not sure? Enter your best estimate; we review every order before buying.", ar: "في أمازون مكتوب تحت Item Weight أو Shipping Weight، وغالبًا بالـ lb أو oz — اختار نفس الوحدة من جنب الخانة. مش متأكد؟ اكتب تقديرك، وإحنا بنراجع كل طلب قبل الشراء." },
+  c2_volume_label:{ en: "Bottle size (ONE item)", ar: "حجم العبوة الواحدة" },
+  c2_u_ml:        { en: "ml", ar: "مل" },
   c2_u_g:         { en: "g", ar: "جم" },
   c2_u_kg:        { en: "kg", ar: "كجم" },
   c2_u_cm:        { en: "cm", ar: "سم" },
@@ -461,7 +463,7 @@ const I18N = {
   sup_unit_tablets:    { en: "tablets", ar: "كبسولة" },
   sup_unit_gummies:    { en: "gummies", ar: "جميز" },
   calc_sup_note_powder:{ en: "Please enter the exact weight in grams", ar: "رجاء إدخال الوزن بالجرام بدقة" },
-  calc_sup_note_liquid:{ en: "Please enter the bottle weight — Note: 1ml ≈ 1 gram", ar: "رجاء إدخال وزن العبوة — ملحوظة: 1 مللي = 1 جرام تقريبًا" },
+  calc_sup_note_liquid:{ en: "Enter the bottle size in ml (or fl oz) exactly as the store shows it", ar: "اكتب حجم العبوة بالمللي (أو fl oz) زي ما هو مكتوب في المتجر" },
   calc_sup_note_auto:  { en: "Weight auto-set", ar: "الوزن اتحدد تلقائيًا" },
   calc_sup_note_auto2: { en: "based on piece count", ar: "حسب عدد الحبات" },
 
