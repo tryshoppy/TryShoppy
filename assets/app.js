@@ -446,16 +446,42 @@ async function tsSaveOrderEdit(o){
   }
 
   if(o.btn) tsSetBtnLoading(o.btn, 'جاري الحفظ...');
+  const payload = Object.assign({ action: 'updateStatus', order: o.orderId, user: o.user, staffToken: o.staffToken,
+                                  expect: ch.expect, statusNote }, ch.fields);
+
+  /* ⚡ بنقرا رد السيرفر نفسه (Success / Stale / Unauthorized…) — قبل كده
+     الحفظ كان no-cors (الرد مش مقروء)، فبعده لازم طلب تاني يعيد قراية
+     الطلب عشان يتأكد، وده كان بيضاعف وقت الحفظ. الطلب بـ text/plain
+     (من غير headers) فمفيش preflight، وApps Script بيسمح بقراية الرد.
+     ⚠️ لو القراية نفسها فشلت، مش بنعيد الإرسال أبدًا (ممكن يكون اتحفظ
+     فعلًا) — بنرجع للتأكد بإعادة القراية زي الأول. */
+  let reply = null;
   try{
-    await tsPostScript(o.scriptURL, Object.assign({ action: 'updateStatus', order: o.orderId, user: o.user, staffToken: o.staffToken,
-                                                    expect: ch.expect, statusNote }, ch.fields));
-  }catch(err){
+    const res = await fetch(o.scriptURL, { method: 'POST', body: JSON.stringify(payload) });
+    reply = String(await res.text()).trim();
+  }catch(err){ reply = null; }
+
+  if(reply === 'Success'){
+    Object.keys(ch.fields).forEach(f => { cur[f] = ch.fields[f]; });
+    if(statusNote !== undefined) cur.statusNote = statusNote;
+    cur.EndPrice = (parseFloat(cur.finalPrice) || 0) + (parseFloat(cur.shipping) || 0) - (parseFloat(cur.deposit) || 0);
     if(o.btn) tsClearBtnLoading(o.btn);
-    alert('❌ تعذر الاتصال بالسيرفر — الطلب مااتحدّثش. تأكد من النت وجرّب تاني.');
+    if(typeof o.onSaved === 'function') o.onSaved();
+    tsToast('✅ اتحفظ — الطلب ' + o.orderId);
+    return true;
+  }
+  if(reply === 'Unauthorized'){
+    if(o.btn) tsClearBtnLoading(o.btn);
+    alert('⛔ السيرفر رفض الحفظ للطلب ' + o.orderId + ' — الجلسة خلصت أو مالكش صلاحية. سجّل دخول تاني.');
+    return false;
+  }
+  if(reply && reply !== 'Stale' && reply.length < 80 && !/</.test(reply)){
+    if(o.btn) tsClearBtnLoading(o.btn);
+    alert('❌ الطلب ' + o.orderId + ' مااتحفظش — رد السيرفر: ' + reply);
     return false;
   }
 
-  // ✅ التأكد الحقيقي: نقرا الطلب تاني من الشيت ونقارن
+  // ✅ التأكد الحقيقي (لو الرد Stale أو مش مقروء): نقرا الطلب تاني من الشيت ونقارن
   let after = null;
   for(let i = 0; i < 2 && !after; i++){
     if(i) await new Promise(r => setTimeout(r, 1500));
@@ -859,8 +885,18 @@ function tsToast(msg){
     el = document.createElement('div');
     el.id = 'ts-toast';
     el.className = 'toast';
+    // 🐛→✅ الشكل كان في style.css بس — الداشبوردات مابتحمّلوش، فالرسالة
+    // كانت بتتحط نص عادي في آخر الصفحة ومحدش يشوفها. دلوقتي الشكل الأساسي
+    // جوه العنصر نفسه، فبتظهر في أي صفحة.
+    el.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:100000;' +
+      'background:#0F1B33;color:#fff;font:700 14px/1.5 Cairo,Tahoma,sans-serif;padding:13px 20px;border-radius:14px;' +
+      'box-shadow:0 10px 30px rgba(0,0,0,.25);max-width:calc(100% - 32px);text-align:center;pointer-events:none;' +
+      'opacity:0;transition:opacity .25s;direction:rtl';
     document.body.appendChild(el);
   }
+  el.style.opacity = '1';
+  clearTimeout(window._tsToastHide);
+  window._tsToastHide = setTimeout(() => { el.style.opacity = '0'; }, 3200);
   el.textContent = msg;
   el.classList.add('show');
   clearTimeout(window._tsToastTimer);
