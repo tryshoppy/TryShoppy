@@ -1609,7 +1609,12 @@ async function updateOrder(orderId) {
         user: (typeof getCurrentUser === "function" ? getCurrentUser() : ""),
         btn: document.querySelector(`button[onclick="updateOrder('${orderId}')"]`),
         statusSelect: document.getElementById(`status-${orderId}`),
-        reload: async () => { await loadData(); return ordersData; }
+        // ⚡ الطلب ده بس من السيرفر + إعادة رسم من الذاكرة (والتحميل الكامل لو السيرفر قديم)
+        reload: async () => {
+            if (await tsRefreshOneOrder(scriptURL, getStaffToken(), orderId, ordersData)) { populateArrivalFilter(); applyFilters(); }
+            else await loadData();
+            return ordersData;
+        }
     });
 }
 function generateLabelHTML(data, isBulk = false) {

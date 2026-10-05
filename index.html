@@ -1057,16 +1057,17 @@ tsInitNav();
   const BRANDS = [
     ["Amazon","amazon.com"],["eBay","ebay.com"],["Walmart","walmart.com"],["Target","target.com"],["Best Buy","bestbuy.com"],
     ["Sephora","sephora.com"],["Carter's","carters.com"],["GAP","gap.com"],["Nordstrom","nordstrom.com"],["Forever 21","forever21.com"],
-    ["SHEIN","shein.com"],["iHerb","iherb.com"],["Bath & Body Works","bathandbodyworks.com"],["Victoria's Secret","victoriassecret.com"],["Etsy","etsy.com"]
+    ["YOOX","yoox.com"],["iHerb","iherb.com"],["Bath & Body Works","bathandbodyworks.com"],["Victoria's Secret","victoriassecret.com"],["Etsy","etsy.com"]
   ];
+  /* 🐛→✅ اللوجوهات كانت بتيجي من Clearbit (الخدمة اتقفلت — كل لوجو كان
+     بيفشل الأول وبعدين يروح لـ Google) يعني 30 طلب خارجي ممكن يتأخروا
+     أو يتمنعوا. دلوقتي محفوظة جوه الموقع: assets/stores/<اسم>.png */
   grid.innerHTML = BRANDS.map(function(b,i){
     const domain = b[1];
-    const clearbitSrc = 'https://logo.clearbit.com/' + domain + '?size=64';
-    const faviconSrc  = 'https://www.google.com/s2/favicons?sz=64&domain=' + domain;
+    const localSrc = 'assets/stores/' + domain.replace(/\.com$/, '') + '.png';
     return '<a class="brand-card reveal reveal-d' + ((i % 5) + 1) + '" href="https://www.' + domain + '" target="_blank" rel="noopener noreferrer">'
-      + '<img class="bicon" src="' + clearbitSrc + '" alt="" loading="lazy" '
-      + 'data-fallback="' + faviconSrc + '" '
-      + 'onerror="if(this.dataset.fallback){this.src=this.dataset.fallback;this.removeAttribute(\'data-fallback\');}else{this.style.display=\'none\';}">'
+      + '<img class="bicon" src="' + localSrc + '" alt="" width="22" height="22" loading="lazy" '
+      + 'onerror="this.style.display=\'none\'">'
       + '<span class="bname">' + b[0] + '</span>'
       + '</a>';
   }).join('');
