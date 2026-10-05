@@ -595,7 +595,7 @@ function onCategoryChange(){
     // مع أي تغيير للفئة، فالعميل اللي كتب الوزن وبعدين غيّر الفئة كان بيلاقيه فاضي
     if(weightInput.readOnly) weightInput.value='';
     weightInput.readOnly=false;
-    setWeightUnitLocked(false);
+    tsSetLiquidUnits(false); setWeightUnitLocked(false);
     note.classList.add('hidden');
   }
   liveUpdate();
@@ -631,12 +631,12 @@ function onSupplementTypeChange(){
     rangeSel.classList.add('hidden');
     weightInput.readOnly=false;
     weightInput.value='';
-    setWeightUnitLocked(false);
+    tsSetLiquidUnits(type==='liquid'); setWeightUnitLocked(false);   // 💧 السائل بالمليلتر
     autoNote.classList.add('hidden');
     manualNote.textContent = type==='powder' ? tsT('calc_sup_note_powder') : tsT('calc_sup_note_liquid');
     manualNote.classList.remove('hidden');
   } else {
-    rangeSel.classList.remove('hidden');
+    rangeSel.classList.remove('hidden'); tsSetLiquidUnits(false);
     manualNote.classList.add('hidden');
     buildSupplementRangeOptions();
     onSupplementRangeChange();
@@ -695,7 +695,7 @@ document.addEventListener('ts-lang-changed', ()=>{
 
 /* ⚖️ الوحدات — الحساب كله بالجرام والسنتيمتر (function_calc.js)، والعميل
    بيكتب بالوحدة اللي قدامه في صفحة المنتج (أمازون غالبًا lb/oz و inches) */
-const WEIGHT_TO_G = { g:1, kg:1000, lb:453.592, oz:28.3495 };
+const WEIGHT_TO_G = { g:1, kg:1000, lb:453.592, oz:28.3495, ml:1, floz:29.5735 };   // ml / fl oz للمكملات السائلة (1 مل ≈ 1 جم)
 const DIM_TO_CM   = { cm:1, in:2.54 };
 function weightGramsFromForm(){
   const v=parseFloat(document.getElementById('weight').value);
@@ -851,7 +851,7 @@ function addCurrentToCart(){
   lastUsedVolumetric=false;
   document.getElementById('supplementBox').classList.add('hidden');
   document.getElementById('weightAutoNote').classList.add('hidden');
-  setWeightUnitLocked(false);
+  tsSetLiquidUnits(false); setWeightUnitLocked(false);
   document.getElementById('weightUnit').value='g';
   document.getElementById('dimUnit').value='cm';
   document.getElementById('dimsBox').open=false;

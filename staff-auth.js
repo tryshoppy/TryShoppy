@@ -211,6 +211,19 @@ function tsSessionWatch(){
     location.reload();
   };
 }
+/* 🐛→✅ جلسة قديمة خلصت قبل ما الصفحة تتفتح (مثلاً من امبارح): كانت
+   بتفضل في المتصفح، فالصفحة تطلب دخول وفي نفس الوقت يطلع الشريط الأحمر
+   "الجلسة خلصت" (وبعض الصفحات كانت تجرّب التوكن القديم على السيرفر
+   وتطلع "الجلسة انتهت"). دلوقتي بتتمسح بهدوء أول ما الصفحة تفتح، فيظهر
+   الدخول العادي بس. الشريط الأحمر بقى للجلسة اللي تخلص والصفحة مفتوحة. */
+(function tsClearStaleSession(){
+  try {
+    const left = tsSessionLeftMs();
+    const noTime = localStorage.getItem("staffToken") && !localStorage.getItem("loginTime");
+    if ((left !== null && left <= 0) || noTime)
+      ["currentUser", "currentUserLabel", "loginTime", "staffToken", "isAdmin"].forEach(k => localStorage.removeItem(k));
+  } catch (e) {}
+})();
 if (typeof document !== "undefined") {
   const startWatch = () => { tsSessionWatch(); setInterval(tsSessionWatch, 60 * 1000); };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", startWatch); else startWatch();
