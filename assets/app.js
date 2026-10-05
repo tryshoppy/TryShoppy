@@ -1188,9 +1188,17 @@ function tsFieldError(el, msg){
   const wrap = el.closest('.field') || el.parentNode;
   let box = wrap.querySelector(':scope > .field-err-msg');
   el.classList.toggle('field-err', !!msg);
+  // 🐛→✅ الشكل الأحمر كان في style.css بس — صفحات الموظفين (DirectOrder) مابتحمّلوش،
+  // فالرسالة كانت بتطلع رمادي عادي والخانة من غير أي لون، وكأن مفيش حاجة حصلت
+  el.style.borderColor = msg ? '#DC2626' : '';
+  el.style.boxShadow = msg ? '0 0 0 3px rgba(220,38,38,.15)' : '';
   if(!msg){ if(box) box.remove(); return; }
-  if(!box){ box = document.createElement('div'); box.className = 'field-err-msg'; wrap.appendChild(box); }
-  box.textContent = msg;
+  if(!box){
+    box = document.createElement('div'); box.className = 'field-err-msg';
+    box.style.cssText = 'color:#DC2626;font-weight:700;font-size:13px;margin-top:6px;line-height:1.5';
+    wrap.appendChild(box);
+  }
+  box.textContent = '⚠️ ' + msg;
   if(!el.dataset.errHook){
     el.dataset.errHook = '1';
     el.addEventListener('input', () => tsFieldError(el, ''));
