@@ -253,6 +253,12 @@ function safeUrl(u){
 function jsAttr(v){
   return escapeHtml(String(v == null ? "" : v).replace(/\\/g, "\\\\").replace(/'/g, "\\'"));
 }
+/* رقم آمن للحط جوه handler جوه خاصية HTML — لو العمود فاضي كان
+   بيطلع "fn('x', )" وده SyntaxError بيقتل الزرار */
+function numAttr(v){
+  const n = parseFloat(v);
+  return isFinite(n) ? n : 0;
+}
 // عرض رقم بشكل آدمي — من غير "NaN" لو العمود فاضي في الشيت
 function fmtNum(v){
   const n = parseFloat(v);
@@ -869,9 +875,16 @@ function renderList(){
             <input type="text" id="arrival-${eid}" placeholder="📅 موعد الوصول" list="arrivalOptions" value="${escapeHtml(normArrival(p.arrivalDate))}">
           </div>
           <div class="row" style="margin-top:8px;">
-            <input type="number" id="deposit-${eid}" placeholder="💰 العربون" value="${escapeHtml(p.deposit||'')}">
-            <div style="align-self:center;font-size:12.5px;color:var(--gray);">المتبقي: ${Math.max(0, (parseFloat(p.finalEgp)||0) - (parseFloat(p.deposit)||0)).toLocaleString()} EGP</div>
+            <div style="flex:1;min-width:120px;text-align:right;">
+              <label style="display:block;margin-bottom:4px;font-size:12px;font-weight:800;color:#475569;">🔢 العدد</label>
+              <input type="number" id="editQty-${eid}" value="${escapeHtml(p.quantity || 1)}" min="1" oninput="updateConfirmedTotals('${jid}', ${numAttr(p.staffEgp)}, ${numAttr(p.unitUsd)})">
+            </div>
+            <div style="flex:1;min-width:120px;text-align:right;">
+              <label style="display:block;margin-bottom:4px;font-size:12px;font-weight:800;color:#475569;">💰 العربون</label>
+              <input type="number" id="deposit-${eid}" placeholder="0" value="${escapeHtml(p.deposit||'')}" oninput="updateConfirmedTotals('${jid}', ${numAttr(p.staffEgp)}, ${numAttr(p.unitUsd)})">
+            </div>
           </div>
+          <div id="qtyTotals-${eid}" style="margin-top:8px;font-size:12.5px;font-weight:800;color:var(--primary);background:#eff6ff;border:1px solid #bfdbfe;border-radius:9px;padding:7px 10px;"></div>
           <button class="btn-block" style="margin-top:8px;" onclick="saveStatus('${jid}')">💾 حفظ</button>
         </div>
         <button class="btn-block btn-reorder" style="margin-top:8px;" onclick="openReorderModal('${jid}')">🔁 تسجيل نفس المنتج في شحنة جديدة</button>`;
@@ -896,6 +909,10 @@ function renderList(){
   // نبني قوائم الكبسولات/الجميز لأي منتج PendingPrice ظاهر دلوقتي
   // المرفوض ليه نفس نموذج التسعير، فلازم تتبنى له قوايم الكبسولات كمان
   items.filter(p=>p.status==="PendingPrice" || p.status==="Rejected").forEach(p => onTypeChange(p.id));
+  // نملى سطر الإجماليات في الكروت المؤكدة أول ما تتعرض، مش بس بعد
+  // ما تلمس حقل — عشان تشوف الأرقام من غير ما تعمل حاجة
+  items.filter(p => document.getElementById("qtyTotals-"+p.id))
+       .forEach(p => updateConfirmedTotals(p.id, p.staffEgp, p.unitUsd));
   updateBulkBar();
   renderQuickChips();    // الشرايح السريعة تفضل مزامنة مع الفلتر والأعداد
   renderArrivalFilter(); // قايمة آخر 7 مواعيد وصول + اقتراحات الكتابة
@@ -1166,6 +1183,23 @@ async function sendStaffCounter(id){
   }
 }
 
+/* 🔢 معاينة حية وإنت بتعدّل العدد أو العربون على منتج مؤكد —
+   بتوريك الأرقام اللي هتتسجل في الشيت قبل ما تدوس حفظ. سعر
+   الوحدة هو الثابت، والإجمالي = سعر الوحدة × العدد (نفس قاعدة
+   باقي النظام، والسيرفر بيعيد نفس الحساب عنده) */
+function updateConfirmedTotals(id, unitEgp, unitUsd){
+  const box = document.getElementById("qtyTotals-"+id);
+  if(!box) return;
+  const qtyEl = document.getElementById("editQty-"+id);
+  const depEl = document.getElementById("deposit-"+id);
+  const qty = Math.max(1, (qtyEl ? parseInt(qtyEl.value) : 1) || 1);
+  const dep = depEl ? (parseFloat(depEl.value) || 0) : 0;
+  const totalEgp = (parseFloat(unitEgp) || 0) * qty;
+  const totalUsd = (parseFloat(unitUsd) || 0) * qty;
+  box.innerHTML = `💵 الإجمالي: <b>${totalEgp.toLocaleString()} EGP</b> | <b>${totalUsd.toLocaleString()}$</b>`
+    + ` &nbsp;—&nbsp; ⏳ المتبقي: <b>${Math.max(0, totalEgp - dep).toLocaleString()} EGP</b>`;
+}
+
 async function saveStatus(id){
   const statusEl = requireEl("status-"+id);
   if(!statusEl) return;
@@ -1176,14 +1210,21 @@ async function saveStatus(id){
   // يفضلش فيه نسختين من نفس الموعد بحروف مختلفة
   const arrivalDate = arrivalEl ? normArrival(arrivalEl.value) : "";
   const deposit = depositEl ? depositEl.value : "";
+  // 🔢 العدد بيتبعت كمان — السيرفر بيعيد حساب الإجمالي بالجنيه
+  // وبالدولار والمتبقي على أساسه، فالشيت يفضل مظبوط
+  const qtyEl = document.getElementById("editQty-"+id);
+  const quantity = qtyEl ? Math.max(1, parseInt(qtyEl.value) || 1) : undefined;
+
   const p = allProducts.find(x => String(x.id) === String(id));
   const btn = findActionBtn("saveStatus", id);
   setBtnLoading(btn, "جاري الحفظ...");
   try{
-    const res = await fetch(RMA_SCRIPT_URL, { method:"POST", body: JSON.stringify({ action:"updateStatus", staffToken:getStaffToken(), id, status, arrivalDate, deposit }) });
+    const res = await fetch(RMA_SCRIPT_URL, { method:"POST", body: JSON.stringify({ action:"updateStatus", staffToken:getStaffToken(), id, status, arrivalDate, deposit, quantity }) });
     const data = await res.json();
     if(data.success){
-      logActivity("🔄 تحديث حالة", p ? p.productName : id, status);
+      const qtyChanged = p && quantity !== undefined && String(p.quantity || 1) !== String(quantity);
+      logActivity("🔄 تحديث حالة", p ? p.productName : id,
+        qtyChanged ? `${status} — العدد: ${p.quantity || 1} ← ${quantity}` : status);
       refreshAfterAction(data);
     }
     else { clearBtnLoading(btn); alert(data.message||"حصل خطأ"); }
