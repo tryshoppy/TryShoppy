@@ -113,6 +113,14 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{
 /* موبايل: مساحات أضيق ومريحة أكتر بدل ما تتزنق */
 @media(max-width:480px){
   body{padding:12px;}
+  /* 📱 أهم سطر لمشكلة "الصفحة بتفتح مزوّمة":
+     iOS Safari بيعمل zoom تلقائي أول ما تدوس على أي حقل خطه أصغر
+     من 16px، وبيفضل مزوّم بعد كده — وكل الحقول عندنا كانت 13-14.5px.
+     16px بتمنع الـzoom ده من أصله، من غير ما نقفل الـpinch-zoom
+     اليدوي على المستخدم (اللي هو حاجة مهمة لضعاف النظر) */
+  input, select, textarea, .mini-input{ font-size:16px; }
+  /* ولا أي حاجة تعدي عرض الشاشة فتضطر المتصفح يصغّر الصفحة */
+  html, body{ max-width:100%; overflow-x:hidden; }
   .card{padding:16px;border-radius:16px;}
   .login-box{padding:24px;}
   .product-card{padding:12px;gap:10px;}
@@ -647,10 +655,14 @@ function isEditingList(){
 function applyProducts(data, fromServer){
   const hash = JSON.stringify(data);
   allProducts = data;
+  if(hash === lastDataHash){ updateLastRefreshLabel(); return false; }
+
+  // ⚡ الكتابة في تخزين المتصفح بقت بس لما البيانات تتغيّر فعلاً —
+  // قبل كده كانت بتتنفّذ مع كل تحديث تلقائي (كل 30 ثانية) حتى لو
+  // مفيش أي جديد، وهي عملية متزامنة بتوقف الصفحة لحظة
   if(fromServer){
     try{ localStorage.setItem("rmaProductsCache", hash); }catch(e){ /* التخزين ممتلئ — مش مشكلة */ }
   }
-  if(hash === lastDataHash){ updateLastRefreshLabel(); return false; }
 
   // 🔒 فيه جديد بس إنت بتكتب الكمية أو سعرك المقترح — نستنى ما
   // تخلص بدل ما إعادة الرسم تمسح اللي تحت إيدك
@@ -674,6 +686,25 @@ document.addEventListener("focusout", () => {
   if(!pendingRefresh) return;
   setTimeout(() => { if(!isEditingList()) applyProducts(allProducts, false); }, 150);
 });
+
+/* ⚡⚡ أكبر تحسين لسرعة الأكشنز.
+   قبل كده كل أكشن (موافقة/إلغاء/عرض سعر) كان بيعمل loadProducts()
+   بعد ما ينجح — رحلة تانية كاملة للسيرفر وقراءة الشيت كله.
+   دلوقتي السيرفر بيرجّع الصف بعد التعديل مع الرد، وإحنا بنركّبه
+   مكانه على طول من غير أي طلب إضافي. لو مارجعش صف (نسخة سيرفر
+   قديمة)، بنرجع للتحميل الكامل زي الأول */
+function applyServerRow(row){
+  if(!row || !row.id) return false;
+  const i = allProducts.findIndex(p => String(p.id) === String(row.id));
+  if(i === -1) allProducts.push(row); else allProducts[i] = row;
+  lastDataHash = ""; // نضمن إن الرسم الجاي يتنفّذ فعلاً
+  applyProducts(allProducts, true);
+  return true;
+}
+function refreshAfterAction(data){
+  if(applyServerRow(data && data.row)) return Promise.resolve("ok");
+  return loadProducts();
+}
 
 // ⚡ أول رسم من النسخة المحفوظة في المتصفح — بيبان في أقل من جزء من
 // الثانية بدل ما تستنى رد Google Script (اللي بياخد ثواني)، وبعدها
@@ -867,7 +898,7 @@ function renderProducts(items){
         <div class="action-box">
           <label style="display:block;margin-bottom:4px;font-size:12px;font-weight:800;color:#475569;">🔢 العدد المطلوب</label>
           <div class="row">
-            <input type="number" class="mini-input" id="qty-${escapeHtml(p.id)}" placeholder="🔢 الكمية" value="1" min="1" oninput="updateQtyPreview('${jid}', ${numAttr(p.staffEgp)})">
+            <input type="number" class="mini-input" id="qty-${escapeHtml(p.id)}" placeholder="🔢 الكمية" value="${escapeHtml(p.quantity || 1)}" min="1" oninput="updateQtyPreview('${jid}', ${numAttr(p.staffEgp)})">
           </div>
           <div class="meta-line" id="qtyPreview-${escapeHtml(p.id)}" style="font-weight:800;color:var(--primary);margin-top:4px;"></div>
           <div class="row" style="margin-top:8px;">
@@ -963,7 +994,7 @@ async function confirmProduct(id){
     const data = await res.json();
     if(data.success){
       confirmedThisSessionCount++;
-      await loadProducts();
+      await refreshAfterAction(data);
       // 🎉 لو مفيش منتج تاني لسه بانتظار موافقتك، يبقى خلصت "دفعة"
       // تأكيدات كاملة — نعرض بوب أب فيه اقتراح إرسال واتساب للأدمن
       const stillPending = allProducts.filter(p=>p.status==="PendingApproval").length;
@@ -985,7 +1016,7 @@ async function rejectProduct(id){
   try{
     const res = await fetch(SCRIPT_URL, { method:"POST", body: JSON.stringify({ action:"clientReject", passcode:getPasscode(), id }) });
     const data = await res.json();
-    if(data.success){ loadProducts(); }
+    if(data.success){ refreshAfterAction(data); }
     else { clearBtnLoading(btn); alert(data.message || "حصل خطأ"); }
   }catch(e){
     clearBtnLoading(btn);
@@ -1005,7 +1036,7 @@ async function sendCounter(id){
   try{
     const res = await fetch(SCRIPT_URL, { method:"POST", body: JSON.stringify({ action:"clientCounter", passcode:getPasscode(), id, quantity:qty, counterEgp }) });
     const data = await res.json();
-    if(data.success){ alert("✅ اتبعت عرضك، هيراجعه الفريق قريب"); loadProducts(); }
+    if(data.success){ alert("✅ اتبعت عرضك، هيراجعه الفريق قريب"); refreshAfterAction(data); }
     else { clearBtnLoading(btn); alert(data.message || "حصل خطأ"); }
   }catch(e){
     clearBtnLoading(btn);
@@ -1031,7 +1062,7 @@ async function reorderProduct(id, btn){
     })});
     const data = await res.json();
     clearBtnLoading(btn);
-    if(data.success){ alert("✅ اتبعت طلب إعادة الشراء للفريق — هيراجعوا السعر الحالي ويرجعولك بيه قريب"); loadProducts(); }
+    if(data.success){ alert("✅ اتبعت طلب إعادة الشراء للفريق — هيراجعوا السعر الحالي ويرجعولك بيه قريب"); refreshAfterAction(data); }
     else { alert(data.message || "حصل خطأ"); }
   }catch(e){
     clearBtnLoading(btn);

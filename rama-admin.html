@@ -27,6 +27,7 @@ button:active{transform:scale(.98);}
 .btn-ghost{background:#f1f5f9;color:var(--text);}
 .btn-success{background:var(--success);}
 .btn-danger{background:var(--danger);}
+.btn-warning{background:var(--warning);}
 /* 💛💙 زرار البحث — أصفر بنص أزرق غامق وإطار أزرق */
 /* 🔁 زرار إعادة التسجيل في شحنة جديدة — بنفس هوية الأصفر/الأزرق */
 .btn-reorder{background:var(--accent);color:var(--accent-ink);border:2px solid var(--primary);font-weight:900;}
@@ -100,6 +101,14 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 /* موبايل: مساحات أضيق ومريحة أكتر بدل ما تتزنق */
 @media(max-width:480px){
   body{padding:12px;}
+  /* 📱 أهم سطر لمشكلة "الصفحة بتفتح مزوّمة":
+     iOS Safari بيعمل zoom تلقائي أول ما تدوس على أي حقل خطه أصغر
+     من 16px، وبيفضل مزوّم بعد كده — وكل الحقول عندنا كانت 13-14.5px.
+     16px بتمنع الـzoom ده من أصله، من غير ما نقفل الـpinch-zoom
+     اليدوي على المستخدم (اللي هو حاجة مهمة لضعاف النظر) */
+  input, select, textarea, .mini-input{ font-size:16px; }
+  /* ولا أي حاجة تعدي عرض الشاشة فتضطر المتصفح يصغّر الصفحة */
+  html, body{ max-width:100%; overflow-x:hidden; }
   .card{padding:16px;border-radius:16px;}
   .login-box{padding:24px;}
   .product-card{padding:12px;gap:10px;}
@@ -170,6 +179,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
         <option value="Placed">📦 Placed</option>
         <option value="Delayed">⏱️ Delayed</option>
         <option value="Delivered">🎉 Delivered</option>
+        <option value="Rejected">❌ مرفوض / غير متاح</option>
       </select>
       <select id="filterArrival" onchange="renderList()">
         <option value="">📅 كل مواعيد الوصول</option>
@@ -510,10 +520,14 @@ function applyProducts(data, fromServer){
     const live = new Set(data.map(p => p.id));
     selectedIds.forEach(id => { if(!live.has(id)) selectedIds.delete(id); });
   }
+  if(hash === lastDataHash){ updateLastRefreshLabel(); return false; }
+
+  // ⚡ الكتابة في تخزين المتصفح بقت بس لما البيانات تتغيّر فعلاً —
+  // قبل كده كانت بتتنفّذ مع كل تحديث تلقائي (كل 30 ثانية) حتى لو
+  // مفيش أي جديد، وهي عملية متزامنة بتوقف الصفحة لحظة
   if(fromServer){
     try{ localStorage.setItem("rmaAdminCache", hash); }catch(e){ /* التخزين ممتلئ — مش مشكلة */ }
   }
-  if(hash === lastDataHash){ updateLastRefreshLabel(); return false; }
 
   if(isEditingList()){
     // فيه جديد بس إنت بتكتب — نستناك
@@ -536,6 +550,27 @@ document.addEventListener("focusout", () => {
   if(!pendingRefresh) return;
   setTimeout(() => { if(!isEditingList()) applyProducts(allProducts, false); }, 150);
 });
+
+/* ⚡⚡ أكبر تحسين لسرعة "التسجيل".
+   قبل كده كل أكشن (تسعير/حفظ/دفعة/إضافة) كان بيعمل loadProducts()
+   بعد ما ينجح — يعني رحلة تانية كاملة للسيرفر وقراءة الشيت كله،
+   فكل ضغطة كانت بتاخد ضعف الوقت تقريبًا.
+   دلوقتي السيرفر بيرجّع الصف بعد التعديل مع الرد نفسه، وإحنا
+   بنركّبه مكانه على طول. مفيش أي طلب إضافي.
+   لو السيرفر (نسخة قديمة) مارجّعش صف، بنرجع للطريقة القديمة */
+function applyServerRow(row){
+  if(!row || !row.id) return false;
+  const i = allProducts.findIndex(p => String(p.id) === String(row.id));
+  if(i === -1) allProducts.push(row); else allProducts[i] = row;
+  lastDataHash = ""; // نضمن إن الرسم الجاي يتنفّذ فعلاً
+  applyProducts(allProducts, true);
+  return true;
+}
+// بتستخدم الصف الراجع لو موجود، وإلا بتعمل تحميل كامل زي الأول
+function refreshAfterAction(data){
+  if(applyServerRow(data && data.row)) return Promise.resolve("ok");
+  return loadProducts();
+}
 
 // ⚡ أول رسم من النسخة المحفوظة — بيبان فورًا بدل ما تستنى رد
 // Google Script (بياخد ثواني)، وبعدها الحقيقي بينزل في الخلفية
@@ -746,9 +781,15 @@ function renderList(){
     const jid = jsAttr(p.id); // آمن جوه '...' في الـhandlers
     const eid = escapeHtml(p.id); // آمن كقيمة id في الـHTML
 
-    if(p.status === "PendingPrice"){
+    // ♻️ المرفوض بياخد نفس واجهة التسعير بالظبط — تقدر تسعّره من
+    // تاني وتبعته للعميل كعرض جديد، بدل ما يفضل مرفوض للأبد
+    const isRejected = p.status === "Rejected";
+    if(p.status === "PendingPrice" || isRejected){
       actionsHtml = `
-      ${p.notes ? `<div class="meta-line" style="color:var(--success);">💡 ${escapeHtml(p.notes)} — راجعه على الموقع الأصلي قبل ما تعتمده</div>` : ""}
+      ${isRejected
+        ? `<div class="meta-line" style="color:var(--danger);">🚫 اترفض قبل كده${p.notes ? ": " + escapeHtml(p.notes) : ""}</div>
+           <div class="meta-line" style="color:var(--gray);">سعّره من تاني وابعته للعميل كعرض جديد 👇</div>`
+        : (p.notes ? `<div class="meta-line" style="color:var(--success);">💡 ${escapeHtml(p.notes)} — راجعه على الموقع الأصلي قبل ما تعتمده</div>` : "")}
       <div class="action-box">
         <div class="row">
           <select id="type-${eid}" onchange="onTypeChange('${jid}')">
@@ -781,17 +822,36 @@ function renderList(){
           </div>
           <div style="align-self:flex-end;padding-bottom:10px;font-size:11px;color:var(--gray);flex:0 0 auto;">لو اتكتب، هيستخدم بدل حساب الحاسبة</div>
         </div>
-        <button class="btn-block btn-success" style="margin-top:8px;" onclick="submitPrice('${jid}')">📤 إرسال السعر للعميل</button>
-        <button class="btn-block btn-ghost" style="margin-top:8px;color:var(--danger);" onclick="markUnavailable('${jid}', this)">🚫 المنتج غير متاح</button>
+        <button class="btn-block btn-success" style="margin-top:8px;" onclick="submitPrice('${jid}')">${isRejected ? "♻️ إعادة التسعير وإرسالها للعميل" : "📤 إرسال السعر للعميل"}</button>
+        ${isRejected ? "" : `<button class="btn-block btn-ghost" style="margin-top:8px;color:var(--danger);" onclick="markUnavailable('${jid}', this)">🚫 المنتج غير متاح</button>`}
       </div>`;
     } else if(p.status === "PendingApproval"){
       actionsHtml = `<div class="price-tag" style="font-weight:900;color:var(--primary);">${fmtNum(p.staffEgp)} EGP / قطعة</div><div class="meta-line">⏳ مستني رد العميل...</div>`;
     } else if(p.status === "PendingReview"){
       actionsHtml = `
         <div class="meta-line" style="font-size:13.5px;">سعرك: <b>${fmtNum(p.staffEgp)}</b> EGP — عرض العميل: <b style="color:var(--warning)">${fmtNum(p.clientCounterEgp)}</b> EGP × ${escapeHtml(p.quantity || 1)}</div>
-        <div class="action-box row" style="margin-top:8px;">
-          <button class="btn-success" onclick="resolveCounter('${jid}', true, this)">✅ موافقة على عرض العميل</button>
-          <button class="btn-danger" onclick="resolveCounter('${jid}', false, this)">↩️ رفض والرجوع لسعري</button>
+        <div class="action-box">
+          <div class="row">
+            <button class="btn-success" onclick="resolveCounter('${jid}', true, this)">✅ موافقة على عرض العميل</button>
+            <button class="btn-warning" onclick="toggleStaffCounter('${jid}')">💬 اعرض سعر تاني</button>
+            <button class="btn-danger" onclick="resolveCounter('${jid}', false, this)">↩️ رفض والرجوع لسعري</button>
+          </div>
+          <!-- 💬 عرض مضاد من الفريق: سعر (وعدد) في النص بين سعرك وعرض
+               العميل، بيترجع للعميل يوافق عليه أو يرد تاني -->
+          <div id="staffCounterBox-${eid}" class="hidden" style="margin-top:10px;border-top:1px dashed var(--border);padding-top:10px;">
+            <div class="row">
+              <div style="flex:1;min-width:140px;text-align:right;">
+                <label style="display:block;margin-bottom:4px;font-size:12px;font-weight:800;color:#475569;">💵 سعرك الجديد (EGP / قطعة)</label>
+                <input type="number" id="staffCounter-${eid}" placeholder="مثال: ${Math.round(((parseFloat(p.staffEgp)||0) + (parseFloat(p.clientCounterEgp)||0)) / 2) || ''}" oninput="updateStaffCounterPreview('${jid}')">
+              </div>
+              <div style="flex:1;min-width:110px;text-align:right;">
+                <label style="display:block;margin-bottom:4px;font-size:12px;font-weight:800;color:#475569;">🔢 العدد</label>
+                <input type="number" id="staffCounterQty-${eid}" value="${escapeHtml(p.quantity || 1)}" min="1" oninput="updateStaffCounterPreview('${jid}')">
+              </div>
+            </div>
+            <div id="staffCounterPreview-${eid}" style="margin-top:8px;font-size:12.5px;font-weight:800;color:var(--primary);"></div>
+            <button class="btn-block btn-success" style="margin-top:8px;" onclick="sendStaffCounter('${jid}')">📤 إرسال عرضي للعميل</button>
+          </div>
         </div>`;
     } else {
       actionsHtml = `
@@ -834,7 +894,8 @@ function renderList(){
   }).join("");
 
   // نبني قوائم الكبسولات/الجميز لأي منتج PendingPrice ظاهر دلوقتي
-  items.filter(p=>p.status==="PendingPrice").forEach(p => onTypeChange(p.id));
+  // المرفوض ليه نفس نموذج التسعير، فلازم تتبنى له قوايم الكبسولات كمان
+  items.filter(p=>p.status==="PendingPrice" || p.status==="Rejected").forEach(p => onTypeChange(p.id));
   updateBulkBar();
   renderQuickChips();    // الشرايح السريعة تفضل مزامنة مع الفلتر والأعداد
   renderArrivalFilter(); // قايمة آخر 7 مواعيد وصول + اقتراحات الكتابة
@@ -1016,7 +1077,7 @@ async function submitPrice(id){
     if(data.success){
       logActivity("💰 تسعير", p ? p.productName : id, `${finalPrice.toLocaleString()} EGP / قطعة`);
       pricedThisSessionCount++;
-      await loadProducts();
+      await refreshAfterAction(data);
       // 🎉 لو مفيش حاجة تانية لسه بانتظار تسعير، يبقى خلص "دفعة"
       // كاملة — نعرض بوب أب فيه اقتراح إرسال واتساب للعميل
       const stillPending = allProducts.filter(x=>x.status==="PendingPrice").length;
@@ -1037,9 +1098,68 @@ async function resolveCounter(id, approve, btn){
     const data = await res.json();
     if(data.success){
       logActivity(approve ? "✅ موافقة على عرض عميل" : "↩️ رفض عرض عميل", p ? p.productName : id, "");
-      loadProducts();
+      refreshAfterAction(data);
     }
     else { clearBtnLoading(btn); alert(data.message||"حصل خطأ"); }
+  }catch(e){
+    clearBtnLoading(btn);
+    alert("تعذر الاتصال بالسيرفر");
+  }
+}
+
+/* ---------------------------------------------------------
+   💬 عرض مضاد من الفريق على عرض العميل
+   قبل كده كان قدامك اختيارين بس: توافق على عرض العميل، أو ترفضه
+   وترجع لسعرك الأصلي. دلوقتي تقدر تقترح سعر (وعدد) في النص
+   وترجّعه للعميل — بيرجع لحالة "بانتظار موافقة العميل" بالسعر
+   الجديد، والعميل يقدر يوافق أو يرد بعرض تاني وهكذا
+   --------------------------------------------------------- */
+function toggleStaffCounter(id){
+  const box = requireEl("staffCounterBox-"+id);
+  if(!box) return;
+  box.classList.toggle("hidden");
+  if(!box.classList.contains("hidden")){
+    const input = document.getElementById("staffCounter-"+id);
+    if(input) input.focus();
+    updateStaffCounterPreview(id);
+  }
+}
+
+function updateStaffCounterPreview(id){
+  const box = document.getElementById("staffCounterPreview-"+id);
+  if(!box) return;
+  const egpEl = document.getElementById("staffCounter-"+id);
+  const qtyEl = document.getElementById("staffCounterQty-"+id);
+  const egp = egpEl ? (parseFloat(egpEl.value) || 0) : 0;
+  const qty = Math.max(1, (qtyEl ? parseInt(qtyEl.value) : 1) || 1);
+  if(!egp){ box.textContent = "اكتب السعر الجديد للوحدة"; return; }
+  box.textContent = `هيروح للعميل: ${egp.toLocaleString()} × ${qty} = ${(egp*qty).toLocaleString()} EGP إجمالي`;
+}
+
+async function sendStaffCounter(id){
+  const egpEl = requireEl("staffCounter-"+id);
+  if(!egpEl) return;
+  const qtyEl = document.getElementById("staffCounterQty-"+id);
+  const unitEgp = parseFloat(egpEl.value) || 0;
+  const qty = Math.max(1, (qtyEl ? parseInt(qtyEl.value) : 1) || 1);
+  if(unitEgp <= 0){ alert("اكتب سعر الوحدة الجديد (رقم أكبر من صفر)"); return; }
+
+  const p = allProducts.find(x => String(x.id) === String(id));
+  const btn = findActionBtn("sendStaffCounter", id);
+  setBtnLoading(btn, "جاري الإرسال...");
+  try{
+    const res = await fetch(RMA_SCRIPT_URL, { method:"POST", body: JSON.stringify({
+      action:"staffCounterOffer", staffToken:getStaffToken(), id, unitEgp, quantity: qty
+    })});
+    const data = await res.json();
+    if(data.success){
+      logActivity("💬 عرض مضاد للعميل", p ? p.productName : id, `${unitEgp.toLocaleString()} EGP × ${qty}`);
+      showToast("✅ اتبعت عرضك للعميل", "success");
+      refreshAfterAction(data);
+    } else {
+      clearBtnLoading(btn);
+      alert(data.message || "حصل خطأ");
+    }
   }catch(e){
     clearBtnLoading(btn);
     alert("تعذر الاتصال بالسيرفر");
@@ -1064,7 +1184,7 @@ async function saveStatus(id){
     const data = await res.json();
     if(data.success){
       logActivity("🔄 تحديث حالة", p ? p.productName : id, status);
-      loadProducts();
+      refreshAfterAction(data);
     }
     else { clearBtnLoading(btn); alert(data.message||"حصل خطأ"); }
   }catch(e){
@@ -1086,7 +1206,7 @@ async function markUnavailable(id, btn){
     const data = await res.json();
     if(data.success){
       logActivity("🚫 غير متاح", p ? p.productName : id, reason);
-      loadProducts();
+      refreshAfterAction(data);
     }
     else { clearBtnLoading(btn); alert(data.message||"حصل خطأ"); }
   }catch(e){
@@ -1221,7 +1341,7 @@ async function submitAddItem(){
       logActivity("➕ إضافة مباشرة (مؤكد)", name || link, unitEgp.toLocaleString()+" EGP × "+qty);
       closeModal();
       showToast("✅ تم إضافة المنتج", "success");
-      loadProducts();
+      refreshAfterAction(data);
     } else {
       clearBtnLoading(btn);
       alert(data.message || "حصل خطأ");
@@ -1366,7 +1486,7 @@ async function submitReorder(){
       closeModal();
       reorderSource = null;
       showToast("✅ اتسجل في الشحنة الجديدة", "success");
-      await loadProducts();
+      await refreshAfterAction(data);
     } else {
       clearBtnLoading(btn);
       alert(data.message || "حصل خطأ");
@@ -1497,7 +1617,7 @@ async function submitPayment(i, btn){
     const data = await res.json();
     if(data.success){
       logActivity("💰 دفعة جديدة", "موعد وصول " + batch.arrivalDate, amount.toLocaleString()+" EGP");
-      await loadProducts();
+      await refreshAfterAction(data);
       openPaymentsModal(); // إعادة الرسم بالأرقام المحدثة فورًا
       showToast("✅ تم إضافة الدفعة", "success");
     } else {
@@ -1674,7 +1794,8 @@ const QUICK_FILTERS = [
   { key:"PendingPrice", label:"⏳ بانتظار السعر" },
   { key:"PendingReview",label:"💬 عروض عملاء" },
   { key:"PendingApproval", label:"👤 بانتظار العميل" },
-  { key:"Confirmed",    label:"✅ مؤكدة" }
+  { key:"Confirmed",    label:"✅ مؤكدة" },
+  { key:"Rejected",     label:"❌ مرفوض" }
 ];
 
 // ⚠️ لازم تطبّق *نفس* فلتر الصلاحيات بتاع renderList بالظبط —
