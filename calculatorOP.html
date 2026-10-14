@@ -7,7 +7,7 @@
 <title>Try Shoppy — Quick Price Estimate (Internal)</title>
 <link rel="icon" href="assets/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
-<link rel="stylesheet" href="assets/style.css?v=20261006a">
+<link rel="stylesheet" href="assets/style.css?v=20261014a">
 <style>
 /* ═══ حاسبة التشغيل — نفس حاسبة الموقع (calculator.html) بالظبط، من غير
    خانة اللينك، ومن غير سلة ولا طلب. نفس المعادلة (function_calc.js)،
@@ -230,17 +230,17 @@ input:read-only{background:var(--gold-wash);color:var(--gold-deep);font-weight:7
         <div id="priceDetails" class="result-price" dir="ltr">— EGP</div>
         <div class="ls-per" id="lsPer"></div>
         <div id="weightBasisMsg" class="weight-basis"></div>
-        <div class="result-note" data-i18n="calc_result_cod_note">Cash on Delivery up to 10,000 EGP ✓</div>
+        <div class="result-note" id="payNote" data-i18n="calc_result_cod_note">Cash on Delivery up to 10,000 EGP ✓</div>
         <button type="button" class="btn btn-dark btn-block copy-btn" onclick="copyQuote()" data-i18n="calcop_copy">📋 Copy price for the customer</button>
       </div>
     </div>
   </div>
 </div>
 
-<script src="assets/function_calc.js?v=20261006a"></script>
-<script src="assets/config.js?v=20261006a"></script>
-<script src="assets/i18n.js?v=20261006a"></script>
-<script src="assets/app.js?v=20261006a"></script>
+<script src="assets/function_calc.js?v=20261014a"></script>
+<script src="assets/config.js?v=20261014a"></script>
+<script src="assets/i18n.js?v=20261014a"></script>
+<script src="assets/app.js?v=20261014a"></script>
 <script>
 tsInitNav();
 
@@ -408,6 +408,7 @@ function liveUpdate(){
       ? (TS_LANG==='ar' ? '≈ '+Math.round(it.finalPrice/it.qty).toLocaleString('en-US')+' جنيه للقطعة × '+it.qty
                         : '≈ '+Math.round(it.finalPrice/it.qty).toLocaleString('en-US')+' EGP per item × '+it.qty) : '';
     renderWeightBasis();
+    tsSetPaymentNote(document.getElementById('payNote'), it.finalPrice);   // 💵 فوق 10,000 ← عربون مش دفع عند الاستلام
     wait.classList.add('hidden'); res.classList.remove('hidden');
   },120);
 }
@@ -428,11 +429,16 @@ function copyQuote(){
   if(!lastQuote) return;
   const q=lastQuote, ar=TS_LANG==='ar';
   const per=Math.round(q.finalPrice/q.qty).toLocaleString('en-US');
+  // 🐛→✅ كانت بتقول "الدفع عند الاستلام متاح" لأي مبلغ — فوق 10,000 ج مطلوب عربون قبل الشراء
+  const overCod = q.finalPrice > TS_COD_LIMIT;
+  const payLine = ar
+    ? (overCod ? 'الطلب أكتر من 10,000 ج.م — مطلوب عربون قبل الشراء' : 'الدفع عند الاستلام متاح ✓')
+    : (overCod ? 'Over 10,000 EGP — a deposit is required before we buy' : 'Cash on delivery available ✓');
   const txt = ar
     ? 'السعر النهائي شامل الشحن والجمارك: *' + q.finalPrice.toLocaleString('en-US') + ' ج.م*' +
-      (q.qty>1 ? ' (' + q.qty + ' قطع × ' + per + ' ج.م)' : '') + '\nالدفع عند الاستلام متاح ✓'
+      (q.qty>1 ? ' (' + q.qty + ' قطع × ' + per + ' ج.م)' : '') + '\n' + payLine
     : 'Final price incl. shipping & customs: *' + q.finalPrice.toLocaleString('en-US') + ' EGP*' +
-      (q.qty>1 ? ' (' + q.qty + ' pcs × ' + per + ' EGP)' : '') + '\nCash on delivery available ✓';
+      (q.qty>1 ? ' (' + q.qty + ' pcs × ' + per + ' EGP)' : '') + '\n' + payLine;
   const done=()=>tsToast(ar?'اتنسخ ✓':'Copied ✓');
   if(navigator.clipboard) navigator.clipboard.writeText(txt).then(done).catch(()=>prompt('',txt));
   else prompt('',txt);
@@ -452,7 +458,7 @@ document.addEventListener('ts-lang-changed', ()=>{
 });
 liveUpdate();
 </script>
-<script src="staff-auth.js?v=20261006a"></script>
+<script src="staff-auth.js?v=20261014a"></script>
 <script>
 /* 🔑 دخول + صلاحية "حاسبة التشغيل" من شيت الموظفين.
    ⚠️ الحاسبة مابتكلمش السيرفر خالص، ومعادلة التسعير نفسها موجودة في

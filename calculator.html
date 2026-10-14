@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#F9C22E">
 <link rel="icon" href="assets/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
-<link rel="stylesheet" href="assets/style.css?v=20261006a">
+<link rel="stylesheet" href="assets/style.css?v=20261014a">
 <link rel="canonical" href="https://try-shoppy.com/calculator.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Try Shoppy">
@@ -407,7 +407,7 @@ html[lang="ar"] #stepCalc input::placeholder{font-family:var(--f-ar, var(--f))}
           <div id="priceDetails" class="result-price" dir="ltr">— EGP</div>
           <div class="ls-per" id="lsPer"></div>
           <div id="weightBasisMsg" class="weight-basis"></div>
-          <div class="result-note">✓ <span data-i18n="calc_result_cod_note">Cash on Delivery up to 10,000 EGP ✓</span></div>
+          <div class="result-note"><span id="payNote" data-i18n="calc_result_cod_note">Cash on Delivery up to 10,000 EGP ✓</span></div>
         </div>
         <button class="btn btn-dark btn-lg btn-block" id="addCartBtn" type="button" onclick="addCurrentToCart()" disabled data-i18n="calc_btn_addcart">➕ Add to Cart</button>
       </div>
@@ -421,6 +421,8 @@ html[lang="ar"] #stepCalc input::placeholder{font-family:var(--f-ar, var(--f))}
         <span data-i18n="calc_cart_total">Total</span>
         <span id="cartTotalDisplay">0 EGP</span>
       </div>
+      <!-- 💵 الإجمالي ممكن يعدّي 10,000 حتى لو كل منتج لوحده أقل — العربون بيتحسب على الطلب كله -->
+      <div class="result-note hidden" id="cartDepositNote" style="margin:-4px 0 12px;text-align:center" data-i18n="calc_result_deposit_note"></div>
       <button class="btn btn-dark btn-lg btn-block" type="button" onclick="goToCheckout()" data-i18n="calc_btn_checkout">✅ Checkout</button>
       <button class="btn btn-ghost btn-block" type="button" style="margin-top:10px" onclick="backToAddItem()" data-i18n="calc_btn_additem">➕ Add Another Item</button>
     </div>
@@ -524,7 +526,7 @@ html[lang="ar"] #stepCalc input::placeholder{font-family:var(--f-ar, var(--f))}
   </aside>
 </div>
 
-<script src="assets/function_calc.js?v=20261006a"></script>
+<script src="assets/function_calc.js?v=20261014a"></script>
 
 <footer class="site-footer">
   <div class="container">
@@ -539,10 +541,10 @@ html[lang="ar"] #stepCalc input::placeholder{font-family:var(--f-ar, var(--f))}
     <div class="foot-bottom"><span data-i18n="foot_rights">© 2026 Try Shoppy. All rights reserved.</span><span data-i18n="foot_made">Made for shoppers in Egypt 🇪🇬</span></div>
   </div>
 </footer>
-<script src="assets/config.js?v=20261006a"></script>
-<script src="assets/gtag.js?v=20261006a"></script>
-<script src="assets/i18n.js?v=20261006a"></script>
-<script src="assets/app.js?v=20261006a"></script>
+<script src="assets/config.js?v=20261014a"></script>
+<script src="assets/gtag.js?v=20261014a"></script>
+<script src="assets/i18n.js?v=20261014a"></script>
+<script src="assets/app.js?v=20261014a"></script>
 <script>
 tsInitNav();
 let finalPrice=0, usdTotal=0, lastOrders=[], lastChargeableWeight=0, lastUsedVolumetric=false;
@@ -782,6 +784,7 @@ function liveUpdate(){
                         : ('≈ '+Math.round(finalPrice/it.qty).toLocaleString('en-US')+' EGP per item × '+it.qty))
       : '';
     renderWeightBasis(lastUsedVolumetric);
+    tsSetPaymentNote(document.getElementById('payNote'), finalPrice);   // 💵 فوق 10,000 ← عربون مش دفع عند الاستلام
     wait.classList.add('hidden'); ready.classList.remove('hidden'); btn.disabled=false;
   },120);
 }
@@ -907,6 +910,9 @@ function renderCart(){
     '</div>';
   }).join('');
   document.getElementById('cartTotalDisplay').textContent = tsCalcCartTotal().toLocaleString()+' EGP';
+  const dn = document.getElementById('cartDepositNote');
+  dn.textContent = tsT('calc_result_deposit_note');
+  dn.classList.toggle('hidden', !(tsCalcCartTotal() > TS_COD_LIMIT));
 }
 
 function removeCartItem(tempId){

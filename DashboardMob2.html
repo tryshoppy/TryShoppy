@@ -386,8 +386,8 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 
 </div>
 
-<script src="assets/config.js?v=20261006a"></script>
-<script src="assets/app.js?v=20261006a"></script>
+<script src="assets/config.js?v=20261014a"></script>
+<script src="assets/app.js?v=20261014a"></script>
 <script>
 /* 📏 شريط الأدوات (.tools) بيلزق تحت الهيدر مباشرة بدل ما يتحط
    تحته وقت السكرول — بنحسب ارتفاع الهيدر الفعلي (بيتغيّر حسب
@@ -1373,6 +1373,9 @@ function generateUndeliveredSummary(o) {
   });
 
   const grandDeposit = pendingItems.reduce((s, it) => s + (parseFloat(it.deposit) || 0), 0);
+  // 🔗 لينك التتبع بيفتح على أول طلب على طول — وصفحة التتبع بتعرض معاه باقي طلبات العميل اللي لسه ماوصلتش
+  const firstOrder = (pendingItems.find(it => it.order) || {}).order;
+  const trackLink = firstOrder ? TS_TRACK_URL + "?order=" + encodeURIComponent(firstOrder) : TS_TRACK_URL;
 
   if (sEn) {
     message += `\n═══════════════\n💰 *Grand total of all orders still on the way: ${grandTotal.toLocaleString()} EGP*`;
@@ -1380,14 +1383,14 @@ function generateUndeliveredSummary(o) {
       message += `\n💵 Paid in advance: ${grandDeposit.toLocaleString()} EGP`;
       message += `\n📌 *Due on delivery: ${(grandTotal - grandDeposit).toLocaleString()} EGP*`;
     }
-    message += `\n═══════════════\n\nTrack your orders anytime here:\n${TS_TRACK_URL}\n\nWe're here if you have any questions 🙏`;
+    message += `\n═══════════════\n\nTrack your orders anytime here:\n${trackLink}\n\nWe're here if you have any questions 🙏`;
   } else {
     message += `\n═══════════════\n💰 *الإجمالي الكلي لكل الطلبات غير المستلمة: ${grandTotal.toLocaleString()} ج.م*`;
     if (grandDeposit > 0) {
       message += `\n💵 المدفوع مقدمًا: ${grandDeposit.toLocaleString()} ج.م`;
       message += `\n📌 *المطلوب عند الاستلام: ${(grandTotal - grandDeposit).toLocaleString()} ج.م*`;
     }
-    message += `\n═══════════════\n\nتابع طلباتك في أي وقت من هنا:\n${TS_TRACK_URL}\n\nلأي استفسار إحنا معاك 🙏`;
+    message += `\n═══════════════\n\nتابع طلباتك في أي وقت من هنا:\n${trackLink}\n\nلأي استفسار إحنا معاك 🙏`;
   }
 
   tsWaOpen(phone, message);
@@ -1588,7 +1591,7 @@ function submitDuplicate() {
 }
 
 </script>
-<script src="staff-auth.js?v=20261006a"></script>
+<script src="staff-auth.js?v=20261014a"></script>
 <script>
 
 const SESSION_TIME = 2 * 60 * 60 * 1000;
