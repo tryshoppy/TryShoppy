@@ -554,6 +554,19 @@ function tsLinkText(link){
   }catch(e){ return s.toLowerCase(); }
 }
 
+/* 💵 الدفع عند الاستلام لحد 10,000 ج بس — فوقها مطلوب عربون قبل الشراء
+   (نفس سياسة الشروط والـ FAQ). مكان واحد للرقم ده لكل الحاسبات. */
+const TS_COD_LIMIT = 10000;
+/** مفتاح الترجمة المناسب لملاحظة الدفع تحت السعر */
+function tsPaymentNoteKey(totalEgp){ return (parseFloat(totalEgp) || 0) > TS_COD_LIMIT ? 'calc_result_deposit_note' : 'calc_result_cod_note'; }
+/** بيحدّث عنصر الملاحظة (span/div فيه data-i18n) حسب الإجمالي */
+function tsSetPaymentNote(el, totalEgp){
+  if(!el) return;
+  const key = tsPaymentNoteKey(totalEgp);
+  el.setAttribute('data-i18n', key);
+  if(typeof tsT === 'function') el.textContent = tsT(key);
+}
+
 /* ⚡ التأكد بعد الحفظ — بيجيب الطلب ده بس من السيرفر (orderId=) ويبدّله جوه
    list في مكانه، بدل ما كل حفظ يعيد تحميل كل الطلبات (كان بياخد ثواني).
    بيرجّع true لو نجح. false = السيرفر لسه بالنسخة القديمة أو مفيش رد مفهوم
@@ -659,7 +672,9 @@ function tsRenderRisk(box, risks){
    Order / إضافة طلب) — بنفس معادلة الحاسبة (function_calc.js لازم يكون
    متحمّل). بيرجّع { suggested, warnings[] }. الوزن لو مش معروف بيتحسب
    أقل من 300 جم، فالمقترح ساعتها "تقريبي". */
-const TS_LOSS_RATE = 50;   // جنيه للدولار — أي سعر أقل من التكلفة بالدولار × ده = بيع بخسارة
+// جنيه للدولار — أي سعر أقل من التكلفة بالدولار × ده = بيع بخسارة.
+// 💵 بياخد نفس سعر الدولار اللي في ملف الحاسبة (TRYSHOPPY_USD_RATE — شامل عمولة البنك)، و50 لو الملف مش متحمّل
+function tsLossRate(){ return (typeof TRYSHOPPY_USD_RATE !== "undefined" && parseFloat(TRYSHOPPY_USD_RATE) > 0) ? parseFloat(TRYSHOPPY_USD_RATE) : 50; }
 function tsPriceSanity(o){
   const usd = parseFloat(o.usd) || 0, egp = parseFloat(o.egp) || 0;
   const res = { suggested: 0, approx: !(parseFloat(o.weightGrams) > 0), warnings: [] };
@@ -668,8 +683,8 @@ function tsPriceSanity(o){
     res.suggested = tryShoppyCalculatePrice({ usd, category: o.category, weightGrams: parseFloat(o.weightGrams) || 0, quantity: 1 }).finalPrice;
   }
   if(egp > 0){
-    if(egp < usd * TS_LOSS_RATE)
-      res.warnings.push('🔻 سعر القطعة (' + egp.toLocaleString('en-US') + ' ج.م) أقل من تكلفتها بالدولار (' + Math.round(usd * TS_LOSS_RATE).toLocaleString('en-US') + ' ج.م) — كده بيع بخسارة');
+    if(egp < usd * tsLossRate())
+      res.warnings.push('🔻 سعر القطعة (' + egp.toLocaleString('en-US') + ' ج.م) أقل من تكلفتها بالدولار (' + Math.round(usd * tsLossRate()).toLocaleString('en-US') + ' ج.م) — كده بيع بخسارة');
     else if(res.suggested && egp < res.suggested * 0.6)
       res.warnings.push('📉 السعر أقل من سعر الحاسبة (' + res.suggested.toLocaleString('en-US') + ' ج.م) بـ ' + Math.round((1 - egp / res.suggested) * 100) + '٪');
     if(res.suggested && egp > res.suggested * 1.6)

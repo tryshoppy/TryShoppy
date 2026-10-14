@@ -360,6 +360,7 @@ const I18N = {
   calc_btn_calculate:  { en: "Calculate Price", ar: "احسب السعر النهائي" },
   calc_result_total_label:{ en: "Total Cost (Shipping & Customs included)", ar: "إجمالي التكلفة شاملة الشحن والجمارك" },
   calc_result_cod_note:{ en: "Cash on Delivery up to 10,000 EGP, no extra charge ✓ | Final confirmation after review", ar: "الدفع عند الاستلام لحد 10000ج بدون اي زيادة ✓ | التأكيد النهائي بعد المراجعة" },
+  calc_result_deposit_note:{ en: "Over 10,000 EGP: a deposit is required before we buy | Final confirmation after review", ar: "الطلب أكتر من 10000ج: مطلوب عربون قبل الشراء | التأكيد النهائي بعد المراجعة" },
   calc_order_no_label: { en: "Order No.", ar: "رقم الطلب" },
   calc_shipping_title: { en: "Shipping Details", ar: "بيانات الشحن" },
   calc_name_label:     { en: "Full Name", ar: "الاسم بالكامل" },
