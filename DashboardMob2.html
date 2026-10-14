@@ -48,11 +48,11 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .mono{font-family:var(--fm);font-variant-numeric:tabular-nums}
 
 /* ══ الهيدر الثابت ══ */
-.hdr{position:sticky;top:0;z-index:40;background:var(--navy);color:#fff;padding:10px 14px;padding-top:calc(10px + env(safe-area-inset-top))}
+.hdr{position:sticky;top:0;z-index:40;background:linear-gradient(180deg,#14223F 0%,var(--navy) 100%);color:#fff;padding:10px 14px;padding-top:calc(10px + env(safe-area-inset-top));border-bottom:3px solid var(--gold);box-shadow:0 4px 14px rgba(15,27,51,.18)}
 .hdr-row{display:flex;align-items:center;gap:10px}
-.hdr .lg{width:34px;height:34px;border-radius:10px;background:var(--gold);color:var(--navy);display:grid;place-items:center;font-weight:900;font-size:13px;flex:none}
-.hdr .ttl{font-weight:900;font-size:15px;line-height:1.2;flex:1;min-width:0}
-.hdr .ttl small{display:block;font-size:10.5px;color:#8FA0C4;font-weight:600}
+.hdr .lg{width:40px;height:40px;border-radius:50%;background:#fff;object-fit:contain;padding:2px;flex:none;box-shadow:0 0 0 2px var(--gold)}
+.hdr .ttl{font-weight:900;font-size:16px;line-height:1.2;flex:1;min-width:0;letter-spacing:0}
+.hdr .ttl small{display:block;font-size:11px;color:var(--gold-2);font-weight:700;margin-top:2px}
 .hdr .who{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.16);padding:5px 10px;border-radius:8px;font-size:11.5px;font-weight:800;white-space:nowrap;max-width:110px;overflow:hidden;text-overflow:ellipsis}
 .hdr .out{background:rgba(220,38,38,.25);border:1px solid rgba(220,38,38,.45);color:#FFC2C2;padding:7px 11px;border-radius:9px;font-weight:800;font-size:12px;cursor:pointer;flex:none}
 .totbar{margin-top:9px;background:var(--gold);color:var(--navy);border-radius:11px;padding:9px 13px;font-weight:900;font-size:14.5px;text-align:center;display:none}
@@ -65,9 +65,15 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
    ما يفضل ثابت وظاهر تحته. دلوقتي بيلزق تحت الهيدر مباشرة (top =
    ارتفاع الهيدر الفعلي، بيتحسب بجافاسكريبت في --hdr-h). */
 .tools{position:sticky;top:var(--hdr-h, 64px);z-index:30;background:var(--paper);padding:10px 14px 8px;display:flex;gap:8px}
-.tool{flex:1;padding:11px;border-radius:11px;border:1px solid var(--field-line);background:var(--panel);color:var(--navy);box-shadow:0 1px 2px rgba(15,27,51,.06);font-weight:800;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px}
-.tool.on{background:var(--navy);color:var(--gold);border-color:var(--navy)}
-.tool .n{background:var(--gold);color:var(--navy);border-radius:20px;padding:1px 7px;font-size:11px;font-family:var(--fm)}
+/* 🎨 أزرار الفلاتر والتجميع — بارزة: الفلاتر دهبي (أهم أداة)، والتجميع كحلي */
+.tool{flex:1;padding:11px;border-radius:12px;border:2px solid var(--navy);background:var(--navy);color:#fff;box-shadow:0 3px 10px rgba(15,27,51,.18);font-weight:900;font-size:13.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;min-height:46px;transition:transform .08s}
+.tool:active{transform:scale(.98)}
+#filterToggle{background:var(--gold);border-color:var(--gold);color:var(--navy)}
+.tool.on{box-shadow:inset 0 0 0 2px #fff,0 3px 10px rgba(15,27,51,.25)}
+#groupToggle.on{background:var(--gold);border-color:var(--gold);color:var(--navy)}
+#filterToggle.on{background:var(--navy);border-color:var(--navy);color:var(--gold)}
+.tool .n{background:var(--navy);color:var(--gold);border-radius:20px;padding:1px 7px;font-size:11px;font-family:var(--fm)}
+#filterToggle.on .n{background:var(--gold);color:var(--navy)}
 
 /* ══ لوحة الفلاتر المنسدلة ══ */
 /* 🐛→✅ اللوحة كانت في مجرى الصفحة العادي تحت شريط الأدوات، فلما
@@ -158,6 +164,8 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .fl input.usd{color:var(--blue);font-weight:700}
 .fl input.arr{font-family:var(--f);font-weight:800;color:var(--navy)}
 .fl.full{margin-bottom:12px}
+.oc-grid .fl.span2{grid-column:1/-1}
+.fl input.qty{font-weight:800;color:var(--navy)}
 .fl select.stsel{font-family:var(--f);font-weight:800}
 /* 📝 ملاحظة On Hold / Lost تحت الحالة (اللي العميل شايفها في التتبع) */
 .fl .stnote{display:block;font-size:12px;font-weight:700;color:var(--ink-2);background:#F8FAFC;border:1px dashed var(--line);border-radius:9px;padding:7px 10px;margin-top:6px;line-height:1.55}
@@ -222,7 +230,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 /* ══ شاشة الدخول ══ */
 #loginScreen{position:fixed;inset:0;z-index:9999;background:var(--navy);display:none;align-items:center;justify-content:center;padding:20px}
 .lcard{background:#fff;border-radius:20px;padding:32px 26px;width:100%;max-width:380px}
-.lcard .lg{width:58px;height:58px;border-radius:16px;background:var(--gold);color:var(--navy);display:grid;place-items:center;font-weight:900;font-size:19px;margin:0 auto 14px}
+.lcard .lg{width:72px;height:72px;border-radius:50%;display:block;object-fit:contain;margin:0 auto 14px;box-shadow:0 0 0 3px var(--gold)}
 .lcard h2{margin:0 0 4px;text-align:center;font-size:19px;font-weight:900}
 .lcard p{margin:0 0 22px;text-align:center;font-size:13px;color:var(--ink-2)}
 .lcard label{display:block;font-size:12.5px;font-weight:800;color:var(--ink-2);margin-bottom:5px}
@@ -248,7 +256,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 <!-- ══ شاشة الدخول ══ -->
 <div id="loginScreen">
   <div class="lcard">
-    <div class="lg">TS</div>
+    <img class="lg" src="assets/logo.png" alt="Try Shoppy">
     <h2>لوحة الطلبات</h2>
     <p>سجّل دخولك للمتابعة</p>
     <label>اسم المستخدم</label>
@@ -265,8 +273,8 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 
   <header class="hdr">
     <div class="hdr-row">
-      <div class="lg">TS</div>
-      <div class="ttl">الطلبات<small>Try Shoppy</small></div>
+      <img class="lg" src="assets/logo.png" alt="Try Shoppy">
+      <div class="ttl">لوحة الطلبات<small>Try Shoppy · التشغيل</small></div>
       <div id="headerUserBadge" class="who"></div>
       <button class="out" onclick="logout()">خروج</button>
     </div>
@@ -386,8 +394,8 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 
 </div>
 
-<script src="assets/config.js?v=20261014a"></script>
-<script src="assets/app.js?v=20261014a"></script>
+<script src="assets/config.js?v=20261014b"></script>
+<script src="assets/app.js?v=20261014b"></script>
 <script>
 /* 📏 شريط الأدوات (.tools) بيلزق تحت الهيدر مباشرة بدل ما يتحط
    تحته وقت السكرول — بنحسب ارتفاع الهيدر الفعلي (بيتغيّر حسب
@@ -709,6 +717,13 @@ const arriveHref = (isGrouped && o.status === "Arrived Cairo HUB" && phone)
       </div>
 
       <div class="oc-grid">
+        <!-- 🔢 الكمية — لما تتغير، الإجمالي والدولار بيتحسبوا على سعر القطعة (وتقدر تعدّلهم بإيدك بعدها) -->
+        <label class="fl">
+          <span>الكمية</span>
+          <input type="number" id="qty-${cleanOrderId}" class="qty" min="1" max="999" step="1" inputmode="numeric" value="${qty}"
+                 data-unit-egp="${qty > 0 ? total / qty : total}" data-unit-usd="${qty > 0 ? (parseFloat(o.usd||0) / qty) : parseFloat(o.usd||0)}"
+                 oninput="onQtyChange('${safeCleanOrderIdJs}', ${ship})">
+        </label>
         <label class="fl">
           <span>الإجمالي (EGP)</span>
           <input type="number" id="egp-${cleanOrderId}" value="${total}" oninput="recalc('${safeCleanOrderIdJs}', ${ship})">
@@ -721,7 +736,7 @@ const arriveHref = (isGrouped && o.status === "Arrived Cairo HUB" && phone)
           <span>التكلفة (USD)</span>
           <input type="number" id="usd-${cleanOrderId}" class="usd" value="${parseFloat(o.usd||0).toFixed(2)}">
         </label>
-        <label class="fl">
+        <label class="fl span2">
           <span>موعد الوصول</span>
           <input type="text" id="arrival-${cleanOrderId}" class="arr" list="arrSuggestM" value="${safeArrival}" placeholder="O-27SEP2026">
         </label>
@@ -774,6 +789,20 @@ const arriveHref = (isGrouped && o.status === "Arrived Cairo HUB" && phone)
   } else {
       container.innerHTML = htmlString;
   }
+}
+
+/* 🔢 الكمية اتغيرت → الإجمالي والدولار = سعر القطعة (المحفوظ) × الكمية الجديدة.
+   سعر القطعة بيتحسب من القيم المحفوظة وقت ما الكارت اترسم، فلو الموظف غيّر
+   الكمية كذا مرة الحساب مايتراكمش. لو عايز سعر تاني، يعدّل الإجمالي بإيده بعدها. */
+function onQtyChange(id, ship) {
+    const q = document.getElementById('qty-'+id);
+    const n = parseInt(q.value, 10);
+    if (!(n >= 1 && n <= 999)) return;              // لسه بيكتب / رقم مش صالح — مانلمسش حاجة
+    const egp = Math.round((parseFloat(q.dataset.unitEgp) || 0) * n);
+    const usd = Math.round((parseFloat(q.dataset.unitUsd) || 0) * n * 100) / 100;
+    document.getElementById('egp-'+id).value = egp;
+    document.getElementById('usd-'+id).value = usd.toFixed(2);
+    recalc(id, ship);
 }
 
 function recalc(id, ship) {
@@ -978,6 +1007,13 @@ function toggleGrouping(){
 }
 
 async function updateOrder(orderId){
+  const qtyEl=document.getElementById("qty-"+orderId);
+  const newQty=qtyEl ? qtyEl.value.trim() : undefined;
+  if(newQty !== undefined && !/^\d+$/.test(newQty) || (newQty !== undefined && !(+newQty >= 1 && +newQty <= 999))){
+    alert("⚠️ الكمية لازم تكون رقم صحيح من 1 لـ 999");
+    qtyEl.focus();
+    return;
+  }
   const newEGP=document.getElementById("egp-"+orderId).value;
   const newDeposit=document.getElementById("deposit-"+orderId).value;
   const newUSD=document.getElementById("usd-"+orderId).value;
@@ -990,7 +1026,7 @@ async function updateOrder(orderId){
   const cur = ordersData.find(o => String(o.order) === String(orderId)) || {};
   await tsSaveOrderEdit({
     orderId, cur,
-    wanted: { finalPrice:newEGP, deposit:newDeposit, usd:newUSD, status:newStatus, arrivaldate:newArrival },
+    wanted: Object.assign({ finalPrice:newEGP, deposit:newDeposit, usd:newUSD, status:newStatus, arrivaldate:newArrival }, (newQty !== undefined && +newQty !== (parseFloat(cur.quantity) || 1)) ? { quantity:newQty } : {}),
     scriptURL, staffToken:getStaffToken(), user:getCurrentUser(),
     btn: document.querySelector(`button[onclick*="updateOrder('${orderId}')"]`),
     statusSelect: document.getElementById("status-"+orderId),
@@ -1591,7 +1627,7 @@ function submitDuplicate() {
 }
 
 </script>
-<script src="staff-auth.js?v=20261014a"></script>
+<script src="staff-auth.js?v=20261014b"></script>
 <script>
 
 const SESSION_TIME = 2 * 60 * 60 * 1000;
