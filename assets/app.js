@@ -382,7 +382,7 @@ function tsNormArrival(raw){
      expect → قيمتها القديمة (السيرفر بيرفض لو اتغيرت في الشيت من وقتها)
    السبب: كان كل حفظ بيبعت كل الخانات، فموظف فاتح الصفحة من بدري كان
    بيرجّع العربون اللي المندوب حصّله لقيمته القديمة. */
-const TS_NUM_FIELDS = ['usd', 'finalPrice', 'shipping', 'deposit'];
+const TS_NUM_FIELDS = ['usd', 'finalPrice', 'shipping', 'deposit', 'quantity'];
 function tsSameOrderValue(field, a, b){
   if(TS_NUM_FIELDS.indexOf(field) !== -1) return Math.abs((parseFloat(a) || 0) - (parseFloat(b) || 0)) < 0.01;
   return String(a == null ? '' : a).trim() === String(b == null ? '' : b).trim();
