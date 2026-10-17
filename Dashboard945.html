@@ -700,9 +700,9 @@ body.sb-open{overflow:hidden}
   </div>
 </main>
 
-<script src="assets/config.js?v=20261014b"></script>
-<script src="assets/function_calc.js?v=20261014b"></script><!-- 💡 سعر الحاسبة المقترح (tsPriceSanity) -->
-<script src="assets/app.js?v=20261014b"></script>
+<script src="assets/config.js?v=20261017a"></script>
+<script src="assets/function_calc.js?v=20261017a"></script><!-- 💡 سعر الحاسبة المقترح (tsPriceSanity) -->
+<script src="assets/app.js?v=20261017a"></script>
 <script>
 
 
@@ -907,11 +907,10 @@ function populateArrivalFilter(){
     });
     // ملاحظة: صفوف RAMA اللي من غير موعد بتتحسب برضه في "بدون موعد"
     const hasEmpty = ordersData.concat(ramaRows, EXP_ON ? EXPENSES : []).some(o=>!String(o.arrivaldate||"").trim());
-    // 📅 نفس المواعيد كاقتراحات لخانة الموعد في كل صف — بالشكل الموحّد
-    // (O-27SEP2026)، عشان الموظف يختار موجود بدل ما يكتب شكل جديد
+    // 📅 اقتراحات خانة الموعد في كل صف: آخر 3 مواعيد اتضافت في الشيت،
+    // بالشكل الموحّد (O-27SEP2026) — شوف tsRecentArrivals في app.js
     const sug = document.getElementById("arrSuggest");
-    if(sug) sug.innerHTML = [...new Set(keys.map(k => tsNormArrival(ARR_LABEL_D.get(k))))].slice(0, 30)
-        .map(v => `<option value="${tsEscapeHtml(v)}">`).join("");
+    if(sug) sug.innerHTML = tsArrivalOptionsHtml(ordersData.filter(o => !isOpexD(o)), 3);
     msBuild("arrivalSelect",
         (hasEmpty ? [{ v: "__none", label: "— بدون موعد وصول —" }] : [])
         .concat(keys.map(k => ({ v: k, label: ARR_LABEL_D.get(k), icon: "📅" }))));
@@ -1919,11 +1918,11 @@ function selectAllFiltered(){
 
 async function applyBulkStatus(){
     const status = document.getElementById("bulkStatus").value;
-    if(!status) return alert("اختار الحالة");
+    if(!status) return alert("يُرجى اختيار الحالة");
 
     const selected = [...selectedOrderIds];
 
-    if(selected.length === 0) return alert("مفيش طلبات محددة");
+    if(selected.length === 0) return alert("لا توجد طلبات محددة");
 
     // ⚠️ تأكيد بالعدد قبل التغيير الجماعي — دوسة غلط كانت بتغيّر عشرات
     // الطلبات (وبتبعت إيميلات للعملاء) من غير ما حد يسأل
@@ -1931,15 +1930,15 @@ async function applyBulkStatus(){
     const extra = [];
     if (status === "Delivered") {
         const withDue = rows.filter(o => (parseFloat(o.finalPrice)||0) + (parseFloat(o.shipping)||0) - (parseFloat(o.deposit)||0) > 0.5);
-        if (withDue.length) extra.push("💵 " + withDue.length + " منهم لسه عليهم فلوس مطلوبة (" +
+        if (withDue.length) extra.push("💵 " + withDue.length + " منها ما زال عليها مبالغ مطلوبة (" +
             Math.round(withDue.reduce((s,o)=>s+(parseFloat(o.finalPrice)||0)+(parseFloat(o.shipping)||0)-(parseFloat(o.deposit)||0),0)).toLocaleString() + " ج.م)");
     }
     const back = rows.filter(o => tsOrderWarnings(o, { status }).some(w => w.indexOf("↩️") === 0));
-    if (back.length) extra.push("↩️ " + back.length + " منهم حالتهم هترجع لورا");
-    if (!confirm("هتغيّر حالة " + selected.length + " طلب إلى: " + status + " (" + tsStatusLabel(status) + ")" +
-                 (extra.length ? "\n\n⚠️ " + extra.join("\n⚠️ ") : "") + "\n\nمتأكد؟")) return;
+    if (back.length) extra.push("↩️ " + back.length + " منها ستعود حالتها إلى مرحلة سابقة");
+    if (!confirm("سيتم تغيير حالة " + selected.length + " طلب إلى: " + status + " (" + tsStatusLabel(status) + ")" +
+                 (extra.length ? "\n\n⚠️ " + extra.join("\n⚠️ ") : "") + "\n\nهل أنت متأكد؟")) return;
 
-    // 📝 تحويل جماعي لـ On Hold / Lost — سبب واحد بيتسجل لكل الطلبات المحددة
+    // 📝 تحويل جماعي لحالة بملاحظة (TS_NOTE_STATUSES) — سبب واحد بيتسجل لكل الطلبات المحددة
     let statusNote;
     if(TS_NOTE_STATUSES.indexOf(status) !== -1){
         statusNote = await tsAskStatusNote(status, "", selected.length + " طلب محدد");
@@ -1947,7 +1946,7 @@ async function applyBulkStatus(){
     }
 
     const bulkBtn = document.getElementById("bulkApplyBtn");
-    tsSetBtnLoading(bulkBtn, "جاري التطبيق...");
+    tsSetBtnLoading(bulkBtn, "جارٍ التطبيق...");
 
     // 🐛→✅ رسالة "اتحدّث 12 من 49" كانت **غلط** في أغلب الحالات:
     // الطلبات كانت بتتحدّث فعلاً في الشيت، بس الموقع مكانش قادر يقرا
@@ -2013,7 +2012,7 @@ function createRamaRowHTML(o){
     </tr>`;
 }
 </script>
-<script src="staff-auth.js?v=20261014b"></script>
+<script src="staff-auth.js?v=20261017a"></script>
 <script>
 
 
@@ -2346,13 +2345,11 @@ function aoPickCustomer(i){
   document.getElementById("aoLink").focus();
 }
 
-/* 📅 اقتراحات مواعيد الوصول — نفس المواعيد المستخدمة فعلاً في
-   الطلبات، عشان الموظف يكتبها بنفس الصيغة بالظبط بدل ما يعمل
-   مجموعة شحن جديدة بالغلط من اختلاف حرف أو مسافة */
+/* 📅 اقتراحات مواعيد الوصول — آخر 3 مواعيد اتضافت في الشيت (tsRecentArrivals)،
+   بنفس الصيغة الموحّدة، عشان الموظف مايعملش مجموعة شحن جديدة بالغلط
+   من اختلاف حرف أو مسافة */
 function aoFillArrivalSuggestions(){
-  const dl = document.getElementById("aoArrivalList");
-  const seen = [...new Set(ordersData.map(o => String(o.arrivaldate || "").trim()).filter(Boolean))];
-  dl.innerHTML = seen.slice(0, 40).map(v => '<option value="' + tsEscapeHtml(v) + '">').join("");
+  document.getElementById("aoArrivalList").innerHTML = tsArrivalOptionsHtml(ordersData.filter(o => !isOpexD(o)), 3);
 }
 
 /* 🙈 قسم "مخفي عن" — أدمن بس. نفس مصدر القايمة المستخدم في

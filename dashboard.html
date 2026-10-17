@@ -7,7 +7,7 @@
 <title>My Account — Try Shoppy</title>
 <link rel="icon" href="assets/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
-<link rel="stylesheet" href="assets/style.css?v=20261014b">
+<link rel="stylesheet" href="assets/style.css?v=20261017a">
 <style>
 /* ═══════════ MY ACCOUNT ═══════════
    Same panels and the same account script as before, on the v5
@@ -202,9 +202,9 @@
     <div class="foot-bottom"><span data-i18n="foot_rights">© 2026 Try Shoppy. All rights reserved.</span><span data-i18n="foot_made">Made for shoppers in Egypt 🇪🇬</span></div>
   </div>
 </footer>
-<script src="assets/config.js?v=20261014b"></script>
-<script src="assets/i18n.js?v=20261014b"></script>
-<script src="assets/app.js?v=20261014b"></script>
+<script src="assets/config.js?v=20261017a"></script>
+<script src="assets/i18n.js?v=20261017a"></script>
+<script src="assets/app.js?v=20261017a"></script>
 <script>
 const session=tsRequireAuth();
 if(!session){throw new Error('No session');}
@@ -314,7 +314,7 @@ document.getElementById('emailOtpConfirmBtn').addEventListener('click', function
   }).catch(()=>{ tsClearBtnLoading(btn); tsToast(tsT('auth_err_connection')); });
 });
 
-const STATUS_MAP={"Pending Review":{en:"Pending Review",ar:"قيد المراجعة",cls:"gray"},"Confirmed Via Try":{en:"Confirmed",ar:"تم التأكيد",cls:"blue"},"Processing":{en:"Processing",ar:"جاري التجهيز",cls:"orange"},"Placed":{en:"Placed",ar:"تم الطلب",cls:"orange"},"Arrived Cairo HUB":{en:"Arrived Cairo HUB",ar:"وصل القاهرة",cls:"blue"},"Shipped To You":{en:"Out for delivery",ar:"في الطريق إليك",cls:"blue"},"Delivered":{en:"Delivered",ar:"تم التسليم",cls:"green"},"Canceled":{en:"Canceled",ar:"ملغي",cls:"red"},"Delayed":{en:"Delayed",ar:"متأخر",cls:"yellow"},"Arrived USA HUB":{en:"At USA hub",ar:"وصل أمريكا",cls:"blue"},"In transit":{en:"In transit",ar:"في الشحن الدولي",cls:"blue"},"On Hold":{en:"On hold",ar:"معلّق مؤقتًا",cls:"purple"},"Returned":{en:"Returned",ar:"مرتجع",cls:"slate"},"Lost":{en:"Shipment issue",ar:"مشكلة في الشحنة",cls:"red"}};
+const STATUS_MAP={"Pending Review":{en:"Pending Review",ar:"قيد المراجعة",cls:"gray"},"Confirmed Via Try":{en:"Confirmed",ar:"تم التأكيد",cls:"blue"},"Processing":{en:"Processing",ar:"جاري التجهيز",cls:"orange"},"Placed":{en:"Placed",ar:"تم الطلب",cls:"orange"},"Arrived Cairo HUB":{en:"Arrived Cairo HUB",ar:"وصل مخزن القاهرة",cls:"blue"},"Shipped To You":{en:"Out for delivery",ar:"في الطريق إليك",cls:"blue"},"Delivered":{en:"Delivered",ar:"تم التسليم",cls:"green"},"Canceled":{en:"Canceled",ar:"ملغي",cls:"red"},"Delayed":{en:"Delayed",ar:"متأخر",cls:"yellow"},"Arrived USA HUB":{en:"At USA hub",ar:"وصل مخزن أمريكا",cls:"blue"},"In transit":{en:"In transit",ar:"في الشحن الدولي",cls:"blue"},"On Hold":{en:"On hold",ar:"معلّق مؤقتًا",cls:"purple"},"Returned":{en:"Returned",ar:"مرتجع",cls:"slate"},"Lost":{en:"Shipment issue",ar:"مشكلة في الشحنة",cls:"red"}};
 /* ═══════════ طلباتي ═══════════
    • الأحدث الأول، ومقسومة: الحالية فوق، والسابقة (اتسلّمت/اتلغت/اترجعت)
      في قسم مقفول تحت.
@@ -356,8 +356,8 @@ function orderCard(o){
   if(o.arrivaldate && !closed){
     h += '<div class="oc-arr">📅 ' + L('موعد الوصول المتوقع', 'Expected arrival') + ': <b>' + tsEscapeHtml(tsFormatArrival(o.arrivaldate)) + '</b></div>';
   }
-  if(o.statusNote){
-    h += '<div class="oc-note' + (o.status === 'Lost' ? ' err' : '') + '">📝 ' + L('ملاحظة من فريقنا: ', 'Note from our team: ') + tsEscapeHtml(o.statusNote) + '</div>';
+  if(o.statusNote && TS_NOTE_STATUSES.indexOf(o.status) !== -1){
+    h += '<div class="oc-note' + (o.status === 'Lost' || o.status === 'Canceled' ? ' err' : '') + '">📝 ' + L('ملاحظة من فريقنا: ', 'Note from our team: ') + tsEscapeHtml(o.statusNote) + '</div>';
   }
   h += '<div class="oc-acts">' +
     '<a class="trk" href="track.html?order=' + encodeURIComponent(o.order || '') + '">' + L('تتبّع الطلب', 'Track order') + ' ←</a>' +
