@@ -141,7 +141,7 @@ button:hover{ opacity:.9; }
     </div>
 
     <div class="search-row">
-      <input type="text" id="customerSearchInput" placeholder="اسم العميل أو رقم الموبايل (01xxxxxxxxx)" autocomplete="off" oninput="searchAsYouType()" onkeydown="if(event.key==='Enter') doSearch();">
+      <input type="text" id="customerSearchInput" placeholder="اسم العميل أو رقم الهاتف (01xxxxxxxxx)" autocomplete="off" oninput="searchAsYouType()" onkeydown="if(event.key==='Enter') doSearch();">
       <button id="searchBtn" onclick="doSearch()">🔍 بحث</button>
     </div>
     <!-- ⚡ حالة التحميل: أحدث 100 فورًا، والباقي في الخلفية -->
@@ -153,9 +153,9 @@ button:hover{ opacity:.9; }
 </div>
 </div>
 
-<script src="assets/config.js?v=20261017a"></script>
-<script src="assets/app.js?v=20261017a"></script>
-<script src="staff-auth.js?v=20261017a"></script>
+<script src="assets/config.js?v=20261017b"></script>
+<script src="assets/app.js?v=20261017b"></script>
+<script src="staff-auth.js?v=20261017b"></script>
 <script>
 /* ============================================================
    🔐 صفحة داخلية مقيّدة — الدخول محتاج تحقق من خطوتين مع بعض:
@@ -200,13 +200,13 @@ async function doLogin(){
   if(!u || !p) return;
 
   errBox.style.display = "none";
-  tsSetBtnLoading(btn, "جاري التحقق...");
+  tsSetBtnLoading(btn, "جارٍ التحقق...");
 
   let staffRes, martRes;
   try{
     staffRes = await tsStaffLogin(u, p);
   }catch(err){
-    staffRes = { success:false, message:"تعذر الاتصال بالسيرفر" };
+    staffRes = { success:false, message:"تعذر الاتصال بالخادم" };
   }
 
   if(!staffRes || !staffRes.success){
@@ -226,7 +226,7 @@ async function doLogin(){
 
   if(!martRes || !martRes.success){
     // اليوزر والباسورد صح، بس مفيش صلاحية وصول للأداة دي تحديدًا
-    errBox.textContent = "🚫 حسابك مش عنده صلاحية الدخول لمرجع الطلبات";
+    errBox.textContent = "🚫 ليست لدى حسابك صلاحية الدخول إلى مرجع الطلبات";
     errBox.style.display = "block";
     return;
   }
@@ -274,7 +274,7 @@ async function fetchOrders(extra){
   const res = await fetch(scriptURL + "?staffToken=" + encodeURIComponent(getStaffToken()) + (extra || ""));
   const data = await res.json();
   if(!Array.isArray(data)){
-    alert("⚠️ الجلسة انتهت أو مش صالحة — سجّل دخول تاني.");
+    alert("⚠️ انتهت الجلسة أو أصبحت غير صالحة — يُرجى تسجيل الدخول مرة أخرى.");
     doLogout();
     throw new Error("Unauthorized");
   }
@@ -308,7 +308,7 @@ function startLoading(){
     setLoadState("✓ كل الطلبات محمّلة (" + ALL_ORDERS.length.toLocaleString("en-US") + " طلب) — البحث فوري");
     rerunSearch();
   };
-  setLoadState("⏳ جاري تحميل أحدث " + RECENT_LIMIT + " طلب…");
+  setLoadState("⏳ جارٍ تحميل أحدث " + RECENT_LIMIT + " طلب…");
   LOADING = (async () => {
     try{
       const recent = await fetchOrders("&limit=" + RECENT_LIMIT);
@@ -316,7 +316,7 @@ function startLoading(){
       ALL_ORDERS = prepOrders(recent);
       // السيرفر لسه بالنسخة القديمة (من غير limit) → رجّع الكل من أول مرة
       if(recent.length > RECENT_LIMIT) return finish();
-      setLoadState("✓ أحدث " + recent.length + " طلب جاهزين (" + secs() + " ث) — باقي الطلبات بتتحمّل في الخلفية…");
+      setLoadState("✓ أحدث " + recent.length + " طلب جاهزة (" + secs() + " ث) — جارٍ تحميل بقية الطلبات في الخلفية…");
       rerunSearch();
       const all = await fetchOrders("");
       if(gen !== LOAD_GEN) return;
@@ -325,7 +325,7 @@ function startLoading(){
     }catch(e){
       if(gen !== LOAD_GEN) return;
       LOADING = null;
-      if(e.message !== "Unauthorized") setLoadState("⚠️ تعذر تحميل الطلبات — اضغط بحث للمحاولة تاني");
+      if(e.message !== "Unauthorized") setLoadState("⚠️ تعذر تحميل الطلبات — اضغط «بحث» للمحاولة مرة أخرى");
     }
   })();
   return LOADING;
@@ -388,7 +388,7 @@ function showNameSearchWarning(groups){
   area.innerHTML = h;
 }
 
-const OPEN_STATUSES_LABELS = { "Pending Review":"قيد المراجعة","Confirmed Via Try":"تم التأكيد","Processing":"جاري التجهيز","Placed":"تم الشراء من المتجر","Arrived USA HUB":"وصل مخزن أمريكا","In transit":"في الشحن الدولي","Arrived Cairo HUB":"وصل مخزن القاهرة","Shipped To You":"في الطريق إليك","On Hold":"معلّق مؤقتًا","Delayed":"متأخر" };
+const OPEN_STATUSES_LABELS = { "Pending Review":"قيد المراجعة","Confirmed Via Try":"تم التأكيد","Processing":"جارٍ التجهيز","Placed":"تم الشراء من المتجر","Arrived USA HUB":"وصل مخزن أمريكا","In transit":"في الشحن الدولي","Arrived Cairo HUB":"وصل مخزن القاهرة","Shipped To You":"في الطريق إليك","On Hold":"معلّق مؤقتًا","Delayed":"متأخر" };
 const STATUS_LABELS = Object.assign({ "Delivered":"تم التسليم 🎉","Canceled":"ملغي","Returned":"مرتجع","Lost":"مفقود" }, OPEN_STATUSES_LABELS);
 const STATUS_BADGE_CLASS = { "Delivered":"b-green","Canceled":"b-red","Lost":"b-red","Returned":"b-slate","Delayed":"b-yellow","On Hold":"b-purple","Pending Review":"b-gray","Confirmed Via Try":"b-blue","Processing":"b-orange","Placed":"b-orange","Arrived USA HUB":"b-blue","In transit":"b-blue","Arrived Cairo HUB":"b-blue","Shipped To You":"b-blue" };
 
@@ -402,15 +402,15 @@ async function doSearch(quiet){
   const raw = document.getElementById("customerSearchInput").value.trim();
   const area = document.getElementById("resultArea");
   if(!quiet) PINNED_PICK = false;
-  if(!raw){ area.innerHTML = '<div class="card empty-hint">اكتب اسم العميل أو رقم موبايله الأول</div>'; return; }
+  if(!raw){ area.innerHTML = '<div class="card empty-hint">اكتب اسم العميل أو رقم هاتفه أولًا</div>'; return; }
 
   const searchBy = isPhoneSearch(raw) ? "phone" : "name";
   const target = searchBy === "phone" ? normPhone(raw) : normName(raw);
-  if(searchBy === "phone" && !target){ area.innerHTML = '<div class="card empty-hint">اكتب رقم موبايل صحيح</div>'; return; }
+  if(searchBy === "phone" && !target){ area.innerHTML = '<div class="card empty-hint">اكتب رقم هاتف صحيحًا</div>'; return; }
 
   // لسه مفيش ولا طلب متحمّل → نبدأ (أو نعيد) التحميل، والبحث بيتعاد لوحده أول ما يوصل
   if(!ALL_ORDERS.length){
-    area.innerHTML = '<div class="card empty-hint">⏳ جاري تحميل أحدث الطلبات…</div>';
+    area.innerHTML = '<div class="card empty-hint">⏳ جارٍ تحميل أحدث الطلبات…</div>';
     startLoading();
     return;
   }
@@ -428,13 +428,13 @@ async function doSearch(quiet){
   }
 
   const partialNote = complete ? "" :
-    '<div class="card empty-hint" style="padding:10px 0;color:#B45309">⏳ دي نتايج من أحدث ' + ALL_ORDERS.length +
-    ' طلب بس — باقي الطلبات بتتحمّل، والنتايج هتتحدّث لوحدها</div>';
+    '<div class="card empty-hint" style="padding:10px 0;color:#B45309">⏳ هذه نتائج أحدث ' + ALL_ORDERS.length +
+    ' طلب فقط — جارٍ تحميل بقية الطلبات، وستُحدَّث النتائج تلقائيًا</div>';
 
   if(matches.length === 0){
     area.innerHTML = FULL_LOADED
-      ? '<div class="card empty-hint">🚫 مفيش أي طلبات مسجّلة بالاسم أو الرقم ده</div>'
-      : '<div class="card empty-hint">⏳ مش لاقيه في أحدث الطلبات — بندوّر في باقي الطلبات أول ما تخلص تحميل…</div>';
+      ? '<div class="card empty-hint">🚫 لا توجد أي طلبات مسجلة بهذا الاسم أو الرقم</div>'
+      : '<div class="card empty-hint">⏳ لم نجده في أحدث الطلبات — سنبحث في بقية الطلبات فور اكتمال تحميلها…</div>';
     return;
   }
 
@@ -506,7 +506,7 @@ function renderCustomer(orders){
 
     h += '<div class="order-detail-grid">';
     h += '<div class="dl"><span class="dt">المنتج</span><span class="dd">' +
-         (o.link ? '<a href="' + tsSafeHref(o.link) + '" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">🔗 فتح اللينك</a>' : '—') +
+         (o.link ? '<a href="' + tsSafeHref(o.link) + '" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">🔗 فتح الرابط</a>' : '—') +
          '</span></div>';
     h += '<div class="dl"><span class="dt">الكمية</span><span class="dd">' + qty + ' قطعة</span></div>';
     h += '<div class="dl"><span class="dt">سعر القطعة</span><span class="dd">' + fmt(unitPrice) + ' جنيه</span></div>';
@@ -516,7 +516,7 @@ function renderCustomer(orders){
     if(o.history && o.history.length){
       o.history.forEach(ev => { h += '<div>• ' + statusLabel(ev.status) + ' — ' + escapeHtml(ev.time) + (ev.note ? ' (' + escapeHtml(ev.note) + ')' : '') + '</div>'; });
     } else {
-      h += '<div>مفيش سجل تحديثات لسه لهذا الطلب</div>';
+      h += '<div>لا يوجد سجل تحديثات لهذا الطلب حتى الآن</div>';
     }
     h += '</div></div>';
   });

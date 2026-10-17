@@ -83,7 +83,7 @@ button:hover{ opacity:.9; }
 <body>
 
 <!-- ====== شكل السلة العائم (يظهر بس لو فيه منتجات، ويوديك للسلة على طول) ====== -->
-<div id="cartFab" class="hidden" onclick="showStep('cart')" title="ارجع للسلة" style="position:fixed;top:16px;left:16px;background:var(--primary);color:#fff;border-radius:50px;padding:10px 18px;font-weight:900;font-size:14px;box-shadow:0 6px 18px rgba(37,99,235,.35);cursor:pointer;z-index:40;display:flex;align-items:center;gap:8px;">
+<div id="cartFab" class="hidden" onclick="showStep('cart')" title="العودة إلى السلة" style="position:fixed;top:16px;left:16px;background:var(--primary);color:#fff;border-radius:50px;padding:10px 18px;font-weight:900;font-size:14px;box-shadow:0 6px 18px rgba(37,99,235,.35);cursor:pointer;z-index:40;display:flex;align-items:center;gap:8px;">
   🛒 <span id="cartFabCount">0</span> منتج
 </div>
 
@@ -91,7 +91,7 @@ button:hover{ opacity:.9; }
 <div id="loginScreen" style="display:flex;">
   <div class="login-box">
     <div class="login-logo">TRY SHOPPY</div>
-    <div class="login-sub">سجّل دخولك للمتابعة</div>
+    <div class="login-sub">سجّل الدخول للمتابعة</div>
     <label class="login-label">اسم المستخدم</label>
     <input id="loginUser" type="text" class="login-input" placeholder="أدخل اسم المستخدم" autocomplete="username">
     <label class="login-label">كلمة المرور</label>
@@ -106,15 +106,15 @@ button:hover{ opacity:.9; }
 <div class="container">
 <div class="card">
 
-<h2>➕ إضافة أوردر سريع</h2>
+<h2>➕ إضافة طلب سريع</h2>
 <div style="display:flex; justify-content:center; align-items:center; gap:10px; margin-bottom:16px;">
   <span id="qUserBadge" style="background:#ede9fe; color:#6366f1; padding:5px 14px; border-radius:10px; font-weight:800; font-size:13px; border:1px solid #c4b5fd;"></span>
   <button onclick="qLogout()" style="width:auto; padding:7px 16px; font-size:13px; background:#ef4444; border-radius:10px;">خروج</button>
 </div>
 
 <div class="input-group">
-  <label>اسم العميل أو رقم التليفون</label>
-  <input type="text" id="customerSearch" placeholder="اكتب رقم التليفون أو جزء من الاسم" onkeydown="if(event.key==='Enter')searchCustomer()">
+  <label>اسم العميل أو رقم الهاتف</label>
+  <input type="text" id="customerSearch" placeholder="اكتب رقم الهاتف أو جزءًا من الاسم" onkeydown="if(event.key==='Enter')searchCustomer()">
 </div>
 
 <button onclick="searchCustomer()">🔍 بحث عن العميل</button>
@@ -124,7 +124,7 @@ button:hover{ opacity:.9; }
      ما يختار، بدل ما نفترض إحنا مين العميل المقصود ونغلط بينهم -->
 <div id="nameMatchesBox" style="display:none;margin-top:10px">
   <div style="background:#fff7ed;border:1.5px solid #fb923c;color:#9a3412;padding:10px 14px;border-radius:10px;font-weight:800;font-size:13px;margin-bottom:8px">
-    ⚠️ فيه أكتر من عميل بنفس الاسم — تأكد من رقم التليفون الصح قبل ما تختار
+    ⚠️ يوجد أكثر من عميل بالاسم نفسه — تأكد من رقم الهاتف الصحيح قبل الاختيار
   </div>
   <div id="nameMatchesList"></div>
 </div>
@@ -153,7 +153,7 @@ button:hover{ opacity:.9; }
 <hr style="border:0;border-top:1.5px dashed var(--border);margin:20px 0;">
 
 <div class="input-group">
-  <label>لينك المنتج الجديد</label>
+  <label>رابط المنتج الجديد</label>
   <input type="text" id="link">
 </div>
 
@@ -198,16 +198,16 @@ button:hover{ opacity:.9; }
     <span>الإجمالي</span>
     <span id="cartTotalDisplay">0 EGP</span>
   </div>
-  <button class="btn-secondary" onclick="backToAddItem()">➕ أضف منتج تاني</button>
+  <button class="btn-secondary" onclick="backToAddItem()">➕ أضف منتجًا آخر</button>
   <button id="checkoutBtn" style="margin-top:12px" onclick="checkoutAll()">✅ إتمام كل الطلبات</button>
 </div><!-- end stepCart -->
 
 <!-- ================= STEP 3: نجاح ================= -->
 <div id="stepSuccess" class="hidden">
 <div id="waContainer" style="margin-top:14px;">
-  <button onclick="sendWhatsApp()" style="background:#25D366;">💬 تأكيد الأوردر عبر واتساب</button>
+  <button onclick="sendWhatsApp()" style="background:#25D366;">💬 تأكيد الطلب عبر واتساب</button>
   <button onclick="sendCustomerSummary()" style="background:#0ea5e9; margin-top:10px;">📩 إرسال ملخص الطلب للعميل</button>
-  <button class="btn-secondary" style="margin-top:12px" onclick="startNewCart()">➕ أوردر جديد لعميل تاني</button>
+  <button class="btn-secondary" style="margin-top:12px" onclick="startNewCart()">➕ طلب جديد لعميل آخر</button>
 </div>
 </div><!-- end stepSuccess -->
 
@@ -217,10 +217,10 @@ button:hover{ opacity:.9; }
 
 
 
-<script src="staff-auth.js?v=20261017a"></script>
-<script src="assets/config.js?v=20261017a"></script>
-<script src="assets/function_calc.js?v=20261017a"></script><!-- 💡 سعر الحاسبة المقترح (tsPriceSanity) -->
-<script src="assets/app.js?v=20261017a"></script>
+<script src="staff-auth.js?v=20261017b"></script>
+<script src="assets/config.js?v=20261017b"></script>
+<script src="assets/function_calc.js?v=20261017b"></script><!-- 💡 سعر الحاسبة المقترح (tsPriceSanity) -->
+<script src="assets/app.js?v=20261017b"></script>
 <script>
 const SESSION_TIME = 2 * 60 * 60 * 1000;
 const scriptURL = TS_CONFIG.ORDERS_SCRIPT_URL;
@@ -262,13 +262,13 @@ async function doLogin() {
   const p = document.getElementById("loginPass").value;
   if (!u || !p) return;
   const btn = document.getElementById("loginBtn");
-  tsSetBtnLoading(btn, "جاري التحقق...");
+  tsSetBtnLoading(btn, "جارٍ التحقق...");
 
   let res;
   try {
     res = await tsStaffLogin(u, p);
   } catch (err) {
-    res = { success: false, message: "تعذر الاتصال بالسيرفر" };
+    res = { success: false, message: "تعذر الاتصال بالخادم" };
   }
 
   if (res && res.success) {
@@ -323,7 +323,7 @@ async function loadData() {
     const res = await fetch(url);
     const data = await res.json();
     if (!Array.isArray(data)) {
-      alert("⚠️ الجلسة انتهت أو مش صالحة — سجّل دخول تاني.");
+      alert("⚠️ انتهت الجلسة أو أصبحت غير صالحة — يُرجى تسجيل الدخول مرة أخرى.");
       qLogout();
       return;
     }
@@ -340,7 +340,7 @@ function normalizePhone(phone) {
 
 function searchCustomer() {
   const raw = (document.getElementById("customerSearch").value || "").trim();
-  if (!raw) return alert("اكتب رقم التليفون أو اسم العميل");
+  if (!raw) return alert("اكتب رقم الهاتف أو اسم العميل");
 
   document.getElementById("nameMatchesBox").style.display = "none"; // نقفل أي ليستة اختيار قديمة من بحث سابق
 
@@ -360,12 +360,12 @@ function searchCustomer() {
 
 function searchByPhone(rawDigits) {
   const phone = normalizePhone(rawDigits);
-  if (!phone) return alert("رقم التليفون غير صحيح");
+  if (!phone) return alert("رقم الهاتف غير صحيح");
 
   // ⚠️ لو السلة فيها منتجات لعميل تاني، لازم تأكيد قبل ما نغيّر
   // العميل الحالي — عشان مايحصلش خلط بين طلبات عميلين في نفس السلة
   if (tsGetQuickCart().length && selectedCustomer && normalizePhone(selectedCustomer.phone) !== phone) {
-    if (!confirm("السلة فيها منتجات لعميل تاني. لو غيّرت العميل دلوقتي، السلة هتتصفّر. تكمل؟")) return;
+    if (!confirm("تحتوي السلة على منتجات لعميل آخر، وإذا غيّرت العميل الآن فستُفرَّغ السلة. هل تريد المتابعة؟")) return;
     tsClearQuickCart();
     renderCart();
     showStep('product');
@@ -389,13 +389,13 @@ function searchByPhone(rawDigits) {
 // اختيار بدل ما يفترض هو مين المقصود ويغلط.
 function searchByName(rawName) {
   const q = rawName.trim().toLowerCase();
-  if (!q) return alert("اكتب اسم العميل أو جزء منه");
+  if (!q) return alert("اكتب اسم العميل أو جزءًا منه");
 
   document.getElementById("customerBox").style.display = "none";
   selectedCustomer = null;
 
   const matches = ordersData.filter(o => String(o.customerName || "").toLowerCase().includes(q));
-  if (!matches.length) return alert("مفيش عميل بالاسم ده — جرب رقم التليفون بدل كده");
+  if (!matches.length) return alert("لا يوجد عميل بهذا الاسم — جرّب البحث برقم الهاتف بدلًا من ذلك");
 
   // تجميع بالموبايل — نفس العميل ممكن يظهر في أكتر من صف طلب
   const byPhone = new Map();
@@ -408,7 +408,7 @@ function searchByName(rawName) {
   if (unique.length === 1) {
     // عميل واحد بس مطابق — نختاره على طول (بنفس حماية "السلة فيها عميل تاني")
     if (tsGetQuickCart().length && selectedCustomer && normalizePhone(selectedCustomer.phone) !== normalizePhone(unique[0].phone)) {
-      if (!confirm("السلة فيها منتجات لعميل تاني. لو غيّرت العميل دلوقتي، السلة هتتصفّر. تكمل؟")) return;
+      if (!confirm("تحتوي السلة على منتجات لعميل آخر، وإذا غيّرت العميل الآن فستُفرَّغ السلة. هل تريد المتابعة؟")) return;
       tsClearQuickCart();
       renderCart();
       showStep('product');
@@ -501,20 +501,20 @@ function addCurrentToCart(){
   const dimensions = document.getElementById("dimensions").value.trim();
   const category = document.getElementById("category").value;
 
-  if (!link || !usd || !egp) return alert("يرجى ملء كل بيانات المنتج (اللينك، الدولار، والمصري)");
+  if (!link || !usd || !egp) return alert("يُرجى ملء جميع بيانات المنتج (الرابط، والسعر بالدولار، والسعر بالجنيه)");
   if (!category) {
     document.getElementById("category").focus();
-    return alert("⚠️ اختار صنف المنتج!");
+    return alert("⚠️ يُرجى اختيار صنف المنتج!");
   }
   // 🔢 الكمية رقم صحيح 1 أو أكتر (كانت بتقبل 1.5 أو سالب)
   const qtyRaw = parseFloat(document.getElementById("qty").value);
   if (!(qtyRaw >= 1) || qtyRaw !== Math.floor(qtyRaw)) {
     document.getElementById("qty").focus();
-    return alert("⚠️ الكمية لازم تكون رقم صحيح 1 أو أكتر");
+    return alert("⚠️ يجب أن تكون الكمية عددًا صحيحًا يساوي 1 أو أكثر");
   }
   // 💡 مراجعة السعر بمعادلة الحاسبة (أقل من التكلفة / بعيد جدًا عن المقترح)
   const ps = tsPriceSanity({ usd, egp, category });
-  if (ps.warnings.length && !confirm("⚠️ راجع السعر قبل الإضافة:\n\n" + ps.warnings.join("\n\n") + "\n\nتضيفه برضه؟")) return;
+  if (ps.warnings.length && !confirm("⚠️ يُرجى مراجعة السعر قبل الإضافة:\n\n" + ps.warnings.join("\n\n") + "\n\nهل تريد إضافته على أي حال؟")) return;
 
   tsAddToQuickCart({
     link, qty, unitUsd: usd, unitEgp: egp, dimensions, category,
@@ -576,7 +576,7 @@ function startNewCart(){
 
 function checkoutAll(){
   const cart = tsGetQuickCart();
-  if (!cart.length) { alert("السلة فاضية — أضف منتج واحد على الأقل الأول"); return; }
+  if (!cart.length) { alert("السلة فارغة — أضف منتجًا واحدًا على الأقل أولًا"); return; }
   if (!selectedCustomer) { alert("ابحث عن العميل أولاً"); showStep('product'); return; }
 
   const email = document.getElementById("customerEmail").value.trim();
@@ -618,7 +618,7 @@ function checkoutAll(){
 
     for (let idx = 0; idx < cartWithOrders.length; idx++) {
       const { item, orderNo } = cartWithOrders[idx];
-      btn.innerHTML = 'جاري تسجيل الطلب ' + (idx + 1) + ' من ' + cartWithOrders.length + '... <span class="spinner"></span>';
+      btn.innerHTML = 'جارٍ تسجيل الطلب ' + (idx + 1) + ' من ' + cartWithOrders.length + '... <span class="spinner"></span>';
       try {
         // 🐛→✅ كان بيقرا رد السيرفر ويدوّر على "Order Saved" — وده كان
         // بيفشل رغم إن الطلب اتسجل فعلاً (Apps Script بيرد بريديركت
@@ -668,8 +668,8 @@ function checkoutAll(){
       tsSaveQuickCart(remaining);
       renderCart();
       alert(
-        "⚠️ " + succeeded.length + " من " + cartWithOrders.length + " طلبات اتسجلت بنجاح.\n" +
-        "الطلبات دي فشلت وفضلت في السلة عشان تعيد المحاولة:\n" +
+        "⚠️ " + succeeded.length + " من " + cartWithOrders.length + " طلبات سُجلت بنجاح.\n" +
+        "فشلت الطلبات التالية وبقيت في السلة لإعادة المحاولة:\n" +
         failed.map(f => "• " + f.orderNo + (f.item.link ? " — " + f.item.link : "")).join("\n")
       );
       return;
@@ -681,7 +681,7 @@ function checkoutAll(){
   })().catch(() => {
     btn.disabled = false;
     btn.innerHTML = "✅ إتمام كل الطلبات";
-    alert("❌ تعذر الاتصال بالسيرفر — راجع الشيت للتأكد قبل ما تبلغ العميل، وحاول تاني لو محتاج.");
+    alert("❌ تعذر الاتصال بالخادم — راجع الشيت للتأكد قبل إبلاغ العميل، وأعد المحاولة إذا لزم الأمر.");
   });
 }
 
@@ -710,7 +710,7 @@ function sendWhatsApp() {
   const c = selectedCustomer || {};
   const msg = tsWaMessage({
     to: "shop",
-    intro: "مرحبًا Try Shoppy 👋\nعايز أأكد الطلب ده:",
+    intro: "مرحبًا Try Shoppy 👋\nأود تأكيد هذا الطلب:",
     customerName: c.customerName || "", phone: c.phone || "",
     governorate: c.governorate || "", address: c.address || "",
     items: quickOrderWaItems(), total: total

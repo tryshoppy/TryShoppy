@@ -178,7 +178,7 @@ button,input,select{font:inherit;color:inherit}
   <div class="lcard">
     <div class="lg">🛵</div>
     <h2>أداة المندوب</h2>
-    <p>سجّل دخولك بحساب الموظف</p>
+    <p>سجّل الدخول بحساب الموظف</p>
     <label>اسم المستخدم</label>
     <input id="loginUser" type="text" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()">
     <label>كلمة المرور</label>
@@ -193,14 +193,14 @@ button,input,select{font:inherit;color:inherit}
   <header class="hdr">
     <div class="hdr-row">
       <h1>🛵 أداة المندوب<small id="who"></small></h1>
-      <span class="sync" id="sync"><i></i><span id="syncTxt">جاري التحميل</span></span>
+      <span class="sync" id="sync"><i></i><span id="syncTxt">جارٍ التحميل</span></span>
       <button class="out" onclick="logout()">خروج</button>
     </div>
   </header>
 
   <div class="wrap">
     <div class="today" onclick="document.getElementById('todayList').classList.toggle('open')">
-      <span>💵 تحصيلك النهارده</span>
+      <span>💵 تحصيلك اليوم</span>
       <b id="todaySum">0</b><small style="color:var(--ink-3);font-weight:800">ج.م</small>
     </div>
     <div class="today-list" id="todayList"></div>
@@ -208,7 +208,7 @@ button,input,select{font:inherit;color:inherit}
     <div class="search">
       <div class="sbox">
         <span class="ic">🔎</span>
-        <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="اسم العميل أو رقم الموبايل">
+        <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="اسم العميل أو رقم الهاتف">
         <button class="clr" id="clr" aria-label="مسح">×</button>
       </div>
       <div class="sugs" id="sugs"></div>
@@ -217,8 +217,8 @@ button,input,select{font:inherit;color:inherit}
     <div id="view">
       <div class="idle">
         <div class="big">🔎</div>
-        <h3>دوّر على العميل</h3>
-        <p>اكتب جزء من اسمه أو رقم موبايله<br>ومفيش أي بيانات بتظهر غير لما تبحث.</p>
+        <h3>ابحث عن العميل</h3>
+        <p>اكتب جزءًا من اسمه أو رقم هاتفه<br>ولن تظهر أي بيانات إلا عند البحث.</p>
       </div>
     </div>
   </div>
@@ -238,9 +238,9 @@ button,input,select{font:inherit;color:inherit}
 
 <div class="toast" id="toast"></div>
 
-<script src="assets/config.js?v=20261017a"></script>
-<script src="assets/app.js?v=20261017a"></script>
-<script src="staff-auth.js?v=20261017a"></script>
+<script src="assets/config.js?v=20261017b"></script>
+<script src="assets/app.js?v=20261017b"></script>
+<script src="staff-auth.js?v=20261017b"></script>
 <script>
 const scriptURL = TS_CONFIG.ORDERS_SCRIPT_URL;
 /* 🔒 السيرفر بيبعت للمندوب بس: الطلبات اللي "وصلت القاهرة"، + اللي هو
@@ -267,7 +267,7 @@ async function doLogin(){
   const p = document.getElementById("loginPass").value;
   if(!u || !p) return;
   const btn = document.getElementById("loginBtn");
-  tsSetBtnLoading(btn, "جاري التحقق...");
+  tsSetBtnLoading(btn, "جارٍ التحقق...");
   let res;
   try { res = await tsStaffLogin(u, p); } catch(e){ res = { success:false }; }
   tsClearBtnLoading(btn);
@@ -280,7 +280,7 @@ async function doLogin(){
     showApp();
   } else {
     const er = document.getElementById("loginError");
-    er.textContent = (res && res.code === "locked") ? "⏳ " + res.message : "❌ اسم المستخدم أو كلمة المرور غلط";
+    er.textContent = (res && res.code === "locked") ? "⏳ " + res.message : "❌ اسم المستخدم أو كلمة المرور غير صحيحة";
     er.style.display = "block";
   }
 }
@@ -323,15 +323,15 @@ async function loadData(useCache){
       if(c && Date.now() - c.t < CACHE_MAX_AGE && Array.isArray(c.d)){ setRows(c.d); setSync("ok", "جاهز"); }
     }catch(e){}
   }
-  setSync("busy", ROWS.length ? "تحديث" : "جاري التحميل");
+  setSync("busy", ROWS.length ? "تحديث" : "جارٍ التحميل");
   try{
     const d = await fetchRows();
     setRows(d);
     try{ localStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), d })); }catch(e){}
     setSync("ok", "جاهز");
   }catch(e){
-    if(e.auth){ alert("⚠️ الجلسة انتهت — سجّل دخول تاني."); logout(); return; }
-    setSync("err", ROWS.length ? "أوفلاين" : "مفيش نت");
+    if(e.auth){ alert("⚠️ انتهت الجلسة — يُرجى تسجيل الدخول مرة أخرى."); logout(); return; }
+    setSync("err", ROWS.length ? "غير متصل" : "لا يوجد إنترنت");
   }
 }
 
@@ -421,7 +421,7 @@ function renderSugs(){
   if(q.trim().length < 2){ box.className = "sugs"; box.innerHTML = ""; SUGS = []; return; }
   if(!ROWS.length){
     box.className = "sugs open";
-    box.innerHTML = '<div class="sug-empty">⏳ لحظة، البيانات بتتحمّل...</div>';
+    box.innerHTML = '<div class="sug-empty">⏳ لحظة، جارٍ تحميل البيانات...</div>';
     return;
   }
   SUGS = search(q);
@@ -431,9 +431,9 @@ function renderSugs(){
     return '<div class="sug" onclick="pick(' + i + ')">' +
       '<div class="sug-b"><div class="sug-n">' + hl(c.name || "(بدون اسم)", q) + '</div>' +
       '<div class="sug-s">' + tsEscapeHtml(c.gov || "") + (c.gov && tail ? " · " : "") + '<span class="mono" dir="ltr">' + tail + '</span></div></div>' +
-      (c.active ? '<span class="pill go">📦 ' + c.active + ' جاهز</span>' : '<span class="pill no">مفيش واصل</span>') +
+      (c.active ? '<span class="pill go">📦 ' + c.active + ' جاهز</span>' : '<span class="pill no">لا يوجد ما وصل</span>') +
     '</div>';
-  }).join("") : '<div class="sug-empty">مفيش عميل بالاسم أو الرقم ده في الطلبات الأخيرة</div>';
+  }).join("") : '<div class="sug-empty">لا يوجد عميل بهذا الاسم أو الرقم في الطلبات الأخيرة</div>';
 }
 
 function pick(i){
@@ -506,7 +506,7 @@ function renderCustomer(){
   }
 
   if(!active.length){
-    h += '<div class="nothing">📭 مفيش طلبات واصلة القاهرة للعميل ده دلوقتي.</div>';
+    h += '<div class="nothing">📭 لا توجد طلبات وصلت إلى القاهرة لهذا العميل حاليًا.</div>';
   } else {
     if(bKeys.length > 1){
       h += '<div class="batches">' + bKeys.map((k, i) =>
@@ -530,13 +530,13 @@ function renderCustomer(){
     }).join("");
 
     h += '<div class="sum" id="sum"></div>' +
-      '<div class="collect"><label>💵 المبلغ اللي اتحصّل</label>' +
+      '<div class="collect"><label>💵 المبلغ المحصَّل</label>' +
         '<div class="amt"><input id="amt" inputmode="decimal" autocomplete="off" oninput="amtHint()"><span>ج.م</span></div>' +
         '<div class="amt-hint" id="amtHint"></div></div>' +
       '<div class="acts">' +
         '<button class="btn deliver" id="btnDeliver" onclick="askDeliver()">✅ تم التسليم والتحصيل</button>' +
         '<div class="row2">' +
-          '<button class="btn out" id="btnOut" onclick="markOut()">🚚 خرجت للتوصيل</button>' +
+          '<button class="btn out" id="btnOut" onclick="markOut()">🚚 خرجتُ للتوصيل</button>' +
           '<button class="btn hold" id="btnHold" onclick="markHold()">⏸️ مؤجل</button>' +
         '</div>' +
       '</div>';
@@ -544,7 +544,7 @@ function renderCustomer(){
 
   if(pending.length){
     const dates = [...new Set(pending.map(o => String(o.arrivaldate || "").trim()).filter(Boolean))];
-    h += '<div class="other">🕐 للعميل ' + pending.length + ' منتج تاني لسه ماوصلش' + (dates.length ? ' (موعد: ' + tsEscapeHtml(dates.join("، ")) + ')' : '') + ' — مايتسلّمش دلوقتي.</div>';
+    h += '<div class="other">🕐 للعميل ' + pending.length + ' منتج آخر لم يصل بعد' + (dates.length ? ' (موعد: ' + tsEscapeHtml(dates.join("، ")) + ')' : '') + ' — لا يُسلَّم الآن.</div>';
   }
   h += '</div>';
   view.innerHTML = h;
@@ -569,7 +569,7 @@ function waOnTheWay(){
   const en = custLang() === "en";
   const lines = (en
     ? ["Hi " + (first || "there") + " 👋", "This is your Try Shoppy courier 🛵 — your order is on its way to you today 📦", ""]
-    : ["أهلًا " + first + " 👋", "معاك مندوب Try Shoppy 🛵 — طلبك في الطريق ليك النهارده إن شاء الله 📦", ""]
+    : ["أهلًا " + first + " 👋", "معك مندوب Try Shoppy 🛵 — طلبك في الطريق إليك اليوم إن شاء الله 📦", ""]
   ).concat(sel.map(o => "• " + o.order)).concat([""]);
   if(due > 0){
     if(en){
@@ -577,15 +577,15 @@ function waOnTheWay(){
       lines.push("Pay however suits you: InstaPay, bank transfer, or cash on delivery — a mobile wallet works too if that's easier. If you'd like to transfer, just tell me and I'll send the details 🙏");
     } else {
       lines.push("💵 المطلوب عند الاستلام: " + money(due) + " ج.م");
-      lines.push("الدفع زي ما يريحك: إنستاباي، أو تحويل بنكي، أو كاش وقت الاستلام — والمحفظة الإلكترونية كمان متاحة لو أسهل ليك. لو هتحوّل، قولّي وهبعتلك البيانات 🙏");
+      lines.push("يمكنك الدفع بالطريقة التي تناسبك: إنستاباي، أو تحويل بنكي، أو نقدًا عند الاستلام، كما تتوفر المحفظة الإلكترونية إن كانت أسهل لك. إذا أردت التحويل، أخبرني وسأرسل إليك البيانات 🙏");
     }
   } else {
-    lines.push(en ? "✅ Your order is fully paid — nothing to pay on delivery." : "✅ طلبك مدفوع بالكامل — مفيش أي مبلغ مطلوب عند الاستلام.");
+    lines.push(en ? "✅ Your order is fully paid — nothing to pay on delivery." : "✅ طلبك مدفوع بالكامل — لا يوجد أي مبلغ مطلوب عند الاستلام.");
   }
   lines.push("");
   lines.push(en
     ? "📍 Please share your location here, plus anything that helps me find you (building number, floor, a landmark) if it's not in the address."
-    : "📍 لو تسمح، ابعتلي اللوكيشن هنا، وأي تفاصيل تسهّل الوصول (رقم العمارة، الدور، علامة مميزة) لو مش موجودة في العنوان.");
+    : "📍 من فضلك، أرسل إليّ موقعك هنا، وأي تفاصيل تسهّل الوصول (رقم المبنى، الطابق، علامة مميزة) إن لم تكن موجودة في العنوان.");
   lines.push("");
   lines.push(en ? "Thank you for trusting Try Shoppy 🌟" : "شكرًا لثقتك في Try Shoppy 🌟");
   tsWaOpen(current.phone || "", lines.join("\n"));
@@ -614,7 +614,7 @@ function updateTotals(resetAmt){
   sum.innerHTML =
     '<div>المنتجات المحددة<b>' + sel.length + '</b></div>' +
     (due ? '<div class="due">المطلوب تحصيله<b>' + money(due) + '</b></div>'
-         : '<div class="due" style="color:var(--ok)">✅ مدفوع بالكامل — مفيش تحصيل<b></b></div>');
+         : '<div class="due" style="color:var(--ok)">✅ مدفوع بالكامل — لا يوجد تحصيل<b></b></div>');
   const amt = document.getElementById("amt");
   if(amt && (resetAmt || amt.dataset.auto !== "0")){ amt.value = sel.length ? Math.round(due) : ""; amt.dataset.auto = "1"; }
   const noSel = !sel.length;
@@ -631,8 +631,8 @@ function amtHint(){
   const due = selectedRows().reduce((s, o) => s + dueOf(o), 0);
   const v = num(el.value);
   if(el.value.trim() === "" || Math.round(v) === Math.round(due)){ hint.className = "amt-hint"; hint.textContent = ""; }
-  else if(v < due){ hint.className = "amt-hint less"; hint.textContent = "⚠️ أقل من المطلوب بـ " + money(due - v) + " ج.م — الباقي هيفضل متسجل على العميل"; }
-  else { hint.className = "amt-hint more"; hint.textContent = "ℹ️ أكتر من المطلوب بـ " + money(v - due) + " ج.م"; }
+  else if(v < due){ hint.className = "amt-hint less"; hint.textContent = "⚠️ أقل من المطلوب بـ " + money(due - v) + " ج.م — سيبقى المتبقي مسجلًا على العميل"; }
+  else { hint.className = "amt-hint more"; hint.textContent = "ℹ️ أكثر من المطلوب بـ " + money(v - due) + " ج.م"; }
 }
 
 /* ═══════════ التحديث ═══════════ */
@@ -692,7 +692,7 @@ async function sendUpdates(updates){
         }catch(e){}
         return failed;
       }
-    }catch(e){ if(e.auth){ alert("⚠️ الجلسة انتهت — سجّل دخول تاني."); logout(); return updates; } }
+    }catch(e){ if(e.auth){ alert("⚠️ انتهت الجلسة — يُرجى تسجيل الدخول مرة أخرى."); logout(); return updates; } }
   }
   return null;   // مقدرناش نتأكد
 }
@@ -710,7 +710,7 @@ async function fetchCheck(orders){
 function lockUI(on){
   busy = on;
   ["btnDeliver","btnOut","btnHold"].forEach(id => { const b = document.getElementById(id); if(b) b.disabled = on; });
-  setSync(on ? "busy" : "ok", on ? "بيحفظ" : "جاهز");
+  setSync(on ? "busy" : "ok", on ? "جارٍ الحفظ" : "جاهز");
 }
 
 /* ✅ تسليم + تحصيل */
@@ -721,25 +721,25 @@ async function askDeliver(){
   const amtEl = document.getElementById("amt");
   const amount = num(amtEl.value);
   const due = sel.reduce((s, o) => s + dueOf(o), 0);
-  if(amtEl.value.trim() === ""){ amtEl.focus(); return toast("err", "اكتب المبلغ اللي اتحصّل (ولو العميل مادفعش حاجة اكتب 0)", 3500); }
+  if(amtEl.value.trim() === ""){ amtEl.focus(); return toast("err", "اكتب المبلغ المحصَّل (وإذا لم يدفع العميل شيئًا فاكتب 0)", 3500); }
 
   let warn = "";
-  if(Math.round(amount) < Math.round(due)) warn = '<br>⚠️ <b>' + money(due - amount) + '</b> ج.م هيفضلوا مطلوبين من العميل.';
-  if(Math.round(amount) > Math.round(due)) warn = '<br>ℹ️ المبلغ أكتر من المطلوب بـ <b>' + money(amount - due) + '</b> ج.م.';
+  if(Math.round(amount) < Math.round(due)) warn = '<br>⚠️ <b>' + money(due - amount) + '</b> ج.م ستبقى مطلوبة من العميل.';
+  if(Math.round(amount) > Math.round(due)) warn = '<br>ℹ️ المبلغ أكثر من المطلوب بـ <b>' + money(amount - due) + '</b> ج.م.';
   const ok = await confirmSheet("✅ تأكيد التسليم",
-    'هتسجّل تسليم <b>' + sel.length + '</b> منتج لـ ' + tsEscapeHtml(current.name) +
-    '<br>والمبلغ اللي اتحصّل: <b>' + money(amount) + '</b> ج.م' + warn, "تأكيد التسليم");
+    'ستسجّل تسليم <b>' + sel.length + '</b> منتج لـ ' + tsEscapeHtml(current.name) +
+    '<br>والمبلغ المحصَّل: <b>' + money(amount) + '</b> ج.م' + warn, "تأكيد التسليم");
   if(!ok) return;
 
   lockUI(true);
-  toast("ok", "⏳ بيسجّل التسليم...");
+  toast("ok", "⏳ جارٍ تسجيل التسليم...");
   // ⚠️ بنقرا العربون من الشيت **دلوقتي** قبل ما نحسب — لو حد في المكتب عدّل
   // العربون من شوية، مانكتبش فوقه بقيمة قديمة
   let fresh;
-  try{ fresh = await fetchRows(); setRows(fresh); }catch(e){ lockUI(false); return toast("err", "❌ مفيش اتصال — ماتسجلش حاجة. جرّب تاني.", 5000); }
+  try{ fresh = await fetchRows(); setRows(fresh); }catch(e){ lockUI(false); return toast("err", "❌ لا يوجد اتصال — لم يُسجَّل شيء. حاول مرة أخرى.", 5000); }
   const ids = sel.map(o => String(o.order));
   const live = ids.map(id => fresh.find(o => String(o.order) === id)).filter(Boolean);
-  if(live.length !== ids.length){ lockUI(false); return toast("err", "❌ في طلب مش لاقيه في الشيت — حدّث الصفحة وجرّب تاني.", 6000); }
+  if(live.length !== ids.length){ lockUI(false); return toast("err", "❌ يوجد طلب غير موجود في الشيت — حدّث الصفحة وحاول مرة أخرى.", 6000); }
 
   // 💵 توزيع المبلغ: كل منتج بياخد المطلوب عليه بالترتيب، والزيادة (لو فيه) على آخر واحد
   let left = amount;
@@ -755,7 +755,7 @@ async function askDeliver(){
   const failed = await sendUpdates(updates);
   lockUI(false);
   if(failed === null){
-    return toast("err", "⚠️ التحديثات اتبعتت بس مقدرناش نتأكد إنها اتسجلت (النت؟). <b>ماتعيدش</b> — كلّم المكتب يتأكد من الشيت.");
+    return toast("err", "⚠️ أُرسلت التحديثات، لكن لم نتمكن من التأكد من تسجيلها (ربما بسبب الإنترنت). <b>لا تُعِد الإرسال</b> — تواصل مع المكتب للتأكد من الشيت.");
   }
   const okCount = updates.length - failed.length;
   if(okCount) logCollection(current.name, updates.filter(u => failed.indexOf(u) === -1));
@@ -768,10 +768,10 @@ async function askDeliver(){
     : "أهلًا " + (current.name || "") + " 👋\nتم تسليم طلبك من Try Shoppy ✅\n" + okList +
       "\nالمبلغ المدفوع: " + money(amount) + " ج.م\nشكرًا لثقتك 🌟" };
   if(failed.length){
-    toast("err", "⚠️ اتسجل " + okCount + " من " + updates.length + ". دول ماتسجلوش: " + failed.map(f => f.order).join("، ") + " — جرّب تاني ليهم بس.");
+    toast("err", "⚠️ سُجِّل " + okCount + " من " + updates.length + ". لم تُسجَّل الطلبات التالية: " + failed.map(f => f.order).join("، ") + " — أعد المحاولة لها فقط.");
   } else {
     toast("ok", "✅ تم تسجيل التسليم وتحصيل " + money(amount) + " ج.م" +
-      '<br><a href="#" onclick="waReceipt();return false">📲 ابعت إيصال للعميل على واتساب</a>');
+      '<br><a href="#" onclick="waReceipt();return false">📲 أرسل إيصالًا للعميل عبر واتساب</a>');
   }
   renderCustomer();
 }
@@ -781,18 +781,18 @@ async function markOut(){
   if(busy) return;
   const sel = selectedRows().filter(o => String(o.status).trim() === HUB);
   if(!sel.length) return;
-  const ok = await confirmSheet("🚚 خرجت للتوصيل", "هتحوّل <b>" + sel.length + "</b> منتج لـ «في الطريق إليك» — العميل هيوصله إيميل إن طلبه خرج للتوصيل.", "تأكيد");
+  const ok = await confirmSheet("🚚 خرجتُ للتوصيل", "ستحوّل <b>" + sel.length + "</b> منتج إلى «في الطريق إليك» — وستصل إلى العميل رسالة بريد إلكتروني بأن طلبه خرج للتوصيل.", "تأكيد");
   if(!ok) return;
   lockUI(true);
   const failed = await sendUpdates(sel.map(o => ({ order: String(o.order), status: OUT })));
   lockUI(false);
-  if(failed === null) return toast("err", "⚠️ مقدرناش نتأكد إن التحديث اتسجل — ماتعيدش، كلّم المكتب.");
-  toast(failed.length ? "err" : "ok", failed.length ? "⚠️ دول ماتسجلوش: " + failed.map(f => f.order).join("، ") : "✅ اتسجل إنك خرجت للتوصيل", failed.length ? 0 : 3500);
+  if(failed === null) return toast("err", "⚠️ لم نتمكن من التأكد من تسجيل التحديث — لا تُعِد الإرسال، وتواصل مع المكتب.");
+  toast(failed.length ? "err" : "ok", failed.length ? "⚠️ لم تُسجَّل الطلبات التالية: " + failed.map(f => f.order).join("، ") : "✅ تم تسجيل خروجك للتوصيل", failed.length ? 0 : 3500);
   renderCustomer();
 }
 
 /* ⏸️ مؤجل — بسبب (بيظهر للعميل في التتبع والإيميل) */
-const COURIER_HOLD_REASONS = ["العميل مابيردش على التليفون", "العميل طلب يأجّل الاستلام", "العنوان ناقص أو غلط", "العميل مش موجود في العنوان"];
+const COURIER_HOLD_REASONS = ["العميل لا يرد على الهاتف", "طلب العميل تأجيل الاستلام", "العنوان ناقص أو غير صحيح", "العميل غير موجود في العنوان"];
 async function markHold(){
   if(busy) return;
   const sel = selectedRows();
@@ -802,8 +802,8 @@ async function markHold(){
   lockUI(true);
   const failed = await sendUpdates(sel.map(o => ({ order: String(o.order), status: "On Hold", statusNote: note })));
   lockUI(false);
-  if(failed === null) return toast("err", "⚠️ مقدرناش نتأكد إن التحديث اتسجل — ماتعيدش، كلّم المكتب.");
-  toast(failed.length ? "err" : "ok", failed.length ? "⚠️ دول ماتسجلوش: " + failed.map(f => f.order).join("، ") : "⏸️ اتسجل مؤجل: " + tsEscapeHtml(note), failed.length ? 0 : 4000);
+  if(failed === null) return toast("err", "⚠️ لم نتمكن من التأكد من تسجيل التحديث — لا تُعِد الإرسال، وتواصل مع المكتب.");
+  toast(failed.length ? "err" : "ok", failed.length ? "⚠️ لم تُسجَّل الطلبات التالية: " + failed.map(f => f.order).join("، ") : "⏸️ سُجِّل كمؤجل: " + tsEscapeHtml(note), failed.length ? 0 : 4000);
   renderCustomer();
 }
 
@@ -824,7 +824,7 @@ function renderToday(){
   document.getElementById("todaySum").textContent = money(total);
   document.getElementById("todayList").innerHTML = log.length
     ? log.slice().reverse().map(x => '<div><span>' + tsEscapeHtml(x.t) + ' · ' + tsEscapeHtml(x.name) + ' (' + x.n + ')</span><b class="mono">' + money(x.amount) + '</b></div>').join("")
-    : '<div><span style="color:var(--ink-3)">لسه ماحصّلتش حاجة النهارده</span></div>';
+    : '<div><span style="color:var(--ink-3)">لم تحصّل شيئًا اليوم حتى الآن</span></div>';
 }
 
 /* ═══════════ التشغيل ═══════════ */

@@ -55,7 +55,7 @@ function tsStaffLogin(username, password) {
    ═══════════════════════════════════════════════════════════ */
 const TS_TOOL_NAMES = {
   dash945: "لوحة الطلبات والحسابات (945)", dashMob: "لوحة الطلبات (موبايل)",
-  quickOrder: "إضافة أوردر لعميل سابق", directOrder: "تسجيل طلب مباشر",
+  quickOrder: "إضافة طلب لعميل سابق", directOrder: "تسجيل طلب مباشر",
   customerRef: "مرجع طلبات العملاء", courier: "أداة المندوب",
   calculatorOP: "حاسبة التشغيل", rama: "RAMA", mart: "إدارة المارت",
   expenses: "المصروفات (OPEX)"
@@ -88,13 +88,13 @@ function tsGateTool(key) {
   box.innerHTML =
     '<div style="background:#fff;border-radius:20px;padding:28px 22px;max-width:400px;width:100%;text-align:center">' +
       '<div style="font-size:44px">🔒</div>' +
-      '<div style="font-size:19px;font-weight:900;color:#101B33;margin-top:8px">مالكش صلاحية على الأداة دي</div>' +
-      '<div style="font-size:14px;color:#5A6885;margin-top:6px;line-height:1.7">«' + esc(TS_TOOL_NAMES[key] || key) + '» مش مفتوحة لحسابك (' +
-        esc(localStorage.getItem("currentUserLabel") || "") + '). لو محتاجها، الأدمن يحط ✓ قدام اسمك في شيت الموظفين.</div>' +
+      '<div style="font-size:19px;font-weight:900;color:#101B33;margin-top:8px">ليست لديك صلاحية على هذه الأداة</div>' +
+      '<div style="font-size:14px;color:#5A6885;margin-top:6px;line-height:1.7">«' + esc(TS_TOOL_NAMES[key] || key) + '» غير متاحة لحسابك (' +
+        esc(localStorage.getItem("currentUserLabel") || "") + '). إذا كنت تحتاج إليها، يضع المسؤول علامة ✓ أمام اسمك في شيت الموظفين.</div>' +
       (mine.length ? '<div style="font-size:12.5px;color:#5A6885;background:#F4F6FB;border-radius:12px;padding:10px;margin-top:14px;line-height:1.8"><b style="color:#101B33">أدواتك:</b> ' + mine.map(esc).join(" · ") + '</div>' : '') +
       '<div style="display:grid;gap:8px;margin-top:18px">' +
-        '<a href="Operation.html" style="background:#F5B820;color:#101B33;border-radius:12px;padding:12px;font-weight:900;text-decoration:none">← رجوع للأدوات</a>' +
-        '<button id="tsGateOut" style="background:#EEF2F8;color:#5A6885;border:0;border-radius:12px;padding:12px;font:inherit;font-weight:800;cursor:pointer">دخول بحساب تاني</button>' +
+        '<a href="Operation.html" style="background:#F5B820;color:#101B33;border-radius:12px;padding:12px;font-weight:900;text-decoration:none">← العودة إلى الأدوات</a>' +
+        '<button id="tsGateOut" style="background:#EEF2F8;color:#5A6885;border:0;border-radius:12px;padding:12px;font:inherit;font-weight:800;cursor:pointer">الدخول بحساب آخر</button>' +
       '</div>' +
     '</div>';
   document.body.appendChild(box);
@@ -201,12 +201,12 @@ function tsSessionWatch(){
   bar.style.background = expired ? "#DC2626" : "#F5B820";
   bar.style.color = expired ? "#fff" : "#101B33";
   bar.innerHTML = '<span style="flex:1;min-width:200px">' + (expired
-      ? "⛔ الجلسة خلصت — أي حفظ دلوقتي هيترفض. انسخ أي بيانات مكتوبة وسجّل دخول تاني."
-      : "⏳ جلستك هتخلص بعد " + Math.max(1, Math.ceil(left / 60000)) + " دقيقة — خلّص اللي في إيدك وسجّل دخول تاني.") + '</span>' +
+      ? "⛔ انتهت الجلسة — سيُرفض أي حفظ الآن. انسخ أي بيانات مكتوبة ثم سجّل الدخول مرة أخرى."
+      : "⏳ ستنتهي جلستك بعد " + Math.max(1, Math.ceil(left / 60000)) + " دقيقة — أنهِ ما تعمل عليه ثم سجّل الدخول مرة أخرى.") + '</span>' +
     '<button type="button" id="tsSessionRe" style="border:0;border-radius:10px;padding:8px 14px;font:inherit;cursor:pointer;background:' +
-      (expired ? "#fff;color:#DC2626" : "#101B33;color:#F5B820") + '">🔑 تسجيل دخول تاني</button>';
+      (expired ? "#fff;color:#DC2626" : "#101B33;color:#F5B820") + '">🔑 تسجيل الدخول مرة أخرى</button>';
   document.getElementById("tsSessionRe").onclick = () => {
-    if (!expired && !confirm("هتسجل خروج دلوقتي — أي بيانات مكتوبة ومش محفوظة هتضيع. تكمل؟")) return;
+    if (!expired && !confirm("سيتم تسجيل خروجك الآن، وستضيع أي بيانات مكتوبة غير محفوظة. هل تريد المتابعة؟")) return;
     ["currentUser", "currentUserLabel", "loginTime", "staffToken", "isAdmin", "staffTools"].forEach(k => localStorage.removeItem(k));
     location.reload();
   };

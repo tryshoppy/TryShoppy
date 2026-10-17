@@ -7,7 +7,7 @@
 <title>Mart Admin — Try Shoppy</title>
 <link rel="icon" href="assets/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
-<link rel="stylesheet" href="assets/style.css?v=20261017a">
+<link rel="stylesheet" href="assets/style.css?v=20261017b">
 <style>
 .adm-wrap{padding:40px 0 90px}
 .adm-header{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:14px;margin-bottom:28px}
@@ -230,9 +230,9 @@
     <div class="foot-bottom"><span data-i18n="foot_rights">© 2026 Try Shoppy. All rights reserved.</span><span data-i18n="foot_made">Made for shoppers in Egypt 🇪🇬</span></div>
   </div>
 </footer>
-<script src="assets/config.js?v=20261017a"></script>
-<script src="assets/i18n.js?v=20261017a"></script>
-<script src="assets/app.js?v=20261017a"></script>
+<script src="assets/config.js?v=20261017b"></script>
+<script src="assets/i18n.js?v=20261017b"></script>
+<script src="assets/app.js?v=20261017b"></script>
 <script>
 tsInitNav();
 let ADMIN_USER = sessionStorage.getItem('ts_admin_user') || '';
@@ -337,7 +337,7 @@ function renderStats(){
    لازم تغيّرها هناك كمان (الاتنين شيت منفصل من كود عرض، مش
    مشتركين في ملف واحد، عشان كل صفحة تفضل مستقلة بنفسها) */
 const CATEGORY_META={
-  accessories_toys:{en:'Accessories & Toys',ar:'الاكسسوارات والألعاب'},
+  accessories_toys:{en:'Accessories & Toys',ar:'الإكسسوارات والألعاب'},
   beauty:{en:'Skincare, Hair & Beauty',ar:'العناية بالبشرة والشعر والتجميل'},
   supplements:{en:'Supplements & Vitamins',ar:'المكملات الغذائية والفيتامينات'},
   clothing:{en:'Clothing & Shoes',ar:'الملابس والأحذية'},
@@ -429,7 +429,7 @@ document.getElementById('fetchLinkBtn').addEventListener('click', function(){
 
   const btn=this;
   tsSetBtnLoading(btn, tsT('common_checking'));
-  hint.textContent=(TS_LANG==='ar')?'بنحاول نجيب بيانات المنتج…':'Fetching product info…';
+  hint.textContent=(TS_LANG==='ar')?'جارٍ جلب بيانات المنتج…':'Fetching product info…';
 
   tsFetchMartProductInfo(link,ADMIN_USER,ADMIN_PASS).then(data=>{
     tsClearBtnLoading(btn);
@@ -442,11 +442,11 @@ document.getElementById('fetchLinkBtn').addEventListener('click', function(){
       // مش جنيه — فمبنحطوش مباشرة في خانة السعر بالجنيه، بنعرضه
       // بس كرقم مرجعي في الـ hint عشان الأدمن يحسب منه السعر النهائي
       const priceNote=(data.price!==null&&data.price!==undefined)
-        ? ((TS_LANG==='ar')?' — السعر الأصلي على الموقع تقريبًا: '+data.price+' (غالبًا دولار — احسب السعر النهائي بالجنيه يدويًا).':' — approx. original site price: '+data.price+' (likely USD — calculate the final EGP price manually).')
+        ? ((TS_LANG==='ar')?' — السعر الأصلي على الموقع تقريبًا: '+data.price+' (غالبًا بالدولار — احسب السعر النهائي بالجنيه يدويًا).':' — approx. original site price: '+data.price+' (likely USD — calculate the final EGP price manually).')
         : '';
       hint.textContent=((data.nameSource==='url')
-        ? ((TS_LANG==='ar')?'⚠️ الاسم اتحزر من الرابط نفسه — راجعه واتأكد منه قبل الحفظ. حرّر الاسم العربي والوصف يدويًا.':'⚠️ Name guessed from the link itself — please review it before saving. Arabic name/description need manual translation.')
-        : ((TS_LANG==='ar')?'✅ اتجابت بيانات من الصفحة — راجعها واكمل الاسم العربي يدويًا.':'✅ Pulled from the page — please review, and fill in the Arabic name/description manually.'))
+        ? ((TS_LANG==='ar')?'⚠️ تم استنتاج الاسم من الرابط نفسه — راجعه وتأكد منه قبل الحفظ، واكتب الاسم العربي والوصف يدويًا.':'⚠️ Name guessed from the link itself — please review it before saving. Arabic name/description need manual translation.')
+        : ((TS_LANG==='ar')?'✅ تم جلب البيانات من الصفحة — راجعها وأكمل الاسم العربي يدويًا.':'✅ Pulled from the page — please review, and fill in the Arabic name/description manually.'))
         + priceNote;
     }else if(data&&(data.message==='Unauthorized'||data.code==='unauthorized')){
       handleUnauthorized();

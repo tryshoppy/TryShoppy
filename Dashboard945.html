@@ -371,7 +371,7 @@ body.sb-open{overflow:hidden}
 <div id="tsInitLoader" style="position:fixed;inset:0;background:var(--navy);display:grid;place-items:center;z-index:99999;color:var(--gold);font-weight:800">
   <div style="text-align:center">
     <div style="width:46px;height:46px;border:3px solid rgba(245,184,32,.25);border-top-color:var(--gold);border-radius:50%;margin:0 auto 14px;animation:sp .8s linear infinite"></div>
-    جاري التحميل…
+    جارٍ التحميل…
   </div>
 </div>
 <style>@keyframes sp{to{transform:rotate(360deg)}}</style>
@@ -381,7 +381,7 @@ body.sb-open{overflow:hidden}
   <div class="lcard">
     <div class="lg">TS</div>
     <h2>لوحة الطلبات</h2>
-    <p>ادخل ببيانات الموظف بتاعتك</p>
+    <p>سجّل الدخول ببيانات الموظف الخاصة بك</p>
     <div class="lfld"><label>اسم المستخدم</label><input id="loginUser" type="text" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()"></div>
     <div class="lfld"><label>كلمة المرور</label><input id="loginPass" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
     <div id="loginError"></div>
@@ -408,17 +408,17 @@ body.sb-open{overflow:hidden}
            ولا انتظار. اختيار العميل بيملّي بياناته بس — الموظف
            يقدر يعدّلها عادي بعد كده. -->
       <div class="ao-f ao-search">
-        <label>دوّر على عميل موجود</label>
+        <label>ابحث عن عميل موجود</label>
         <input id="aoSearch" type="text" autocomplete="off"
-               placeholder="اكتب اسم أو رقم موبايل…"
+               placeholder="اكتب اسمًا أو رقم هاتف…"
                oninput="aoSearchCustomer()" onfocus="aoSearchCustomer()">
         <div class="ao-res" id="aoResults"></div>
       </div>
 
       <div class="ao-grid">
         <div class="ao-f"><label>الاسم *</label><input id="aoName" type="text"></div>
-        <div class="ao-f"><label>الموبايل *</label><input id="aoPhone" type="tel" inputmode="tel" placeholder="01xxxxxxxxx"></div>
-        <div class="ao-f"><label>الإيميل (اختياري)</label><input id="aoEmail" type="email" placeholder="name@example.com"></div>
+        <div class="ao-f"><label>رقم الهاتف *</label><input id="aoPhone" type="tel" inputmode="tel" placeholder="01xxxxxxxxx"></div>
+        <div class="ao-f"><label>البريد الإلكتروني (اختياري)</label><input id="aoEmail" type="email" placeholder="name@example.com"></div>
         <div class="ao-f"><label>المحافظة</label><select id="aoGov"></select></div>
       </div>
       <div class="ao-f"><label>العنوان</label><textarea id="aoAddress" rows="2"></textarea></div>
@@ -448,7 +448,7 @@ body.sb-open{overflow:hidden}
            الشيت (نفس مبدأ سلة الحاسبة والمارت بالظبط)، بس العميل
            وبيانات التشغيل مشتركين بينهم كلهم. -->
       <button type="button" class="ao-addbtn" id="aoAddItem" onclick="aoAddToCart()">
-        ➕ أضف المنتج للسلة
+        ➕ أضف المنتج إلى السلة
       </button>
 
       <div class="ao-sec">🛒 السلة</div>
@@ -462,7 +462,7 @@ body.sb-open{overflow:hidden}
              هنجبر الموظف على تاريخ كامل بصيغة واحدة، والفلتر
              وتجميع الشحنات بيشتغلوا على النص زي ما هو. -->
         <div class="ao-f"><label>موعد الوصول</label>
-          <input id="aoArrival" type="text" list="aoArrivalList" placeholder="زي: 18 Sep 2026">
+          <input id="aoArrival" type="text" list="aoArrivalList" placeholder="مثل: 18 Sep 2026">
           <datalist id="aoArrivalList"></datalist>
         </div>
         <!-- 💰 عربون واحد للطلب كله — بيتسجل على أول منتج في السلة،
@@ -492,25 +492,25 @@ body.sb-open{overflow:hidden}
            لو التوكن مش بتاع أدمن — فالإخفاء هنا مش هو الحماية. -->
       <div class="ao-sec" id="aoHideSec" style="display:none">مخفي عن</div>
       <div class="ao-hide" id="aoHideBox" style="display:none">
-        <div id="aoHideList" class="ao-hide-list"><span class="ao-hide-empty">⏳ جاري تحميل قائمة الموظفين...</span></div>
+        <div id="aoHideList" class="ao-hide-list"><span class="ao-hide-empty">⏳ جارٍ تحميل قائمة الموظفين...</span></div>
       </div>
 
       <!-- 📧 التحكم في الإيميلات — إيميل العميل وإشعار الفريق منفصلين -->
       <div class="ao-sec">الإشعارات</div>
       <label class="ao-chk">
         <input type="checkbox" id="aoNotifyStaff" checked>
-        <span><b>ابعت إشعار للموظفين</b><small>إيميل للفريق إن فيه طلب جديد اتسجل</small></span>
+        <span><b>أرسل إشعارًا للموظفين</b><small>رسالة بريد إلكتروني للفريق بتسجيل طلب جديد</small></span>
       </label>
       <label class="ao-chk">
         <input type="checkbox" id="aoNotifyCustomer" checked>
-        <span><b>ابعت تأكيد للعميل</b><small>محتاج إيميل العميل يكون متكتوب فوق</small></span>
+        <span><b>أرسل تأكيدًا للعميل</b><small>يتطلب كتابة البريد الإلكتروني للعميل في الأعلى</small></span>
       </label>
 
       <div class="ao-msg" id="aoMsg"></div>
     </div>
 
     <div class="ao-foot">
-      <span class="ao-num" id="aoTotal">السلة فاضية</span>
+      <span class="ao-num" id="aoTotal">السلة فارغة</span>
       <div class="sp">
         <button class="tbtn" onclick="closeAddOrder()">إلغاء</button>
         <button class="tbtn gold" id="aoSave" onclick="submitAddOrder()">حفظ الطلب</button>
@@ -531,7 +531,7 @@ body.sb-open{overflow:hidden}
       <div class="ao-grid">
         <div class="ao-f"><label>النوع *</label><select id="exType"></select></div>
         <div class="ao-f"><label>موعد الوصول (الشحنة)</label>
-          <input id="exArrival" type="text" list="exArrivalList" placeholder="O-27SEP2026 — أو سيبه فاضي">
+          <input id="exArrival" type="text" list="exArrivalList" placeholder="O-27SEP2026 — أو اتركه فارغًا">
           <datalist id="exArrivalList"></datalist></div>
         <div class="ao-f"><label>التاريخ</label><input id="exDate" type="date"></div>
       </div>
@@ -545,7 +545,7 @@ body.sb-open{overflow:hidden}
         <div class="ao-f" id="exRateWrap"><label>سعر الدولار وقت الشحنة</label><input id="exRate" type="number" step="any" min="1" inputmode="decimal"></div>
       </div>
       <div class="ao-calc on" id="exCalc"></div>
-      <div class="ao-f"><label>ملاحظة</label><input id="exNote" type="text" maxlength="300" placeholder="مثلاً: فاتورة شحن الشحنة / رقم الإيصال"></div>
+      <div class="ao-f"><label>ملاحظة</label><input id="exNote" type="text" maxlength="300" placeholder="مثلًا: فاتورة شحن الشحنة / رقم الإيصال"></div>
       <div class="ao-msg" id="exMsg"></div>
       <button type="button" class="ao-addbtn" id="exSave" onclick="submitExpense()">حفظ المصروف</button>
 
@@ -567,7 +567,7 @@ body.sb-open{overflow:hidden}
   <div class="sb-sec">
     <h4>بحث</h4>
     <div class="sbf">
-      <input id="searchInput" placeholder="اسم، موبايل، رقم طلب…" onkeydown="if(event.key==='Enter'){applyFilters();autoCloseSb();}" oninput="applyFilters()">
+      <input id="searchInput" placeholder="اسم، هاتف، رقم طلب…" onkeydown="if(event.key==='Enter'){applyFilters();autoCloseSb();}" oninput="applyFilters()">
     </div>
   </div>
 
@@ -576,8 +576,8 @@ body.sb-open{overflow:hidden}
     <div class="sbf">
       <select id="srcFilter" onchange="applyFilters();autoCloseSb()">
         <option value="">الكل (الطلبات + RAMA)</option>
-        <option value="orders">الطلبات بس</option>
-        <option value="rama">RAMA بس</option>
+        <option value="orders">الطلبات فقط</option>
+        <option value="rama">RAMA فقط</option>
       </select>
     </div>
   </div>
@@ -589,7 +589,7 @@ body.sb-open{overflow:hidden}
       <div class="ms" id="arrivalSelect" data-all="📅 كل مواعيد الوصول" data-unit="موعد" data-search="1"></div>
     </div>
     <div class="sbf">
-      <input id="searchArrival" placeholder="أو اكتب جزء من الموعد…" onkeydown="if(event.key==='Enter'){applyFilters();autoCloseSb();}" oninput="applyFilters()">
+      <input id="searchArrival" placeholder="أو اكتب جزءًا من الموعد…" onkeydown="if(event.key==='Enter'){applyFilters();autoCloseSb();}" oninput="applyFilters()">
     </div>
   </div>
 
@@ -649,7 +649,7 @@ body.sb-open{overflow:hidden}
     <button id="kpiToggle" class="kpitoggle" onclick="toggleKpis()">
       <span id="kpiToggleTxt">إظهار الحسابات</span>
     </button>
-    <span class="kpiscope" id="kpiScope">كل الطلبات — من غير فلتر</span>
+    <span class="kpiscope" id="kpiScope">كل الطلبات — دون فلتر</span>
   </div>
 
   <div class="kpis is-hidden" id="kpis">
@@ -668,7 +668,7 @@ body.sb-open{overflow:hidden}
   </div>
 
   <div class="bulkbar">
-    <span class="selbadge" id="selectedCountBadge">مفيش طلبات محددة</span>
+    <span class="selbadge" id="selectedCountBadge">لا توجد طلبات محددة</span>
     <button class="linkbtn" onclick="selectAllFiltered()">تحديد كل المعروض</button>
     <button class="linkbtn" onclick="clearSelection()">إلغاء التحديد</button>
     <div class="sp">
@@ -700,9 +700,9 @@ body.sb-open{overflow:hidden}
   </div>
 </main>
 
-<script src="assets/config.js?v=20261017a"></script>
-<script src="assets/function_calc.js?v=20261017a"></script><!-- 💡 سعر الحاسبة المقترح (tsPriceSanity) -->
-<script src="assets/app.js?v=20261017a"></script>
+<script src="assets/config.js?v=20261017b"></script>
+<script src="assets/function_calc.js?v=20261017b"></script><!-- 💡 سعر الحاسبة المقترح (tsPriceSanity) -->
+<script src="assets/app.js?v=20261017b"></script>
 <script>
 
 
@@ -731,7 +731,7 @@ async function loadData() {
         if (!Array.isArray(data)) {
             console.error("Unauthorized or bad response loading orders", data);
             ordersData = [];
-            alert("⚠️ الجلسة انتهت أو مش صالحة — سجّل دخول تاني.");
+            alert("⚠️ انتهت الجلسة أو أصبحت غير صالحة — يُرجى تسجيل الدخول مرة أخرى.");
             logout();
             return;
         }
@@ -858,7 +858,7 @@ function msBuild(id, items){
     box.innerHTML =
         '<button type="button" class="ms-btn"><span class="ms-txt"></span><span class="ms-car">▼</span></button>' +
         '<div class="ms-panel">' +
-          (search ? '<input class="ms-q" placeholder="دوّر في القايمة…">' : '') +
+          (search ? '<input class="ms-q" placeholder="ابحث في القائمة…">' : '') +
           '<div class="ms-list">' + items.map(it =>
             '<label class="ms-opt"><input type="checkbox" value="' + tsEscapeHtml(it.v) + '" data-label="' + tsEscapeHtml(it.label) + '"' +
             (keep.has(it.v) ? ' checked' : '') + '><span>' + tsEscapeHtml(it.icon ? it.icon + " " + it.label : it.label) + '</span></label>'
@@ -1074,9 +1074,9 @@ async function loadExpenses(){
     EXP_RATE_BY_ARR = new Map();
     if(!tsHasTool("expenses")){
         EXPENSES = [];
-        EXP_REASON = "جلستك الحالية مافيهاش صلاحية المصروفات.\n\n" +
-            "١) سجّل خروج من اللوحة وادخل تاني.\n" +
-            "٢) لو لسه: اتأكد إن Staff_Code.gs اتعمله ديبلوي بالنسخة الجديدة، وإن عمود Expenses في شيت الموظفين متعلّم قدام اسمك (الأدمن بياخدها لوحده).";
+        EXP_REASON = "لا تملك جلستك الحالية صلاحية المصروفات.\n\n" +
+            "١) سجّل الخروج من اللوحة ثم ادخل مرة أخرى.\n" +
+            "٢) إذا استمرت المشكلة: تأكد من نشر Staff_Code.gs بالنسخة الجديدة، ومن تعليم عمود Expenses أمام اسمك في شيت الموظفين (يحصل عليها المسؤول تلقائيًا).";
         syncExpenseUi(); return;
     }
     try{
@@ -1089,12 +1089,12 @@ async function loadExpenses(){
         else {
             EXPENSES = [];
             EXP_REASON = data && data.code === "forbidden"
-                ? "السيرفر رافض: حسابك مالوش صلاحية Expenses — علّمها في شيت الموظفين وسجّل دخول تاني."
-                : "السيرفر لسه بالنسخة القديمة — اعمل ديبلوي (New version) لـ Orders_Code.gs وحدّث الصفحة.";
+                ? "رفض الخادم الطلب: ليست لحسابك صلاحية Expenses — علّمها في شيت الموظفين ثم سجّل الدخول مرة أخرى."
+                : "ما زال الخادم يعمل بالنسخة القديمة — انشر نسخة جديدة (New version) من Orders_Code.gs ثم حدّث الصفحة.";
         }
     }catch(e){
         EXPENSES = [];          // السكريبت لسه مااتعملوش ديبلوي مثلاً — نكمّل بالطريقة القديمة
-        EXP_REASON = "تعذر الاتصال بالسيرفر لتحميل المصروفات — حدّث الصفحة وجرّب تاني.";
+        EXP_REASON = "تعذر الاتصال بالخادم لتحميل المصروفات — حدّث الصفحة وحاول مرة أخرى.";
         console.warn("تعذر تحميل المصروفات:", e);
     }
     syncExpenseUi();
@@ -1123,7 +1123,7 @@ function expenseMatches(e, f){
 function fmtEgp(n){ return Math.round(n).toLocaleString() + " ج.م"; }
 
 function openExpenses(){
-    if(!EXP_ON){ alert("💸 المصروفات مش شغالة دلوقتي\n\n" + (EXP_REASON || "حدّث الصفحة وجرّب تاني.")); return; }
+    if(!EXP_ON){ alert("💸 المصروفات غير متاحة حاليًا\n\n" + (EXP_REASON || "حدّث الصفحة وحاول مرة أخرى.")); return; }
     const typeSel = document.getElementById("exType");
     if(!typeSel.options.length) typeSel.innerHTML = EXP_TYPES.map(t => `<option>${tsEscapeHtml(t)}</option>`).join("");
     document.getElementById("exArrivalList").innerHTML =
@@ -1166,7 +1166,7 @@ function renderExpenseList(){
         (filtered ? "مصروفات الفلتر الحالي" : "كل المصروفات") + " (" + list.length + ")";
     const admin = aoIsAdmin();
     document.getElementById("exList").innerHTML = !list.length
-        ? '<div class="ex-empty">مفيش مصروفات ' + (filtered ? "للفلتر ده" : "متسجلة لسه") + '</div>'
+        ? '<div class="ex-empty">لا توجد مصروفات ' + (filtered ? "لهذا الفلتر" : "مسجلة حتى الآن") + '</div>'
         : '<div class="ex-sum">الإجمالي: <b>' + fmtEgp(total) + '</b></div>' + list.map(e => {
             const usd = String(e.currency).toUpperCase() === "USD";
             return `<div class="ex-row">
@@ -1191,12 +1191,12 @@ async function submitExpense(){
     const rate = parseFloat(document.getElementById("exRate").value) || EXP_DEFAULT_RATE;
     msg.className = "ao-msg err";
     if(!(amount > 0)) { msg.textContent = "اكتب المبلغ"; return; }
-    if(currency === "USD" && !(rate > 1 && rate < 1000)) { msg.textContent = "سعر الدولار مش مظبوط"; return; }
+    if(currency === "USD" && !(rate > 1 && rate < 1000)) { msg.textContent = "سعر الدولار غير صحيح"; return; }
 
     if(!EXP_PENDING_ID) EXP_PENDING_ID = "EXP" + Date.now().toString(36).toUpperCase() + Math.random().toString(36).slice(2, 6).toUpperCase();
     const id = EXP_PENDING_ID;
     const btn = document.getElementById("exSave");
-    tsSetBtnLoading(btn, "جاري الحفظ...");
+    tsSetBtnLoading(btn, "جارٍ الحفظ...");
     msg.textContent = "";
     try{
         await tsPostScript(scriptURL, {
@@ -1215,32 +1215,32 @@ async function submitExpense(){
             ok = EXPENSES.some(e => e.id === id);
         }
         tsClearBtnLoading(btn);
-        if(!ok){ msg.textContent = "⚠️ مش متأكد إن المصروف اتسجل — اضغط حفظ تاني (مش هيتكرر)، أو راجع تاب Expenses."; return; }
+        if(!ok){ msg.textContent = "⚠️ لم نتأكد من تسجيل المصروف — اضغط «حفظ» مرة أخرى (لن يتكرر)، أو راجع تبويب Expenses."; return; }
         EXP_PENDING_ID = null;
         document.getElementById("exAmount").value = "";
         document.getElementById("exNote").value = "";
         msg.className = "ao-msg ok";
-        msg.textContent = "✅ المصروف اتسجل";
+        msg.textContent = "✅ تم تسجيل المصروف";
         applyFilters();
         exCalc();
         renderExpenseList();
     }catch(err){
         tsClearBtnLoading(btn);
-        msg.textContent = "❌ تعذر الاتصال بالسيرفر — المصروف مااتسجلش. " + err;
+        msg.textContent = "❌ تعذر الاتصال بالخادم — لم يُسجَّل المصروف. " + err;
     }
 }
 
 async function deleteExpense(id){
     const e = EXPENSES.find(x => x.id === id);
-    if(!e || !confirm("تمسح المصروف ده؟\n" + (e.type || "") + " — " + fmtEgp(expEgp(e)) + "\n\nالمسح نهائي من تاب Expenses.")) return;
+    if(!e || !confirm("هل تريد حذف هذا المصروف؟\n" + (e.type || "") + " — " + fmtEgp(expEgp(e)) + "\n\nالحذف نهائي من تبويب Expenses.")) return;
     try{
         await tsPostScript(scriptURL, { action: "deleteExpense", id, staffToken: getStaffToken() });
         await new Promise(r => setTimeout(r, 1200));
         await loadExpenses();
         applyFilters();
         renderExpenseList();
-        if(EXPENSES.some(x => x.id === id)) alert("⚠️ المصروف لسه موجود — جرّب تاني.");
-    }catch(err){ alert("❌ تعذر الاتصال بالسيرفر. " + err); }
+        if(EXPENSES.some(x => x.id === id)) alert("⚠️ ما زال المصروف موجودًا — حاول مرة أخرى.");
+    }catch(err){ alert("❌ تعذر الاتصال بالخادم. " + err); }
 }
 
 /* فتح وقفل القائمة الجانبية على الموبايل */
@@ -1389,7 +1389,7 @@ function renderTable(data) {
             remainingBatch.forEach(o => { remainingHtml += createRowHTML(o); });
             tbody.insertAdjacentHTML('beforeend', remainingHtml);
             updateSelectionUI();
-            console.log("تم تحميل باقي الأوردرات في الخلفية...");
+            console.log("تم تحميل بقية الطلبات في الخلفية...");
         }, 100); 
     }
 }
@@ -1570,8 +1570,8 @@ function updateKpiVisibility(activeFilters){
   const hasFilter = activeFilters.length > 0;
   setKpiOpen(hasFilter || kpiPinned);
   document.getElementById("kpiScope").innerHTML = hasFilter
-    ? 'الأرقام دي بتخص: <b>' + activeFilters.join(" · ") + '</b>'
-    : 'كل الطلبات — من غير فلتر';
+    ? 'هذه الأرقام تخص: <b>' + activeFilters.join(" · ") + '</b>'
+    : 'كل الطلبات — دون فلتر';
 }
 
 function toggleGrouping() {
@@ -1580,7 +1580,7 @@ function toggleGrouping() {
     const icon = '<svg class="ic" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>';
     const cancelIcon = '<svg class="ic" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
     if(isGrouped) {
-        btn.innerHTML = cancelIcon + " فك التجميع";
+        btn.innerHTML = cancelIcon + " إلغاء التجميع";
         btn.classList.add("active");
     } else {
         btn.innerHTML = icon + " تجميع الطلبات";
@@ -1781,7 +1781,7 @@ function printLabel(phone, orderId) {
     const toPrint = currentFilteredData.find(x => !x.isRama && orderIdsOf(x)[0] === id)
                  || ordersData.find(x => String(x.order) === id);
 
-    if (!toPrint) return alert("⚠️ مش لاقي الطلب " + id + " — حدّث الصفحة وجرّب تاني.");
+    if (!toPrint) return alert("⚠️ لم يُعثر على الطلب " + id + " — حدّث الصفحة وحاول مرة أخرى.");
 
     tsOpenHtmlDoc(`<!DOCTYPE html>
         <html dir="rtl" lang="ar">
@@ -1793,7 +1793,7 @@ function printAllDisplayed() {
     // 🐛→✅ صفوف RAMA المُجمّعة وصفوف الـ OPEX كانت بتطلع بوالص هي كمان
     // (بوليصة باسم "RAMA — إجمالي الموعد" أو "OPEX" وسط بوالص العملاء)
     const items = currentFilteredData.filter(item => !item.isRama && !isOpexD(item));
-    if (!items.length) return alert("مفيش بوالص للطباعة في الفلتر الحالي.");
+    if (!items.length) return alert("لا توجد بوالص للطباعة في الفلتر الحالي.");
     let allHTML = '';
     items.forEach(item => { allHTML += generateLabelHTML(item, true); });
     tsOpenHtmlDoc(`<!DOCTYPE html>
@@ -1881,7 +1881,7 @@ function updateSelectionUI(){
     const count = selectedOrderIds.size;
     const countEl = document.getElementById("selectedCountBadge");
     if(countEl){
-        countEl.textContent = count > 0 ? `✅ ${count} طلب محدد` : "مفيش طلبات محددة";
+        countEl.textContent = count > 0 ? `✅ ${count} طلب محدد` : "لا توجد طلبات محددة";
         countEl.classList.toggle("active", count > 0);
     }
 
@@ -1979,14 +1979,14 @@ async function applyBulkStatus(){
     if(failed.length===0){
         alert("✅ تم تحديث "+results.length+" طلب بنجاح");
     }else{
-        alert("⚠️ اتحدّث "+(results.length-failed.length)+" من "+results.length+" طلب.\n"
-            +"الطلبات دي فشلت: "+failed.map(f=>f.orderId).join(", "));
+        alert("⚠️ تم تحديث "+(results.length-failed.length)+" من "+results.length+" طلب.\n"
+            +"فشلت الطلبات التالية: "+failed.map(f=>f.orderId).join(", "));
     }
     selectedOrderIds.clear();
     loadData();
 }
 function groupLockMsg(){
-  alert("⚠️ تم تفعيل التجميع\n\n✋ لا يمكن التعديل أثناء التجميع\nيرجى فك التجميع للتعديل");
+  alert("⚠️ تم تفعيل التجميع\n\n✋ لا يمكن التعديل أثناء التجميع\nيُرجى إلغاء التجميع للتعديل");
 }
 
 
@@ -2012,7 +2012,7 @@ function createRamaRowHTML(o){
     </tr>`;
 }
 </script>
-<script src="staff-auth.js?v=20261017a"></script>
+<script src="staff-auth.js?v=20261017b"></script>
 <script>
 
 
@@ -2055,7 +2055,7 @@ async function doLogin() {
   try {
     res = await tsStaffLogin(u, p);
   } catch (err) {
-    res = { success: false, message: "تعذر الاتصال بالسيرفر — تأكد من الإنترنت وحاول تاني." };
+    res = { success: false, message: "تعذر الاتصال بالخادم — تأكد من الإنترنت وحاول مرة أخرى." };
   }
   if (btn) tsClearBtnLoading(btn);
 
@@ -2072,7 +2072,7 @@ async function doLogin() {
     showDashboard();
   } else {
     document.getElementById("loginError").textContent =
-      (res && res.code === "locked") ? "⏳ " + res.message : "❌ اسم المستخدم أو كلمة المرور غلط";
+      (res && res.code === "locked") ? "⏳ " + res.message : "❌ اسم المستخدم أو كلمة المرور غير صحيحة";
     document.getElementById("loginError").style.display = "block";
   }
 }
@@ -2154,8 +2154,8 @@ function aoRenderCart(){
   const save = document.getElementById("aoSave");
 
   if(!AO_CART.length){
-    box.innerHTML = '<div class="ao-cart-empty">السلة فاضية — املا بيانات المنتج واضغط «أضف المنتج للسلة».</div>';
-    tot.innerText = "السلة فاضية";
+    box.innerHTML = '<div class="ao-cart-empty">السلة فارغة — املأ بيانات المنتج واضغط «أضف المنتج إلى السلة».</div>';
+    tot.innerText = "السلة فارغة";
     if(save) save.innerText = "حفظ الطلب";
     return;
   }
@@ -2166,14 +2166,14 @@ function aoRenderCart(){
     '<div class="ao-ci">' +
       '<span class="ao-ci-n">' + tsEscapeHtml(it.order) + '</span>' +
       '<div class="ao-ci-b">' +
-        '<b>' + tsEscapeHtml(it.link || "(من غير رابط)") + '</b>' +
+        '<b>' + tsEscapeHtml(it.link || "(دون رابط)") + '</b>' +
         '<small>' + it.quantity + ' × ' + it.unitEgp.toLocaleString() + ' ج.م = ' +
           it.finalPrice.toLocaleString() + ' ج.م' +
           (it.unitUsd ? ' · ' + it.quantity + ' × $' + it.unitUsd.toLocaleString() + ' = $' + it.usd.toLocaleString() : '') +
           (it.dimensions ? ' — ' + tsEscapeHtml(it.dimensions) : '') +
         '</small>' +
       '</div>' +
-      '<button type="button" class="ao-ci-x" title="شيل من السلة" onclick="aoRemoveFromCart(' + i + ')">&times;</button>' +
+      '<button type="button" class="ao-ci-x" title="إزالة من السلة" onclick="aoRemoveFromCart(' + i + ')">&times;</button>' +
     '</div>').join("");
 
   tot.innerText = AO_CART.length + (AO_CART.length > 1 ? " منتجات" : " منتج") +
@@ -2215,24 +2215,24 @@ function aoAddToCart(){
 
   if(!L.unitEgp){
     msg.className = "ao-msg err";
-    msg.innerText = "اكتب سعر الوحدة بالجنيه قبل ما تضيف المنتج للسلة.";
+    msg.innerText = "اكتب سعر الوحدة بالجنيه قبل إضافة المنتج إلى السلة.";
     return;
   }
   const qtyRaw = parseFloat(document.getElementById("aoQty").value);
   if(!(qtyRaw >= 1) || qtyRaw !== Math.floor(qtyRaw)){
     msg.className = "ao-msg err";
-    msg.innerText = "الكمية لازم تكون رقم صحيح 1 أو أكتر.";
+    msg.innerText = "يجب أن تكون الكمية عددًا صحيحًا يساوي 1 أو أكثر.";
     return;
   }
   if(!v("aoCategory")){
     msg.className = "ao-msg err";
-    msg.innerText = "اختار فئة المنتج.";
+    msg.innerText = "يُرجى اختيار فئة المنتج.";
     document.getElementById("aoCategory").focus();
     return;
   }
   // 💡 مراجعة السعر بمعادلة الحاسبة (أقل من التكلفة / بعيد جدًا عن المقترح)
   const ps = tsPriceSanity({ usd: L.unitUsd, egp: L.unitEgp, category: v("aoCategory") });
-  if(ps.warnings.length && !confirm("⚠️ راجع السعر قبل الإضافة:\n\n" + ps.warnings.join("\n\n") + "\n\nتضيفه برضه؟")) return;
+  if(ps.warnings.length && !confirm("⚠️ يُرجى مراجعة السعر قبل الإضافة:\n\n" + ps.warnings.join("\n\n") + "\n\nهل تريد إضافته على أي حال؟")) return;
 
   AO_CART.push({
     category:   v("aoCategory"),
@@ -2321,7 +2321,7 @@ function aoSearchCustomer(){
             ' — ' + c.count + (c.count > 1 ? ' طلبات' : ' طلب') +
           '</small>' +
         '</div>').join("")
-    : '<div class="ao-res-none">مفيش عميل بالاسم أو الرقم ده — اكتب البيانات يدوي.</div>';
+    : '<div class="ao-res-none">لا يوجد عميل بهذا الاسم أو الرقم — اكتب البيانات يدويًا.</div>';
 }
 
 function aoPickCustomer(i){
@@ -2363,7 +2363,7 @@ function aoIsAdmin(){ return localStorage.getItem("isAdmin") === "1"; }
 function aoRenderHideList(){
   const box = document.getElementById("aoHideList");
   if(!AO_STAFF.length){
-    box.innerHTML = '<span class="ao-hide-empty">⏳ جاري تحميل قائمة الموظفين...</span>';
+    box.innerHTML = '<span class="ao-hide-empty">⏳ جارٍ تحميل قائمة الموظفين...</span>';
     return;
   }
   /* ⚠️ اليوزرنيم مش الليبل — getCurrentUser() بيرجّع الاسم المعروض
@@ -2374,7 +2374,7 @@ function aoRenderHideList(){
     .filter(s => String(s.username).toLowerCase() !== me)
     .map(s => '<label class="ao-hide-item"><input type="checkbox" class="ao-hide-cb" value="' +
       tsEscapeHtml(s.username) + '"><span>' + tsEscapeHtml(s.label || s.username) + '</span></label>')
-    .join("") || '<span class="ao-hide-empty">مفيش موظفين تانيين.</span>';
+    .join("") || '<span class="ao-hide-empty">لا يوجد موظفون آخرون.</span>';
 }
 
 function aoSetupHideSection(){
@@ -2430,7 +2430,7 @@ function openAddOrder(){
 function closeAddOrder(){
   // 🛒 تحذير قبل ما السلة تضيع — المنتجات دي لسه ماتسجلتش في الشيت
   if(AO_CART.length && !confirm("في " + AO_CART.length +
-     (AO_CART.length > 1 ? " منتجات" : " منتج") + " في السلة لسه ماتسجلوش. تقفل وتلغيهم؟")) return;
+     (AO_CART.length > 1 ? " منتجات" : " منتج") + " في السلة لم تُسجَّل بعد. هل تريد الإغلاق وإلغاءها؟")) return;
   AO_CART = [];
   aoRenderCart();
   document.getElementById("aoOverlay").classList.remove("show");
@@ -2470,8 +2470,8 @@ async function submitAddOrder(){
   if(!name || !phone || !AO_CART.length){
     msg.className = "ao-msg err";
     msg.innerText = !AO_CART.length
-      ? "ضيف منتج واحد على الأقل للسلة."
-      : "الاسم والموبايل مطلوبين.";
+      ? "أضف منتجًا واحدًا على الأقل إلى السلة."
+      : "الاسم ورقم الهاتف مطلوبان.";
     return;
   }
 
@@ -2490,7 +2490,7 @@ async function submitAddOrder(){
 
   const cartTotal = aoCartTotal();
 
-  tsSetBtnLoading(btn, "جاري الحفظ...");
+  tsSetBtnLoading(btn, "جارٍ الحفظ...");
   msg.className = "ao-msg";
   msg.innerText = "";
 
@@ -2553,7 +2553,7 @@ async function submitAddOrder(){
      من السيرفر **مش بيتقرا** خالص — الـ fetch بينجح حتى لو الصف
      ماتكتبش. فـ "نجح الإرسال" مش معناها "اتسجل في الشيت".
      عشان كده بنرجع نقرا الشيت ونتأكد برقم كل طلب. */
-  tsSetBtnLoading(btn, "بنتأكد من التسجيل...");
+  tsSetBtnLoading(btn, "جارٍ التأكد من التسجيل...");
   const wanted  = AO_CART.map(it => it.order);
   const missing = await aoVerifySaved(wanted);
   tsClearBtnLoading(btn);
@@ -2561,7 +2561,7 @@ async function submitAddOrder(){
   if(missing === null){
     // ماقدرناش نقرا الشيت (نت/جلسة) — ممنوع نقول نجح ولا فشل
     msg.className = "ao-msg err";
-    msg.innerText = "الطلبات اتبعتت بس ماقدرناش نتأكد إنها اتسجلت — افتح الشيت وراجع قبل ما تعيد.";
+    msg.innerText = "أُرسلت الطلبات، لكن لم نتمكن من التأكد من تسجيلها — افتح الشيت وراجعه قبل إعادة الإرسال.";
     return;
   }
 
@@ -2577,14 +2577,14 @@ async function submitAddOrder(){
     }
     msg.className = "ao-msg err";
     msg.innerText = savedCount + " من " + wanted.length +
-                    " اتسجلوا فعلاً — الباقي فضل في السلة، اضغط حفظ تاني." +
-                    (savedCount > 0 ? " (العربون والإيميل اتسجلوا خلاص، مش هيتكرروا)" : "");
+                    " سُجِّلت فعلًا — وبقيت الطلبات الأخرى في السلة، اضغط «حفظ» مرة أخرى." +
+                    (savedCount > 0 ? " (تم تسجيل العربون والبريد الإلكتروني بالفعل، ولن يتكررا)" : "");
     setTimeout(loadData, 600);
     return;
   }
 
   msg.className = "ao-msg ok";
-  msg.innerText = "اتسجل بنجاح: " + wanted.join(" · ");
+  msg.innerText = "تم التسجيل بنجاح: " + wanted.join(" · ");
   aoClearForm();
   setTimeout(loadData, 600);
 }
