@@ -110,26 +110,30 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 
 /* ══ الكروت ══ */
 .wrap{padding:0 14px 30px}
-.ocard{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px 14px 14px 14px;padding-inline-start:18px;margin-bottom:14px;position:relative;overflow:hidden;box-shadow:0 1px 2px rgba(15,27,51,.06),0 4px 14px rgba(15,27,51,.05)}
-.ocard::before{content:"";position:absolute;inset-inline-start:0;top:0;bottom:0;width:5px;background:var(--gold)}
-/* 🎨 شريط جنب الكارت بلون الحالة — تعرف الحالة من غير ما تقرا */
-.ocard:has(.st-done)::before{background:var(--ok)}
-.ocard:has(.st-dead)::before{background:var(--dead)}
-.ocard:has(.st-wait)::before{background:var(--warn)}
-.ocard:has(.st-late)::before{background:var(--late)}
-.ocard:has(.st-move)::before{background:var(--blue)}
+.ocard{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:0 12px 12px;margin-bottom:16px;position:relative;overflow:hidden;box-shadow:0 1px 2px rgba(15,27,51,.06),0 6px 18px rgba(15,27,51,.07)}
 .ocard.grouped{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)}
-.oc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:11px}
-.oc-id b{display:block;font-family:var(--fm);font-size:14px;font-weight:600;color:var(--navy);word-break:break-all;line-height:1.35}
-.oc-id time{display:block;font-size:11px;color:var(--ink-3);font-weight:700;margin-top:3px}
-.oc-tags{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex:none}
-.st{font-size:11px;font-weight:800;padding:5px 11px;border-radius:20px;white-space:nowrap}
-.st-done{background:var(--ok-wash);color:var(--ok)}
-.st-dead{background:var(--dead-wash);color:var(--dead)}
-.st-wait{background:var(--warn-wash);color:var(--warn)}
-.st-late{background:var(--late-wash);color:var(--late)}
-.st-move{background:var(--blue-wash);color:var(--blue)}
-.who{font-size:10.5px;font-weight:800;padding:3px 9px;border-radius:20px;background:var(--navy);color:var(--gold-2);white-space:nowrap}
+/* 🎨 راس الكارت: شريط كحلي/أزرق فيه الرقم والتاريخ والحالة والموظف —
+   أول حاجة العين بتقع عليها. الخط اللي تحته بلون الحالة (بدل الشريط
+   الجانبي القديم) عشان تعرف الحالة من غير ما تقرا */
+.oc-top{margin:0 -12px 12px;padding:13px 14px 12px;background:linear-gradient(120deg,#16307A 0%,#1D4ED8 100%);color:#fff;
+  display:flex;justify-content:space-between;align-items:center;gap:10px;position:relative;border-bottom:4px solid var(--blue-2)}
+.oc-top::after{content:"";position:absolute;top:0;bottom:0;inset-inline-start:0;width:22px;background:linear-gradient(240deg,var(--gold) 0 55%,transparent 55% 100%);opacity:.95;pointer-events:none}
+.ocard:has(.st-done) .oc-top{border-bottom-color:#22C55E}
+.ocard:has(.st-dead) .oc-top{border-bottom-color:#EF4444}
+.ocard:has(.st-wait) .oc-top{border-bottom-color:#F59E0B}
+.ocard:has(.st-late) .oc-top{border-bottom-color:#A78BFA}
+.oc-id{min-width:0}
+.oc-id b{display:block;font-family:var(--fm);font-size:17px;font-weight:700;color:#fff;word-break:break-all;line-height:1.3;letter-spacing:.02em}
+.oc-id time{display:block;font-size:12px;color:#C7D5F8;font-weight:700;margin-top:3px}
+.oc-tags{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex:none}
+.oc-top .oc-id{padding-inline-start:16px}
+.st{font-size:12px;font-weight:900;padding:6px 12px;border-radius:12px;white-space:nowrap;background:#fff}
+.st-done{color:var(--ok)}
+.st-dead{color:var(--dead)}
+.st-wait{color:var(--warn)}
+.st-late{color:var(--late)}
+.st-move{color:var(--blue-2)}
+.who{font-size:12px;font-weight:900;padding:5px 12px;border-radius:12px;background:var(--navy);color:var(--gold-2);white-space:nowrap}
 /* ══ إخفاء الطلب عن موظف معيّن — بس للأدمن ══
    الكارت فيه زرار واحد بس (شارة الحالة + بيفتح مودال مشترك لكل
    الكروت)، مش لوحة موظفين بتتكرر جوه كل كارت.
@@ -149,31 +153,42 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
    ويعمل سكرول أفقي. `.hf-item input[type=checkbox]` أخص منه فبيكسب. */
 .hf-item input[type="checkbox"]{width:20px;height:20px;min-height:0;flex:none;padding:0;margin:0;border-radius:4px;accent-color:var(--late)}
 .hf-empty{font-size:12.5px;color:var(--ink-3);padding:14px 4px;text-align:center}
-.oc-cust{background:#EEF2F9;border:1px solid #DCE3F0;border-radius:11px;padding:10px 12px;margin-bottom:10px}
-.oc-cust .nm{font-weight:900;font-size:14.5px}
-.oc-cust .ph{font-family:var(--fm);font-size:13px;color:var(--blue);direction:ltr;display:inline-block;margin-top:2px;text-decoration:none;font-weight:600}
-.oc-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+/* 👤 العميل + 📦 المنتج جنب بعض (بيتكدّسوا تحت بعض في الشاشات الضيقة) */
+.oc-info{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:9px;margin-bottom:10px}
+@media(max-width:380px){.oc-info{grid-template-columns:1fr}}
+.oc-cust{background:#EEF2F9;border:1px solid #DCE3F0;border-radius:13px;padding:10px 12px;min-width:0}
+.oc-cust .lb{font-size:11.5px;font-weight:800;color:var(--ink-2)}
+.oc-cust .nm{font-weight:900;font-size:15px;margin-top:2px;word-break:break-word}
+.oc-cust .ph{font-family:var(--fm);font-size:13.5px;color:var(--blue);direction:ltr;display:inline-block;margin-top:4px;text-decoration:none;font-weight:700}
+.oc-prod{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:10px;min-width:0}
+.oc-chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{font-size:11.5px;font-weight:800;padding:5px 10px;border-radius:9px;background:var(--blue-wash);color:var(--blue);font-family:var(--fm)}
-.chip.wide{flex:1;min-width:100%;font-family:var(--f);background:var(--gold-wash);color:var(--gold-ink);border:1px solid #F0DCA4;line-height:1.5}
+.chip.wide{flex:1;min-width:100%;font-family:var(--f);background:var(--gold-wash);color:var(--gold-ink);border:1px solid #F0DCA4;line-height:1.6;word-break:break-word}
 .oc-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px}
-.fl{display:block}
-.fl>span{display:block;font-size:11.5px;font-weight:800;color:var(--ink-2);margin-bottom:4px}
+/* 🧱 كل خانة في بوكس لوحدها وعليها أيقونة — تلاقي الخانة بنظرة */
+.fl{display:block;background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:9px 10px 10px}
+.fl>span{display:block;font-size:12px;font-weight:800;color:var(--ink-2);margin-bottom:6px}
+.fl>span i{font-style:normal;margin-inline-end:5px}
 .fl input,.fl select{width:100%;padding:11px 12px;border:1px solid var(--field-line);border-radius:10px;background:var(--field);color:var(--ink);font-family:var(--fm);font-size:14px;min-height:46px}
 .fl input:focus,.fl select:focus{border-color:var(--gold);background:#fff;outline:none;box-shadow:0 0 0 3px rgba(245,184,32,.15)}
 .fl input.neg{color:var(--dead);font-weight:700}
 .fl input.usd{color:var(--blue);font-weight:700}
 .fl input.arr{font-family:var(--f);font-weight:800;color:var(--navy)}
-.fl.full{margin-bottom:12px}
+.fl.full{margin-bottom:10px}
+.st-wrap{position:relative}
+.st-wrap .dot{position:absolute;top:50%;inset-inline-start:12px;width:10px;height:10px;border-radius:50%;transform:translateY(-50%);pointer-events:none;background:var(--blue)}
+.st-wrap .dot.done{background:#22C55E}.st-wrap .dot.dead{background:#EF4444}.st-wrap .dot.wait,.st-wrap .dot.move{background:#F5B820}.st-wrap .dot.late{background:#8B5CF6}
+.fl .st-wrap select.stsel{padding-inline-start:30px}
 .oc-grid .fl.span2{grid-column:1/-1}
 .fl input.qty{font-weight:800;color:var(--navy)}
 .fl select.stsel{font-family:var(--f);font-weight:800}
 /* 📝 ملاحظة On Hold / Lost تحت الحالة (اللي العميل شايفها في التتبع) */
 .fl .stnote{display:block;font-size:12px;font-weight:700;color:var(--ink-2);background:#F8FAFC;border:1px dashed var(--line);border-radius:9px;padding:7px 10px;margin-top:6px;line-height:1.55}
-.oc-net{background:var(--ok-wash);border:1px solid #A7DCC4;border-radius:11px;padding:11px 13px;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.oc-net span{font-size:12px;font-weight:800;color:var(--ok)}
-.oc-net b{font-family:var(--fm);font-size:17px;font-weight:600;color:var(--ok)}
+.oc-net{background:var(--ok-wash);border:1px solid #A7DCC4;border-radius:13px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.oc-net span{font-size:13px;font-weight:900;color:var(--ok)}
+.oc-net b{font-family:var(--fm);font-size:21px;font-weight:700;color:var(--ok)}
 .oc-links{display:flex;flex-direction:column;gap:7px;margin-bottom:11px}
-.link-btn{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:11px 13px;border-radius:10px;background:var(--blue-wash);color:var(--blue);text-decoration:none;font-weight:800;font-size:13px;border:1px solid #C3D3F4;min-height:44px}
+.link-btn{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 14px;border-radius:13px;background:var(--blue-wash);color:var(--blue);text-decoration:none;font-weight:800;font-size:13px;border:1px solid #C3D3F4;min-height:44px}
 .link-btn .qty-tag{font-family:var(--fm);font-size:11px;background:var(--blue);color:#fff;padding:3px 8px;border-radius:7px;flex:none}
 .oc-acts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .ab{padding:12px;border-radius:11px;border:1px solid var(--field-line);background:var(--panel);font-weight:800;font-size:13px;cursor:pointer;min-height:46px;color:var(--ink)}
@@ -204,6 +219,9 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .ab.pending{background:#FFF7E6;border-color:#F5D58C;color:#9A6400}
 .ab.tool2{background:var(--panel);color:var(--navy);border-color:var(--field-line);font-size:12.5px}
 .ab.hide-on{background:var(--dead-wash);border-color:#F5CFCF;color:var(--dead)}
+.ab.hide-btn{grid-column:1/-1;background:#FFF5F5;border-color:#F8D4D4;color:var(--dead)}
+.ab.hide-btn.hide-on{background:var(--dead-wash);border-color:#F5CFCF}
+.acts-h.blue{color:var(--blue-2);font-size:12.5px}
 .acts-hint{font-size:11.5px;color:var(--ink-3);font-weight:700;text-align:center;line-height:1.6}
 .chip.cat{background:var(--navy);color:var(--gold-2);font-family:var(--f)}
 
@@ -465,6 +483,11 @@ document.addEventListener("change", e=>{
 });
 </script>
 <script>
+/* أيقونة لكل حالة — لشارة الحالة في راس الكارت */
+const STATUS_ICON = { "Pending Review":"⏳", "Confirmed Via Try":"✅", "Processing":"🛒", "Placed":"🧾", "Arrived USA HUB":"🏬",
+  "In transit":"✈️", "Arrived Cairo HUB":"📦", "Shipped To You":"🚚", "Delivered":"🎉", "On Hold":"⏸️", "Delayed":"⏱️",
+  "Canceled":"❌", "Returned":"↩️", "Lost":"⚠️" };
+function statusIcon(st){ return STATUS_ICON[String(st||"").trim()] || "•"; }
 function statusTone(st){
   st = String(st||"");
   if(st.indexOf("Delivered")!==-1) return "done";
@@ -681,7 +704,7 @@ const arriveHref = (isGrouped && o.status === "Arrived Cairo HUB" && phone)
     // فتح مودال مشترك (hfModal) — مفيش لوحة بتتكرر في كل كارت.
     const hiddenSet = new Set(String(o.hiddenFrom || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean));
     const hiddenFromHtml = (isAdminUI && !isGrouped) ? `
-      <button type="button" class="ab tool2 ${hiddenSet.size ? 'hide-on' : ''}" onclick="openHiddenFromModal('${safeCleanOrderIdJs}')">
+      <button type="button" class="ab tool2 hide-btn ${hiddenSet.size ? 'hide-on' : ''}" onclick="openHiddenFromModal('${safeCleanOrderIdJs}')">
         ${hiddenSet.size ? '🔒 مخفي عن ' + hiddenSet.size : '🔓 إخفاء عن موظف'}
       </button>
     ` : '';
@@ -697,61 +720,65 @@ const arriveHref = (isGrouped && o.status === "Arrived Cairo HUB" && phone)
           <time>📅 ${tsEscapeHtml(dateTxt)}</time>
         </div>
         <div class="oc-tags">
-          <span class="st st-${statusTone(o.status)}">${safeStatus}</span>
+          <span class="st st-${statusTone(o.status)}" title="${safeStatus}">${statusIcon(o.status)} ${tsEscapeHtml(tsStatusLabel(o.status) || o.status || 'Pending')}</span>
           ${o.user ? `<span class="who">👤 ${safeUser}</span>` : ''}
         </div>
       </div>
 
-      <div class="oc-cust">
-        <div class="nm">${safeCustomerName}</div>
-        <a class="ph" href="tel:${tsToEnDigits(o.phone||'').replace(/\D/g,'')}">${tsEscapeHtml(formatPhone(o.phone))}</a>
-      </div>
-
-      <div class="oc-chips">
-        ${cats.map(c => `<span class="chip cat">🏷️ ${tsEscapeHtml(c)}</span>`).join('')}
-        <span class="chip">×${qty}</span>
-        ${parseFloat(weight) > 0 ? `<span class="chip">${tsEscapeHtml(weight)} جم</span>` : ''}
-        <span class="chip wide" title="${safeDims}">📝 ${safeDims}</span>
+      <div class="oc-info">
+        <div class="oc-cust">
+          <div class="lb">👤 اسم العميل</div>
+          <div class="nm">${safeCustomerName}</div>
+          <a class="ph" href="tel:${tsToEnDigits(o.phone||'').replace(/\D/g,'')}">📞 ${tsEscapeHtml(formatPhone(o.phone))}</a>
+        </div>
+        <div class="oc-prod">
+          <div class="oc-chips">
+            ${cats.map(c => `<span class="chip cat">🏷️ ${tsEscapeHtml(c)}</span>`).join('')}
+            <span class="chip">${qty}×</span>
+            ${parseFloat(weight) > 0 ? `<span class="chip">${tsEscapeHtml(weight)} جم</span>` : ''}
+            <span class="chip wide" dir="auto" title="${safeDims}">${safeDims} 📝</span>
+          </div>
+        </div>
       </div>
 
       <div class="oc-grid">
         <!-- 🔢 الكمية — لما تتغير، الإجمالي والدولار بيتحسبوا على سعر القطعة (وتقدر تعدّلهم بإيدك بعدها) -->
         <label class="fl">
-          <span>الكمية</span>
+          <span><i>📦</i>الكمية</span>
           <input type="number" id="qty-${cleanOrderId}" class="qty" min="1" max="999" step="1" inputmode="numeric" value="${qty}"
                  data-unit-egp="${qty > 0 ? total / qty : total}" data-unit-usd="${qty > 0 ? (parseFloat(o.usd||0) / qty) : parseFloat(o.usd||0)}"
                  oninput="onQtyChange('${safeCleanOrderIdJs}', ${ship})">
         </label>
         <label class="fl">
-          <span>الإجمالي (EGP)</span>
+          <span><i>💰</i>الإجمالي (EGP)</span>
           <input type="number" id="egp-${cleanOrderId}" value="${total}" oninput="recalc('${safeCleanOrderIdJs}', ${ship})">
         </label>
         <label class="fl">
-          <span>المدفوع مقدمًا</span>
+          <span><i>👛</i>المدفوع مقدمًا</span>
           <input type="number" id="deposit-${cleanOrderId}" class="neg" value="${dep}" oninput="recalc('${safeCleanOrderIdJs}', ${ship})">
         </label>
         <label class="fl">
-          <span>التكلفة (USD)</span>
+          <span><i>💵</i>التكلفة (USD)</span>
           <input type="number" id="usd-${cleanOrderId}" class="usd" value="${parseFloat(o.usd||0).toFixed(2)}">
         </label>
         <label class="fl span2">
-          <span>موعد الوصول</span>
+          <span><i>🚚</i>موعد الوصول</span>
           <input type="text" id="arrival-${cleanOrderId}" class="arr" list="arrSuggestM" value="${safeArrival}" placeholder="O-27SEP2026">
         </label>
       </div>
 
       <div class="oc-net">
-        <span>المطلوب تحصيله</span>
+        <span>🏷️ المطلوب تحصيله</span>
         <b id="net-${cleanOrderId}">${net.toLocaleString()} ج.م</b>
       </div>
 
       <label class="fl full">
-        <span>الحالة</span>
+        <span><i>🕒</i>الحالة</span>
         <!-- 🐛→✅ القائمة كانت مكتوبة بإيد: أي حالة مش فيها (زي In transit)
              كانت بتخلّي أول اختيار يتحدد تلقائيًا، و"حفظ" الكارت كان بيرجّع
              الحالة Pending Review في الشيت. دلوقتي من القائمة الموحّدة،
              والحالة الحالية بتفضل مختارة دايمًا حتى لو مش معروفة. -->
-        <select id="status-${cleanOrderId}" class="stsel">${tsStatusOptionsHtml(o.status)}</select>
+        <div class="st-wrap"><span class="dot ${statusTone(o.status)}"></span><select id="status-${cleanOrderId}" class="stsel">${tsStatusOptionsHtml(o.status)}</select></div>
         ${TS_NOTE_STATUSES.indexOf(o.status) !== -1 && o.statusNote ? `<span class="stnote">📝 ${tsEscapeHtml(o.statusNote)}</span>` : ""}
       </label>
 
@@ -763,7 +790,7 @@ const arriveHref = (isGrouped && o.status === "Arrived Cairo HUB" && phone)
           : `<button class="ab save" onclick="updateOrder('${safeCleanOrderIdJs}')">✔ حفظ التعديلات</button>`}
 
         <div class="acts-sec">
-          <div class="acts-h">💬 تواصل مع العميل ${en ? '<small>🌐 English</small>' : ''}</div>
+          <div class="acts-h blue">💬 تواصل مع العميل ${en ? '<small>🌐 English</small>' : ''}</div>
           <div class="acts-row">
             <button class="ab contact full" onclick="openContact('${safeCleanOrderIdJs}')">💬 تواصل واتساب (بخصوص منتج / عام)</button>
             ${arriveHref ? `<a class="ab arrive full" style="text-align:center;text-decoration:none" href="${arriveHref}" target="_blank" rel="noopener">🚚 أبلغ بوصول الطلب إلى مصر</a>` : ''}
