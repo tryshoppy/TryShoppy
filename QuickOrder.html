@@ -710,7 +710,7 @@ function sendWhatsApp() {
   const c = selectedCustomer || {};
   const msg = tsWaMessage({
     to: "shop",
-    intro: "مرحبًا Try Shoppy 👋\nأود تأكيد هذا الطلب:",
+    intro: "أهلًا Try Shoppy 👋\nعايز أأكد الطلب ده:",
     customerName: c.customerName || "", phone: c.phone || "",
     governorate: c.governorate || "", address: c.address || "",
     items: quickOrderWaItems(), total: total

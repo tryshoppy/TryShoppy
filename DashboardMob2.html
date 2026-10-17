@@ -598,15 +598,15 @@ Delivery time:
 📞 Phone: ${tsDisplayPhone(o.phone) || "not provided"}
 
 📦 Details:\n`
-: `السلام عليكم ${o.customerName ? "أ/ " + o.customerName : ""} 👋
-وصل طلبكم من تراي شوبي - Try Shoppy إلى مصر 🇪🇬 وأصبح جاهزًا للتسليم 🚚
+: `السلام عليكم ${o.customerName ? "أ/ " + o.customerName : "حضرتك"} 👋
+طلب حضرتك من تراي شوبي - Try Shoppy وصل مصر 🇪🇬 وجاهز للتسليم 🚚
 
 سيتم التوصيل خلال:
 📍 يومين عمل داخل القاهرة
 📍 3 أيام عمل للمحافظات
 
 📍 العنوان: ${o.address || "غير متوفر"}
-📞 الهاتف: ${tsDisplayPhone(o.phone) || "غير متوفر"}
+📞 الموبايل: ${tsDisplayPhone(o.phone) || "غير متوفر"}
 
 📦 التفاصيل:\n`;
 
@@ -650,11 +650,11 @@ Please confirm you'll be available to receive it 🙏`
 : `
 📦 إجمالي عدد المنتجات: *${totalQty}*
 💰 إجمالي الحساب: *${total.toLocaleString()} ج.م*
-${ship > 0 ? "🚚 الشحن الداخلي: " + ship.toLocaleString() + " ج.م" : "🚚 الشحن الداخلي: هدية منا لكم 🎁"}
+${ship > 0 ? "🚚 الشحن الداخلي: " + ship.toLocaleString() + " ج.م" : "🚚 الشحن الداخلي: هدية مننا لحضرتك 🎁"}
 💵 المدفوع مقدمًا: ${dep.toLocaleString()} ج.م
 📌 المطلوب عند الاستلام: *${net.toLocaleString()} ج.م*
 
-يُرجى تأكيد تواجدكم للاستلام 🙏`);
+ياريت تأكدلنا إن حضرتك موجود وقت الاستلام 🙏`);
 
 /* 🚚 رسالة "طلبك وصل مصر" — في وضع التجميع بس (عشان تاخد كل طلبات
    العميل في رسالة واحدة) ولطلب حالته Arrived Cairo HUB.
@@ -1181,7 +1181,7 @@ function contactMessage(){
   const name = String(o.customerName || "").trim();
   const hi = en
     ? "Hi " + (name || "there") + " 👋\nThis is " + (staff ? staff + " from " : "") + "Try Shoppy."
-    : "مرحبًا " + (name ? "أ/ " + name : "بكم") + " 👋\nمعكم " + (staff ? staff + " من " : "") + "Try Shoppy.";
+    : "أهلًا " + (name ? "أ/ " + name : "بحضرتك") + " 👋\nمعاك " + (staff ? staff + " من " : "") + "Try Shoppy.";
   if (CT.mode === "general") return hi + "\n\n";
   const sel = document.querySelector('input[name="ctItem"]:checked');
   const it = contactItems(o)[sel ? +sel.value : 0] || {};
@@ -1367,8 +1367,8 @@ function generateUndeliveredSummary(o) {
   const sEn = sLang === "en";
   let message = sEn
     ? `Hi ${o.customerName || "there"} 👋\nHere's a summary of all your orders that are still on the way 📦✨\n`
-    : `السلام عليكم ${o.customerName ? "أ/ " + o.customerName : ""} 👋
-هذا ملخص بجميع طلباتكم التي ما زالت في الطريق ولم تُستلم بعد 📦✨\n`;
+    : `السلام عليكم ${o.customerName ? "أ/ " + o.customerName : "حضرتك"} 👋
+ده ملخص بكل طلبات حضرتك اللي لسه في الطريق ومتستلمتش 📦✨\n`;
 
   let grandTotal = 0;
 
@@ -1381,7 +1381,7 @@ function generateUndeliveredSummary(o) {
       : tsFormatArrival(dateKey, sLang);   // O-27SEP2026 → 27 سبتمبر 2026 / 27 Sep 2026
     message += sEn
       ? `\n━━━━━━━━━━━━\n📅👇 Orders arriving: ${dateTxt}\n━━━━━━━━━━━━\n`
-      : `\n━━━━━━━━━━━━\n📅👇 ملخص الطلبات التي موعد وصولها: ${dateTxt}\n━━━━━━━━━━━━\n`;
+      : `\n━━━━━━━━━━━━\n📅👇 طلبات ميعاد وصولها: ${dateTxt}\n━━━━━━━━━━━━\n`;
 
     items.forEach(it => {
       groupTotal += it.price;
@@ -1424,7 +1424,7 @@ function generateUndeliveredSummary(o) {
       message += `\n💵 المدفوع مقدمًا: ${grandDeposit.toLocaleString()} ج.م`;
       message += `\n📌 *المطلوب عند الاستلام: ${(grandTotal - grandDeposit).toLocaleString()} ج.م*`;
     }
-    message += `\n═══════════════\n\nتابع طلباتك في أي وقت من هنا:\n${trackLink}\n\nلأي استفسار، نحن في خدمتك 🙏`;
+    message += `\n═══════════════\n\nتابع طلباتك في أي وقت من هنا:\n${trackLink}\n\nلأي استفسار إحنا معاك 🙏`;
   }
 
   tsWaOpen(phone, message);

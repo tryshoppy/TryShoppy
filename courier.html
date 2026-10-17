@@ -569,7 +569,7 @@ function waOnTheWay(){
   const en = custLang() === "en";
   const lines = (en
     ? ["Hi " + (first || "there") + " 👋", "This is your Try Shoppy courier 🛵 — your order is on its way to you today 📦", ""]
-    : ["أهلًا " + first + " 👋", "معك مندوب Try Shoppy 🛵 — طلبك في الطريق إليك اليوم إن شاء الله 📦", ""]
+    : ["أهلًا " + first + " 👋", "معاك مندوب Try Shoppy 🛵 — طلبك في الطريق ليك النهارده إن شاء الله 📦", ""]
   ).concat(sel.map(o => "• " + o.order)).concat([""]);
   if(due > 0){
     if(en){
@@ -577,15 +577,15 @@ function waOnTheWay(){
       lines.push("Pay however suits you: InstaPay, bank transfer, or cash on delivery — a mobile wallet works too if that's easier. If you'd like to transfer, just tell me and I'll send the details 🙏");
     } else {
       lines.push("💵 المطلوب عند الاستلام: " + money(due) + " ج.م");
-      lines.push("يمكنك الدفع بالطريقة التي تناسبك: إنستاباي، أو تحويل بنكي، أو نقدًا عند الاستلام، كما تتوفر المحفظة الإلكترونية إن كانت أسهل لك. إذا أردت التحويل، أخبرني وسأرسل إليك البيانات 🙏");
+      lines.push("الدفع زي ما يريحك: إنستاباي، أو تحويل بنكي، أو كاش وقت الاستلام — والمحفظة الإلكترونية كمان متاحة لو أسهل ليك. لو هتحوّل، قولّي وهبعتلك البيانات 🙏");
     }
   } else {
-    lines.push(en ? "✅ Your order is fully paid — nothing to pay on delivery." : "✅ طلبك مدفوع بالكامل — لا يوجد أي مبلغ مطلوب عند الاستلام.");
+    lines.push(en ? "✅ Your order is fully paid — nothing to pay on delivery." : "✅ طلبك مدفوع بالكامل — مفيش أي مبلغ مطلوب عند الاستلام.");
   }
   lines.push("");
   lines.push(en
     ? "📍 Please share your location here, plus anything that helps me find you (building number, floor, a landmark) if it's not in the address."
-    : "📍 من فضلك، أرسل إليّ موقعك هنا، وأي تفاصيل تسهّل الوصول (رقم المبنى، الطابق، علامة مميزة) إن لم تكن موجودة في العنوان.");
+    : "📍 لو تسمح، ابعتلي اللوكيشن هنا، وأي تفاصيل تسهّل الوصول (رقم العمارة، الدور، علامة مميزة) لو مش مكتوبة في العنوان.");
   lines.push("");
   lines.push(en ? "Thank you for trusting Try Shoppy 🌟" : "شكرًا لثقتك في Try Shoppy 🌟");
   tsWaOpen(current.phone || "", lines.join("\n"));

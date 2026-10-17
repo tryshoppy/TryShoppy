@@ -905,7 +905,7 @@ function sendWhatsApp() {
   const total = lastOrders.reduce((s,o)=>s+o.item.finalEGP, 0);
   const msg = tsWaMessage({
     to: "shop",
-    intro: "مرحبًا Try Shoppy 👋\nأود تأكيد هذا الطلب:",
+    intro: "أهلًا Try Shoppy 👋\nعايز أأكد الطلب ده:",
     customerName: document.getElementById("customerName").value,
     phone: document.getElementById("phone").value,
     governorate: document.getElementById("governorate").value,

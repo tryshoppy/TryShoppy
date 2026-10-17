@@ -889,6 +889,12 @@ function renderList(){
         </div>
         <button class="btn-block btn-reorder" style="margin-top:8px;" onclick="openReorderModal('${jid}')">🔁 تسجيل نفس المنتج في شحنة جديدة</button>`;
     }
+    // ❌ إلغاء الطلب — للأدمن بس، لأي طلب لسه ماتسلّمش. نفس أكشن
+    // updateStatus بحالة Rejected (من غير ديبلوي): الصف بيفضل في الشيت
+    // كسجل، بس بيخرج من الإجماليات والدفعات، والعميل بيشوف السبب
+    if(isHaitham() && !["PendingPrice","Rejected","Delivered"].includes(p.status)){
+      actionsHtml += `<button class="btn-block btn-ghost" style="margin-top:8px;color:var(--danger);" onclick="cancelProduct('${jid}', this)">❌ إلغاء الطلب</button>`;
+    }
 
     const img = safeUrl(p.imageUrl);
     const link = safeUrl(p.link);
@@ -1247,6 +1253,28 @@ async function markUnavailable(id, btn){
     const data = await res.json();
     if(data.success){
       logActivity("🚫 غير متاح", p ? p.productName : id, reason);
+      refreshAfterAction(data);
+    }
+    else { clearBtnLoading(btn); alert(data.message||"حدث خطأ"); }
+  }catch(e){
+    clearBtnLoading(btn);
+    alert("تعذر الاتصال بالخادم");
+  }
+}
+// ❌ إلغاء طلب من الأدمن (أي حالة قبل التسليم) — نفس markUnavailable
+async function cancelProduct(id, btn){
+  const p = allProducts.find(x => String(x.id) === String(id));
+  const name = p ? (p.productName || "منتج دون اسم") : id;
+  const reason = prompt("إلغاء الطلب: " + name + "\n\nسبب الإلغاء (سيظهر للعميل):", "تم إلغاء الطلب بناءً على طلبكم");
+  if(reason === null) return;
+  const paid = p ? (parseFloat(p.deposit) || 0) : 0;
+  if(!confirm("هل تؤكد إلغاء هذا الطلب؟\n\n" + name + (paid > 0 ? "\n\n⚠️ عليه عربون " + paid.toLocaleString() + " EGP — رتّب رده أو خصمه مع العميل." : "") + "\n\nسيبقى الصف في الشيت بحالة Rejected، ويخرج من الإجماليات والدفعات.")) return;
+  setBtnLoading(btn, "جارٍ الإلغاء...");
+  try{
+    const res = await fetch(RMA_SCRIPT_URL, { method:"POST", body: JSON.stringify({ action:"updateStatus", staffToken:getStaffToken(), id, status:"Rejected", notes:reason }) });
+    const data = await res.json();
+    if(data.success){
+      logActivity("❌ إلغاء طلب", name, reason);
       refreshAfterAction(data);
     }
     else { clearBtnLoading(btn); alert(data.message||"حدث خطأ"); }
@@ -1697,7 +1725,7 @@ async function deletePaymentEntry(id, btn){
    --------------------------------------------------------- */
 function showPricingDoneModal(){
   const count = pricedThisSessionCount;
-  const msg = encodeURIComponent(`مرحبًا 👋، تم تسعير ${count} منتج، وهي جاهزة لمراجعتك على RAMA 🙏`);
+  const msg = encodeURIComponent(`أهلًا 👋، سعّرنا ${count} منتج وجاهزين لمراجعتك على RAMA 🙏`);
   const hasNumber = CLIENT_WHATSAPP && !CLIENT_WHATSAPP.startsWith("PASTE");
   const waLink = hasNumber ? `https://wa.me/${CLIENT_WHATSAPP}?text=${msg}` : "";
   showModal(`

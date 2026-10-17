@@ -1085,7 +1085,7 @@ function closeModal(){
    لتأكيد وصول الطلب للأدمن (رقم ثابت، مش بيتغيّر لكل عميل)
    --------------------------------------------------------- */
 function showOrderSentModal(count){
-  const msg = encodeURIComponent(`مرحبًا 👋، أرسلتُ طلب تسعير جديدًا لـ ${count} منتج على RAMA، يُرجى المراجعة 🙏`);
+  const msg = encodeURIComponent(`أهلًا 👋، بعتلكم طلب تسعير جديد لـ ${count} منتج على RAMA، ياريت تراجعوه 🙏`);
   const waLink = `https://wa.me/${ADMIN_WHATSAPP}?text=${msg}`;
   showModal(`
     <div style="font-size:2.2rem;margin-bottom:8px;">✅</div>
@@ -1100,7 +1100,7 @@ function showOrderSentModal(count){
 // رابط واتساب جاهز يخبّر الأدمن إنك أكّدت
 function showConfirmDoneModal(){
   const count = confirmedThisSessionCount;
-  const msg = encodeURIComponent(`مرحبًا 👋، أكّدتُ ${count} منتج على RAMA، هل كل شيء على ما يرام؟ 🙏`);
+  const msg = encodeURIComponent(`أهلًا 👋، أكّدت ${count} منتج على RAMA، كده تمام؟ 🙏`);
   const waLink = `https://wa.me/${CONFIRM_WHATSAPP}?text=${msg}`;
   showModal(`
     <div style="font-size:2.2rem;margin-bottom:8px;">🎉</div>
