@@ -170,7 +170,7 @@ const TS_STATUS_AR = {
   'Placed':           'تم الطلب',
   'Arrived USA HUB':  'وصل مخزن أمريكا',
   'In transit':       'في الشحن الدولي',
-  'Arrived Cairo HUB':'وصل القاهرة',
+  'Arrived Cairo HUB':'وصل مخزن القاهرة',
   'Shipped To You':   'في الطريق إليك',
   'Delivered':        'تم التسليم',
   'On Hold':          'معلّق مؤقتًا',
@@ -220,15 +220,15 @@ const TS_CLOSED_STATUSES = ['Delivered', 'Canceled', 'Returned', 'Lost'];
 function tsIsClosedStatus(s){ return TS_CLOSED_STATUSES.indexOf(String(s == null ? '' : s).trim()) !== -1; }
 
 /* ═══════════════════════════════════════════════════════════
-   📝 ملاحظة الحالة (عمود statusNote) — للمعلّق والمفقود
+   📝 ملاحظة الحالة (عمود statusNote) — للمعلّق والمتأخر والملغي والمفقود
    ═══════════════════════════════════════════════════════════
-   لما الموظف يحوّل طلب لـ On Hold أو Lost، بتظهر ويندو يكتب فيها
+   لما الموظف يحوّل طلب لواحدة من الحالات دي، بتظهر ويندو يكتب فيها
    السبب أو المطلوب من العميل. الملاحظة بتظهر للعميل في صفحة التتبع
    (والإيميل في حالة On Hold)، وفي التقرير اليومي للفريق.
 
    الملاحظة بتفضل في العمود بعد ما الطلب يكمل، فبتتعرض **بس** مع
-   الحالتين دول (نفس STATUS_NOTE_STATUSES في Orders_Code.gs). */
-const TS_NOTE_STATUSES = ['On Hold', 'Lost'];
+   الحالات دي. (Orders_Code.gs عنده STATUS_NOTE_STATUSES للإيميل والتقرير.) */
+const TS_NOTE_STATUSES = ['On Hold', 'Delayed', 'Canceled', 'Lost'];
 
 /** محتاج نسأل؟ بس لما الحالة **بتتحوّل** لواحدة منهم — لو الطلب أصلاً
  *  On Hold والموظف بيحفظ الكارت عشان يغيّر موعد الوصول، مانزعجوش. */
@@ -236,17 +236,28 @@ function tsNeedsStatusNote(newStatus, oldStatus){
   return TS_NOTE_STATUSES.indexOf(newStatus) !== -1 && String(newStatus) !== String(oldStatus || '');
 }
 
+/* اقتراحات جاهزة بالفصحى — بتظهر للعميل زي ما هي */
 const TS_NOTE_SUGGESTIONS = {
-  'On Hold': ['محتاجين تأكيد المقاس أو اللون قبل الشراء', 'محتاجين تحويل العربون عشان نكمل الطلب',
-              'المنتج مش متاح حاليًا في المتجر — بنشوف بديل', 'محتاجين تأكيد العنوان أو رقم التواصل'],
-  'Lost':    ['شركة الشحن بلّغت إن الطرد مفقود وبنتابع معاهم', 'الشحنة متأخرة عند شركة الشحن وبنتابعها']
+  'On Hold':  ['نحتاج إلى تأكيد المقاس أو اللون قبل إتمام الشراء', 'نحتاج إلى تحويل العربون لاستكمال الطلب',
+               'المنتج غير متاح حاليًا في المتجر، ونبحث عن بديل مناسب', 'نحتاج إلى تأكيد العنوان أو رقم التواصل'],
+  'Delayed':  ['تأخر المتجر في شحن المنتج إلى مخزننا في أمريكا', 'تأخرت الرحلة الدولية، وسيصل الطلب في أقرب وقت',
+               'الشحنة قيد الإجراءات الجمركية، ونتابعها يوميًا', 'تأخر بسيط في الفرز بمخزن القاهرة'],
+  'Canceled': ['تم الإلغاء بناءً على طلب العميل', 'المنتج غير متاح في المتجر، وسيتم رد المبلغ المدفوع',
+               'ألغى المتجر الطلب من جهته، وسيتم رد المبلغ المدفوع', 'لم يتم تأكيد الطلب أو تحويل العربون'],
+  'Lost':     ['أبلغت شركة الشحن بفقدان الطرد، ونتابع معها', 'الشحنة متأخرة لدى شركة الشحن، ونتابعها']
+};
+const TS_NOTE_UI = {
+  'On Hold':  { icon: '⏸️', color: '#7E22CE', bg: '#F3EEFF', q: 'السبب أو المطلوب من العميل' },
+  'Delayed':  { icon: '⏳', color: '#B4770A', bg: '#FFF6E0', q: 'سبب التأخير' },
+  'Canceled': { icon: '❌', color: '#D93A3A', bg: '#FDECEC', q: 'سبب الإلغاء' },
+  'Lost':     { icon: '⚠️', color: '#D93A3A', bg: '#FDECEC', q: 'ما الذي حدث؟' }
 };
 
 /** بتفتح الويندو وترجّع Promise: النص اللي اتكتب، أو null لو الموظف لغى
  *  (وساعتها الحفظ كله بيتلغي — مفيش طلب يتحوّل معلّق من غير سبب). */
 function tsAskStatusNote(status, current, label, suggestions){
   return new Promise(resolve => {
-    const isLost = status === 'Lost';
+    const ui = TS_NOTE_UI[status] || TS_NOTE_UI['On Hold'];
     const wrap = document.createElement('div');
     wrap.setAttribute('dir', 'rtl');
     wrap.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(16,27,51,.55);display:flex;align-items:center;justify-content:center;padding:16px;font-family:Cairo,Tahoma,sans-serif';
@@ -255,18 +266,19 @@ function tsAskStatusNote(status, current, label, suggestions){
       '<button type="button" data-s="' + tsEscapeHtml(s) + '" style="border:1px solid #E3E8F2;background:#F8FAFC;color:#334155;border-radius:999px;padding:6px 11px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;margin:0 0 6px 6px">' + tsEscapeHtml(s) + '</button>').join('');
     wrap.innerHTML =
       '<div style="background:#fff;border-radius:16px;max-width:460px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.3);overflow:hidden">' +
-        '<div style="padding:16px 18px;border-bottom:4px solid ' + (isLost ? '#D93A3A' : '#7E22CE') + ';background:' + (isLost ? '#FDECEC' : '#F3EEFF') + '">' +
-          '<div style="font-size:16px;font-weight:900;color:#101B33">' + (isLost ? '⚠️ تحويل الطلب لـ Lost' : '⏸️ تحويل الطلب لـ On Hold') + '</div>' +
+        '<div style="padding:16px 18px;border-bottom:4px solid ' + ui.color + ';background:' + ui.bg + '">' +
+          '<div style="font-size:16px;font-weight:900;color:#101B33">' + ui.icon + ' تحويل الطلب إلى ' + tsEscapeHtml(status) + ' — ' + tsEscapeHtml(tsStatusLabel(status)) + '</div>' +
           (label ? '<div style="font-size:12px;color:#5A6885;margin-top:2px;font-family:monospace" dir="ltr">' + tsEscapeHtml(label) + '</div>' : '') +
         '</div>' +
         '<div style="padding:16px 18px">' +
-          '<label style="display:block;font-size:13px;font-weight:800;color:#101B33;margin-bottom:6px">' +
-            (isLost ? 'إيه اللي حصل؟' : 'السبب أو المطلوب من العميل') + ' *</label>' +
+          '<label style="display:block;font-size:13px;font-weight:800;color:#101B33;margin-bottom:6px">' + ui.q + ' *</label>' +
           '<textarea maxlength="300" rows="3" style="width:100%;box-sizing:border-box;border:1.5px solid #E3E8F2;border-radius:10px;padding:10px 12px;font:inherit;font-size:14px;resize:vertical;outline:none"></textarea>' +
           '<div style="margin-top:8px">' + chips + '</div>' +
-          '<div style="font-size:11.5px;color:#5A6885;background:#FFF8E6;border-radius:8px;padding:8px 10px;margin-top:6px;line-height:1.6">📢 الملاحظة دي <b>هتظهر للعميل</b> في صفحة التتبع' +
-            (isLost ? ' (مفيش إيميل أوتوماتيك للمفقود — كلّم العميل بنفسك)' : ' وفي الإيميل اللي بيوصله') + '. اكتبها بلغة لطيفة.</div>' +
-          '<div class="tsn-err" style="color:#D93A3A;font-size:12.5px;font-weight:800;margin-top:8px;display:none">اكتب السبب الأول (3 حروف على الأقل)</div>' +
+          '<div style="font-size:11.5px;color:#5A6885;background:#FFF8E6;border-radius:8px;padding:8px 10px;margin-top:6px;line-height:1.6">📢 ستظهر هذه الملاحظة <b>للعميل</b> في صفحة التتبع' +
+            (status === 'On Hold' ? ' وفي البريد الإلكتروني الذي يصله' : '') +
+            (status === 'Lost' ? ' (لا يُرسل بريد تلقائي في حالة الفقد — تواصل مع العميل بنفسك)' : '') +
+            '. يُرجى كتابتها بالفصحى وبأسلوب لطيف.</div>' +
+          '<div class="tsn-err" style="color:#D93A3A;font-size:12.5px;font-weight:800;margin-top:8px;display:none">يُرجى كتابة السبب أولًا (3 أحرف على الأقل)</div>' +
         '</div>' +
         '<div style="display:flex;gap:8px;justify-content:flex-start;padding:12px 18px;border-top:1px solid #EEF2F8">' +
           '<button type="button" class="tsn-ok" style="background:#F5B820;color:#101B33;border:0;border-radius:10px;padding:10px 20px;font:inherit;font-weight:900;cursor:pointer">حفظ</button>' +
@@ -373,6 +385,21 @@ function tsNormArrival(raw){
   return s.toUpperCase().replace(/\s+/g, '');
 }
 
+/* 📅 اقتراحات خانة موعد الوصول: آخر n مواعيد اتضافت في الشيت (من آخر
+   صف لفوق، من غير تكرار) — حتى لو الموعد موجود في طلب واحد بس. الموظف
+   غالبًا بيكتب موعد الشحنة الجارية، فده اللي يظهر قدامه على طول. */
+function tsRecentArrivals(rows, n){
+  const out = [];
+  for(let i = (rows || []).length - 1; i >= 0 && out.length < (n || 3); i--){
+    const v = tsNormArrival(rows[i] && rows[i].arrivaldate);
+    if(v && out.indexOf(v) === -1) out.push(v);
+  }
+  return out;
+}
+function tsArrivalOptionsHtml(rows, n){
+  return tsRecentArrivals(rows, n).map(v => '<option value="' + tsEscapeHtml(v) + '">').join('');
+}
+
 /* ═══════════════════════════════════════════════════════════
    🛡️ حفظ طلب من الداشبورد — الخانات اللي اتغيرت بس + حماية
    ═══════════════════════════════════════════════════════════
@@ -410,12 +437,12 @@ function tsOrderWarnings(cur, next){
   const oldSt = String(cur.status || '').trim(), newSt = String(next.status !== undefined ? next.status : oldSt).trim();
   const due = total + ship - dep;
   if(newSt === 'Delivered' && oldSt !== 'Delivered' && due > 0.5)
-    out.push('💵 لسه مطلوب ' + Math.round(due).toLocaleString('en-US') + ' ج.م على الطلب ده — اتحصّلوا فعلاً؟ (لو اتحصّلوا، زوّد العربون الأول)');
+    out.push('💵 ما زال مطلوبًا ' + Math.round(due).toLocaleString('en-US') + ' ج.م على هذا الطلب — هل تم تحصيلها فعلًا؟ (إذا تم التحصيل، فأضفها إلى العربون أولًا)');
   const oi = TS_STATUS_FLOW.indexOf(oldSt), ni = TS_STATUS_FLOW.indexOf(newSt);
   if(newSt !== oldSt && ((oi !== -1 && ni !== -1 && ni < oi) || (tsIsClosedStatus(oldSt) && !tsIsClosedStatus(newSt))))
-    out.push('↩️ الحالة هترجع لورا: ' + tsStatusLabel(oldSt) + ' ← ' + tsStatusLabel(newSt));
+    out.push('↩️ ستعود الحالة إلى مرحلة سابقة: ' + tsStatusLabel(oldSt) + ' ← ' + tsStatusLabel(newSt));
   if(dep > total + ship + 0.5 && total > 0)
-    out.push('💰 العربون (' + Math.round(dep).toLocaleString('en-US') + ') أكبر من إجمالي الطلب (' + Math.round(total + ship).toLocaleString('en-US') + ') — في صفر زيادة؟');
+    out.push('💰 العربون (' + Math.round(dep).toLocaleString('en-US') + ') أكبر من إجمالي الطلب (' + Math.round(total + ship).toLocaleString('en-US') + ') — هل يوجد صفر زائد؟');
   return out;
 }
 
@@ -431,10 +458,10 @@ async function tsSaveOrderEdit(o){
   const wanted = Object.assign({}, o.wanted);
   if(wanted.arrivaldate !== undefined) wanted.arrivaldate = tsNormArrival(wanted.arrivaldate);
   const ch = tsOrderChanges(cur, wanted);
-  if(!ch.count){ alert('مفيش أي تغيير في الطلب ' + o.orderId + ' عشان يتحفظ.'); return false; }
+  if(!ch.count){ alert('لا يوجد أي تغيير في الطلب ' + o.orderId + ' لحفظه.'); return false; }
 
   const warns = tsOrderWarnings(cur, ch.fields);
-  if(warns.length && !confirm('⚠️ قبل الحفظ — الطلب ' + o.orderId + ':\n\n' + warns.join('\n\n') + '\n\nتحفظ برضه؟')){
+  if(warns.length && !confirm('⚠️ قبل الحفظ — الطلب ' + o.orderId + ':\n\n' + warns.join('\n\n') + '\n\nهل تريد الحفظ على أي حال؟')){
     if(o.statusSelect && ch.fields.status !== undefined) o.statusSelect.value = cur.status || 'Pending Review';
     return false;
   }
@@ -445,7 +472,7 @@ async function tsSaveOrderEdit(o){
     if(statusNote === null){ if(o.statusSelect) o.statusSelect.value = cur.status || 'Pending Review'; return false; }
   }
 
-  if(o.btn) tsSetBtnLoading(o.btn, 'جاري الحفظ...');
+  if(o.btn) tsSetBtnLoading(o.btn, 'جارٍ الحفظ...');
   const payload = Object.assign({ action: 'updateStatus', order: o.orderId, user: o.user, staffToken: o.staffToken,
                                   expect: ch.expect, statusNote }, ch.fields);
 
@@ -467,17 +494,17 @@ async function tsSaveOrderEdit(o){
     cur.EndPrice = (parseFloat(cur.finalPrice) || 0) + (parseFloat(cur.shipping) || 0) - (parseFloat(cur.deposit) || 0);
     if(o.btn) tsClearBtnLoading(o.btn);
     if(typeof o.onSaved === 'function') o.onSaved();
-    tsToast('✅ اتحفظ — الطلب ' + o.orderId);
+    tsToast('✅ تم الحفظ — الطلب ' + o.orderId);
     return true;
   }
   if(reply === 'Unauthorized'){
     if(o.btn) tsClearBtnLoading(o.btn);
-    alert('⛔ السيرفر رفض الحفظ للطلب ' + o.orderId + ' — الجلسة خلصت أو مالكش صلاحية. سجّل دخول تاني.');
+    alert('⛔ رفض الخادم حفظ الطلب ' + o.orderId + ' — انتهت الجلسة أو ليست لديك صلاحية. يُرجى تسجيل الدخول مرة أخرى.');
     return false;
   }
   if(reply && reply !== 'Stale' && reply.length < 80 && !/</.test(reply)){
     if(o.btn) tsClearBtnLoading(o.btn);
-    alert('❌ الطلب ' + o.orderId + ' مااتحفظش — رد السيرفر: ' + reply);
+    alert('❌ الطلب ' + o.orderId + ' لم يُحفظ — رد الخادم: ' + reply);
     return false;
   }
 
@@ -491,12 +518,12 @@ async function tsSaveOrderEdit(o){
     else if(row && Object.keys(ch.expect).some(f => !tsSameOrderValue(f, row[f], ch.expect[f]) && !tsSameOrderValue(f, row[f], ch.fields[f]))) after = { stale: true, row };
   }
   if(o.btn) tsClearBtnLoading(o.btn);
-  if(after && after.ok){ tsToast('✅ اتحفظ — الطلب ' + o.orderId); return true; }
+  if(after && after.ok){ tsToast('✅ تم الحفظ — الطلب ' + o.orderId); return true; }
   if(after && after.stale){
-    alert('⚠️ التعديل مااتحفظش: الطلب ' + o.orderId + ' اتعدل من حد تاني (موظف أو المندوب) من وقت ما فتحت الصفحة.\n\nالصفحة اتحدّثت بالقيم الجديدة — راجعها واعمل تعديلك تاني.');
+    alert('⚠️ لم يُحفظ التعديل: عدّل شخص آخر (موظف أو مندوب) الطلب ' + o.orderId + ' منذ فتحك للصفحة.\n\nتم تحديث الصفحة بالقيم الجديدة — يُرجى مراجعتها ثم إعادة التعديل.');
     return false;
   }
-  alert('⚠️ مش متأكدين إن التعديل اتحفظ للطلب ' + o.orderId + ' — حدّث الصفحة وراجعه قبل ما تعيد.');
+  alert('⚠️ لم نتمكن من التأكد من حفظ تعديل الطلب ' + o.orderId + ' — يُرجى تحديث الصفحة ومراجعته قبل إعادة المحاولة.');
   return false;
 }
 
