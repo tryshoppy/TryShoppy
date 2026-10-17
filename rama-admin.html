@@ -153,7 +153,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
       <button id="refreshBtn" class="btn-ghost" onclick="manualRefresh(this)" title="تحديث القائمة" style="padding:8px 12px;">🔄</button>
       <button class="btn-ghost" onclick="showActivityLog()" title="سجل نشاطي" style="padding:8px 12px;">📜</button>
       <button id="exportCsvBtn" class="btn-ghost" onclick="exportCSV()" title="تصدير المنتجات الظاهرة كـ CSV" style="padding:8px 12px;">📊</button>
-      <span id="notifBadge" class="notif-badge hidden" style="cursor:pointer;" onclick="jumpToNeedsReview()" title="اضغط للانتقال للمنتجات المحتاجة مراجعة"></span>
+      <span id="notifBadge" class="notif-badge hidden" style="cursor:pointer;" onclick="jumpToNeedsReview()" title="اضغط للانتقال إلى المنتجات التي تحتاج إلى مراجعة"></span>
       <button class="btn-ghost" onclick="doLogout()" style="padding:8px 16px;">🚪 خروج</button>
     </div>
   </div>
@@ -162,7 +162,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 
   <div class="card">
     <div class="search-bar">
-      <input id="searchInput" placeholder="🔍 دوّر باسم المنتج أو اللينك أو موعد الوصول..."
+      <input id="searchInput" placeholder="🔍 ابحث باسم المنتج أو الرابط أو موعد الوصول..."
              oninput="debouncedRenderList()" onkeydown="if(event.key==='Enter')doSearch()">
       <button class="btn-search" id="searchBtn" onclick="doSearch()">🔍 بحث</button>
       <button class="btn-ghost" style="flex:0 0 auto;min-width:0;padding:12px 14px;" onclick="clearSearch()" title="مسح البحث">✖️</button>
@@ -275,7 +275,7 @@ function findActionBtn(fn, id){
 // null و"Cannot read properties of null" توقّف الزرار خالص
 function requireEl(id, msg){
   const el = document.getElementById(id);
-  if(!el){ showToast(msg || "⚠️ القائمة اتحدّثت — جرّب تاني", "error"); loadProducts(); return null; }
+  if(!el){ showToast(msg || "⚠️ تم تحديث القائمة — حاول مرة أخرى", "error"); loadProducts(); return null; }
   return el;
 }
 
@@ -407,7 +407,7 @@ async function doLogin(){
   const p = document.getElementById("loginPass").value;
   if(!u||!p) return;
   const btn = document.getElementById("loginBtn");
-  setBtnLoading(btn, "جاري التحقق...");
+  setBtnLoading(btn, "جارٍ التحقق...");
   let res;
   try{ res = await tsStaffLogin(u,p); }catch(e){ res={success:false,message:"تعذر الاتصال"}; }
   clearBtnLoading(btn);
@@ -417,7 +417,7 @@ async function doLogin(){
     localStorage.setItem("rmaStaffUser", u.toLowerCase());
     showMain();
   } else {
-    document.getElementById("loginError").textContent = (res&&res.code==='locked') ? res.message : "❌ اسم المستخدم أو كلمة المرور غلط";
+    document.getElementById("loginError").textContent = (res&&res.code==='locked') ? res.message : "❌ اسم المستخدم أو كلمة المرور غير صحيحة";
     document.getElementById("loginError").classList.remove("hidden");
   }
 }
@@ -479,7 +479,7 @@ async function loadProductsInner(retrying){
     // نزعجك برسالة — كتير من الحالات بتكون تهنيجة شبكة لحظية
     // بتتصلح لوحدها من غير أي إجراء منك
     if(!retrying) return loadProductsInner(true);
-    showToast("⚠️ تعذر الاتصال بالسيرفر — تأكد من الإنترنت", "error");
+    showToast("⚠️ تعذر الاتصال بالخادم — تأكد من الإنترنت", "error");
     return "network";
   }
 
@@ -491,12 +491,12 @@ async function loadProductsInner(retrying){
     const unauthorized = data && data.success === false &&
       /unauthor/i.test(String(data.message || data.code || ""));
     if(unauthorized){
-      alert("⚠️ الجلسة انتهت — سجّل دخول تاني");
+      alert("⚠️ انتهت الجلسة — يُرجى تسجيل الدخول مرة أخرى");
       doLogout();
       return "unauthorized";
     }
     console.warn("loadProducts: unexpected response", data);
-    showToast("⚠️ رد غير متوقع من السيرفر — هنجرب تاني", "error");
+    showToast("⚠️ رد غير متوقع من الخادم — سنحاول مرة أخرى", "error");
     return "network";
   }
 
@@ -539,7 +539,7 @@ function applyProducts(data, fromServer){
     // فيه جديد بس إنت بتكتب — نستناك
     if(!pendingRefresh){
       pendingRefresh = true;
-      showToast("🔔 فيه تحديث جديد — هيتطبّق أول ما تخلص الحقل ده", "success");
+      showToast("🔔 يوجد تحديث جديد — سيُطبَّق فور انتهائك من هذا الحقل", "success");
     }
     return false;
   }
@@ -588,7 +588,7 @@ function renderFromCache(){
     if(!Array.isArray(data) || !data.length) return false;
     applyProducts(data, false);
     const lbl = document.getElementById("lastRefreshLbl");
-    if(lbl) lbl.textContent = "نسخة محفوظة — بيتم التحديث...";
+    if(lbl) lbl.textContent = "نسخة محفوظة — جارٍ التحديث...";
     return true;
   }catch(e){ return false; }
 }
@@ -771,8 +771,8 @@ function renderList(){
   if(!items.length){
     const filtering = !!(q || statusF || arrivalF);
     box.innerHTML = filtering
-      ? `<div class="card empty-hint">🔍 مفيش نتائج مطابقة<br><button class="btn-search" style="margin-top:12px;" onclick="clearSearch();applyQuickFilter('')">↩️ امسح البحث والفلاتر</button></div>`
-      : '<div class="card empty-hint">🗂️ مفيش منتجات لسه</div>';
+      ? `<div class="card empty-hint">🔍 لا توجد نتائج مطابقة<br><button class="btn-search" style="margin-top:12px;" onclick="clearSearch();applyQuickFilter('')">↩️ امسح البحث والفلاتر</button></div>`
+      : '<div class="card empty-hint">🗂️ لا توجد منتجات حتى الآن</div>';
     // 🐞 الـreturn المبكر ده كان بيتخطى updateBulkBar — فشريط
     // "X منتج محدد" كان بيفضل ظاهر بعداد قديم على قايمة فاضية
     updateBulkBar();
@@ -793,15 +793,15 @@ function renderList(){
     if(p.status === "PendingPrice" || isRejected){
       actionsHtml = `
       ${isRejected
-        ? `<div class="meta-line" style="color:var(--danger);">🚫 اترفض قبل كده${p.notes ? ": " + escapeHtml(p.notes) : ""}</div>
-           <div class="meta-line" style="color:var(--gray);">سعّره من تاني وابعته للعميل كعرض جديد 👇</div>`
-        : (p.notes ? `<div class="meta-line" style="color:var(--success);">💡 ${escapeHtml(p.notes)} — راجعه على الموقع الأصلي قبل ما تعتمده</div>` : "")}
+        ? `<div class="meta-line" style="color:var(--danger);">🚫 رُفض سابقًا${p.notes ? ": " + escapeHtml(p.notes) : ""}</div>
+           <div class="meta-line" style="color:var(--gray);">سعّره مرة أخرى وأرسله إلى العميل كعرض جديد 👇</div>`
+        : (p.notes ? `<div class="meta-line" style="color:var(--success);">💡 ${escapeHtml(p.notes)} — راجعه على الموقع الأصلي قبل اعتماده</div>` : "")}
       <div class="action-box">
         <div class="row">
           <select id="type-${eid}" onchange="onTypeChange('${jid}')">
             <option value="capsules">💊 كبسولات</option>
-            <option value="gummies">🍬 جميز</option>
-            <option value="powder">🥄 بودر</option>
+            <option value="gummies">🍬 جمي</option>
+            <option value="powder">🥄 مسحوق</option>
             <option value="liquid">💧 سائل</option>
           </select>
         </div>
@@ -812,7 +812,7 @@ function renderList(){
           <input type="number" id="manualWeight-${eid}" placeholder="⚖️ الوزن الفعلي (جرام)" oninput="calcPreview('${jid}')">
         </div>
         <div style="margin-top:10px;font-size:12px;font-weight:800;color:var(--accent-ink);background:rgba(250,204,21,.18);border:1px solid var(--accent);border-radius:9px;padding:7px 10px;">
-          ⚠️ الرقمين دول <u>سعر الوحدة الواحدة</u> — الضرب في العدد بيحصل تلقائي وبيتسجل في الشيت
+          ⚠️ هذان الرقمان هما <u>سعر الوحدة الواحدة</u> — يتم الضرب في العدد تلقائيًا ويُسجَّل في الشيت
         </div>
         <div class="row" style="margin-top:8px;">
           <div style="flex:1;min-width:150px;">
@@ -824,23 +824,23 @@ function renderList(){
         <div class="row" style="margin-top:8px;">
           <div style="flex:1;min-width:150px;">
             <label style="display:block;margin-bottom:4px;font-size:12px;font-weight:800;color:#475569;">✏️ سعر الوحدة بالجنيه (EGP / قطعة) — اختياري</label>
-            <input type="number" id="customPrice-${eid}" placeholder="سيبه فاضي عشان الحاسبة تحسبه" oninput="calcPreview('${jid}')">
+            <input type="number" id="customPrice-${eid}" placeholder="اتركه فارغًا لتحسبه الحاسبة" oninput="calcPreview('${jid}')">
           </div>
-          <div style="align-self:flex-end;padding-bottom:10px;font-size:11px;color:var(--gray);flex:0 0 auto;">لو اتكتب، هيستخدم بدل حساب الحاسبة</div>
+          <div style="align-self:flex-end;padding-bottom:10px;font-size:11px;color:var(--gray);flex:0 0 auto;">إذا كُتب، فسيُستخدم بدلًا من حساب الحاسبة</div>
         </div>
         <button class="btn-block btn-success" style="margin-top:8px;" onclick="submitPrice('${jid}')">${isRejected ? "♻️ إعادة التسعير وإرسالها للعميل" : "📤 إرسال السعر للعميل"}</button>
         ${isRejected ? "" : `<button class="btn-block btn-ghost" style="margin-top:8px;color:var(--danger);" onclick="markUnavailable('${jid}', this)">🚫 المنتج غير متاح</button>`}
       </div>`;
     } else if(p.status === "PendingApproval"){
-      actionsHtml = `<div class="price-tag" style="font-weight:900;color:var(--primary);">${fmtNum(p.staffEgp)} EGP / قطعة</div><div class="meta-line">⏳ مستني رد العميل...</div>`;
+      actionsHtml = `<div class="price-tag" style="font-weight:900;color:var(--primary);">${fmtNum(p.staffEgp)} EGP / قطعة</div><div class="meta-line">⏳ في انتظار رد العميل...</div>`;
     } else if(p.status === "PendingReview"){
       actionsHtml = `
         <div class="meta-line" style="font-size:13.5px;">سعرك: <b>${fmtNum(p.staffEgp)}</b> EGP — عرض العميل: <b style="color:var(--warning)">${fmtNum(p.clientCounterEgp)}</b> EGP × ${escapeHtml(p.quantity || 1)}</div>
         <div class="action-box">
           <div class="row">
             <button class="btn-success" onclick="resolveCounter('${jid}', true, this)">✅ موافقة على عرض العميل</button>
-            <button class="btn-warning" onclick="toggleStaffCounter('${jid}')">💬 اعرض سعر تاني</button>
-            <button class="btn-danger" onclick="resolveCounter('${jid}', false, this)">↩️ رفض والرجوع لسعري</button>
+            <button class="btn-warning" onclick="toggleStaffCounter('${jid}')">💬 اعرض سعرًا آخر</button>
+            <button class="btn-danger" onclick="resolveCounter('${jid}', false, this)">↩️ الرفض والعودة إلى سعري</button>
           </div>
           <!-- 💬 عرض مضاد من الفريق: سعر (وعدد) في النص بين سعرك وعرض
                العميل، بيترجع للعميل يوافق عليه أو يرد تاني -->
@@ -889,6 +889,12 @@ function renderList(){
         </div>
         <button class="btn-block btn-reorder" style="margin-top:8px;" onclick="openReorderModal('${jid}')">🔁 تسجيل نفس المنتج في شحنة جديدة</button>`;
     }
+    // ❌ إلغاء الطلب — للأدمن بس، لأي طلب لسه ماتسلّمش. نفس أكشن
+    // updateStatus بحالة Rejected (من غير ديبلوي): الصف بيفضل في الشيت
+    // كسجل، بس بيخرج من الإجماليات والدفعات، والعميل بيشوف السبب
+    if(isHaitham() && !["PendingPrice","Rejected","Delivered"].includes(p.status)){
+      actionsHtml += `<button class="btn-block btn-ghost" style="margin-top:8px;color:var(--danger);" onclick="cancelProduct('${jid}', this)">❌ إلغاء الطلب</button>`;
+    }
 
     const img = safeUrl(p.imageUrl);
     const link = safeUrl(p.link);
@@ -898,7 +904,7 @@ function renderList(){
         ${img ? `<img class="product-img" src="${escapeHtml(img)}" loading="lazy" alt="">` : `<div class="product-img"></div>`}
         <div class="product-body">
           <span class="badge ${meta.cls}">${meta.label}</span>
-          <div class="product-name" title="${escapeHtml(p.productName || "")}">${escapeHtml(p.productName || "منتج بدون اسم")}</div>
+          <div class="product-name" title="${escapeHtml(p.productName || "")}">${escapeHtml(p.productName || "منتج دون اسم")}</div>
           <a class="product-link-btn" href="${escapeHtml(link || "#")}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(p.link || "")}">🔗 رابط المنتج</a>
           ${actionsHtml}
         </div>
@@ -960,10 +966,10 @@ function clearSelection(){
 async function applyBulkStatus(){
   if(!selectedIds.size) return;
   const status = document.getElementById("bulkStatus").value;
-  if(!confirm(`تأكيد تغيير حالة ${selectedIds.size} منتج لـ "${status}"؟`)) return;
+  if(!confirm(`هل تؤكد تغيير حالة ${selectedIds.size} منتج إلى "${status}"؟`)) return;
 
   const btn = document.querySelector('#bulkBar button.btn-success');
-  setBtnLoading(btn, "جاري التحديث...");
+  setBtnLoading(btn, "جارٍ التحديث...");
   // 🐞 كان Promise.all: أول منتج يفشل في الشبكة بيرمي، فالكاتش
   // بيقول "تعذر الاتصال" والباقي كله بيتحسب فاشل — مع إن ناس منهم
   // اتحدّثت فعلاً. وكمان selectedIds.clear() كان بيتنفّذ دايمًا،
@@ -983,14 +989,14 @@ async function applyBulkStatus(){
     selectedIds = new Set(failedIds); // ✅ اللي فشل بس يفضل متحدد عشان تعيد عليه
     if(okCount) logActivity("🔄 تحديث جماعي", `${okCount} منتج`, status);
     if(failedIds.length){
-      alert(`تم تحديث ${okCount} من ${ids.length}.\nالـ${failedIds.length} الباقيين لسه متحددين — دوس "تطبيق" تاني.`);
+      alert(`تم تحديث ${okCount} من ${ids.length}.\nوما زال ${failedIds.length} منتج محددًا — اضغط "تطبيق" مرة أخرى.`);
     } else {
-      showToast(`✅ اتحدّث ${okCount} منتج`, "success");
+      showToast(`✅ تم تحديث ${okCount} منتج`, "success");
     }
     await loadProducts();
   }catch(e){
     clearBtnLoading(btn);
-    alert("تعذر الاتصال بالسيرفر");
+    alert("تعذر الاتصال بالخادم");
   }
 }
 
@@ -1052,8 +1058,8 @@ async function submitPrice(id){
   const weight = resolveWeight(id);
   const type = typeEl.value;
 
-  if(!weight){ alert("اختار نوع ووزن/كمية المنتج الأول"); return; }
-  if(!custom && !usd){ alert("أدخل السعر بالدولار، أو اكتب سعر مخصص بالجنيه"); return; }
+  if(!weight){ alert("يُرجى اختيار نوع المنتج ووزنه/كميته أولًا"); return; }
+  if(!custom && !usd){ alert("أدخل السعر بالدولار، أو اكتب سعرًا مخصصًا بالجنيه"); return; }
 
   // ✏️ لو الموظف كتب سعر مخصص، بناخده زي ما هو ونتجاوز حساب
   // الحاسبة تمامًا — مفيد لأي حالة السعر الرسمي مش دقيق فيها
@@ -1079,7 +1085,7 @@ async function submitPrice(id){
 
   const p = allProducts.find(x => String(x.id) === String(id));
   const btn = findActionBtn("submitPrice", id);
-  setBtnLoading(btn, "جاري الإرسال...");
+  setBtnLoading(btn, "جارٍ الإرسال...");
   try{
     // 💱 بنبعت سعر *الوحدة* بس — السيرفر هو اللي بيضرب في العدد
     // وبيسجّل الإجماليات في الشيت، عشان الرقم اللي في الشيت يبقى
@@ -1100,16 +1106,16 @@ async function submitPrice(id){
       const stillPending = allProducts.filter(x=>x.status==="PendingPrice").length;
       if(stillPending === 0 && pricedThisSessionCount > 0) showPricingDoneModal();
     }
-    else { clearBtnLoading(btn); alert(data.message||"حصل خطأ"); }
+    else { clearBtnLoading(btn); alert(data.message||"حدث خطأ"); }
   }catch(e){
     clearBtnLoading(btn);
-    alert("تعذر الاتصال بالسيرفر");
+    alert("تعذر الاتصال بالخادم");
   }
 }
 
 async function resolveCounter(id, approve, btn){
   const p = allProducts.find(x => String(x.id) === String(id));
-  setBtnLoading(btn, approve ? "جاري الموافقة..." : "جاري الرفض...");
+  setBtnLoading(btn, approve ? "جارٍ الموافقة..." : "جارٍ الرفض...");
   try{
     const res = await fetch(RMA_SCRIPT_URL, { method:"POST", body: JSON.stringify({ action:"staffResolveCounter", staffToken:getStaffToken(), id, approve }) });
     const data = await res.json();
@@ -1117,10 +1123,10 @@ async function resolveCounter(id, approve, btn){
       logActivity(approve ? "✅ موافقة على عرض عميل" : "↩️ رفض عرض عميل", p ? p.productName : id, "");
       refreshAfterAction(data);
     }
-    else { clearBtnLoading(btn); alert(data.message||"حصل خطأ"); }
+    else { clearBtnLoading(btn); alert(data.message||"حدث خطأ"); }
   }catch(e){
     clearBtnLoading(btn);
-    alert("تعذر الاتصال بالسيرفر");
+    alert("تعذر الاتصال بالخادم");
   }
 }
 
@@ -1150,7 +1156,7 @@ function updateStaffCounterPreview(id){
   const egp = egpEl ? (parseFloat(egpEl.value) || 0) : 0;
   const qty = Math.max(1, (qtyEl ? parseInt(qtyEl.value) : 1) || 1);
   if(!egp){ box.textContent = "اكتب السعر الجديد للوحدة"; return; }
-  box.textContent = `هيروح للعميل: ${egp.toLocaleString()} × ${qty} = ${(egp*qty).toLocaleString()} EGP إجمالي`;
+  box.textContent = `سيُرسل إلى العميل: ${egp.toLocaleString()} × ${qty} = ${(egp*qty).toLocaleString()} EGP إجمالي`;
 }
 
 async function sendStaffCounter(id){
@@ -1163,7 +1169,7 @@ async function sendStaffCounter(id){
 
   const p = allProducts.find(x => String(x.id) === String(id));
   const btn = findActionBtn("sendStaffCounter", id);
-  setBtnLoading(btn, "جاري الإرسال...");
+  setBtnLoading(btn, "جارٍ الإرسال...");
   try{
     const res = await fetch(RMA_SCRIPT_URL, { method:"POST", body: JSON.stringify({
       action:"staffCounterOffer", staffToken:getStaffToken(), id, unitEgp, quantity: qty
@@ -1171,15 +1177,15 @@ async function sendStaffCounter(id){
     const data = await res.json();
     if(data.success){
       logActivity("💬 عرض مضاد للعميل", p ? p.productName : id, `${unitEgp.toLocaleString()} EGP × ${qty}`);
-      showToast("✅ اتبعت عرضك للعميل", "success");
+      showToast("✅ تم إرسال عرضك إلى العميل", "success");
       refreshAfterAction(data);
     } else {
       clearBtnLoading(btn);
-      alert(data.message || "حصل خطأ");
+      alert(data.message || "حدث خطأ");
     }
   }catch(e){
     clearBtnLoading(btn);
-    alert("تعذر الاتصال بالسيرفر");
+    alert("تعذر الاتصال بالخادم");
   }
 }
 
@@ -1217,7 +1223,7 @@ async function saveStatus(id){
 
   const p = allProducts.find(x => String(x.id) === String(id));
   const btn = findActionBtn("saveStatus", id);
-  setBtnLoading(btn, "جاري الحفظ...");
+  setBtnLoading(btn, "جارٍ الحفظ...");
   try{
     const res = await fetch(RMA_SCRIPT_URL, { method:"POST", body: JSON.stringify({ action:"updateStatus", staffToken:getStaffToken(), id, status, arrivalDate, deposit, quantity }) });
     const data = await res.json();
@@ -1227,10 +1233,10 @@ async function saveStatus(id){
         qtyChanged ? `${status} — العدد: ${p.quantity || 1} ← ${quantity}` : status);
       refreshAfterAction(data);
     }
-    else { clearBtnLoading(btn); alert(data.message||"حصل خطأ"); }
+    else { clearBtnLoading(btn); alert(data.message||"حدث خطأ"); }
   }catch(e){
     clearBtnLoading(btn);
-    alert("تعذر الاتصال بالسيرفر");
+    alert("تعذر الاتصال بالخادم");
   }
 }
 
@@ -1238,10 +1244,10 @@ async function saveStatus(id){
 // الموقع..) — بنستخدم نفس أكشن updateStatus الموجود، بس بحالة
 // "Rejected" ومعاها سبب اختياري يشوفه العميل
 async function markUnavailable(id, btn){
-  const reason = prompt("سبب عدم التوفر (هيظهر للعميل، اختياري):", "المنتج غير متاح حاليًا على الموقع");
+  const reason = prompt("سبب عدم التوفر (سيظهر للعميل، اختياري):", "المنتج غير متاح حاليًا على الموقع");
   if(reason === null) return; // ضغط إلغاء
   const p = allProducts.find(x => String(x.id) === String(id));
-  setBtnLoading(btn, "جاري التحديث...");
+  setBtnLoading(btn, "جارٍ التحديث...");
   try{
     const res = await fetch(RMA_SCRIPT_URL, { method:"POST", body: JSON.stringify({ action:"updateStatus", staffToken:getStaffToken(), id, status:"Rejected", notes:reason }) });
     const data = await res.json();
@@ -1249,10 +1255,32 @@ async function markUnavailable(id, btn){
       logActivity("🚫 غير متاح", p ? p.productName : id, reason);
       refreshAfterAction(data);
     }
-    else { clearBtnLoading(btn); alert(data.message||"حصل خطأ"); }
+    else { clearBtnLoading(btn); alert(data.message||"حدث خطأ"); }
   }catch(e){
     clearBtnLoading(btn);
-    alert("تعذر الاتصال بالسيرفر");
+    alert("تعذر الاتصال بالخادم");
+  }
+}
+// ❌ إلغاء طلب من الأدمن (أي حالة قبل التسليم) — نفس markUnavailable
+async function cancelProduct(id, btn){
+  const p = allProducts.find(x => String(x.id) === String(id));
+  const name = p ? (p.productName || "منتج دون اسم") : id;
+  const reason = prompt("إلغاء الطلب: " + name + "\n\nسبب الإلغاء (سيظهر للعميل):", "تم إلغاء الطلب بناءً على طلبكم");
+  if(reason === null) return;
+  const paid = p ? (parseFloat(p.deposit) || 0) : 0;
+  if(!confirm("هل تؤكد إلغاء هذا الطلب؟\n\n" + name + (paid > 0 ? "\n\n⚠️ عليه عربون " + paid.toLocaleString() + " EGP — رتّب رده أو خصمه مع العميل." : "") + "\n\nسيبقى الصف في الشيت بحالة Rejected، ويخرج من الإجماليات والدفعات.")) return;
+  setBtnLoading(btn, "جارٍ الإلغاء...");
+  try{
+    const res = await fetch(RMA_SCRIPT_URL, { method:"POST", body: JSON.stringify({ action:"updateStatus", staffToken:getStaffToken(), id, status:"Rejected", notes:reason }) });
+    const data = await res.json();
+    if(data.success){
+      logActivity("❌ إلغاء طلب", name, reason);
+      refreshAfterAction(data);
+    }
+    else { clearBtnLoading(btn); alert(data.message||"حدث خطأ"); }
+  }catch(e){
+    clearBtnLoading(btn);
+    alert("تعذر الاتصال بالخادم");
   }
 }
 /* ---------------------------------------------------------
@@ -1274,9 +1302,9 @@ function closeModal(){
 function openAddItemModal(){
   showModal(`
     <h3 style="margin-bottom:14px;">➕ إضافة منتج مباشرة</h3>
-    <p style="font-size:12px;color:var(--gray);margin-bottom:10px;">هيتضاف مباشرة كـ"مؤكد" بالسعر اللي تكتبه هنا — من غير ما يعدي على مرحلة "بانتظار السعر" العادية</p>
+    <p style="font-size:12px;color:var(--gray);margin-bottom:10px;">سيُضاف مباشرة بحالة "مؤكد" بالسعر الذي تكتبه هنا، دون المرور بمرحلة "بانتظار السعر" المعتادة</p>
     <div class="input-group" style="text-align:right;">
-      <label>لينك المنتج</label>
+      <label>رابط المنتج</label>
       <input type="text" id="addItemLink" placeholder="https://...">
     </div>
     <button class="btn-block btn-ghost" onclick="fetchForAddItem()" style="margin:8px 0;">🔍 جلب البيانات (اختياري)</button>
@@ -1290,7 +1318,7 @@ function openAddItemModal(){
       <input type="text" id="addItemImage">
     </div>
     <div style="font-size:12px;font-weight:800;color:var(--accent-ink);background:rgba(250,204,21,.18);border:1px solid var(--accent);border-radius:9px;padding:7px 10px;margin-bottom:8px;text-align:right;">
-      ⚠️ الرقمين دول <u>سعر الوحدة الواحدة</u> — الضرب في العدد بيحصل تلقائي وبيتسجل في الشيت
+      ⚠️ هذان الرقمان هما <u>سعر الوحدة الواحدة</u> — يتم الضرب في العدد تلقائيًا ويُسجَّل في الشيت
     </div>
     <div class="row">
       <div style="flex:1;min-width:130px;text-align:right;">
@@ -1327,20 +1355,20 @@ function updateAddItemPreview(){
   const unitEgp = parseFloat((document.getElementById("addItemUnitEgp")||{}).value) || 0;
   const unitUsd = parseFloat((document.getElementById("addItemUnitUsd")||{}).value) || 0;
   const qty = Math.max(1, parseInt((document.getElementById("addItemQty")||{}).value) || 1);
-  if(!unitEgp && !unitUsd){ box.textContent = "هيتسجل في الشيت: سعر الوحدة × العدد"; return; }
-  box.innerHTML = `📄 هيتسجل في الشيت:<br>`
+  if(!unitEgp && !unitUsd){ box.textContent = "سيُسجَّل في الشيت: سعر الوحدة × العدد"; return; }
+  box.innerHTML = `📄 سيُسجَّل في الشيت:<br>`
     + `TotalEGP = ${unitEgp.toLocaleString()} × ${qty} = <b>${(unitEgp*qty).toLocaleString()} EGP</b><br>`
     + `TotalUSD = ${unitUsd.toLocaleString()} × ${qty} = <b>${(unitUsd*qty).toLocaleString()}$</b>`;
 }
 
 async function fetchForAddItem(){
   const link = document.getElementById("addItemLink").value.trim();
-  if(!link){ alert("حط اللينك الأول"); return; }
+  if(!link){ alert("أضف الرابط أولًا"); return; }
   const hint = document.getElementById("addItemHint");
   const MAX_ATTEMPTS = 8;
   let data = null;
   for(let attempt=1; attempt<=MAX_ATTEMPTS; attempt++){
-    hint.textContent = `⏳ جاري الجلب... (${attempt}/${MAX_ATTEMPTS})`;
+    hint.textContent = `⏳ جارٍ الجلب... (${attempt}/${MAX_ATTEMPTS})`;
     try{
       const res = await fetch(RMA_SCRIPT_URL, { method:"POST", body: JSON.stringify({ action:"fetchProductInfo", link }) });
       data = await res.json();
@@ -1352,8 +1380,8 @@ async function fetchForAddItem(){
     document.getElementById("addItemName").value = data.productName || "";
     document.getElementById("addItemImage").value = data.imageUrl || "";
     hint.textContent = data.nameSource === "url"
-      ? "⚠️ الاسم اتحزر من الرابط — راجعه قبل الإضافة"
-      : "✅ اتجابت بيانات من الصفحة";
+      ? "⚠️ تم استنتاج الاسم من الرابط — راجعه قبل الإضافة"
+      : "✅ تم جلب البيانات من الصفحة";
   } else {
     hint.textContent = (data && data.message) || "تعذر الجلب — اكتب البيانات يدويًا";
   }
@@ -1367,11 +1395,11 @@ async function submitAddItem(){
   const unitUsd = parseFloat(document.getElementById("addItemUnitUsd").value) || 0;
   const qty = parseInt(document.getElementById("addItemQty").value) || 1;
   const deposit = parseFloat(document.getElementById("addItemDeposit").value) || 0;
-  if(!link){ alert("لازم تحط لينك المنتج"); return; }
-  if(!unitEgp){ alert("لازم تحط سعر القطعة بالجنيه على الأقل"); return; }
+  if(!link){ alert("يجب إضافة رابط المنتج"); return; }
+  if(!unitEgp){ alert("يجب إضافة سعر القطعة بالجنيه على الأقل"); return; }
 
   const btn = document.getElementById("submitAddItemBtn");
-  setBtnLoading(btn, "جاري الإضافة...");
+  setBtnLoading(btn, "جارٍ الإضافة...");
   try{
     const res = await fetch(RMA_SCRIPT_URL, { method:"POST", body: JSON.stringify({
       action:"staffAddItem", staffToken:getStaffToken(), link, productName:name, imageUrl:image,
@@ -1381,15 +1409,15 @@ async function submitAddItem(){
     if(data.success){
       logActivity("➕ إضافة مباشرة (مؤكد)", name || link, unitEgp.toLocaleString()+" EGP × "+qty);
       closeModal();
-      showToast("✅ تم إضافة المنتج", "success");
+      showToast("✅ تمت إضافة المنتج", "success");
       refreshAfterAction(data);
     } else {
       clearBtnLoading(btn);
-      alert(data.message || "حصل خطأ");
+      alert(data.message || "حدث خطأ");
     }
   }catch(e){
     clearBtnLoading(btn);
-    alert("تعذر الاتصال بالسيرفر");
+    alert("تعذر الاتصال بالخادم");
   }
 }
 
@@ -1404,7 +1432,7 @@ let reorderSource = null; // المنتج اللي بنعيد تسجيله
 
 function openReorderModal(id){
   const p = allProducts.find(x => String(x.id) === String(id));
-  if(!p){ showToast("⚠️ تعذر إيجاد المنتج — حدّث القائمة", "error"); return; }
+  if(!p){ showToast("⚠️ تعذر العثور على المنتج — حدّث القائمة", "error"); return; }
   reorderSource = p;
 
   const lastQty = Math.max(1, parseInt(p.quantity) || 1);
@@ -1413,9 +1441,9 @@ function openReorderModal(id){
 
   showModal(`
     <h3 style="margin-bottom:6px;">🔁 تسجيل في شحنة جديدة</h3>
-    <div style="font-size:12.5px;color:var(--gray);margin-bottom:4px;">${escapeHtml(p.productName || "منتج بدون اسم")}</div>
+    <div style="font-size:12.5px;color:var(--gray);margin-bottom:4px;">${escapeHtml(p.productName || "منتج دون اسم")}</div>
     <div style="font-size:11.5px;color:var(--gray);margin-bottom:12px;">
-      الشحنة القديمة: ${escapeHtml(normArrival(p.arrivalDate) || "بدون موعد")} — هتفضل زي ما هي، ده صف جديد مستقل
+      الشحنة القديمة: ${escapeHtml(normArrival(p.arrivalDate) || "دون موعد")} — ستبقى كما هي، فهذا صف جديد مستقل
     </div>
 
     <div class="input-group" style="text-align:right;">
@@ -1424,7 +1452,7 @@ function openReorderModal(id){
     </div>
 
     <div style="font-size:12px;font-weight:800;color:var(--accent-ink);background:rgba(250,204,21,.18);border:1px solid var(--accent);border-radius:9px;padding:7px 10px;margin-bottom:8px;text-align:right;">
-      ⚠️ الرقمين دول <u>سعر الوحدة الواحدة</u> — الضرب في العدد بيحصل تلقائي
+      ⚠️ هذان الرقمان هما <u>سعر الوحدة الواحدة</u> — يتم الضرب في العدد تلقائيًا
     </div>
 
     <div class="row">
@@ -1474,7 +1502,7 @@ function updateReorderPreview(){
   const dep = Math.max(0, parseFloat((document.getElementById("reorderDeposit")||{}).value) || 0);
   const totalEgp = egp * qty;
 
-  box.innerHTML = `📄 هيتسجل في الشيت:<br>`
+  box.innerHTML = `📄 سيُسجَّل في الشيت:<br>`
     + `TotalEGP = ${egp.toLocaleString()} × ${qty} = <b>${totalEgp.toLocaleString()} EGP</b><br>`
     + `TotalUSD = ${usd.toLocaleString()} × ${qty} = <b>${(usd*qty).toLocaleString()}$</b><br>`
     + `المتبقي بعد العربون: <b>${Math.max(0, totalEgp - dep).toLocaleString()} EGP</b>`;
@@ -1489,7 +1517,7 @@ function updateReorderPreview(){
     (x.link || "") === (reorderSource.link || "") &&
     normArrival(x.arrivalDate) === arrival);
   if(dupe){
-    warn.textContent = "⚠️ نفس المنتج متسجل بالفعل على موعد الوصول ده — متأكد إنك عايز تسجله تاني؟";
+    warn.textContent = "⚠️ المنتج نفسه مسجل بالفعل على موعد الوصول هذا — هل أنت متأكد أنك تريد تسجيله مرة أخرى؟";
     warn.classList.remove("hidden");
   } else {
     warn.classList.add("hidden");
@@ -1504,12 +1532,12 @@ async function submitReorder(){
   const qty = Math.max(1, parseInt((document.getElementById("reorderQty")||{}).value) || 1);
   const dep = Math.max(0, parseFloat((document.getElementById("reorderDeposit")||{}).value) || 0);
 
-  if(!arrival){ alert("لازم تحدد موعد الوصول للشحنة الجديدة"); return; }
-  if(!egp){ alert("لازم تحط سعر الوحدة بالجنيه على الأقل"); return; }
-  if(dep > egp * qty){ alert("العربون أكبر من إجمالي الطلب — راجع الأرقام"); return; }
+  if(!arrival){ alert("يجب تحديد موعد الوصول للشحنة الجديدة"); return; }
+  if(!egp){ alert("يجب إضافة سعر الوحدة بالجنيه على الأقل"); return; }
+  if(dep > egp * qty){ alert("العربون أكبر من إجمالي الطلب — يُرجى مراجعة الأرقام"); return; }
 
   const btn = document.getElementById("submitReorderBtn");
-  setBtnLoading(btn, "جاري التسجيل...");
+  setBtnLoading(btn, "جارٍ التسجيل...");
   try{
     const res = await fetch(RMA_SCRIPT_URL, { method:"POST", body: JSON.stringify({
       action:"staffAddItem", staffToken:getStaffToken(),
@@ -1526,15 +1554,15 @@ async function submitReorder(){
         `${arrival} — ${egp.toLocaleString()} EGP × ${qty}`);
       closeModal();
       reorderSource = null;
-      showToast("✅ اتسجل في الشحنة الجديدة", "success");
+      showToast("✅ تم التسجيل في الشحنة الجديدة", "success");
       await refreshAfterAction(data);
     } else {
       clearBtnLoading(btn);
-      alert(data.message || "حصل خطأ");
+      alert(data.message || "حدث خطأ");
     }
   }catch(e){
     clearBtnLoading(btn);
-    alert("تعذر الاتصال بالسيرفر");
+    alert("تعذر الاتصال بالخادم");
   }
 }
 
@@ -1597,7 +1625,7 @@ function openPaymentsModal(){
   if(!currentBatches.length){
     showModal(`
       <h3 style="margin-bottom:10px;">💰 دفعات الوصول</h3>
-      <div class="empty-hint">مفيش أي موعد وصول عليه منتجات مؤكدة أو دفعات مسجّلة لسه</div>
+      <div class="empty-hint">لا يوجد حتى الآن أي موعد وصول عليه منتجات مؤكدة أو دفعات مسجلة</div>
       <button class="btn-ghost btn-block" style="margin-top:12px;" onclick="closeModal()">إغلاق</button>
     `);
     return;
@@ -1645,12 +1673,12 @@ async function submitPayment(i, btn){
   const batch = currentBatches[i];
   const amountEl = document.getElementById("payAmount-"+i);
   const noteEl = document.getElementById("payNote-"+i);
-  if(!batch || !amountEl){ showToast("⚠️ اقفل النافذة وافتحها تاني", "error"); return; }
+  if(!batch || !amountEl){ showToast("⚠️ أغلق النافذة ثم افتحها مرة أخرى", "error"); return; }
   const amount = parseFloat(amountEl.value);
   const note = noteEl ? noteEl.value.trim() : "";
-  if(!amount || amount <= 0){ alert("اكتب مبلغ صحيح"); return; }
+  if(!amount || amount <= 0){ alert("اكتب مبلغًا صحيحًا"); return; }
 
-  setBtnLoading(btn, "جاري التسجيل...");
+  setBtnLoading(btn, "جارٍ التسجيل...");
   try{
     const res = await fetch(RMA_SCRIPT_URL, { method:"POST", body: JSON.stringify({
       action:"staffLogPayment", staffToken:getStaffToken(), arrivalDate: batch.arrivalDate, amount, note
@@ -1660,19 +1688,19 @@ async function submitPayment(i, btn){
       logActivity("💰 دفعة جديدة", "موعد وصول " + batch.arrivalDate, amount.toLocaleString()+" EGP");
       await refreshAfterAction(data);
       openPaymentsModal(); // إعادة الرسم بالأرقام المحدثة فورًا
-      showToast("✅ تم إضافة الدفعة", "success");
+      showToast("✅ تمت إضافة الدفعة", "success");
     } else {
       clearBtnLoading(btn);
-      alert(data.message || "حصل خطأ");
+      alert(data.message || "حدث خطأ");
     }
   }catch(e){
     clearBtnLoading(btn);
-    alert("تعذر الاتصال بالسيرفر");
+    alert("تعذر الاتصال بالخادم");
   }
 }
 
 async function deletePaymentEntry(id, btn){
-  if(!confirm("متأكد إنك عايز تمسح الدفعة دي؟")) return;
+  if(!confirm("هل أنت متأكد أنك تريد حذف هذه الدفعة؟")) return;
   if(btn){ btn.disabled = true; btn.textContent = "⏳"; }
   try{
     const res = await fetch(RMA_SCRIPT_URL, { method:"POST", body: JSON.stringify({ action:"staffDeletePayment", staffToken:getStaffToken(), id }) });
@@ -1680,14 +1708,14 @@ async function deletePaymentEntry(id, btn){
     if(data.success){
       await loadProducts();
       openPaymentsModal();
-      showToast("🗑 تم مسح الدفعة", "success");
+      showToast("🗑 تم حذف الدفعة", "success");
     } else {
       if(btn){ btn.disabled = false; btn.textContent = "🗑"; }
-      alert(data.message || "حصل خطأ");
+      alert(data.message || "حدث خطأ");
     }
   }catch(e){
     if(btn){ btn.disabled = false; btn.textContent = "🗑"; }
-    alert("تعذر الاتصال بالسيرفر");
+    alert("تعذر الاتصال بالخادم");
   }
 }
 
@@ -1697,16 +1725,16 @@ async function deletePaymentEntry(id, btn){
    --------------------------------------------------------- */
 function showPricingDoneModal(){
   const count = pricedThisSessionCount;
-  const msg = encodeURIComponent(`مرحبًا 👋، تم تسعير ${count} منتج وجاهزين لمراجعتك على RAMA 🙏`);
+  const msg = encodeURIComponent(`أهلًا 👋، سعّرنا ${count} منتج وجاهزين لمراجعتك على RAMA 🙏`);
   const hasNumber = CLIENT_WHATSAPP && !CLIENT_WHATSAPP.startsWith("PASTE");
   const waLink = hasNumber ? `https://wa.me/${CLIENT_WHATSAPP}?text=${msg}` : "";
   showModal(`
     <div style="font-size:2.2rem;margin-bottom:8px;">🎉</div>
-    <h3 style="margin-bottom:8px;">خلصت تسعير ${count} منتج!</h3>
-    <p style="color:var(--gray);font-size:13.5px;margin-bottom:16px;">تحب تبعت واتساب للعميل يعرف إن السعر جاهز؟</p>
+    <h3 style="margin-bottom:8px;">انتهيتَ من تسعير ${count} منتج!</h3>
+    <p style="color:var(--gray);font-size:13.5px;margin-bottom:16px;">هل تود إرسال رسالة واتساب للعميل لإبلاغه بأن السعر جاهز؟</p>
     ${hasNumber
-      ? `<a href="${waLink}" target="_blank" rel="noopener noreferrer" class="btn-block btn-success" style="display:block;text-decoration:none;margin-bottom:8px;box-sizing:border-box;">📱 إرسال واتساب للعميل</a>`
-      : `<div style="font-size:12px;color:var(--danger);margin-bottom:12px;">⚠️ حط رقم واتساب العميل في متغيّر CLIENT_WHATSAPP أول الكود عشان الزرار ده يشتغل</div>`}
+      ? `<a href="${waLink}" target="_blank" rel="noopener noreferrer" class="btn-block btn-success" style="display:block;text-decoration:none;margin-bottom:8px;box-sizing:border-box;">📱 إرسال رسالة واتساب للعميل</a>`
+      : `<div style="font-size:12px;color:var(--danger);margin-bottom:12px;">⚠️ أضف رقم واتساب العميل في المتغيّر CLIENT_WHATSAPP في بداية الكود ليعمل هذا الزر</div>`}
     <button class="btn-ghost btn-block" onclick="closeModal()">إغلاق</button>
   `);
   pricedThisSessionCount = 0; // نصفّر العداد بعد ما وريناه — الدفعة الجاية تتحسب من جديد
@@ -1736,10 +1764,10 @@ function showActivityLog(){
           <div style="font-weight:800;font-size:13px;">${escapeHtml(e.action)} — ${escapeHtml(e.productName)}</div>
           <div style="font-size:11.5px;color:var(--gray);">${escapeHtml(e.detail)} · ${new Date(e.time).toLocaleString("ar-EG")}</div>
         </div>`).join("")
-    : `<div class="empty-hint">مفيش نشاط مسجّل لسه</div>`;
+    : `<div class="empty-hint">لا يوجد نشاط مسجل حتى الآن</div>`;
   showModal(`
     <h3 style="margin-bottom:4px;">📜 سجل نشاطي</h3>
-    <p style="font-size:11.5px;color:var(--gray);margin-bottom:12px;">محفوظ في المتصفح ده بس — مش مشترك مع أجهزة تانية</p>
+    <p style="font-size:11.5px;color:var(--gray);margin-bottom:12px;">محفوظ في هذا المتصفح فقط — وغير مشترك مع الأجهزة الأخرى</p>
     <div style="max-height:340px;overflow-y:auto;text-align:right;margin-bottom:12px;">${rows}</div>
     <button class="btn-ghost btn-block" onclick="closeModal()">إغلاق</button>
   `);
@@ -1756,7 +1784,7 @@ function csvEscape(v){
 }
 
 function exportCSV(){
-  if(!lastRenderedItems.length){ alert("مفيش منتجات ظاهرة دلوقتي عشان تتصدّر"); return; }
+  if(!lastRenderedItems.length){ alert("لا توجد منتجات ظاهرة حاليًا لتصديرها"); return; }
   // 💱 نفس تسمية أعمدة الشيت بالظبط — وحدة مقابل إجمالي واضحين
   const headers = ["ID","اسم المنتج","الرابط","الحالة","نوع المنتج","الوزن/القطعة","سعر الوحدة $","سعر الوحدة EGP","الكمية","إجمالي $","إجمالي EGP","عرض العميل EGP","العربون EGP","المتبقي EGP","تاريخ الوصول","تاريخ الإضافة","آخر تحديث","ملاحظات"];
   const rows = lastRenderedItems.map(p => [
@@ -1815,7 +1843,7 @@ function doSearch(){
   if(q){
     showToast(lastRenderedItems.length
       ? `🔍 ${lastRenderedItems.length} نتيجة لـ"${q}"`
-      : `🔍 مفيش نتايج لـ"${q}"`, lastRenderedItems.length ? "success" : "error");
+      : `🔍 لا توجد نتائج لـ"${q}"`, lastRenderedItems.length ? "success" : "error");
   }
   const list = document.getElementById("productsList");
   if(list) list.scrollIntoView({ behavior:"smooth", block:"start" });
@@ -1831,7 +1859,7 @@ function clearSearch(){
    على الشريحة نفسها فتعرف فيه كام مستنيك من غير ما تضغط */
 const QUICK_FILTERS = [
   { key:"",             label:"📋 الكل" },
-  { key:"NeedsAction",  label:"🔔 محتاج إجراء مني" },
+  { key:"NeedsAction",  label:"🔔 يحتاج إلى إجراء مني" },
   { key:"PendingPrice", label:"⏳ بانتظار السعر" },
   { key:"PendingReview",label:"💬 عروض عملاء" },
   { key:"PendingApproval", label:"👤 بانتظار العميل" },

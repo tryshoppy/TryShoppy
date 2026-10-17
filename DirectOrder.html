@@ -113,7 +113,7 @@
 <div id="loginScreen" style="display:flex;">
   <div class="login-box">
     <div class="login-logo">TRY SHOPPY</div>
-    <div class="login-sub">سجّل دخولك للمتابعة</div>
+    <div class="login-sub">سجّل الدخول للمتابعة</div>
     <label class="login-label">اسم المستخدم</label>
     <input id="loginUser" type="text" class="login-input" placeholder="أدخل اسم المستخدم" autocomplete="username">
     <label class="login-label">كلمة المرور</label>
@@ -182,7 +182,7 @@
 
 <div class="row">
   <div class="input-group">
-    <label>سعر القطعة بالدولار شامل شحن الموقع | USD per Item</label>
+    <label>سعر القطعة بالدولار شاملًا شحن الموقع | USD per Item</label>
     <input id="priceUSD" type="number" placeholder="0.00">
   </div>
   <div class="input-group">
@@ -200,7 +200,7 @@
     <label>وزن القطعة | Weight per item</label>
     <!-- ⚖️ بأي وحدة زي ما هو مكتوب في المتجر — بيتحوّل لجرام قبل التسجيل -->
     <div style="display:flex;gap:8px">
-      <input id="weight" type="number" step="any" min="0" placeholder="مثلاً: 500" style="flex:1;min-width:0">
+      <input id="weight" type="number" step="any" min="0" placeholder="مثلًا: 500" style="flex:1;min-width:0">
       <select id="weightUnit" style="width:auto;min-width:76px">
         <option value="g">جم</option><option value="kg">كجم</option><option value="lb">lb</option><option value="oz">oz</option>
       </select>
@@ -228,7 +228,7 @@
 
 <div id="confirmSection" class="hidden">
 <div class="result">
-  <div style="font-weight:700; color:var(--text-muted);">السعر النهائي للمنتج ده:</div>
+  <div style="font-weight:700; color:var(--text-muted);">السعر النهائي لهذا المنتج:</div>
   <div class="price" id="finalPriceDisplay"></div>
 </div>
 <button class="btn-main" style="background:var(--success)" onclick="addCurrentToCart()">➕ أضف للسلة | Add to Cart</button>
@@ -244,7 +244,7 @@
     <span>الإجمالي | Total</span>
     <span id="cartTotalDisplay">0 EGP</span>
   </div>
-  <button class="btn-secondary" onclick="backToAddItem()">➕ أضف منتج تاني | Add Another Item</button>
+  <button class="btn-secondary" onclick="backToAddItem()">➕ أضف منتجًا آخر | Add Another Item</button>
   <button class="btn-main" style="margin-top:12px" onclick="goToCheckout()">✅ إتمام الطلب | Checkout</button>
 </div>
 
@@ -262,9 +262,9 @@
 
 <div id="existingCustomerSearch" class="hidden">
   <div class="input-group">
-    <label>ابحث بالاسم أو رقم الموبايل | Search by name or phone</label>
+    <label>ابحث بالاسم أو رقم الهاتف | Search by name or phone</label>
     <div class="search-row">
-      <input id="customerSearchInput" placeholder="اكتب الاسم أو رقم الموبايل" onkeydown="if(event.key==='Enter'){event.preventDefault();searchExistingCustomer();}">
+      <input id="customerSearchInput" placeholder="اكتب الاسم أو رقم الهاتف" onkeydown="if(event.key==='Enter'){event.preventDefault();searchExistingCustomer();}">
       <button type="button" id="customerSearchBtn" onclick="searchExistingCustomer()">🔍 بحث</button>
     </div>
   </div>
@@ -272,7 +272,7 @@
 </div>
 
 <div id="customerFillWarning" class="warning-banner hidden">
-  ⚠️ ممكن يكون فيه أكتر من عميل بنفس الاسم — اتأكد إن رقم الموبايل والعنوان تحت مطابقين فعليًا لنفس العميل اللي بتكلمه قبل ما تكمل الطلب.
+  ⚠️ قد يوجد أكثر من عميل بالاسم نفسه — تأكد من أن رقم الهاتف والعنوان أدناه يخصان العميل الذي تتحدث معه فعلًا قبل استكمال الطلب.
 </div>
 
 <div class="input-group">
@@ -336,7 +336,7 @@
 </select>
 </div>
 <button class="btn-main" id="confirmBtn" onclick="confirmOrder()">Confirm All Orders | تأكيد كل الطلبات</button>
-<button class="btn-secondary" style="margin-top:12px" onclick="showStep('cart')">← رجوع للسلة | Back to Cart</button>
+<button class="btn-secondary" style="margin-top:12px" onclick="showStep('cart')">← العودة إلى السلة | Back to Cart</button>
 </div>
 
 <!-- ================= STEP 4: نجاح ================= -->
@@ -357,10 +357,10 @@
 
 
 
-<script src="staff-auth.js?v=20261017a"></script>
-<script src="assets/config.js?v=20261017a"></script>
-<script src="assets/function_calc.js?v=20261017a"></script><!-- 💡 سعر الحاسبة المقترح (tsPriceSanity) -->
-<script src="assets/app.js?v=20261017a"></script>
+<script src="staff-auth.js?v=20261017b"></script>
+<script src="assets/config.js?v=20261017b"></script>
+<script src="assets/function_calc.js?v=20261017b"></script><!-- 💡 سعر الحاسبة المقترح (tsPriceSanity) -->
+<script src="assets/app.js?v=20261017b"></script>
 <script>
 const SESSION_TIME = 2 * 60 * 60 * 1000;
 const ORDER_SCRIPT_URL = TS_CONFIG.ORDERS_SCRIPT_URL;
@@ -404,13 +404,13 @@ async function doLogin() {
   if (!u || !p) return;
 
   const btn = document.querySelector('button[onclick="doLogin()"]');
-  if (btn) tsSetBtnLoading(btn, "جاري التحقق...");
+  if (btn) tsSetBtnLoading(btn, "جارٍ التحقق...");
 
   let res;
   try {
     res = await tsStaffLogin(u, p);
   } catch (err) {
-    res = { success: false, message: "تعذر الاتصال بالسيرفر" };
+    res = { success: false, message: "تعذر الاتصال بالخادم" };
   }
 
   if (res && res.success) {
@@ -480,7 +480,7 @@ function showConfirm() {
   let priceEGP = parseFloat(document.getElementById("priceEGP").value) || 0;
   let priceUSD = parseFloat(document.getElementById("priceUSD").value) || 0;
   let qty = parseInt(document.getElementById("quantity").value) || 1;
-  if (!priceEGP || !priceUSD) { alert("من فضلك أدخل السعر بالدولار والمصري"); return; }
+  if (!priceEGP || !priceUSD) { alert("يُرجى إدخال السعر بالدولار وبالجنيه"); return; }
   if (!requireCategory()) return;
   document.getElementById("finalPriceDisplay").innerText = (priceEGP * qty) + " EGP";
   document.getElementById("confirmSection").classList.remove("hidden");
@@ -500,7 +500,7 @@ tsAttachPriceHint({ usd: "priceUSD", egp: "priceEGP", category: "category", weig
 function requireCategory(){
   const sel = document.getElementById("category");
   if (sel.value) return true;
-  alert("⚠️ اختار فئة المنتج الأول | Please choose a category");
+  alert("⚠️ يُرجى اختيار فئة المنتج أولًا | Please choose a category");
   sel.focus();
   sel.scrollIntoView({ behavior: "smooth", block: "center" });
   return false;
@@ -510,17 +510,17 @@ function addCurrentToCart(){
   const priceEGP = parseFloat(document.getElementById("priceEGP").value) || 0;
   const priceUSD = parseFloat(document.getElementById("priceUSD").value) || 0;
   const qty = parseInt(document.getElementById("quantity").value) || 1;
-  if (!priceEGP || !priceUSD) { alert("من فضلك أدخل السعر بالدولار والمصري"); return; }
+  if (!priceEGP || !priceUSD) { alert("يُرجى إدخال السعر بالدولار وبالجنيه"); return; }
   if (!requireCategory()) return;
   // 🔢 الكمية رقم صحيح 1 أو أكتر (كانت بتقبل 1.5 أو سالب)
   const qtyRaw = parseFloat(document.getElementById("quantity").value);
-  if (!(qtyRaw >= 1) || qtyRaw !== Math.floor(qtyRaw)) { alert("⚠️ الكمية لازم تكون رقم صحيح 1 أو أكتر"); document.getElementById("quantity").focus(); return; }
+  if (!(qtyRaw >= 1) || qtyRaw !== Math.floor(qtyRaw)) { alert("⚠️ يجب أن تكون الكمية عددًا صحيحًا يساوي 1 أو أكثر"); document.getElementById("quantity").focus(); return; }
   // 🌍 الخدمة من أمريكا — "دول أخرى" بتتسأل عليها بدل ما تعدّي بالغلط
   if (document.getElementById("country").value === "OTHER" &&
-      !confirm("⚠️ اخترت \"دول أخرى\" — الخدمة أساسًا من أمريكا. متأكد إن الطلب ده من دولة تانية؟")) return;
+      !confirm("⚠️ اخترت \"دول أخرى\" — خدمتنا أساسًا من أمريكا. هل أنت متأكد أن هذا الطلب من دولة أخرى؟")) return;
   // 💡 مراجعة السعر بمعادلة الحاسبة (أقل من التكلفة / بعيد جدًا عن المقترح)
   const ps = tsPriceSanity({ usd: priceUSD, egp: priceEGP, category: document.getElementById("category").value, weightGrams: directWeightGrams() });
-  if (ps.warnings.length && !confirm("⚠️ راجع السعر قبل الإضافة:\n\n" + ps.warnings.join("\n\n") + "\n\nتضيفه برضه؟")) return;
+  if (ps.warnings.length && !confirm("⚠️ يُرجى مراجعة السعر قبل الإضافة:\n\n" + ps.warnings.join("\n\n") + "\n\nهل تريد إضافته على أي حال؟")) return;
 
   tsAddToDirectCart({
     link: document.getElementById("productLink").value,
@@ -579,9 +579,9 @@ function removeCartItem(tempId){
 function backToAddItem(){ showStep('product'); }
 
 function goToCheckout(){
-  if (tsGetDirectCart().length === 0) { alert("السلة فاضية — أضف منتج واحد على الأقل الأول"); return; }
+  if (tsGetDirectCart().length === 0) { alert("السلة فارغة — أضف منتجًا واحدًا على الأقل أولًا"); return; }
   // منتج متسيب في السلة من قبل ما الفئة تبقى إجباري
-  if (tsGetDirectCart().some(i => !i.category)) { alert("⚠️ فيه منتج في السلة من غير فئة — امسحه وضيفه تاني بالفئة"); return; }
+  if (tsGetDirectCart().some(i => !i.category)) { alert("⚠️ يوجد منتج في السلة دون فئة — احذفه وأضفه مرة أخرى مع اختيار الفئة"); return; }
   showStep('checkout');
 }
 
@@ -612,10 +612,10 @@ function setCustomerMode(mode){
 
 async function searchExistingCustomer(){
   const q = document.getElementById('customerSearchInput').value.trim();
-  if(!q){ alert('اكتب اسم أو رقم موبايل للبحث'); return; }
+  if(!q){ alert('اكتب اسمًا أو رقم هاتف للبحث'); return; }
 
   const btn = document.getElementById('customerSearchBtn');
-  tsSetBtnLoading(btn, 'جاري البحث...');
+  tsSetBtnLoading(btn, 'جارٍ البحث...');
 
   if(!allCustomersCache){
     try{
@@ -624,14 +624,14 @@ async function searchExistingCustomer(){
       const data = await res.json();
       if(!Array.isArray(data)){
         tsClearBtnLoading(btn);
-        alert('⚠️ الجلسة انتهت أو مش صالحة — سجّل دخول تاني.');
+        alert('⚠️ انتهت الجلسة أو أصبحت غير صالحة — يُرجى تسجيل الدخول مرة أخرى.');
         dLogout();
         return;
       }
       allCustomersCache = data;
     }catch(e){
       tsClearBtnLoading(btn);
-      alert('تعذر الاتصال بالسيرفر، حاول تاني');
+      alert('تعذر الاتصال بالخادم، يُرجى المحاولة مرة أخرى');
       return;
     }
   }
@@ -673,7 +673,7 @@ async function searchExistingCustomer(){
 function renderCustomerSearchResults(){
   const box = document.getElementById('customerSearchResults');
   if(!customerMatches.length){
-    box.innerHTML = '<div style="padding:14px;color:var(--text-muted);font-size:13.5px;">🚫 مفيش نتائج مطابقة — تقدر تسجّله كعميل جديد بدل كده</div>';
+    box.innerHTML = '<div style="padding:14px;color:var(--text-muted);font-size:13.5px;">🚫 لا توجد نتائج مطابقة — يمكنك تسجيله عميلًا جديدًا بدلًا من ذلك</div>';
     return;
   }
   box.innerHTML = customerMatches.map((c,i)=>{
@@ -686,7 +686,7 @@ function renderCustomerSearchResults(){
   }).join('');
 
   if(customerMatches.length > 1){
-    box.innerHTML = '<div style="padding:10px 4px;color:#b45309;font-weight:800;font-size:13px;">⚠️ فيه '+customerMatches.length+' نتائج قريبة من بحثك — اختار الصح بناءً على رقم الموبايل والعنوان</div>' + box.innerHTML;
+    box.innerHTML = '<div style="padding:10px 4px;color:#b45309;font-weight:800;font-size:13px;">⚠️ توجد '+customerMatches.length+' نتائج قريبة من بحثك — اختر الصحيح بناءً على رقم الهاتف والعنوان</div>' + box.innerHTML;
   }
 }
 
@@ -706,7 +706,7 @@ function selectExistingCustomer(idx){
 
   document.getElementById('customerFillWarning').classList.remove('hidden');
   document.getElementById('customerSearchResults').innerHTML =
-    '<div class="picked-banner">✅ اتملت بيانات: '+tsEscapeHtml(c.customerName||'')+' — راجعها تحت قبل الإرسال</div>';
+    '<div class="picked-banner">✅ تم ملء بيانات: '+tsEscapeHtml(c.customerName||'')+' — راجعها أدناه قبل الإرسال</div>';
 }
 
 /* 👥 قبل تسجيل "عميل جديد": لو رقمه موجود في الطلبات، بنسأل — عشان مايبقاش
@@ -742,9 +742,9 @@ async function confirmNotDuplicate(phone, name){
   const timeout = new Promise(r => setTimeout(() => r(null), 5000));
   const hit = await Promise.race([lookupPhone(phone), timeout]);
   if (!hit) return true;
-  return confirm("👥 الرقم " + tsDisplayPhone(phone) + " متسجل قبل كده لعميل موجود باسم: " + (hit.customerName || "—") +
-    "\n\nلو هو نفس العميل، اضغط Cancel واختاره من \"عميل سابق\" عشان بياناته تفضل واحدة." +
-    "\nاضغط OK لو متأكد إنه عميل تاني وتكمل بالاسم: " + name);
+  return confirm("👥 الرقم " + tsDisplayPhone(phone) + " مسجل مسبقًا لعميل موجود باسم: " + (hit.customerName || "—") +
+    "\n\nإذا كان العميل نفسه، فاضغط Cancel واختره من \"عميل سابق\" لتبقى بياناته موحّدة." +
+    "\nاضغط OK إذا كنت متأكدًا أنه عميل آخر للمتابعة بالاسم: " + name);
 }
 
 /* 🔒 دوسة واحدة = تسجيل واحد. الزرار بيتقفل من أول لحظة (قبل أي انتظار)،
@@ -754,7 +754,7 @@ async function confirmOrder() {
   if (submittingOrder) return;
   submittingOrder = true;
   const btn = document.getElementById("confirmBtn");
-  tsSetBtnLoading(btn, "جاري التحقق...");
+  tsSetBtnLoading(btn, "جارٍ التحقق...");
   try {
     await confirmOrderInner(btn);
   } finally {
@@ -781,8 +781,8 @@ async function confirmOrderInner(btn) {
   const addr = addrEl.value.trim();
   if (addr.length < 8 || !/\s/.test(addr)) {
     const ok = confirm(addr
-      ? "⚠️ العنوان مكتوب «" + addr + "» بس.\n\nلو ده مقصود (استلام من المكتب مثلاً) اضغط OK ويتسجل الطلب كده.\nلو عايز تكمّل العنوان اضغط Cancel."
-      : "⚠️ خانة العنوان فاضية.\n\nلو العميل هيستلم بنفسه اضغط OK ويتسجل الطلب من غير عنوان.\nلو عايز تكتب العنوان اضغط Cancel.");
+      ? "⚠️ العنوان مكتوب «" + addr + "» فقط.\n\nإذا كان ذلك مقصودًا (استلام من المكتب مثلًا) فاضغط OK ليُسجَّل الطلب هكذا.\nوإذا أردت استكمال العنوان فاضغط Cancel."
+      : "⚠️ خانة العنوان فارغة.\n\nإذا كان العميل سيستلم بنفسه فاضغط OK ليُسجَّل الطلب دون عنوان.\nوإذا أردت كتابة العنوان فاضغط Cancel.");
     if (!ok) { addrEl.focus(); addrEl.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
   }
 
@@ -790,11 +790,11 @@ async function confirmOrderInner(btn) {
   if (customerMode === 'new' && !(await confirmNotDuplicate(vChk.phone, name))) return;
 
   const cart = tsGetDirectCart();
-  if (!cart.length) { alert("السلة فاضية"); showStep('cart'); return; }
-  if (cart.some(i => !i.category)) { alert("⚠️ فيه منتج في السلة من غير فئة — امسحه وضيفه تاني بالفئة"); showStep('cart'); return; }
+  if (!cart.length) { alert("السلة فارغة"); showStep('cart'); return; }
+  if (cart.some(i => !i.category)) { alert("⚠️ يوجد منتج في السلة دون فئة — احذفه وأضفه مرة أخرى مع اختيار الفئة"); showStep('cart'); return; }
 
   if (btn.dataset.tsLoading === '1') tsClearBtnLoading(btn);
-  tsSetBtnLoading(btn, "جاري التأكيد...");
+  tsSetBtnLoading(btn, "جارٍ التأكيد...");
 
   const phone = document.getElementById("phone").value;
   const email = document.getElementById("customerEmail").value.trim();
@@ -862,8 +862,8 @@ async function confirmOrderInner(btn) {
       succeeded.forEach(s => tsRemoveFromDirectCart(s.item.tempId));
       renderCart();
       alert(
-        "⚠️ " + succeeded.length + " من " + cartWithOrders.length + " طلبات اتسجلت بنجاح.\n" +
-        "الطلبات دي فشلت وفضلت في السلة عشان تعيد المحاولة:\n" +
+        "⚠️ " + succeeded.length + " من " + cartWithOrders.length + " طلبات سُجلت بنجاح.\n" +
+        "فشلت الطلبات التالية وبقيت في السلة لإعادة المحاولة:\n" +
         failed.map(f => "• " + f.orderNo + (f.item.link ? " — " + f.item.link : "")).join("\n")
       );
       return;
@@ -875,7 +875,7 @@ async function confirmOrderInner(btn) {
     showStep('success');
   } catch (err) {
     tsClearBtnLoading(btn);
-    alert("❌ تعذر الاتصال بالسيرفر — راجع الشيت للتأكد قبل ما تبلغ العميل، وحاول تاني لو محتاج.");
+    alert("❌ تعذر الاتصال بالخادم — راجع الشيت للتأكد قبل إبلاغ العميل، وأعد المحاولة إذا لزم الأمر.");
   }
 }
 
@@ -905,7 +905,7 @@ function sendWhatsApp() {
   const total = lastOrders.reduce((s,o)=>s+o.item.finalEGP, 0);
   const msg = tsWaMessage({
     to: "shop",
-    intro: "مرحبًا Try Shoppy 👋\nعايز أأكد الطلب ده:",
+    intro: "أهلًا Try Shoppy 👋\nعايز أأكد الطلب ده:",
     customerName: document.getElementById("customerName").value,
     phone: document.getElementById("phone").value,
     governorate: document.getElementById("governorate").value,

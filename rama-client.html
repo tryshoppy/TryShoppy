@@ -147,7 +147,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{
     <div style="font-size:1.6rem;font-weight:900;color:var(--primary);margin-bottom:6px;">TRY SHOPPY</div>
     <div style="font-size:13px;color:#94a3b8;font-weight:700;margin-bottom:24px;">💊 بوابة RAMA — الفيتامينات والمكملات</div>
     <input id="passcodeInput" type="password" placeholder="🔒 كلمة المرور" style="margin-bottom:14px;" onkeydown="if(event.key==='Enter')doLogin()">
-    <div id="loginError" class="hidden" style="color:var(--danger);font-size:13px;font-weight:700;margin-bottom:12px;">❌ كلمة المرور غلط</div>
+    <div id="loginError" class="hidden" style="color:var(--danger);font-size:13px;font-weight:700;margin-bottom:12px;">❌ كلمة المرور غير صحيحة</div>
     <button class="btn-block" onclick="doLogin()">🔐 دخول ←</button>
   </div>
 </div>
@@ -169,7 +169,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{
       <div id="previewName" style="font-weight:700;font-size:13.5px;"></div>
     </div>
     <div class="input-group">
-      <label>✏️ اسم المنتج (يدوي لو الجلب التلقائي متعذّرش)</label>
+      <label>✏️ اسم المنتج (يُكتب يدويًا إذا تعذّر الجلب التلقائي)</label>
       <input id="manualName" placeholder="اسم المنتج">
     </div>
     <button class="btn-block" id="addToCartBtn" onclick="addToCart()">➕ أضف للسلة</button>
@@ -188,14 +188,14 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{
       <button class="btn-ghost" onclick="exportCSV()" title="تصدير طلباتي كـ CSV" style="padding:8px 12px;">📊</button>
       <button id="paymentsBtn" class="btn-ghost" onclick="openPaymentsModal()" title="دفعات الوصول" style="padding:8px 12px;">💰 دفعات</button>
     </div>
-    <div id="notifBadge" class="notif-badge hidden" style="cursor:pointer;" onclick="jumpToNeedsReview()" title="اضغط للانتقال للمنتجات المحتاجة ردك"></div>
+    <div id="notifBadge" class="notif-badge hidden" style="cursor:pointer;" onclick="jumpToNeedsReview()" title="اضغط للانتقال إلى المنتجات التي تحتاج إلى ردك"></div>
   </div>
 
   <div class="stats-grid" id="statsGrid"></div>
 
   <div class="card">
     <div class="search-bar">
-      <input id="searchInput" placeholder="🔍 دوّر باسم المنتج أو اللينك أو موعد الوصول..."
+      <input id="searchInput" placeholder="🔍 ابحث باسم المنتج أو الرابط أو موعد الوصول..."
              oninput="debouncedRenderList()" onkeydown="if(event.key==='Enter')doSearch()">
       <button class="btn-search" id="searchBtn" onclick="doSearch()">🔍 بحث</button>
       <button class="btn-ghost" style="flex:0 0 auto;min-width:0;padding:13px 14px;" onclick="clearSearch()" title="مسح البحث">✖️</button>
@@ -366,7 +366,7 @@ async function doLogin(){
   const p = document.getElementById("passcodeInput").value.trim();
   if(!p) return;
   const btn = document.querySelector("#loginScreen button.btn-block");
-  setBtnLoading(btn, "جاري التحقق...");
+  setBtnLoading(btn, "جارٍ التحقق...");
   setPasscode(p);
   const result = await loadProducts();
   clearBtnLoading(btn);
@@ -383,13 +383,13 @@ async function doLogin(){
     startAutoRefresh();
   } else if(result === "unauthorized"){
     clearPasscode();
-    errBox.textContent = "❌ كلمة المرور غلط";
+    errBox.textContent = "❌ كلمة المرور غير صحيحة";
     errBox.classList.remove("hidden");
   } else {
     // مشكلة شبكة — مش دليل إن الباسورد غلط، فمنمسحوش، بس منفتحش
     // التطبيق كمان من غير ما نتأكد
     clearPasscode();
-    errBox.textContent = "⚠️ تعذر الاتصال بالسيرفر — حاول تاني";
+    errBox.textContent = "⚠️ تعذر الاتصال بالخادم — حاول مرة أخرى";
     errBox.classList.remove("hidden");
   }
 }
@@ -424,7 +424,7 @@ function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
 // فشلت، بترجع لحالة "اكتبها يدويًا" زي الأول بالظبط
 async function fetchProduct(){
   const link = document.getElementById("newLink").value.trim();
-  if(!link){ alert("الصق رابط المنتج الأول"); return; }
+  if(!link){ alert("الصق رابط المنتج أولًا"); return; }
   const btn = document.getElementById("fetchBtn");
   if(btn.dataset.loading==='1') return; // شغال أصلاً، متضاعفش الطلبات لو داس تاني
   // 🐞 كانت 15 محاولة ورا بعض من غير أي مهلة لكل محاولة — لو
@@ -434,9 +434,9 @@ async function fetchProduct(){
   const ATTEMPT_TIMEOUT = 12000;
   let data = null;
 
-  setBtnLoading(btn, `جاري الجلب... (1/${MAX_ATTEMPTS})`);
+  setBtnLoading(btn, `جارٍ الجلب... (1/${MAX_ATTEMPTS})`);
   for(let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++){
-    btn.innerHTML = `<span class="spinner"></span> جاري الجلب... (${attempt}/${MAX_ATTEMPTS})`;
+    btn.innerHTML = `<span class="spinner"></span> جارٍ الجلب... (${attempt}/${MAX_ATTEMPTS})`;
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), ATTEMPT_TIMEOUT);
     try{
@@ -461,7 +461,7 @@ async function fetchProduct(){
     const imgUrl = safeUrl(data.imageUrl);
     if(imgUrl){ prevImg.src = imgUrl; prevImg.classList.remove("hidden"); }
     else { prevImg.removeAttribute("src"); prevImg.classList.add("hidden"); }
-    let previewText = escapeHtml(data.productName || "(بدون اسم — اكتبه يدويًا)");
+    let previewText = escapeHtml(data.productName || "(دون اسم — اكتبه يدويًا)");
     if(data.suggestedUsdPrice){
       previewText += ` <span style="color:var(--gray);font-weight:700;">— 💵 السعر على الموقع تقريبًا: $${escapeHtml(String(data.suggestedUsdPrice))}</span>`;
     }
@@ -511,7 +511,7 @@ function renderCart(){
     <div class="cart-item">
       ${img ? `<img src="${escapeHtml(img)}">` : `<img>`}
       <div class="info">
-        <div class="name">${escapeHtml(item.productName || "منتج بدون اسم")}</div>
+        <div class="name">${escapeHtml(item.productName || "منتج دون اسم")}</div>
         <span class="link">${escapeHtml(item.link)}</span>
       </div>
       <button class="remove-btn" onclick="removeFromCart('${escapeHtml(item.tempId)}')">🗑 حذف</button>
@@ -529,7 +529,7 @@ async function sendAllCart(){
   const cart = getCart();
   if(!cart.length) return;
   const btn = document.getElementById("sendAllBtn");
-  setBtnLoading(btn, "جاري إرسال " + cart.length + " منتج...");
+  setBtnLoading(btn, "جارٍ إرسال " + cart.length + " منتج...");
 
   // 🐞 كان بيستخدم Promise.all: أول منتج يفشل في الشبكة بيرمي،
   // فالباقي كله بيتحسب فاشل ومفيش أي واحد بيتسجّل. وأخطر من كده،
@@ -555,12 +555,12 @@ async function sendAllCart(){
     loadProducts();
 
     if(failedItems.length){
-      alert(`⚠️ ${successCount} من ${cart.length} اتبعتوا بنجاح.\nالـ${failedItems.length} الباقيين لسه في السلة — دوس "إرسال" تاني للي فيها.`);
+      alert(`⚠️ أُرسل ${successCount} من ${cart.length} بنجاح.\nوما زالت ${failedItems.length} منتجات في السلة — اضغط "إرسال" مرة أخرى لإرسالها.`);
     }
     if(successCount > 0) showOrderSentModal(successCount);
   }catch(e){
     clearBtnLoading(btn);
-    alert("تعذر الاتصال بالسيرفر — السلة لسه محفوظة، حاول تاني");
+    alert("تعذر الاتصال بالخادم — ما زالت السلة محفوظة، حاول مرة أخرى");
   }
 }
 
@@ -621,8 +621,8 @@ async function loadProductsInner(retrying){
     // بتتصلح لوحدها من غير أي إجراء منك
     if(!retrying) return loadProductsInner(true);
     const box = document.getElementById("productsList");
-    if(box && !allProducts.length) box.innerHTML = '<div class="card empty-hint">تعذر تحميل المنتجات — تأكد من الاتصال بالإنترنت وحاول تاني</div>';
-    else showToast("⚠️ تعذر تحديث البيانات — هنجرب تاني", "error");
+    if(box && !allProducts.length) box.innerHTML = '<div class="card empty-hint">تعذر تحميل المنتجات — تأكد من الاتصال بالإنترنت وحاول مرة أخرى</div>';
+    else showToast("⚠️ تعذر تحديث البيانات — سنحاول مرة أخرى", "error");
     return "network";
   }
 
@@ -669,7 +669,7 @@ function applyProducts(data, fromServer){
   if(isEditingList()){
     if(!pendingRefresh){
       pendingRefresh = true;
-      showToast("🔔 فيه تحديث جديد — هيتطبّق أول ما تخلص", "success");
+      showToast("🔔 يوجد تحديث جديد — سيُطبَّق فور انتهائك", "success");
     }
     return false;
   }
@@ -717,7 +717,7 @@ function renderFromCache(){
     if(!Array.isArray(data) || !data.length) return false;
     applyProducts(data, false);
     const lbl = document.getElementById("lastRefreshLbl");
-    if(lbl) lbl.textContent = "نسخة محفوظة — بيتم التحديث...";
+    if(lbl) lbl.textContent = "نسخة محفوظة — جارٍ التحديث...";
     return true;
   }catch(e){ return false; }
 }
@@ -765,7 +765,7 @@ async function manualRefresh(btn){
 function renderNotifBadge(){
   const needsAction = allProducts.filter(p => p.status === "PendingApproval").length;
   const badge = document.getElementById("notifBadge");
-  if(needsAction > 0){ badge.textContent = "🔔 " + needsAction + " منتج محتاج ردك"; badge.classList.remove("hidden"); }
+  if(needsAction > 0){ badge.textContent = "🔔 " + needsAction + " منتج يحتاج إلى ردك"; badge.classList.remove("hidden"); }
   else badge.classList.add("hidden");
 }
 
@@ -881,8 +881,8 @@ function renderProducts(items){
       || document.getElementById("filterStatus").value
       || document.getElementById("filterArrival").value);
     box.innerHTML = filtering
-      ? `<div class="card empty-hint">🔍 مفيش نتايج مطابقة<br><button class="btn-search" style="margin-top:12px;" onclick="clearSearch();applyQuickFilter('')">↩️ امسح البحث والفلاتر</button></div>`
-      : '<div class="card empty-hint">🗂️ مفيش منتجات مضافة لسه</div>';
+      ? `<div class="card empty-hint">🔍 لا توجد نتائج مطابقة<br><button class="btn-search" style="margin-top:12px;" onclick="clearSearch();applyQuickFilter('')">↩️ امسح البحث والفلاتر</button></div>`
+      : '<div class="card empty-hint">🗂️ لا توجد منتجات مضافة حتى الآن</div>';
     return;
   }
 
@@ -903,7 +903,7 @@ function renderProducts(items){
           <div class="meta-line" id="qtyPreview-${escapeHtml(p.id)}" style="font-weight:800;color:var(--primary);margin-top:4px;"></div>
           <div class="row" style="margin-top:8px;">
             <button class="mini-btn btn-success" style="flex:1;min-width:96px;padding:9px 6px;" onclick="confirmProduct('${jid}')">✅ موافق</button>
-            <button class="mini-btn btn-ghost" style="flex:1;min-width:96px;padding:9px 6px;" onclick="toggleCounter('${jid}')">💬 سعر تاني</button>
+            <button class="mini-btn btn-ghost" style="flex:1;min-width:96px;padding:9px 6px;" onclick="toggleCounter('${jid}')">💬 سعر آخر</button>
             <button class="mini-btn btn-danger" style="flex:1;min-width:96px;padding:9px 6px;" onclick="rejectProduct('${jid}')">❌ إلغاء</button>
           </div>
           <div id="counterBox-${escapeHtml(p.id)}" class="hidden" style="margin-top:8px;">
@@ -914,7 +914,7 @@ function renderProducts(items){
           </div>
         </div>`;
     } else if(p.status === "PendingReview"){
-      actionsHtml = `<div class="meta-line">💬 عرضك: ${fmtNum(p.clientCounterEgp)} EGP للقطعة × ${escapeHtml(p.quantity || 1)} — مستني رد الفريق</div>`;
+      actionsHtml = `<div class="meta-line">💬 عرضك: ${fmtNum(p.clientCounterEgp)} EGP للقطعة × ${escapeHtml(p.quantity || 1)} — في انتظار رد الفريق</div>`;
     } else if(p.status === "Rejected"){
       actionsHtml = `<div class="meta-line" style="color:var(--danger);">🚫 ${escapeHtml(p.notes || "المنتج غير متاح حاليًا")}</div>`;
     } else if(["Confirmed","Placed","Delayed","Delivered"].includes(p.status)){
@@ -934,7 +934,7 @@ function renderProducts(items){
         ${img ? `<img class="product-img" src="${escapeHtml(img)}" loading="lazy" alt="">` : `<div class="product-img"></div>`}
         <div class="product-body">
           <span class="badge ${meta.cls}">${meta.label}</span>
-          <div class="product-name" title="${escapeHtml(p.productName || "")}">${escapeHtml(p.productName || "منتج بدون اسم")}</div>
+          <div class="product-name" title="${escapeHtml(p.productName || "")}">${escapeHtml(p.productName || "منتج دون اسم")}</div>
           <a class="product-link-btn" href="${escapeHtml(link || "#")}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(p.link || "")}">🔗 رابط المنتج</a>
           ${actionsHtml}
         </div>
@@ -973,7 +973,7 @@ function updateQtyPreview(id, unitPrice){
    Refresh. دلوقتي بنتأكد الأول وبنطلب تحديث بدل ما نضرب */
 function requireEl(id, msg){
   const el = document.getElementById(id);
-  if(!el){ showToast(msg || "⚠️ القائمة اتحدّثت — جرّب تاني", "error"); loadProducts(); return null; }
+  if(!el){ showToast(msg || "⚠️ تم تحديث القائمة — حاول مرة أخرى", "error"); loadProducts(); return null; }
   return el;
 }
 // 🐞 الـselector ده كان بيتبني بالـid الخام — id فيه " أو ] بيرمي
@@ -988,7 +988,7 @@ async function confirmProduct(id){
   if(!qtyEl) return;
   const qty = Math.max(1, parseInt(qtyEl.value) || 1);
   const btn = findActionBtn("confirmProduct", id);
-  setBtnLoading(btn, "جاري التأكيد...");
+  setBtnLoading(btn, "جارٍ التأكيد...");
   try{
     const res = await fetch(SCRIPT_URL, { method:"POST", body: JSON.stringify({ action:"clientConfirm", passcode:getPasscode(), id, quantity:qty }) });
     const data = await res.json();
@@ -1000,27 +1000,27 @@ async function confirmProduct(id){
       const stillPending = allProducts.filter(p=>p.status==="PendingApproval").length;
       if(stillPending === 0 && confirmedThisSessionCount > 0) showConfirmDoneModal();
     }
-    else { clearBtnLoading(btn); alert(data.message || "حصل خطأ"); }
+    else { clearBtnLoading(btn); alert(data.message || "حدث خطأ"); }
   }catch(e){
     clearBtnLoading(btn);
-    alert("تعذر الاتصال بالسيرفر");
+    alert("تعذر الاتصال بالخادم");
   }
 }
 
 // ❌ إلغاء المنتج المعروض عليك — بيتحوّل لـ"مرفوض" ومش هيظهرلك
 // تاني كطلب مفتوح. فيه تأكيد قبل الإرسال عشان مايتعملش بالغلط
 async function rejectProduct(id){
-  if(!confirm("متأكد إنك عايز تلغي طلب المنتج ده؟")) return;
+  if(!confirm("هل أنت متأكد أنك تريد إلغاء طلب هذا المنتج؟")) return;
   const btn = findActionBtn("rejectProduct", id);
-  setBtnLoading(btn, "جاري الإلغاء...");
+  setBtnLoading(btn, "جارٍ الإلغاء...");
   try{
     const res = await fetch(SCRIPT_URL, { method:"POST", body: JSON.stringify({ action:"clientReject", passcode:getPasscode(), id }) });
     const data = await res.json();
     if(data.success){ refreshAfterAction(data); }
-    else { clearBtnLoading(btn); alert(data.message || "حصل خطأ"); }
+    else { clearBtnLoading(btn); alert(data.message || "حدث خطأ"); }
   }catch(e){
     clearBtnLoading(btn);
-    alert("تعذر الاتصال بالسيرفر");
+    alert("تعذر الاتصال بالخادم");
   }
 }
 
@@ -1032,15 +1032,15 @@ async function sendCounter(id){
   const counterEgp = parseFloat(counterEl.value);
   if(!counterEgp || counterEgp <= 0){ alert("اكتب السعر المقترح (رقم أكبر من صفر)"); return; }
   const btn = findActionBtn("sendCounter", id);
-  setBtnLoading(btn, "جاري الإرسال...");
+  setBtnLoading(btn, "جارٍ الإرسال...");
   try{
     const res = await fetch(SCRIPT_URL, { method:"POST", body: JSON.stringify({ action:"clientCounter", passcode:getPasscode(), id, quantity:qty, counterEgp }) });
     const data = await res.json();
-    if(data.success){ alert("✅ اتبعت عرضك، هيراجعه الفريق قريب"); refreshAfterAction(data); }
-    else { clearBtnLoading(btn); alert(data.message || "حصل خطأ"); }
+    if(data.success){ alert("✅ تم إرسال عرضك، وسيراجعه الفريق قريبًا"); refreshAfterAction(data); }
+    else { clearBtnLoading(btn); alert(data.message || "حدث خطأ"); }
   }catch(e){
     clearBtnLoading(btn);
-    alert("تعذر الاتصال بالسيرفر");
+    alert("تعذر الاتصال بالخادم");
   }
 }
 
@@ -1051,10 +1051,10 @@ async function sendCounter(id){
 // لسه صحيح
 async function reorderProduct(id, btn){
   const p = allProducts.find(x => String(x.id) === String(id));
-  if(!p || !p.link){ alert("تعذر إيجاد بيانات المنتج ده"); return; }
-  if(!confirm("هل تريد طلب نفس المنتج تاني؟ هيتبعت للفريق كطلب جديد عشان يراجعوا السعر الحالي على الموقع.")) return;
+  if(!p || !p.link){ alert("تعذر العثور على بيانات هذا المنتج"); return; }
+  if(!confirm("هل تريد طلب المنتج نفسه مرة أخرى؟ سيُرسل إلى الفريق كطلب جديد لمراجعة السعر الحالي على الموقع.")) return;
 
-  setBtnLoading(btn, "جاري إرسال الطلب...");
+  setBtnLoading(btn, "جارٍ إرسال الطلب...");
   try{
     const res = await fetch(SCRIPT_URL, { method:"POST", body: JSON.stringify({
       action:"addLink", passcode:getPasscode(), link:p.link,
@@ -1062,11 +1062,11 @@ async function reorderProduct(id, btn){
     })});
     const data = await res.json();
     clearBtnLoading(btn);
-    if(data.success){ alert("✅ اتبعت طلب إعادة الشراء للفريق — هيراجعوا السعر الحالي ويرجعولك بيه قريب"); refreshAfterAction(data); }
-    else { alert(data.message || "حصل خطأ"); }
+    if(data.success){ alert("✅ تم إرسال طلب إعادة الشراء إلى الفريق — وسيراجعون السعر الحالي ويبلغونك به قريبًا"); refreshAfterAction(data); }
+    else { alert(data.message || "حدث خطأ"); }
   }catch(e){
     clearBtnLoading(btn);
-    alert("تعذر الاتصال بالسيرفر — حاول تاني");
+    alert("تعذر الاتصال بالخادم — حاول مرة أخرى");
   }
 }
 /* ---------------------------------------------------------
@@ -1085,13 +1085,13 @@ function closeModal(){
    لتأكيد وصول الطلب للأدمن (رقم ثابت، مش بيتغيّر لكل عميل)
    --------------------------------------------------------- */
 function showOrderSentModal(count){
-  const msg = encodeURIComponent(`مرحبًا 👋، بعت طلب تسعير جديد لـ ${count} منتج على RAMA، برجاء المراجعة 🙏`);
+  const msg = encodeURIComponent(`أهلًا 👋، بعتلكم طلب تسعير جديد لـ ${count} منتج على RAMA، ياريت تراجعوه 🙏`);
   const waLink = `https://wa.me/${ADMIN_WHATSAPP}?text=${msg}`;
   showModal(`
     <div style="font-size:2.2rem;margin-bottom:8px;">✅</div>
-    <h3 style="margin-bottom:8px;">اتبعت ${count} منتج للفريق!</h3>
-    <p style="color:var(--gray);font-size:13.5px;margin-bottom:16px;">تحب تأكد وصول طلبك عن طريق واتساب؟</p>
-    <a href="${waLink}" target="_blank" rel="noopener noreferrer" class="btn-block btn-success" style="display:block;text-decoration:none;margin-bottom:8px;box-sizing:border-box;">📱 تأكيد عن طريق واتساب</a>
+    <h3 style="margin-bottom:8px;">تم إرسال ${count} منتج إلى الفريق!</h3>
+    <p style="color:var(--gray);font-size:13.5px;margin-bottom:16px;">هل تود تأكيد وصول طلبك عبر واتساب؟</p>
+    <a href="${waLink}" target="_blank" rel="noopener noreferrer" class="btn-block btn-success" style="display:block;text-decoration:none;margin-bottom:8px;box-sizing:border-box;">📱 التأكيد عبر واتساب</a>
     <button class="btn-ghost btn-block" onclick="closeModal()">إغلاق</button>
   `);
 }
@@ -1100,13 +1100,13 @@ function showOrderSentModal(count){
 // رابط واتساب جاهز يخبّر الأدمن إنك أكّدت
 function showConfirmDoneModal(){
   const count = confirmedThisSessionCount;
-  const msg = encodeURIComponent(`مرحبًا 👋، أكّدت ${count} منتج على RAMA، تمام كده؟ 🙏`);
+  const msg = encodeURIComponent(`أهلًا 👋، أكّدت ${count} منتج على RAMA، كده تمام؟ 🙏`);
   const waLink = `https://wa.me/${CONFIRM_WHATSAPP}?text=${msg}`;
   showModal(`
     <div style="font-size:2.2rem;margin-bottom:8px;">🎉</div>
     <h3 style="margin-bottom:8px;">أكّدت ${count} منتج!</h3>
-    <p style="color:var(--gray);font-size:13.5px;margin-bottom:16px;">تحب تبلّغ الأدمن عن طريق واتساب؟</p>
-    <a href="${waLink}" target="_blank" rel="noopener noreferrer" class="btn-block btn-success" style="display:block;text-decoration:none;margin-bottom:8px;box-sizing:border-box;">📱 إرسال واتساب للأدمن</a>
+    <p style="color:var(--gray);font-size:13.5px;margin-bottom:16px;">هل تود إبلاغ المسؤول عبر واتساب؟</p>
+    <a href="${waLink}" target="_blank" rel="noopener noreferrer" class="btn-block btn-success" style="display:block;text-decoration:none;margin-bottom:8px;box-sizing:border-box;">📱 إرسال رسالة واتساب للمسؤول</a>
     <button class="btn-ghost btn-block" onclick="closeModal()">إغلاق</button>
   `);
   confirmedThisSessionCount = 0; // نصفّر العداد بعد ما وريناه — الدفعة الجاية تتحسب من جديد
@@ -1122,7 +1122,7 @@ function csvEscape(v){
 }
 
 function exportCSV(){
-  if(!lastRenderedItems.length){ alert("مفيش منتجات ظاهرة دلوقتي عشان تتصدّر"); return; }
+  if(!lastRenderedItems.length){ alert("لا توجد منتجات ظاهرة حاليًا لتصديرها"); return; }
   const headers = ["اسم المنتج","الرابط","الحالة","سعر الوحدة EGP","الكمية","الإجمالي EGP","العربون EGP","المتبقي EGP","تاريخ الوصول"];
   const rows = lastRenderedItems.map(p => [
     p.productName, p.link, STATUS_META[p.status]?.label || p.status,
@@ -1194,7 +1194,7 @@ function openPaymentsModal(){
   if(!batches.length){
     showModal(`
       <h3 style="margin-bottom:10px;">💰 دفعات الوصول</h3>
-      <div class="empty-hint">مفيش أي موعد وصول عليه منتجات مؤكدة أو دفعات مسجّلة لسه</div>
+      <div class="empty-hint">لا يوجد حتى الآن أي موعد وصول عليه منتجات مؤكدة أو دفعات مسجلة</div>
       <button class="btn-ghost btn-block" style="margin-top:12px;" onclick="closeModal()">إغلاق</button>
     `);
     return;
@@ -1263,7 +1263,7 @@ function doSearch(){
   if(q){
     showToast(lastRenderedItems.length
       ? `🔍 ${lastRenderedItems.length} نتيجة لـ"${q}"`
-      : `🔍 مفيش نتايج لـ"${q}"`, lastRenderedItems.length ? "success" : "error");
+      : `🔍 لا توجد نتائج لـ"${q}"`, lastRenderedItems.length ? "success" : "error");
   }
   const list = document.getElementById("productsList");
   if(list) list.scrollIntoView({ behavior:"smooth", block:"start" });
@@ -1280,10 +1280,10 @@ function clearSearch(){
    مستنيك من غير ما تضغط أصلاً */
 const QUICK_FILTERS = [
   { key:"",                label:"📋 الكل" },
-  { key:"PendingApproval", label:"🔔 محتاج ردك" },
+  { key:"PendingApproval", label:"🔔 يحتاج إلى ردك" },
   { key:"PendingPrice",    label:"⏳ بانتظار السعر" },
   { key:"Confirmed",       label:"✅ مؤكدة" },
-  { key:"Delivered",       label:"🎉 اتسلّمت" }
+  { key:"Delivered",       label:"🎉 تم التسليم" }
 ];
 
 function renderQuickChips(){
@@ -1326,7 +1326,7 @@ function applyQuickFilter(key){
     document.getElementById("mainContent").classList.add("hidden");
     document.getElementById("loginScreen").classList.remove("hidden");
     const errBox = document.getElementById("loginError");
-    errBox.textContent = "⚠️ انتهت صلاحية جلستك — سجّل دخول تاني";
+    errBox.textContent = "⚠️ انتهت صلاحية جلستك — يُرجى تسجيل الدخول مرة أخرى";
     errBox.classList.remove("hidden");
   } else {
     startAutoRefresh();

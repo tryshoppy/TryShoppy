@@ -139,7 +139,7 @@
 			
 <a href="QuickOrder.html" class="menu-btn btn-direct">
     <div class="btn-content">
-        <span>إضافة اوردر لعميل سابق</span>
+        <span>إضافة طلب لعميل سابق</span>
         <span class="btn-text-en">Quick Order</span>
     </div>
 
@@ -229,7 +229,7 @@
                 const key = map[a.getAttribute('href')];
                 if (key && tools.indexOf(key) === -1) {
                     a.style.opacity = '.45';
-                    a.title = 'مالكش صلاحية على الأداة دي';
+                    a.title = 'ليست لديك صلاحية على هذه الأداة';
                     const i = a.querySelector('i'); if (i) i.className = 'fa-solid fa-lock';
                 }
             });

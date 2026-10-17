@@ -32,7 +32,7 @@ function tryShoppyUsdFactor() {
   const r = parseFloat(TRYSHOPPY_USD_RATE);
   const f = r / TRYSHOPPY_USD_RATE_BASE;
   if (!isFinite(f) || f < 0.5 || f > 2) {
-    console.warn("⚠️ TRY SHOPPY: TRYSHOPPY_USD_RATE (" + TRYSHOPPY_USD_RATE + ") مش صالح — استخدمنا " + TRYSHOPPY_USD_RATE_BASE + " لحماية الأسعار.");
+    console.warn("⚠️ TRY SHOPPY: TRYSHOPPY_USD_RATE (" + TRYSHOPPY_USD_RATE + ") غير صالح — استخدمنا " + TRYSHOPPY_USD_RATE_BASE + " لحماية الأسعار.");
     return 1;
   }
   return f;

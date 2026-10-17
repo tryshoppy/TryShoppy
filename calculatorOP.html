@@ -7,7 +7,7 @@
 <title>Try Shoppy — Quick Price Estimate (Internal)</title>
 <link rel="icon" href="assets/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
-<link rel="stylesheet" href="assets/style.css?v=20261017a">
+<link rel="stylesheet" href="assets/style.css?v=20261017b">
 <style>
 /* ═══ حاسبة التشغيل — نفس حاسبة الموقع (calculator.html) بالظبط، من غير
    خانة اللينك، ومن غير سلة ولا طلب. نفس المعادلة (function_calc.js)،
@@ -237,10 +237,10 @@ input:read-only{background:var(--gold-wash);color:var(--gold-deep);font-weight:7
   </div>
 </div>
 
-<script src="assets/function_calc.js?v=20261017a"></script>
-<script src="assets/config.js?v=20261017a"></script>
-<script src="assets/i18n.js?v=20261017a"></script>
-<script src="assets/app.js?v=20261017a"></script>
+<script src="assets/function_calc.js?v=20261017b"></script>
+<script src="assets/config.js?v=20261017b"></script>
+<script src="assets/i18n.js?v=20261017b"></script>
+<script src="assets/app.js?v=20261017b"></script>
 <script>
 tsInitNav();
 
@@ -259,7 +259,7 @@ function renderShoeBoxNote(){
   const cat=document.getElementById('category').value;
   const el=document.getElementById('shoeBoxNote');
   el.textContent = TS_LANG==='ar'
-    ? '📦 بوكس الحذاء بيتشال لتقليل تكلفة الشحن — لو العميل عايزه بالبوكس، بتكلفة إضافية.'
+    ? '📦 تُزال علبة الحذاء لتقليل تكلفة الشحن — وإذا أراد العميل الحذاء بعلبته، فبتكلفة إضافية.'
     : '📦 The shoe box is removed to cut shipping cost — boxed delivery costs extra if the customer wants it.';
   el.classList.toggle('hidden', !(cat==='Shoes (Regular)' || cat==='Shoes (Boot)'));
 }
@@ -432,14 +432,14 @@ function copyQuote(){
   // 🐛→✅ كانت بتقول "الدفع عند الاستلام متاح" لأي مبلغ — فوق 10,000 ج مطلوب عربون قبل الشراء
   const overCod = q.finalPrice > TS_COD_LIMIT;
   const payLine = ar
-    ? (overCod ? 'الطلب أكتر من 10,000 ج.م — مطلوب عربون قبل الشراء' : 'الدفع عند الاستلام متاح ✓')
+    ? (overCod ? 'الطلب يتجاوز 10,000 ج.م — يُطلب عربون قبل الشراء' : 'الدفع عند الاستلام متاح ✓')
     : (overCod ? 'Over 10,000 EGP — a deposit is required before we buy' : 'Cash on delivery available ✓');
   const txt = ar
     ? 'السعر النهائي شامل الشحن والجمارك: *' + q.finalPrice.toLocaleString('en-US') + ' ج.م*' +
       (q.qty>1 ? ' (' + q.qty + ' قطع × ' + per + ' ج.م)' : '') + '\n' + payLine
     : 'Final price incl. shipping & customs: *' + q.finalPrice.toLocaleString('en-US') + ' EGP*' +
       (q.qty>1 ? ' (' + q.qty + ' pcs × ' + per + ' EGP)' : '') + '\n' + payLine;
-  const done=()=>tsToast(ar?'اتنسخ ✓':'Copied ✓');
+  const done=()=>tsToast(ar?'تم النسخ ✓':'Copied ✓');
   if(navigator.clipboard) navigator.clipboard.writeText(txt).then(done).catch(()=>prompt('',txt));
   else prompt('',txt);
 }
@@ -458,7 +458,7 @@ document.addEventListener('ts-lang-changed', ()=>{
 });
 liveUpdate();
 </script>
-<script src="staff-auth.js?v=20261017a"></script>
+<script src="staff-auth.js?v=20261017b"></script>
 <script>
 /* 🔑 دخول + صلاحية "حاسبة التشغيل" من شيت الموظفين.
    ⚠️ الحاسبة مابتكلمش السيرفر خالص، ومعادلة التسعير نفسها موجودة في
@@ -473,7 +473,7 @@ liveUpdate();
   w.innerHTML =
     '<div style="background:#fff;border-radius:20px;padding:26px 22px;max-width:380px;width:100%;text-align:center">' +
       '<div style="font-size:19px;font-weight:900;color:#101B33">🧮 حاسبة التشغيل</div>' +
-      '<div style="font-size:13px;color:#5A6885;margin:4px 0 14px">سجّل دخولك بحساب الموظف</div>' +
+      '<div style="font-size:13px;color:#5A6885;margin:4px 0 14px">سجّل الدخول بحساب الموظف</div>' +
       '<input id="cgU" placeholder="اسم المستخدم" autocomplete="username" style="width:100%;padding:12px;border:1.5px solid #E3E8F2;border-radius:12px;margin-bottom:8px;font:inherit">' +
       '<input id="cgP" type="password" placeholder="كلمة المرور" autocomplete="current-password" style="width:100%;padding:12px;border:1.5px solid #E3E8F2;border-radius:12px;font:inherit">' +
       '<div id="cgE" style="color:#DC2626;font-weight:800;font-size:13px;margin-top:8px;display:none"></div>' +
@@ -483,7 +483,7 @@ liveUpdate();
   const go = async () => {
     const u = document.getElementById("cgU").value.trim(), p = document.getElementById("cgP").value;
     if (!u || !p) return;
-    const b = document.getElementById("cgB"); b.disabled = true; b.textContent = "جاري التحقق...";
+    const b = document.getElementById("cgB"); b.disabled = true; b.textContent = "جارٍ التحقق...";
     let res; try { res = await tsStaffLogin(u, p); } catch (e) { res = { success: false }; }
     b.disabled = false; b.textContent = "دخول ←";
     if (res && res.success) {
@@ -496,7 +496,7 @@ liveUpdate();
       tsGateTool("calculatorOP");
     } else {
       const e = document.getElementById("cgE");
-      e.textContent = res && res.message ? "❌ " + res.message : "❌ اسم المستخدم أو كلمة المرور غلط";
+      e.textContent = res && res.message ? "❌ " + res.message : "❌ اسم المستخدم أو كلمة المرور غير صحيحة";
       e.style.display = "block";
     }
   };

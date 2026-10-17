@@ -16,7 +16,7 @@ function tsSetBtnLoading(btn, loadingText){
   if(btn.offsetWidth) btn.style.minWidth = btn.offsetWidth + 'px'; // يمنع تقلّص عرض الزرار وقفزه
   btn.disabled = true;
   btn.setAttribute('aria-busy', 'true');
-  btn.innerHTML = '<span class="ts-spinner"></span><span>' + (loadingText || 'جاري المعالجة...') + '</span>';
+  btn.innerHTML = '<span class="ts-spinner"></span><span>' + (loadingText || 'جارٍ المعالجة...') + '</span>';
 }
 function tsClearBtnLoading(btn){
   if(!btn || btn.dataset.tsLoading !== '1') return;
@@ -132,7 +132,7 @@ const TS_WA_TXT = {
         paid:'المدفوع مقدمًا', due:'المطلوب عند الاستلام', name:'الاسم', phone:'الموبايل', gov:'المحافظة', addr:'العنوان',
         hiCust:n => 'السلام عليكم ' + (n ? 'أ/ ' + n : 'حضرتك') + ' 👋', registered:'تم تسجيل طلبك في Try Shoppy ✅',
         newOrder:'🛒 طلب جديد — Try Shoppy', track:'تابع طلبك في أي وقت من هنا:', anyQ:'لأي استفسار إحنا معاك 🙏',
-        waiting:'مستني تأكيدكم 🙏', cur:' ج.م' },
+        waiting:'مستنيين تأكيدكم 🙏', cur:' ج.م' },
   en: { item:'Item', product:'Product', qty:'Qty', unit:'Unit price', line:'Line total', specs:'Details',
         arrival:'Expected arrival', arrivalTbd:'set once the order is confirmed', status:'Status', total:'Grand total',
         paid:'Paid in advance', due:'Due on delivery', name:'Name', phone:'Phone', gov:'Governorate', addr:'Address',
@@ -166,7 +166,7 @@ function tsWaArrival(date, lang){
 const TS_STATUS_AR = {
   'Pending Review':   'قيد المراجعة',
   'Confirmed Via Try':'تم التأكيد',
-  'Processing':       'جاري التجهيز',
+  'Processing':       'جارٍ التجهيز',
   'Placed':           'تم الطلب',
   'Arrived USA HUB':  'وصل مخزن أمريكا',
   'In transit':       'في الشحن الدولي',
@@ -543,27 +543,27 @@ async function tsSaveOrderEdit(o){
 const TS_RISK_RULES = [
   // 🔴 من سياسة المنتجات الممنوعة
   ['red', /\b(fire ?arms?|(?<!(glue|massage|heat|nail|spray|staple|caulk|caulking|grease|water|bubble|toy|label|price|tattoo|soldering|hot|paint|foam|air|blow|thermometer|temperature|scan|scanner|barcode|laser|tape|lint) )guns?|pistols?|rifles?|shotguns?|ammo|ammunition|holsters?|airsoft|bb guns?|pellet guns?)\b|مسدس|سلاح|ذخيرة|خرطوش/, 'أسلحة أو ذخيرة أو ملحقاتها'],
-  ['red', /\b(combat|tactical|military|switch ?blade|butterfly)[ -]?knife|\bknives? (combat|tactical)/, 'سكينة قتالية / تكتيكية'],
+  ['red', /\b(combat|tactical|military|switch ?blade|butterfly)[ -]?knife|\bknives? (combat|tactical)/, 'سكين قتالي / تكتيكي'],
   ['red', /\b(tasers?|stun ?guns?|pepper ?spray|bear ?spray|mace spray|self[ -]defen[cs]e spray)\b|صاعق|بخاخ فلفل/, 'صاعق كهربائي أو بخاخ دفاع عن النفس'],
   ['red', /\b(fireworks?|firecrackers?|sparklers?|explosives?)\b|ألعاب نارية|العاب نارية|صواريخ/, 'ألعاب نارية أو متفجرات'],
   ['red', /\b(cbd|thc|delta[ -]?[89]|hhc|cannabis|marijuana|weed)\b|حشيش|ماريجوانا/, 'منتجات القنّب (CBD / THC / Delta)'],
   ['red', /\b(vapes?|vaping|e[ -]?cig(arette)?s?|e[ -]?liquids?|juul|nicotine|zyn|vape pods?)\b|فيب|نيكوتين|سجائر إلكترونية/, 'فيب / سجائر إلكترونية / نيكوتين'],
   ['red', /\b(cigarettes?|cigars?|tobacco|hookah|shisha)\b|سجائر|سيجار|تبغ|شيشة|معسل/, 'سجائر أو تبغ أو شيشة'],
   ['red', /\b(wine|vodka|whiske?y|bourbon|tequila|liquor|champagne|beer|rum|gin)\b|خمر|نبيذ|فودكا|ويسكي|بيرة/, 'مشروبات كحولية'],
-  ['red', /\b(prescription(?! (glasses|eyeglasses|sunglasses|lenses|lens|frames|safety glasses|goggles|swim goggles))|rx only|injections?|injectable|syringes?|insulin|steroids?|testosterone|hgh|sarms|botox|dermal filler|lip filler)\b|حقن|حقنة|انسولين|هرمون|ستيرويد|بوتوكس|فيلر/, 'أدوية بروشتة / حقن / هرمونات / فيلر'],
+  ['red', /\b(prescription(?! (glasses|eyeglasses|sunglasses|lenses|lens|frames|safety glasses|goggles|swim goggles))|rx only|injections?|injectable|syringes?|insulin|steroids?|testosterone|hgh|sarms|botox|dermal filler|lip filler)\b|حقن|حقنة|انسولين|هرمون|ستيرويد|بوتوكس|فيلر/, 'أدوية بوصفة طبية / حقن / هرمونات / فيلر'],
   ['red', /\b(live (plants?|animals?|fish)|(plant|vegetable|flower|garden|heirloom)[ -]seeds?|seeds? for planting)\b|بذور زراعة|نباتات حية|حيوانات حية/, 'نباتات حية أو بذور زراعة أو حيوانات'],
   ['red', /\b(sex toys?|vibrators?|dildos?|adult toys?)\b/, 'منتجات للبالغين'],
-  ['red', /\b(walkie[ -]?talkies?|two[ -]way radios?|ham radio|transceivers?|signal jammers?|jammers?|spy cam(era)?s?|hidden cam(era)?s?|nanny cam)\b|لاسلكي|جهاز تشويش|كاميرا تجسس/, 'لاسلكي / تشويش / كاميرا تجسس (محتاج ترخيص أو ممنوع)'],
+  ['red', /\b(walkie[ -]?talkies?|two[ -]way radios?|ham radio|transceivers?|signal jammers?|jammers?|spy cam(era)?s?|hidden cam(era)?s?|nanny cam)\b|لاسلكي|جهاز تشويش|كاميرا تجسس/, 'لاسلكي / تشويش / كاميرا تجسس (يحتاج إلى ترخيص أو ممنوع)'],
   ['red', /\b(body armou?r|plate carriers?|ballistic (vest|plate|helmet)|bulletproof|military uniforms?)\b|درع واقي|زي عسكري/, 'دروع واقية أو زي عسكري'],
   // 🟠 شحن خطر — مش ممنوع في السياسة بالضرورة، بس محتاج مراجعة قبل التأكيد
   ['orange', /\b(lithium|li[ -]?ion|lipo|power ?banks?|power ?core|portable (phone )?chargers?|battery (packs?|banks?)|power ?stations?|solar generators?|jump ?starters?|e[ -]?bikes?|electric scooters?|hoverboards?|drones?)\b|ليثيوم|باور ?بانك|سكوتر كهرب/, 'بطارية ليثيوم / باور بانك / جهاز ببطارية كبيرة'],
-  ['orange', /\b(batter(y|ies)|rechargeable)\b|بطارية|بطاريات/, 'فيه بطارية — اتأكد من نوعها وحجمها'],
+  ['orange', /\b(batter(y|ies)|rechargeable)\b|بطارية|بطاريات/, 'يحتوي على بطارية — تأكد من نوعها وحجمها'],
   ['orange', /\b(aerosols?|sprays?(?! bottles?)|spray ?paint|wd ?40|flammable|lighters?|lighter fluid|butane|propane|torch|gasoline|kerosene|fuel|nail polish|acetone|paint thinner|matches)\b|قابل للاشتعال|ولاعة|بوتاجاز|بخاخ|سبراي|اسبراي/, 'بخاخ مضغوط أو مادة قابلة للاشتعال'],
-  ['orange', /\b(perfumes?|colognes?|eau de (parfum|toilette)|fragrance(?![ -]?free))\b|برفان|بارفان|عطر|كولونيا/, 'عطر / برفان (سائل قابل للاشتعال في الشحن)'],
-  ['orange', /\b(pesticides?|insecticides?|herbicides?|poisons?|roach|rat killer|bait stations?|(bug|insect|roach|ant|pest|mosquito|fly|weed) (killer|killing|bait|spray)|killing (bait|gel|indoor)|bleach|ammonia|chlorine|lye|sodium hydroxide|drain cleaner|(hydrochloric|sulfuric|muriatic|nitric) acid)\b|مبيد|سم فئران/, 'مواد كيميائية أو مبيدات (الخطر منها ممنوع)'],
+  ['orange', /\b(perfumes?|colognes?|eau de (parfum|toilette)|fragrance(?![ -]?free))\b|برفان|بارفان|عطر|كولونيا/, 'عطر (سائل قابل للاشتعال أثناء الشحن)'],
+  ['orange', /\b(pesticides?|insecticides?|herbicides?|poisons?|roach|rat killer|bait stations?|(bug|insect|roach|ant|pest|mosquito|fly|weed) (killer|killing|bait|spray)|killing (bait|gel|indoor)|bleach|ammonia|chlorine|lye|sodium hydroxide|drain cleaner|(hydrochloric|sulfuric|muriatic|nitric) acid)\b|مبيد|سم فئران/, 'مواد كيميائية أو مبيدات (الخطرة منها ممنوعة)'],
   ['orange', /\bneodymium|strong magnets?\b|مغناطيس قوي/, 'مغناطيس قوي'],
-  ['orange', /\b(alcohol(?![ -]?free)|hemp)\b|كحول/, 'فيه كحول أو قنّب — اتأكد من المكونات'],
-  ['orange', /\b(replicas?|counterfeit|knock ?off)\b|تقليد|كوبي/, 'ممكن يكون تقليد لماركة']
+  ['orange', /\b(alcohol(?![ -]?free)|hemp)\b|كحول/, 'يحتوي على كحول أو قنّب — تأكد من المكونات'],
+  ['orange', /\b(replicas?|counterfeit|knock ?off)\b|تقليد|كوبي/, 'قد يكون تقليدًا لعلامة تجارية']
 ];
 const TS_SHORT_LINK = /^https?:\/\/(a\.co|amzn\.(to|eu)|share\.google|ebay\.io|bit\.ly|tinyurl\.com|iherb\.co|goo\.gl|t\.co)\//i;
 
@@ -660,21 +660,21 @@ function tsProductRisk(o){
   // 🐜 مبيد في سرنجة (جل الصراصير) مش حقن طبية — مانقولش "حقن" لو المبيد اتلقط
   if(out.some(r => r.msg.indexOf('مبيدات') !== -1)) for(let i = out.length - 1; i >= 0; i--) if(/^syringes?$/.test(out[i].word || '')) out.splice(i, 1);
   // بطارية ليثيوم بتغطي "فيه بطارية" — مانكررش الاتنين
-  if(out.some(r => r.msg.indexOf('ليثيوم') !== -1)) for(let i = out.length - 1; i >= 0; i--) if(out[i].msg.indexOf('فيه بطارية') === 0) out.splice(i, 1);
+  if(out.some(r => r.msg.indexOf('ليثيوم') !== -1)) for(let i = out.length - 1; i >= 0; i--) if(out[i].msg.indexOf('يحتوي على بطارية') === 0) out.splice(i, 1);
 
   const w = parseFloat(o.weightG) || 0;
   const d = (o.dimsCm || []).map(x => parseFloat(x) || 0);
   const maxSide = Math.max(0, ...d), sumSides = d.reduce((s, x) => s + x, 0);
-  if(maxSide > 100 || sumSides > 200) out.push({ level: 'yellow', msg: 'أبعاد كبيرة (' + d.map(x => Math.round(x)).join(' × ') + ' سم) — اتأكد إن شركة الشحن بتقبلها' });
-  if(o.volG && w && o.volG > w * 1.5) out.push({ level: 'yellow', msg: 'الوزن الحجمي (' + (o.volG / 1000).toFixed(1) + ' كجم) أكبر من الوزن الفعلي — السعر محسوب على الحجم، راجع الأبعاد' });
-  if(Math.max(w, o.volG || 0) > 10000) out.push({ level: 'yellow', msg: 'شحنة تقيلة (' + (Math.max(w, o.volG || 0) / 1000).toFixed(1) + ' كجم للقطعة) — راجع تكلفة الشحن الفعلية' });
+  if(maxSide > 100 || sumSides > 200) out.push({ level: 'yellow', msg: 'أبعاد كبيرة (' + d.map(x => Math.round(x)).join(' × ') + ' سم) — تأكد من أن شركة الشحن تقبلها' });
+  if(o.volG && w && o.volG > w * 1.5) out.push({ level: 'yellow', msg: 'الوزن الحجمي (' + (o.volG / 1000).toFixed(1) + ' كجم) أكبر من الوزن الفعلي — السعر محسوب على الحجم، يُرجى مراجعة الأبعاد' });
+  if(Math.max(w, o.volG || 0) > 10000) out.push({ level: 'yellow', msg: 'شحنة ثقيلة (' + (Math.max(w, o.volG || 0) / 1000).toFixed(1) + ' كجم للقطعة) — يُرجى مراجعة تكلفة الشحن الفعلية' });
 
   if(o.link && TS_SHORT_LINK.test(String(o.link).trim()))
-    out.push({ level: 'info', msg: 'اللينك مختصر — اسم المنتج مش باين فيه، فالفحص مش شايفه. افتحه واتأكد بنفسك' });
+    out.push({ level: 'info', msg: 'الرابط مختصر ولا يظهر فيه اسم المنتج، لذا لا يستطيع الفحص قراءته. افتحه وتأكد بنفسك' });
   // 🐛→✅ لينك زي amazon.com/dp/B07… أو ebay.com/itm/123 مفيهوش اسم المنتج خالص،
   // فالفحص كان بيسكت تمامًا والموظف يفتكر إن المنتج سليم
   else if(o.link && /^https?:\/\//i.test(String(o.link).trim()) && !tsLinkHasName(o.link))
-    out.push({ level: 'info', msg: 'اللينك مفيهوش اسم المنتج (رقم بس) — الفحص مش شايف المنتج. افتحه واتأكد بنفسك إنه مش بطارية أو بخاخ أو ممنوع' });
+    out.push({ level: 'info', msg: 'الرابط لا يحتوي على اسم المنتج (رقم فقط)، لذا لا يستطيع الفحص قراءته. افتحه وتأكد بنفسك أنه ليس بطارية أو بخاخًا أو منتجًا ممنوعًا' });
 
   const rank = { red: 0, orange: 1, yellow: 2, info: 3 };
   return out.sort((a, b) => rank[a.level] - rank[b.level]);
@@ -684,7 +684,7 @@ function tsProductRisk(o){
 function tsRenderRisk(box, risks){
   if(!box) return;
   if(!risks || !risks.length){ box.innerHTML = ''; box.style.display = 'none'; return; }
-  const sty = { red: ['#FEF2F2', '#DC2626', '#991B1B', '🔴 ممنوع في سياستنا'], orange: ['#FFF7ED', '#EA580C', '#9A3412', '🟠 راجع قبل التأكيد'],
+  const sty = { red: ['#FEF2F2', '#DC2626', '#991B1B', '🔴 ممنوع في سياستنا'], orange: ['#FFF7ED', '#EA580C', '#9A3412', '🟠 يُرجى المراجعة قبل التأكيد'],
                 yellow: ['#FEFCE8', '#CA8A04', '#854D0E', '🟡 حجم / وزن'], info: ['#F1F5F9', '#94A3B8', '#475569', 'ℹ️'] };
   box.style.display = 'block';
   box.innerHTML = risks.map(r => {
@@ -711,11 +711,11 @@ function tsPriceSanity(o){
   }
   if(egp > 0){
     if(egp < usd * tsLossRate())
-      res.warnings.push('🔻 سعر القطعة (' + egp.toLocaleString('en-US') + ' ج.م) أقل من تكلفتها بالدولار (' + Math.round(usd * tsLossRate()).toLocaleString('en-US') + ' ج.م) — كده بيع بخسارة');
+      res.warnings.push('🔻 سعر القطعة (' + egp.toLocaleString('en-US') + ' ج.م) أقل من تكلفتها بالدولار (' + Math.round(usd * tsLossRate()).toLocaleString('en-US') + ' ج.م) — هذا بيع بخسارة');
     else if(res.suggested && egp < res.suggested * 0.6)
       res.warnings.push('📉 السعر أقل من سعر الحاسبة (' + res.suggested.toLocaleString('en-US') + ' ج.م) بـ ' + Math.round((1 - egp / res.suggested) * 100) + '٪');
     if(res.suggested && egp > res.suggested * 1.6)
-      res.warnings.push('📈 السعر أعلى من سعر الحاسبة (' + res.suggested.toLocaleString('en-US') + ' ج.م) بـ ' + Math.round((egp / res.suggested - 1) * 100) + '٪ — يمكن اتكتب الإجمالي مكان سعر القطعة؟');
+      res.warnings.push('📈 السعر أعلى من سعر الحاسبة (' + res.suggested.toLocaleString('en-US') + ' ج.م) بـ ' + Math.round((egp / res.suggested - 1) * 100) + '٪ — هل كُتب الإجمالي مكان سعر القطعة؟');
   }
   return res;
 }
@@ -736,7 +736,7 @@ function tsAttachPriceHint(ids){
     const r = tsPriceSanity({ usd: el(ids.usd).value, egp: egpIn.value, category: el(ids.category).value,
                               weightGrams: ids.weight && el(ids.weight) ? (parseFloat(el(ids.weight).value) || 0) * unit : 0 });
     if(!r.suggested){ hint.textContent = ''; return; }
-    hint.innerHTML = '💡 سعر الحاسبة للقطعة: <b>' + r.suggested.toLocaleString('en-US') + ' ج.م</b>' + (r.approx ? ' (تقريبي — من غير وزن)' : '') +
+    hint.innerHTML = '💡 سعر الحاسبة للقطعة: <b>' + r.suggested.toLocaleString('en-US') + ' ج.م</b>' + (r.approx ? ' (تقريبي — دون وزن)' : '') +
       (r.warnings.length ? '<div style="color:#B45309">' + r.warnings.map(tsEscapeHtml).join('<br>') + '</div>' : '');
   };
   [ids.usd, ids.egp, ids.category, ids.weight, ids.weightUnit].forEach(id => {
@@ -1198,9 +1198,9 @@ function tsValidEgMobile(v){
 /* صفحات التشغيل (Direct Order مثلاً) مش بتحمّل i18n.js — فرسايل الأخطاء
    ليها نسخة عربي احتياطية هنا بدل ما الدالة توقع */
 const TS_CO_ERR_AR = {
-  co_err_name: 'اكتب اسم العميل بالكامل', co_err_phone: 'اكتب رقم موبايل مصري صحيح، مثال: 01012345678',
-  co_err_email: 'الإيميل ده شكله مش مظبوط — صحّحه أو سيبه فاضي', co_err_gov: 'اختار المحافظة',
-  co_err_address: 'اكتب العنوان بالتفصيل (المنطقة، الشارع، رقم العمارة)'
+  co_err_name: 'يُرجى كتابة اسم العميل بالكامل', co_err_phone: 'يُرجى كتابة رقم هاتف مصري صحيح، مثال: 01012345678',
+  co_err_email: 'يبدو أن البريد الإلكتروني غير صحيح — صحّحه أو اتركه فارغًا', co_err_gov: 'يُرجى اختيار المحافظة',
+  co_err_address: 'يُرجى كتابة العنوان بالتفصيل (المنطقة، الشارع، رقم المبنى)'
 };
 function tsTSafe(key){ return typeof tsT === 'function' ? tsT(key) : (TS_CO_ERR_AR[key] || key); }
 function tsCheckoutValidate(fields){
