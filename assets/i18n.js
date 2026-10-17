@@ -4,7 +4,7 @@
 const I18N = {
   // ---------- nav ----------
   nav_home:        { en: "Home", ar: "الرئيسية" },
-  nav_how:         { en: "How it works", ar: "كيف نعمل" },
+  nav_how:         { en: "How it works", ar: "إزاي بنشتغل" },
   nav_calc:        { en: "Get a Price", ar: "احسب السعر" },
   nav_track:       { en: "Track Order", ar: "تتبع طلبك" },
   nav_mart:        { en: "Try Shoppy Mart", ar: "تراي شوبي مارت" },
@@ -24,54 +24,54 @@ const I18N = {
 
   // ---------- hero ----------
   hero_eyebrow:    { en: "USA → EGYPT SHOPPING & SHIPPING", ar: "شراء وشحن من أمريكا لمصر" },
-  hero_title:      { en: "Send the link.<br>We ship it <span class=\"hl\">home.</span>", ar: "أرسل الرابط.<br>ونوصله <span class=\"hl\">إلى باب بيتك.</span>" },
-  hero_sub:        { en: "Paste a product link from Amazon, eBay, Walmart, iHerb or almost any US store. We buy it, ship it to Egypt, handle the applicable process, and deliver it to you.", ar: "أرسل رابط المنتج من أمازون أو إيباي أو وول مارت أو آي هيرب أو أي متجر أمريكي تقريبًا، وسنشتريه ونشحنه إلى مصر، ونتولى الإجراءات المطلوبة، ثم نوصله إليك." },
-  hero_quick_ph:   { en: "Paste your product link here…", ar: "الصق رابط المنتج هنا…" },
+  hero_title:      { en: "Send the link.<br>We ship it <span class=\"hl\">home.</span>", ar: "ابعت اللينك.<br>واحنا نوصّله <span class=\"hl\">لباب بيتك.</span>" },
+  hero_sub:        { en: "Paste a product link from Amazon, eBay, Walmart, iHerb or almost any US store. We buy it, ship it to Egypt, handle the applicable process, and deliver it to you.", ar: "ابعت لينك المنتج من أمازون أو إيباي أو وول مارت أو آي هيرب أو أي متجر أمريكي تقريبًا. هنشتريهولك، ونشحنه لمصر، ونخلّص كل الإجراءات، ونوصّله لحد بابك." },
+  hero_quick_ph:   { en: "Paste your product link here…", ar: "حط لينك المنتج هنا…" },
   hero_cta_price:  { en: "Calculate My Price", ar: "احسب سعر طلبي" },
   hero_cta_track:  { en: "Track an Order", ar: "تتبع طلب" },
-  home_track_ph:   { en: "Have an order? Enter its number", ar: "لديك طلب؟ اكتب رقمه هنا" },
+  home_track_ph:   { en: "Have an order? Enter its number", ar: "عندك طلب؟ اكتب رقمه هنا" },
   home_track_btn:  { en: "Track", ar: "تتبع" },
-  home_mart_live:  { en: "Available now in Egypt", ar: "متاح الآن في مصر" },
-  hero_trust:      { en: "No card? No problem — we buy on your behalf.", ar: "لا تملك بطاقة دولية؟ لا مشكلة، سنشتري نيابةً عنك." },
+  home_mart_live:  { en: "Available now in Egypt", ar: "متاح دلوقتي في مصر" },
+  hero_trust:      { en: "No card? No problem — we buy on your behalf.", ar: "معندكش فيزا دولية؟ ولا يهمك — هنشتري نيابةً عنك." },
   hero_label_from: { en: "FROM", ar: "من" },
-  hero_label_to:   { en: "TO YOUR DOOR", ar: "إلى باب المنزل" },
+  hero_label_to:   { en: "TO YOUR DOOR", ar: "لباب البيت" },
   hero_stamp_calc: { en: "COST CALCULATED", ar: "التكلفة محسوبة" },
   hero_stamp_cod:  { en: "COD AVAILABLE", ar: "دفع عند الاستلام" },
 
   // ---------- how it works ----------
   how_eyebrow:     { en: "FOUR STEPS", ar: "أربع خطوات" },
-  how_title:       { en: "From product link to your doorstep", ar: "من رابط المنتج حتى باب منزلك" },
-  how_sub:         { en: "One simple route, fully tracked at every checkpoint.", ar: "رحلة واحدة بسيطة، ومتابعة كاملة في كل مرحلة." },
-  how1_t:          { en: "Send the link", ar: "أرسل الرابط" },
-  how1_d:          { en: "Paste the product link, quantity, size or color into our calculator.", ar: "أضف رابط المنتج والكمية والمقاس أو اللون في الحاسبة." },
-  how2_t:          { en: "We calculate everything", ar: "نحسب كل شيء" },
-  how2_d:          { en: "Item price, applicable shipping and customs, presented as one clear EGP price.", ar: "سعر المنتج والشحن والجمارك المطبقة، كلها في سعر واحد واضح بالجنيه المصري." },
-  how3_t:          { en: "You confirm", ar: "أكّد الطلب" },
-  how3_d:          { en: "Approve the price and select the payment method that suits you.", ar: "وافق على السعر، واختر طريقة الدفع المتاحة التي تناسبك." },
+  how_title:       { en: "From product link to your doorstep", ar: "من لينك المنتج لحد باب بيتك" },
+  how_sub:         { en: "One simple route, fully tracked at every checkpoint.", ar: "رحلة واحدة بسيطة، ومتابعة كاملة في كل خطوة." },
+  how1_t:          { en: "Send the link", ar: "ابعت اللينك" },
+  how1_d:          { en: "Paste the product link, quantity, size or color into our calculator.", ar: "حط لينك المنتج والكمية والمقاس أو اللون في الحاسبة." },
+  how2_t:          { en: "We calculate everything", ar: "نحسبلك كل حاجة" },
+  how2_d:          { en: "Item price, applicable shipping and customs, presented as one clear EGP price.", ar: "سعر المنتج والشحن والجمارك المطبقة — كله في سعر واحد واضح بالجنيه المصري." },
+  how3_t:          { en: "You confirm", ar: "أكّد طلبك" },
+  how3_d:          { en: "Approve the price and select the payment method that suits you.", ar: "وافق على السعر واختار طريقة الدفع اللي تناسبك." },
   how4_t:          { en: "We buy, ship & deliver", ar: "نشتري ونشحن ونوصّل" },
-  how4_d:          { en: "We purchase the product, bring it to Egypt and deliver it to you — tracked the whole way.", ar: "نشتري المنتج ونشحنه إلى مصر ونوصله إليك، مع تتبع كامل في كل خطوة." },
+  how4_d:          { en: "We purchase the product, bring it to Egypt and deliver it to you — tracked the whole way.", ar: "نشتري المنتج، ونجيبه مصر، ونوصّلهولك — مع تتبع كامل في كل خطوة." },
 
   // ---------- stores ----------
-  stores_eyebrow:  { en: "WE SHOP FROM", ar: "نشتري لك من" },
-  stores_title:    { en: "Almost any US store", ar: "أي متجر أمريكي تقريبًا" },
-  stores_sub:      { en: "If it ships inside the US, we can bring it to Egypt.", ar: "إذا كان المتجر يشحن داخل أمريكا، فبإمكاننا توصيل طلبك إلى مصر." },
+  stores_eyebrow:  { en: "WE SHOP FROM", ar: "بنشتري لك من" },
+  stores_title:    { en: "Almost any US store", ar: "تقريبًا أي متجر أمريكي" },
+  stores_sub:      { en: "If it ships inside the US, we can bring it to Egypt.", ar: "طالما المتجر بيشحن جوه أمريكا، نقدر نوصّلهولك مصر." },
 
   // ---------- why ----------
-  why_eyebrow:     { en: "WHY TRY SHOPPY", ar: "لماذا تراي شوبي؟" },
-  why_title:       { en: "One local contact, instead of five foreign ones", ar: "جهة واحدة تتعامل معها بدلًا من خمس جهات أجنبية" },
-  why1_t:          { en: "No international card needed", ar: "لا تحتاج إلى بطاقة دولية" },
-  why1_d:          { en: "We buy on your behalf — you pay us in Egypt, your way.", ar: "نشتري نيابةً عنك، وتدفع لنا داخل مصر بالطريقة التي تناسبك." },
-  why2_t:          { en: "Price shown before you commit", ar: "السعر النهائي قبل موافقتك" },
+  why_eyebrow:     { en: "WHY TRY SHOPPY", ar: "ليه تراي شوبي؟" },
+  why_title:       { en: "One local contact, instead of five foreign ones", ar: "جهة واحدة تتعامل معاها، بدل خمس جهات أجنبية" },
+  why1_t:          { en: "No international card needed", ar: "مش محتاج فيزا دولية" },
+  why1_d:          { en: "We buy on your behalf — you pay us in Egypt, your way.", ar: "بنشتري نيابةً عنك، وانت تدفع لنا في مصر بالطريقة اللي تريحك." },
+  why2_t:          { en: "Price shown before you commit", ar: "السعر النهائي قبل ما توافق" },
   why2_d:          { en: "Item, applicable shipping and customs combined into one clear EGP price.", ar: "سعر المنتج والشحن والجمارك المطبقة في رقم واحد واضح بالجنيه." },
-  why3_t:          { en: "Multiple stores, one shipment", ar: "أكثر من متجر في شحنة واحدة" },
-  why3_d:          { en: "Ordering from several sites? We consolidate it for you.", ar: "تطلب من أكثر من موقع؟ سنجمع طلباتك في شحنة واحدة." },
-  why4_t:          { en: "Tracked from checkout to your door", ar: "متابعة من لحظة الشراء حتى باب المنزل" },
+  why3_t:          { en: "Multiple stores, one shipment", ar: "أكتر من متجر، شحنة واحدة" },
+  why3_d:          { en: "Ordering from several sites? We consolidate it for you.", ar: "بتطلب من أكتر من موقع؟ هنجمّعهم لك في شحنة واحدة." },
+  why4_t:          { en: "Tracked from checkout to your door", ar: "متابعة من لحظة الشراء لحد باب البيت" },
   why4_d:          { en: "Live order status, anytime, with your order number.", ar: "تابع حالة طلبك في أي وقت برقم الطلب." },
 
   // ---------- mart teaser ----------
   mart_eyebrow:    { en: "NEW", ar: "جديد" },
   mart_title:      { en: "Try Shoppy Mart", ar: "تراي شوبي مارت" },
-  mart_sub:        { en: "High-demand, brand-new picks alongside outlet finds — open-box, pre-delivery returns and heavily discounted items — organized by category and ready to ship now.", ar: "منتجات جديدة من الأكثر طلبًا، إلى جانب منتجات الأوتليت: عبوات مفتوحة، ومرتجعات قبل التسليم، ومنتجات بتخفيضات كبيرة، مقسمة حسب الفئة وجاهزة للشحن فورًا." },
+  mart_sub:        { en: "High-demand, brand-new picks alongside outlet finds — open-box, pre-delivery returns and heavily discounted items — organized by category and ready to ship now.", ar: "منتجات جديدة من الأكثر طلبًا، وجنبها منتجات الأوتليت — عبوات مفتوحة، ومرتجعات قبل التسليم، ومنتجات بخصومات كبيرة — متقسّمة حسب الفئة وجاهزة للتوصيل فورًا." },
   mart_cta:        { en: "Browse the Mart", ar: "تصفح المارت" },
   mart_tile_categories_sub: { en: "categories to browse", ar: "فئة للتصفح" },
 
@@ -81,7 +81,7 @@ const I18N = {
   foot_address:    { en: "7th District, Zahraa El Maadi, Cairo, Egypt", ar: "الشطر السابع، زهراء المعادي، القاهرة، مصر" },
 
   // ---------- payments ----------
-  pay_eyebrow:     { en: "PAY YOUR WAY", ar: "ادفع بالطريقة التي تناسبك" },
+  pay_eyebrow:     { en: "PAY YOUR WAY", ar: "ادفع بالطريقة اللي تريحك" },
   pay_title:       { en: "Flexible payment, all in Egypt", ar: "طرق دفع مرنة، كلها داخل مصر" },
   pay_cod:         { en: "Cash on Delivery", ar: "الدفع عند الاستلام" },
   pay_instapay:    { en: "InstaPay", ar: "إنستاباي" },
@@ -90,13 +90,13 @@ const I18N = {
   pay_bank:        { en: "Bank Transfer", ar: "تحويل بنكي" },
 
   // ---------- final CTA ----------
-  cta_title:       { en: "Got a link? Let's price it.", ar: "لديك رابط؟ هيا نحسب سعره." },
-  cta_sub:         { en: "It takes less than a minute to get your final price.", ar: "تحتاج إلى أقل من دقيقة لتحصل على السعر النهائي." },
+  cta_title:       { en: "Got a link? Let's price it.", ar: "عندك لينك؟ يلا نحسب سعره." },
+  cta_sub:         { en: "It takes less than a minute to get your final price.", ar: "أقل من دقيقة وتعرف السعر النهائي." },
   cta_btn:         { en: "Open the Calculator", ar: "افتح الحاسبة" },
 
   // ---------- footer ----------
   foot_about_t:    { en: "About", ar: "عن تراي شوبي" },
-  foot_about_d:    { en: "Try Shoppy buys, consolidates and ships products from US stores straight to your door in Egypt.", ar: "تشتري تراي شوبي المنتجات من المتاجر الأمريكية وتجمعها وتشحنها إلى باب منزلك في مصر." },
+  foot_about_d:    { en: "Try Shoppy buys, consolidates and ships products from US stores straight to your door in Egypt.", ar: "تراي شوبي بتشتري المنتجات من المتاجر الأمريكية، وتجمّعها، وتشحنها لحد باب بيتك في مصر." },
   foot_links_t:    { en: "Quick Links", ar: "روابط سريعة" },
   foot_support_t:  { en: "Support", ar: "الدعم" },
   foot_whatsapp:   { en: "Chat on WhatsApp", ar: "تواصل على واتساب" },
@@ -106,7 +106,7 @@ const I18N = {
 
   // ---------- login / register ----------
   auth_eyebrow:    { en: "MY ACCOUNT", ar: "حسابي" },
-  auth_title:      { en: "Welcome to Try Shoppy", ar: "أهلًا بك في تراي شوبي" },
+  auth_title:      { en: "Welcome to Try Shoppy", ar: "أهلًا بيك في تراي شوبي" },
   auth_sub:        { en: "Log in to track every order in one place.", ar: "سجّل الدخول لتتابع جميع طلباتك في مكان واحد." },
   tab_login:       { en: "Log In", ar: "تسجيل الدخول" },
   tab_register:    { en: "Create Account", ar: "حساب جديد" },
@@ -182,7 +182,7 @@ const I18N = {
   otp_err_quota:      { en: "We can't send codes right now. Please try again later or contact us on WhatsApp.", ar: "لا يمكننا إرسال أكواد حاليًا. حاول بعد قليل أو تواصل معنا عبر واتساب." },
 
   /* ── homepage brands section ── */
-  stores_more:        { en: "…and hundreds more. Any US store link works.", ar: "…ومئات المتاجر الأخرى. يُقبل أي رابط من أي متجر أمريكي." },
+  stores_more:        { en: "…and hundreds more. Any US store link works.", ar: "…ومئات المتاجر غيرهم. أي لينك من أي متجر أمريكي ينفع." },
 
   // ---------- dashboard ----------
   dash_hello:      { en: "Hello", ar: "أهلاً" },
@@ -213,7 +213,7 @@ const I18N = {
   email_verify_save_first:{ en: "Please save your email first, then verify it.", ar: "يُرجى حفظ بريدك الإلكتروني أولًا، ثم تأكيده." },
   dash_orders_t:   { en: "Order history", ar: "سجل الطلبات" },
   dash_orders_d:   { en: "All orders linked to your phone number.", ar: "جميع الطلبات المرتبطة برقم هاتفك." },
-  dash_orders_empty:{ en: "No orders yet — your first one is one link away.", ar: "لا توجد طلبات حتى الآن — طلبك الأول على بعد رابط واحد فقط." },
+  dash_orders_empty:{ en: "No orders yet — your first one is one link away.", ar: "لسه مفيش طلبات — أول طلب على بُعد لينك واحد بس." },
   dash_new_t:      { en: "Place a new order", ar: "أنشئ طلبًا جديدًا" },
   dash_new_d:      { en: "Use the full calculator to price and confirm your next order.", ar: "استخدم الحاسبة الكاملة لحساب طلبك الجديد وتأكيده." },
   dash_new_cta:    { en: "Open Calculator", ar: "افتح الحاسبة" },
@@ -221,7 +221,7 @@ const I18N = {
   // ---------- mart page ----------
   mart_page_eyebrow:{ en: "ALREADY IN EGYPT", ar: "متوفر في مصر" },
   mart_page_title: { en: "Try Shoppy Mart", ar: "تراي شوبي مارت" },
-  mart_page_sub:   { en: "A wide range of our most-requested products, ready to ship at competitive prices — plus a selection of discounted items and Try Shoppy returns or undelivered orders, currently available for delivery.", ar: "مجموعة متنوعة من المنتجات الأكثر طلبًا متوفرة للتسليم بأسعار تنافسية، إلى جانب منتجات مخفضة ومنتجات من طلبات تراي شوبي المرتجعة أو غير المُسلَّمة، متاحة حاليًا للتسليم." },
+  mart_page_sub:   { en: "A wide range of our most-requested products, ready to ship at competitive prices — plus a selection of discounted items and Try Shoppy returns or undelivered orders, currently available for delivery.", ar: "مجموعة متنوعة من المنتجات الأكثر طلبًا جاهزة للتسليم بأسعار منافسة، ومعاها منتجات بخصومات ومنتجات من طلبات تراي شوبي المرتجعة أو اللي متسلّمتش — متاحة دلوقتي للتسليم." },
   mart_filter_all: { en: "All", ar: "الكل" },
   mart_filter_discount: { en: "Discounted", ar: "خصومات" },
   mart_filter_outlet:   { en: "Outlet", ar: "أوت ليت" },
@@ -236,7 +236,7 @@ const I18N = {
 
   // ---------- mart: 2-day delivery banner ----------
   mart_delivery_badge:    { en: "2-Day Delivery", ar: "توصيل خلال يومين" },
-  mart_delivery_sub:      { en: "Already cleared and in Egypt — no customs wait", ar: "مخلّصة جمركيًا وموجودة في مصر بالفعل، دون انتظار للجمارك" },
+  mart_delivery_sub:      { en: "Already cleared and in Egypt — no customs wait", ar: "متخلّصة جمركيًا وموجودة في مصر فعلًا — من غير انتظار جمارك" },
 
   // ---------- mart: back in stock ----------
   mart_back_in_stock:     { en: "Back in stock", ar: "يتوفر مجددًا في" },
@@ -542,8 +542,8 @@ const I18N = {
   // ---------- hero: order preview card ----------
   hc_head:         { en: "Order preview", ar: "معاينة الطلب" },
   hc_live:         { en: "Example", ar: "مثال" },
-  hc_chip_link:    { en: "Link received", ar: "وصلنا الرابط" },
-  hc_chip_track:   { en: "Tracked to your door", ar: "متابعة حتى باب المنزل" },
+  hc_chip_link:    { en: "Link received", ar: "وصلنا اللينك" },
+  hc_chip_track:   { en: "Tracked to your door", ar: "متابعة لحد باب البيت" },
   hc_row_item:     { en: "Item price", ar: "سعر المنتج" },
   hc_row_ship:     { en: "Shipping", ar: "الشحن" },
   hc_row_customs:  { en: "Customs & handling", ar: "الجمارك والتخليص" },
@@ -551,55 +551,55 @@ const I18N = {
   hc_status:       { en: "Confirmed", ar: "تم التأكيد" },
 
   // ---------- hero: trust strip ----------
-  tstrip_1:        { en: "We buy on your behalf.", ar: "نشتري نيابةً عنك." },
+  tstrip_1:        { en: "We buy on your behalf.", ar: "بنشتري نيابةً عنك." },
   tstrip_2:        { en: "One clear EGP number.", ar: "رقم واحد واضح بالجنيه." },
-  tstrip_3:        { en: "Consolidated where applicable.", ar: "نجمعها في شحنة واحدة عند الإمكان." },
+  tstrip_3:        { en: "Consolidated where applicable.", ar: "بنجمّعها في شحنة واحدة لما ينفع." },
   tstrip_4:        { en: "Check anytime with your order number.", ar: "تابع في أي وقت برقم الطلب." },
 
   // ---------- home: metallic strip ----------
   ms_1:            { en: "Shop global", ar: "تسوّق من العالم" },
   ms_2:            { en: "One price", ar: "سعر واحد" },
-  ms_3:            { en: "Delivered to your door", ar: "يصل إلى باب منزلك" },
+  ms_3:            { en: "Delivered to your door", ar: "يوصل لباب بيتك" },
 
   // ---------- home: calculator band ----------
   calcband_eyebrow:{ en: "PRICE CALCULATOR", ar: "حاسبة السعر" },
-  calcband_title:  { en: "Know the full EGP price before you commit", ar: "اعرف السعر الكامل بالجنيه قبل الموافقة" },
-  calcband_sub:    { en: "Enter the product details and the calculator gives you one final price in Egyptian pounds — item, applicable shipping and customs together. Add several items to one cart, then confirm.", ar: "أدخل بيانات المنتج، وستمنحك الحاسبة سعرًا نهائيًا واحدًا بالجنيه المصري يشمل المنتج والشحن والجمارك المطبقة. يمكنك إضافة أكثر من منتج إلى السلة نفسها، ثم التأكيد." },
+  calcband_title:  { en: "Know the full EGP price before you commit", ar: "اعرف السعر الكامل بالجنيه قبل ما توافق" },
+  calcband_sub:    { en: "Enter the product details and the calculator gives you one final price in Egyptian pounds — item, applicable shipping and customs together. Add several items to one cart, then confirm.", ar: "دخّل بيانات المنتج، والحاسبة هتديك سعر نهائي واحد بالجنيه المصري — المنتج والشحن والجمارك المطبقة مع بعض. وتقدر تضيف أكتر من منتج في نفس السلة وبعدين تأكد." },
   calcband_f1:     { en: "From any supported US store", ar: "من أي متجر أمريكي متاح" },
   calcband_f2_t:   { en: "Quantity, weight & dimensions", ar: "الكمية والوزن والأبعاد" },
-  calcband_f2:     { en: "Used to work out shipping", ar: "تُستخدم في حساب الشحن" },
+  calcband_f2:     { en: "Used to work out shipping", ar: "بنستخدمها في حساب الشحن" },
   calcband_f3:     { en: "Clothes, electronics, cosmetics and more", ar: "ملابس، إلكترونيات، مستحضرات تجميل وغيرها" },
   calcband_out_t:  { en: "Final price in EGP", ar: "السعر النهائي بالجنيه" },
   calcband_out:    { en: "Shipping & customs included", ar: "شامل الشحن والجمارك" },
 
   // ---------- home: Try Shoppy Mart band ----------
   mart_badge:      { en: "ALREADY IN EGYPT", ar: "متوفر في مصر" },
-  mart_sub_home:   { en: "Selected products that are already here in Egypt — including discounted, outlet, open-box and returned items from previous Try Shoppy orders. Browse, order, and get them without the international wait.", ar: "منتجات مختارة موجودة بالفعل في مصر، منها منتجات مخفضة وأوتليت وعبوات مفتوحة ومرتجعات من طلبات تراي شوبي السابقة. تصفّح واطلب واستلم دون انتظار الشحن الدولي." },
-  mart_pt_1:       { en: "Discounted, outlet, open-box and returned items from earlier orders", ar: "منتجات مخفضة وأوتليت وعبوات مفتوحة ومرتجعات من طلبات سابقة" },
-  mart_pt_2:       { en: "Already in Egypt — no international shipping step", ar: "موجودة في مصر بالفعل، دون مرحلة الشحن الدولي" },
-  mart_pt_3:       { en: "Organized by category, with condition and availability on every product", ar: "مقسمة حسب الفئة، مع حالة المنتج وتوفره على كل منتج" },
-  mart_vs_intl:    { en: "Looking for something from a US store instead?", ar: "تبحث عن منتج من متجر أمريكي بدلًا من ذلك؟" },
+  mart_sub_home:   { en: "Selected products that are already here in Egypt — including discounted, outlet, open-box and returned items from previous Try Shoppy orders. Browse, order, and get them without the international wait.", ar: "منتجات مختارة موجودة في مصر فعلًا — منها منتجات بخصومات، وأوتليت، وعبوات مفتوحة، ومرتجعات من طلبات تراي شوبي السابقة. تصفّح واطلب واستلم من غير ما تستنى الشحن الدولي." },
+  mart_pt_1:       { en: "Discounted, outlet, open-box and returned items from earlier orders", ar: "منتجات بخصومات وأوتليت وعبوات مفتوحة ومرتجعات من طلبات سابقة" },
+  mart_pt_2:       { en: "Already in Egypt — no international shipping step", ar: "موجودة في مصر فعلًا — من غير مرحلة الشحن الدولي" },
+  mart_pt_3:       { en: "Organized by category, with condition and availability on every product", ar: "متقسّمة حسب الفئة، وعلى كل منتج حالته ومدى توفره" },
+  mart_vs_intl:    { en: "Looking for something from a US store instead?", ar: "بتدور على حاجة من متجر أمريكي بدل كده؟" },
 
   // ---------- home: stores + payments ----------
   stores_disclaimer:{ en: "Shown as examples of stores our customers shop from. Try Shoppy is not affiliated with, endorsed by, or a partner of these companies. Some products are restricted — see our <a href=\"restricted-items.html\">Restricted Items</a> list.", ar: "معروضة كأمثلة على المتاجر التي يشتري منها عملاؤنا. تراي شوبي ليست تابعة لهذه الشركات ولا شريكة لها ولا معتمدة منها. توجد منتجات ممنوعة — راجع <a href=\"restricted-items.html\">قائمة المنتجات الممنوعة</a>." },
-  pay_sub:         { en: "Choose the method that suits you when you confirm your order.", ar: "اختر الطريقة التي تناسبك عند تأكيد الطلب." },
+  pay_sub:         { en: "Choose the method that suits you when you confirm your order.", ar: "اختار الطريقة اللي تناسبك وقت تأكيد الطلب." },
 
   // ---------- home: FAQ ----------
   faq_eyebrow:     { en: "SUPPORT", ar: "الدعم" },
   faq_title:       { en: "Frequently asked questions", ar: "الأسئلة الشائعة" },
-  faq_q1:          { en: "How long does delivery take?", ar: "كم يستغرق وصول الطلب؟" },
-  faq_a1:          { en: "Estimated delivery time is 7–21 days from purchase confirmation, depending on the store, the international carrier schedule, and customs processing. Full details are in our <a href=\"shipping-policy.html\">Shipping Policy</a>.", ar: "مدة التوصيل المتوقعة من 7 إلى 21 يومًا من تأكيد الشراء، حسب المتجر وجدول شركة الشحن الدولي والإجراءات الجمركية. التفاصيل الكاملة في <a href=\"shipping-policy.html\">سياسة الشحن</a>." },
-  faq_q2:          { en: "Do I need an international credit card?", ar: "هل أحتاج إلى بطاقة دولية؟" },
-  faq_a2:          { en: "No. Try Shoppy buys the product on your behalf and you pay us in Egypt — Cash on Delivery, InstaPay, Visa, Mastercard, PayPal or bank transfer.", ar: "لا. تشتري تراي شوبي المنتج نيابةً عنك، وتدفع لنا داخل مصر: الدفع عند الاستلام، أو إنستاباي، أو فيزا، أو ماستركارد، أو باي بال، أو تحويل بنكي." },
-  faq_q3:          { en: "Does the price include shipping and customs?", ar: "هل السعر شامل الشحن والجمارك؟" },
-  faq_a3:          { en: "Yes. The calculator combines the item price with the applicable shipping and customs into a single EGP price, shown to you before you confirm the order.", ar: "نعم. تجمع الحاسبة سعر المنتج مع الشحن والجمارك المطبقة في سعر واحد بالجنيه، ويظهر لك قبل تأكيد الطلب." },
-  faq_q4:          { en: "Where do I find my order number?", ar: "من أين أحصل على رقم الطلب؟" },
-  faq_a4:          { en: "Orders from US stores look like <b class=\"mono\">TRY12345678</b>, and Try Shoppy Mart orders look like <b class=\"mono\">MART123456</b>. You receive your number when the order is confirmed, and you can enter it on the <a href=\"track.html\">Track Order</a> page at any time.", ar: "رقم طلبات المتاجر الأمريكية يكون بهذا الشكل <b class=\"mono\">TRY12345678</b>، وطلبات تراي شوبي مارت بهذا الشكل <b class=\"mono\">MART123456</b>. يصلك الرقم عند تأكيد الطلب، ويمكنك إدخاله في صفحة <a href=\"track.html\">تتبع الطلب</a> في أي وقت." },
-  faq_q5:          { en: "Can I cancel an order?", ar: "هل يمكنني إلغاء الطلب؟" },
-  faq_a5:          { en: "Cancelling before we purchase the item is free of charge. After purchase, the terms in our <a href=\"cancellation-policy.html\">Cancellation Policy</a> apply.", ar: "الإلغاء قبل شراء المنتج مجاني تمامًا. وبعد الشراء تُطبق شروط <a href=\"cancellation-policy.html\">سياسة الإلغاء</a>." },
-  faq_q6:          { en: "Are any products restricted?", ar: "هل توجد منتجات ممنوعة؟" },
-  faq_a6:          { en: "Yes — some categories cannot be shipped for compliance reasons. Please check the <a href=\"restricted-items.html\">Restricted Items</a> list before ordering.", ar: "نعم، توجد فئات لا يمكننا شحنها لأسباب تتعلق بالامتثال. يُرجى مراجعة <a href=\"restricted-items.html\">قائمة المنتجات الممنوعة</a> قبل الطلب." },
-  faq_more:        { en: "Still have a question?", ar: "ما زال لديك سؤال؟" },
+  faq_q1:          { en: "How long does delivery take?", ar: "الطلب بيوصل في قد إيه؟" },
+  faq_a1:          { en: "Estimated delivery time is 7–21 days from purchase confirmation, depending on the store, the international carrier schedule, and customs processing. Full details are in our <a href=\"shipping-policy.html\">Shipping Policy</a>.", ar: "مدة التوصيل المتوقعة من 7 لـ 21 يوم من تأكيد الشراء، حسب المتجر وجدول شركة الشحن الدولي وإجراءات الجمارك. التفاصيل كاملة في <a href=\"shipping-policy.html\">سياسة الشحن</a>." },
+  faq_q2:          { en: "Do I need an international credit card?", ar: "محتاج فيزا دولية؟" },
+  faq_a2:          { en: "No. Try Shoppy buys the product on your behalf and you pay us in Egypt — Cash on Delivery, InstaPay, Visa, Mastercard, PayPal or bank transfer.", ar: "لأ. تراي شوبي بتشتري المنتج نيابةً عنك، وانت تدفع لنا في مصر — كاش عند الاستلام، أو إنستاباي، أو فيزا، أو ماستركارد، أو باي بال، أو تحويل بنكي." },
+  faq_q3:          { en: "Does the price include shipping and customs?", ar: "السعر شامل الشحن والجمارك؟" },
+  faq_a3:          { en: "Yes. The calculator combines the item price with the applicable shipping and customs into a single EGP price, shown to you before you confirm the order.", ar: "أيوه. الحاسبة بتجمع سعر المنتج مع الشحن والجمارك المطبقة في سعر واحد بالجنيه، وبيظهرلك قبل ما تأكد الطلب." },
+  faq_q4:          { en: "Where do I find my order number?", ar: "ألاقي رقم الطلب فين؟" },
+  faq_a4:          { en: "Orders from US stores look like <b class=\"mono\">TRY12345678</b>, and Try Shoppy Mart orders look like <b class=\"mono\">MART123456</b>. You receive your number when the order is confirmed, and you can enter it on the <a href=\"track.html\">Track Order</a> page at any time.", ar: "رقم طلبات المتاجر الأمريكية بيبقى بالشكل ده <b class=\"mono\">TRY12345678</b>، وطلبات تراي شوبي مارت بالشكل ده <b class=\"mono\">MART123456</b>. الرقم بيوصلك وقت تأكيد الطلب، وتقدر تكتبه في صفحة <a href=\"track.html\">تتبع الطلب</a> في أي وقت." },
+  faq_q5:          { en: "Can I cancel an order?", ar: "أقدر ألغي الطلب؟" },
+  faq_a5:          { en: "Cancelling before we purchase the item is free of charge. After purchase, the terms in our <a href=\"cancellation-policy.html\">Cancellation Policy</a> apply.", ar: "الإلغاء قبل ما نشتري المنتج مجاني تمامًا. وبعد الشراء بتتطبق شروط <a href=\"cancellation-policy.html\">سياسة الإلغاء</a>." },
+  faq_q6:          { en: "Are any products restricted?", ar: "فيه منتجات ممنوعة؟" },
+  faq_a6:          { en: "Yes — some categories cannot be shipped for compliance reasons. Please check the <a href=\"restricted-items.html\">Restricted Items</a> list before ordering.", ar: "أيوه — فيه فئات مانقدرش نشحنها لأسباب قانونية وتنظيمية. ياريت تراجع <a href=\"restricted-items.html\">قائمة المنتجات الممنوعة</a> قبل ما تطلب." },
+  faq_more:        { en: "Still have a question?", ar: "لسه عندك سؤال؟" },
 
   // ---------- footer ----------
   foot_made:       { en: "Made for shoppers in Egypt 🇪🇬", ar: "مصممة لعملائنا في مصر 🇪🇬" },
@@ -628,9 +628,9 @@ const I18N = {
 
   // ---------- login (redesign) ----------
   auth_side_t:     { en: "Your orders, in one place", ar: "كل طلباتك في مكان واحد" },
-  auth_side_1:     { en: "Track every order with its TRY number", ar: "تابع كل طلب برقم TRY الخاص به" },
-  auth_side_2:     { en: "Save your delivery details for faster checkout", ar: "احفظ بيانات التوصيل ليصبح طلبك أسرع" },
-  auth_side_3:     { en: "See your full order history any time", ar: "اطّلع على سجل طلباتك كاملًا في أي وقت" },
+  auth_side_1:     { en: "Track every order with its TRY number", ar: "تابع كل طلب برقم TRY الخاص بيه" },
+  auth_side_2:     { en: "Save your delivery details for faster checkout", ar: "احفظ بيانات التوصيل عشان طلبك الجاي يبقى أسرع" },
+  auth_side_3:     { en: "See your full order history any time", ar: "شوف سجل طلباتك كله في أي وقت" },
   auth_back_home:  { en: "Back to home", ar: "العودة إلى الرئيسية" },
 
   // ---------- 404 ----------
