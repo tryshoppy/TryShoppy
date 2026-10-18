@@ -153,6 +153,43 @@ button,input,select{font:inherit;color:inherit}
 .other{margin:0 16px 14px;background:var(--gold-wash);border-radius:12px;padding:10px 13px;font-size:12.5px;font-weight:800;color:var(--gold-ink);line-height:1.6}
 .hold-note{margin:10px 16px 0;background:var(--hold-wash);color:var(--hold);border-radius:12px;padding:10px 13px;font-size:13px;font-weight:800}
 
+/* ══ 🗺️ خط سير يوم التوصيل ══ */
+.rt-new{width:100%;border:2px dashed #C9D6F5;background:var(--blue-wash);color:var(--blue);border-radius:14px;padding:13px;font-weight:900;font-size:14.5px;cursor:pointer;margin-bottom:12px}
+.route{background:var(--panel);border:1.5px solid #C9D6F5;border-radius:16px;margin-bottom:12px;overflow:hidden}
+.rt-head{display:flex;align-items:center;gap:10px;padding:12px 14px;background:linear-gradient(120deg,#16307A,#2563EB);color:#fff;cursor:pointer}
+.rt-head b{flex:1;font-size:15px;font-weight:900}
+.rt-head small{font-size:12px;font-weight:800;background:rgba(255,255,255,.16);border-radius:999px;padding:4px 10px;white-space:nowrap}
+.rt-body{padding:12px 14px 14px;display:none}
+.route.open .rt-body{display:block}
+.rt-cfg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.rt-cfg label{font-size:11.5px;font-weight:900;color:var(--ink-2)}
+.rt-cfg input,.rt-cfg select{width:100%;margin-top:4px;padding:10px;border:1.5px solid var(--line);border-radius:11px;background:#FBFCFE;font-size:14px;font-weight:700}
+.rt-hint{font-size:12px;font-weight:800;color:var(--ink-2);background:var(--gold-wash);border-radius:11px;padding:9px 11px;margin-bottom:10px;line-height:1.6}
+.stop{display:flex;align-items:center;gap:9px;padding:10px 4px;border-top:1px solid var(--line-2)}
+.stop:first-of-type{border-top:0}
+.stop .n{width:30px;height:30px;border-radius:50%;background:var(--navy);color:var(--gold);font-family:var(--fm);font-weight:600;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.stop.done .n{background:var(--ok);color:#fff}.stop.hold .n{background:var(--hold);color:#fff}
+.stop.next{background:var(--gold-wash);border-radius:12px}
+.stop-b{flex:1;min-width:0;cursor:pointer}
+.stop-nm{font-weight:900;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stop.done .stop-nm{text-decoration:line-through;color:var(--ink-3)}
+.stop-s{font-size:12px;color:var(--ink-2);font-weight:700;margin-top:1px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.area{font-size:11px;font-weight:900;border-radius:999px;padding:2px 8px;background:var(--blue-wash);color:var(--blue)}
+.area.unk{background:var(--warn-wash);color:var(--warn)}.area.far{background:var(--dead-wash);color:var(--dead)}
+.stop-x{display:flex;gap:4px;flex-shrink:0}
+.stop-x button{width:32px;height:32px;border-radius:9px;border:1px solid var(--line);background:#FBFCFE;font-size:14px;cursor:pointer}
+.stop-x button:disabled{opacity:.3}
+.rt-acts{display:grid;gap:8px;margin-top:12px}
+.rt-acts .row2{gap:8px}
+.btn.sm{padding:12px;font-size:13.5px}
+.btn.nav{background:var(--blue);color:#fff}
+.btn.sort{background:var(--navy);color:var(--gold)}
+.btn.del{background:transparent;color:var(--dead);border:1.5px solid #F5CFCF}
+.sug-add{border:0;border-radius:10px;background:var(--blue);color:#fff;font-weight:900;font-size:12px;padding:7px 10px;cursor:pointer;white-space:nowrap}
+.sug-add.in{background:var(--ok-wash);color:var(--ok)}
+.c-route{margin-top:10px;width:100%;border:1.5px solid #C9D6F5;background:var(--blue-wash);color:var(--blue);border-radius:12px;padding:10px;font-weight:900;font-size:13.5px;cursor:pointer}
+.c-route.in{background:var(--ok-wash);color:var(--ok);border-color:#B7E4D3}
+
 /* ══ رسالة النتيجة ══ */
 .toast{position:fixed;inset-inline:14px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:60;max-width:690px;margin:0 auto;border-radius:16px;padding:14px 16px;font-weight:800;font-size:14px;box-shadow:0 14px 36px rgba(16,27,51,.28);display:none;line-height:1.6}
 .toast.show{display:block}
@@ -204,6 +241,8 @@ button,input,select{font:inherit;color:inherit}
       <b id="todaySum">0</b><small style="color:var(--ink-3);font-weight:800">ج.م</small>
     </div>
     <div class="today-list" id="todayList"></div>
+
+    <div id="routeBox"></div>
 
     <div class="search">
       <div class="sbox">
@@ -295,6 +334,7 @@ function showApp(){
   document.getElementById("app").style.display = "block";
   document.getElementById("who").textContent = getCurrentUser();
   renderToday();
+  routeLoad(); renderRoute();
   loadData(true);
   setTimeout(() => document.getElementById("q").focus(), 150);
 }
@@ -378,6 +418,7 @@ function setRows(d){
     renderCustomer();
   }
   if(document.getElementById("q").value.trim()) renderSugs();
+  renderRoute();
 }
 
 /* ═══════════ البحث ═══════════ */
@@ -432,6 +473,7 @@ function renderSugs(){
       '<div class="sug-b"><div class="sug-n">' + hl(c.name || "(بدون اسم)", q) + '</div>' +
       '<div class="sug-s">' + tsEscapeHtml(c.gov || "") + (c.gov && tail ? " · " : "") + '<span class="mono" dir="ltr">' + tail + '</span></div></div>' +
       (c.active ? '<span class="pill go">📦 ' + c.active + ' جاهز</span>' : '<span class="pill no">لا يوجد ما وصل</span>') +
+      (ROUTE ? '<button class="sug-add' + (routeHas(c.key) ? ' in' : '') + '" onclick="routeAddSug(' + i + ', event)">' + (routeHas(c.key) ? '✓ في الخط' : '➕ أضف') + '</button>' : '') +
     '</div>';
   }).join("") : '<div class="sug-empty">لا يوجد عميل بهذا الاسم أو الرقم في الطلبات الأخيرة</div>';
 }
@@ -499,6 +541,8 @@ function renderCustomer(){
         '<a class="wa" href="#" onclick="waOnTheWay();return false"><b>💬</b>واتساب</a>' +
         '<a href="https://www.google.com/maps/search/?api=1&query=' + mapQ + '" target="_blank" rel="noopener"><b>🗺️</b>الخريطة</a>' +
       '</div>' +
+      (ROUTE ? '<button class="c-route' + (routeHas(c.key) ? ' in' : '') + '" onclick="routeAddCurrent()">' +
+        (routeHas(c.key) ? '✓ في خط سير يوم ' + routeDateHtml(ROUTE.date) + ' — اضغط للإزالة' : '➕ أضف إلى خط سير يوم ' + routeDateHtml(ROUTE.date)) + '</button>' : '') +
     '</div>';
 
   if(held.length){
@@ -771,7 +815,7 @@ async function askDeliver(){
     toast("err", "⚠️ سُجِّل " + okCount + " من " + updates.length + ". لم تُسجَّل الطلبات التالية: " + failed.map(f => f.order).join("، ") + " — أعد المحاولة لها فقط.");
   } else {
     toast("ok", "✅ تم تسجيل التسليم وتحصيل " + money(amount) + " ج.م" +
-      '<br><a href="#" onclick="waReceipt();return false">📲 أرسل إيصالًا للعميل عبر واتساب</a>');
+      '<br><a href="#" onclick="waReceipt();return false">📲 أرسل إيصالًا للعميل عبر واتساب</a>' + routeMark(current.key, "done"));
   }
   renderCustomer();
 }
@@ -803,7 +847,7 @@ async function markHold(){
   const failed = await sendUpdates(sel.map(o => ({ order: String(o.order), status: "On Hold", statusNote: note })));
   lockUI(false);
   if(failed === null) return toast("err", "⚠️ لم نتمكن من التأكد من تسجيل التحديث — لا تُعِد الإرسال، وتواصل مع المكتب.");
-  toast(failed.length ? "err" : "ok", failed.length ? "⚠️ لم تُسجَّل الطلبات التالية: " + failed.map(f => f.order).join("، ") : "⏸️ سُجِّل كمؤجل: " + tsEscapeHtml(note), failed.length ? 0 : 4000);
+  toast(failed.length ? "err" : "ok", failed.length ? "⚠️ لم تُسجَّل الطلبات التالية: " + failed.map(f => f.order).join("، ") : "⏸️ سُجِّل كمؤجل: " + tsEscapeHtml(note) + routeMark(current.key, "hold"), failed.length ? 0 : 6000);
   renderCustomer();
 }
 
@@ -825,6 +869,336 @@ function renderToday(){
   document.getElementById("todayList").innerHTML = log.length
     ? log.slice().reverse().map(x => '<div><span>' + tsEscapeHtml(x.t) + ' · ' + tsEscapeHtml(x.name) + ' (' + x.n + ')</span><b class="mono">' + money(x.amount) + '</b></div>').join("")
     : '<div><span style="color:var(--ink-3)">لم تحصّل شيئًا اليوم حتى الآن</span></div>';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   🗺️ خط سير يوم التوصيل
+   ═══════════════════════════════════════════════════════════
+   المندوب بيعمل خط سير ليوم (dd-mm-yyyy)، ويضيف العملاء بالبحث، والأداة
+   بترتبهم "الأقرب فالأقرب" بداية من نقطة البداية (الافتراضي التجمع الأول).
+   • المحطة = عميل (كل طلباته الجاهزة في زيارة واحدة)، مش طلب.
+   • الترتيب تقريبي بالمنطقة: بنطلّع المنطقة من العنوان (جدول ROUTE_AREAS
+     تحت بإحداثيات تقريبية)، وبعدين "أقرب جار" بالمسافة المباشرة — مش
+     بالشارع ولا الزحمة. اللي منطقته مش معروفة بيروح آخر القايمة بعلامة،
+     والمندوب يقدر يحرّك أي محطة بإيده (⬆️⬇️).
+   • محفوظ على موبايل المندوب بس (localStorage) — مفيش أي تعديل على الشيت
+     غير الأزرار الموجودة أصلاً (خرج للتوصيل / تسليم / مؤجل). */
+const ROUTE_AREAS = [
+  // [الاسم المعروض, [كلمات البحث], lat, lng]
+  ["التجمع الأول", ["التجمع الاول","التجمع 1","first settlement","1st settlement"], 30.0640, 31.4690],
+  ["التجمع الثالث", ["التجمع الثالث","التجمع 3","third settlement","3rd settlement"], 30.0230, 31.4380],
+  ["التجمع الخامس", ["التجمع الخامس","التجمع 5","fifth settlement","5th settlement","القاهره الجديده","new cairo","النرجس","البنفسج","اللوتس","الياسمين","جاردينيا","التسعين","90 street","الاندلس","بيت الوطن","ميفيدا","التجمع"], 30.0075, 31.4700],
+  ["القطامية", ["القطاميه","katameya","kattameya"], 29.9860, 31.4000],
+  ["الرحاب", ["الرحاب","rehab"], 30.0610, 31.4950],
+  ["مدينتي", ["مدينتي","madinaty"], 30.0990, 31.6380],
+  ["الشروق", ["الشروق","shorouk","el shorouk"], 30.1430, 31.6290],
+  ["العبور", ["العبور","obour","el obour"], 30.2270, 31.4790],
+  ["مدينة نصر", ["مدينه نصر","مدينة نصر","nasr city","الحي السابع","الحي الثامن","الحي العاشر","عباس العقاد","مكرم عبيد","مصطفي النحاس","زهراء مدينه نصر","الحي السادس"], 30.0560, 31.3400],
+  ["مصر الجديدة", ["مصر الجديده","heliopolis","الكوربه","روكسي","الماظه","الميرغني","الخليفه المامون","ارض الجولف","الحجاز"], 30.0900, 31.3240],
+  ["النزهة", ["النزهه","شيراتون","sheraton","مساكن شيراتون","الف مسكن","جسر السويس"], 30.1080, 31.3650],
+  ["عين شمس", ["عين شمس","ain shams"], 30.1310, 31.3290],
+  ["المطرية", ["المطريه","matareya"], 30.1210, 31.3130],
+  ["المرج", ["المرج","el marg"], 30.1560, 31.3370],
+  ["السلام", ["مدينه السلام","مدينة السلام","el salam"], 30.1700, 31.4100],
+  ["الزيتون", ["الزيتون","zeitoun"], 30.1060, 31.3100],
+  ["حدائق القبة", ["حدائق القبه","القبه","kobba"], 30.0860, 31.2860],
+  ["العباسية", ["العباسيه","abbasiya","abbassia"], 30.0720, 31.2840],
+  ["شبرا", ["شبرا","shubra","روض الفرج"], 30.0880, 31.2450],
+  ["شبرا الخيمة", ["شبرا الخيمه","shubra el kheima"], 30.1250, 31.2450],
+  ["وسط البلد", ["وسط البلد","downtown","عابدين","ميدان التحرير","باب اللوق","رمسيس","الازبكيه","العتبه","الموسكي","باب الشعريه"], 30.0480, 31.2420],
+  ["الزمالك", ["الزمالك","zamalek"], 30.0610, 31.2190],
+  ["جاردن سيتي", ["جاردن سيتي","garden city"], 30.0360, 31.2310],
+  ["المنيل", ["المنيل","manial"], 30.0250, 31.2280],
+  ["السيدة زينب", ["السيده زينب","sayeda zeinab"], 30.0330, 31.2420],
+  ["مصر القديمة", ["مصر القديمه","old cairo","الفسطاط"], 30.0060, 31.2310],
+  ["المقطم", ["المقطم","mokattam","mokkatam"], 30.0170, 31.3020],
+  ["البساتين", ["البساتين","دار السلام","basateen"], 29.9840, 31.2710],
+  ["زهراء المعادي", ["زهراء المعادي","زهراء المعادى","zahraa maadi","zahraa el maadi"], 29.9650, 31.3050],
+  ["المعادي", ["المعادي","المعادى","maadi","دجله","ثكنات المعادي","حدائق المعادي"], 29.9600, 31.2580],
+  ["المعصرة", ["المعصره","maasara"], 29.9000, 31.2990],
+  ["حلوان", ["حلوان","helwan","15 مايو"], 29.8500, 31.3340],
+  ["الدقي", ["الدقي","الدقى","dokki"], 30.0380, 31.2110],
+  ["المهندسين", ["المهندسين","mohandessin","mohandeseen","جامعه الدول","شارع شهاب"], 30.0560, 31.2000],
+  ["العجوزة", ["العجوزه","agouza"], 30.0570, 31.2130],
+  ["إمبابة", ["امبابه","imbaba","الوراق"], 30.0770, 31.2080],
+  ["بولاق الدكرور", ["بولاق الدكرور","ناهيا","boulak"], 30.0330, 31.1870],
+  ["الجيزة", ["الجيزه","giza","بين السرايات","ميدان الجيزه"], 30.0130, 31.2090],
+  ["المنيب", ["المنيب","moneeb"], 29.9850, 31.2120],
+  ["فيصل", ["فيصل","faisal","العشرين","الطالبيه","المريوطيه"], 30.0020, 31.1750],
+  ["الهرم", ["الهرم","haram","pyramids","المساحه","العمرانيه","الكوم الاخضر"], 29.9920, 31.1550],
+  ["حدائق الأهرام", ["حدائق الاهرام","hadayek el ahram","pyramids gardens"], 29.9760, 31.1080],
+  ["الشيخ زايد", ["الشيخ زايد","زايد","sheikh zayed","zayed","بيفرلي هيلز"], 30.0400, 30.9800],
+  ["حدائق أكتوبر", ["حدائق اكتوبر","hadayek october"], 29.8900, 30.9900],
+  ["6 أكتوبر", ["اكتوبر","6 october","october","السادس من اكتوبر","الحصري","الحي المتميز"], 29.9700, 30.9400],
+];
+const ROUTE_DEFAULT_START = "التجمع الأول";
+const ROUTE_ZONE_GOVS = ["القاهره", "الجيزه", "cairo", "giza"];
+const ROUTE_ZONE_EXTRA = ["الشروق", "مدينتي", "العبور"];   // خارج القاهرة/الجيزة إداريًا بس جوه نطاق المندوب
+// كلمات البحث موحّدة مرة واحدة، والأطول الأول (عشان "زهراء المعادي" تتلقط قبل "المعادي")
+const ROUTE_KEYS = [];
+ROUTE_AREAS.forEach((a, i) => a[1].concat([a[0]]).forEach(k => {
+  const n = routeNorm(k);
+  // بداية كلمة (مسموح بحرف و/ب/ل/ف قبلها: "بالمعادي"، "والتجمع") ونهاية كلمة —
+  // عشان "المرج" ماتتلقطش من "المرجان"
+  ROUTE_KEYS.push({ k: n, i, re: new RegExp("(^|\\s)(و|ب|ل|ف|بال|وال)?" + n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/^ال/, "(ال)?") + "(?=\\s|$)") });
+}));
+ROUTE_KEYS.sort((a, b) => b.k.length - a.k.length);
+
+function routeNorm(s){ return normName(tsToEnDigits(s)).replace(/[،,.\-_/\\()]+/g, " ").replace(/\s+/g, " ").trim(); }
+/** المنطقة من العنوان + المحافظة — بترجّع رقمها في ROUTE_AREAS أو -1 */
+function routeAreaOf(addr, gov){
+  // العنوان الأول — المحافظة بس لو العنوان مفيهوش منطقة ("الجيزة" ماتغلبش "شارع الهرم")
+  const t = routeNorm(addr);
+  for(const x of ROUTE_KEYS){ if(x.re.test(t)) return x.i; }
+  const g = routeNorm(gov);
+  for(const x of ROUTE_KEYS){ if(x.re.test(g)) return x.i; }
+  return -1;
+}
+function routeInZone(gov, areaIdx){
+  if(areaIdx !== -1 && ROUTE_ZONE_EXTRA.indexOf(ROUTE_AREAS[areaIdx][0]) !== -1) return true;
+  const g = routeNorm(gov);
+  return !g || ROUTE_ZONE_GOVS.some(z => g.indexOf(z) !== -1);
+}
+function routeDist(a, b){   // كم (هافرسين) — كفاية للترتيب
+  const R = 6371, r = Math.PI / 180;
+  const dLa = (b[2] - a[2]) * r, dLo = (b[3] - a[3]) * r;
+  const h = Math.sin(dLa / 2) ** 2 + Math.cos(a[2] * r) * Math.cos(b[2] * r) * Math.sin(dLo / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+
+let ROUTE = null;
+function routeKey(){ return "ts_courier_route_" + (localStorage.getItem("currentUser") || ""); }
+function routeLoad(){ try{ ROUTE = JSON.parse(localStorage.getItem(routeKey()) || "null"); }catch(e){ ROUTE = null; } }
+function routeSave(){ try{ ROUTE ? localStorage.setItem(routeKey(), JSON.stringify(ROUTE)) : localStorage.removeItem(routeKey()); }catch(e){} }
+function routeDateTxt(iso){ const p = String(iso || "").split("-"); return p.length === 3 ? p[2] + "-" + p[1] + "-" + p[0] : iso; }
+// ⚠️ التاريخ بالأرقام والشرَط بيتقلب في RTL (18-10-2026 بيبان 2026-10-18) — فبيتلف في span باتجاه ltr
+function routeDateHtml(iso){ return '<span dir="ltr" style="unicode-bidi:isolate">' + tsEscapeHtml(routeDateTxt(iso)) + '</span>'; }
+function routeStartArea(){ const i = ROUTE_AREAS.findIndex(a => a[0] === (ROUTE && ROUTE.start)); return i === -1 ? ROUTE_AREAS.findIndex(a => a[0] === ROUTE_DEFAULT_START) : i; }
+
+function routeNew(){
+  ROUTE = { date: new Date().toLocaleDateString("en-CA"), start: ROUTE_DEFAULT_START, stops: [], manual: false, open: true };
+  routeSave(); renderRoute();
+  toast("ok", "🗺️ تم إنشاء خط السير — ابحث عن العميل واضغط «➕ أضف»", 4000);
+  setTimeout(() => document.getElementById("q").focus(), 100);
+}
+function routeHas(key){ return !!(ROUTE && ROUTE.stops.some(s => s.key === key)); }
+function routeAdd(c){
+  if(!ROUTE || !c || routeHas(c.key)) return;
+  if(!c.active) return toast("err", "لا توجد طلبات جاهزة للتسليم لـ " + tsEscapeHtml(c.name || "هذا العميل") + " — لم يُضف إلى الخط.", 3500);
+  const area = routeAreaOf(c.addr, c.gov);
+  ROUTE.stops.push({ key: c.key, name: c.name || "", phone: c.phone || "", addr: c.addr || "", gov: c.gov || "", area, done: false, hold: false });
+  if(!ROUTE.manual) routeSortStops();
+  routeSave(); renderRoute();
+  const s = ROUTE.stops.find(x => x.key === c.key);
+  toast("ok", "➕ أُضيف " + tsEscapeHtml(c.name || "العميل") + " — محطة رقم " + (ROUTE.stops.indexOf(s) + 1) +
+    (area === -1 ? "<br>⚠️ لم نتعرف على المنطقة من العنوان، فوُضع في آخر الخط" : " (" + tsEscapeHtml(ROUTE_AREAS[area][0]) + ")"), 3500);
+}
+function routeAddCurrent(){ if(current){ routeHas(current.key) ? routeRemove(current.key) : routeAdd(current); renderCustomer(); } }
+function routeAddSug(i, ev){
+  if(ev){ ev.stopPropagation(); ev.preventDefault(); }
+  const c = SUGS[i]; if(!c) return;
+  routeHas(c.key) ? routeRemove(c.key) : routeAdd(c);
+  renderSugs();
+}
+function routeRemove(key){
+  if(!ROUTE) return;
+  ROUTE.stops = ROUTE.stops.filter(s => s.key !== key);
+  routeSave(); renderRoute();
+}
+/** أقصر مسار مفتوح يبدأ من start ويمر على كل النقاط مرة واحدة.
+ *  لحد 13 منطقة: الحل الدقيق (Held-Karp) — أقل من ثانية على الموبايل.
+ *  أكتر من كده: "الأقرب فالأقرب" + تحسين بنقل نقطة واحدة لأحسن مكان. */
+function routeBestOrder(start, pts){
+  const n = pts.length;
+  if(n <= 1) return n ? [0] : [];
+  if(n <= 13){
+    const FULL = (1 << n) - 1, INF = 1e9;
+    const dp = new Float64Array((1 << n) * n).fill(INF), par = new Int8Array((1 << n) * n).fill(-1);
+    for(let j = 0; j < n; j++) dp[(1 << j) * n + j] = routeDist(start, pts[j]);
+    for(let m = 1; m <= FULL; m++){
+      for(let j = 0; j < n; j++){
+        const cur = dp[m * n + j];
+        if(cur >= INF || !(m & (1 << j))) continue;
+        for(let k = 0; k < n; k++){
+          if(m & (1 << k)) continue;
+          const nm = m | (1 << k), v = cur + routeDist(pts[j], pts[k]);
+          if(v < dp[nm * n + k]){ dp[nm * n + k] = v; par[nm * n + k] = j; }
+        }
+      }
+    }
+    let end = 0;
+    for(let j = 1; j < n; j++) if(dp[FULL * n + j] < dp[FULL * n + end]) end = j;
+    const out = [];
+    for(let m = FULL, j = end; j !== -1; ){ out.push(j); const pj = par[m * n + j]; m &= ~(1 << j); j = pj; }
+    return out.reverse();
+  }
+  // كتير: الأقرب فالأقرب + or-opt
+  const left = pts.map((_, i) => i), ord = [];
+  let at = start;
+  while(left.length){
+    let bi = 0, bd = Infinity;
+    left.forEach((p, i) => { const d = routeDist(at, pts[p]); if(d < bd){ bd = d; bi = i; } });
+    at = pts[left[bi]]; ord.push(left.splice(bi, 1)[0]);
+  }
+  const len = a => a.reduce((t, p, k) => t + routeDist(k ? pts[a[k - 1]] : start, pts[p]), 0);
+  for(let improved = true, guard = 0; improved && guard < 30; guard++){
+    improved = false;
+    for(let k = 0; k < ord.length; k++){
+      const rest = ord.slice(0, k).concat(ord.slice(k + 1));
+      let best = null, bestLen = len(ord) - 0.05;
+      for(let pos = 0; pos <= rest.length; pos++){
+        const c = rest.slice(0, pos).concat([ord[k]], rest.slice(pos)), L = len(c);
+        if(L < bestLen){ bestLen = L; best = c; }
+      }
+      if(best){ ord.splice(0, ord.length, ...best); improved = true; }
+    }
+  }
+  return ord;
+}
+/** ترتيب المحطات: أقصر مسار من نقطة البداية (routeBestOrder). اللي
+ *  اتسلّم بيفضل فوق بترتيبه، والمنطقة المجهولة/خارج النطاق في الآخر */
+function routeSortStops(){
+  const done = ROUTE.stops.filter(s => s.done || s.hold);
+  const left = ROUTE.stops.filter(s => !s.done && !s.hold);
+  const known = left.filter(s => s.area !== -1), unknown = left.filter(s => s.area === -1);
+  const start = ROUTE_AREAS[routeStartArea()];
+  // نجمّع المحطات حسب المنطقة (نفس المنطقة = ورا بعض)، ونرتّب المناطق نفسها
+  const areas = [...new Set(known.map(s => s.area))];
+  const order = routeBestOrder(start, areas.map(i => ROUTE_AREAS[i]));
+  const ordered = [];
+  order.forEach(k => known.filter(s => s.area === areas[k]).forEach(s => ordered.push(s)));
+  // المجهول جوه النطاق قبل اللي خارج النطاق
+  unknown.sort((a, b) => routeInZone(b.gov, b.area) - routeInZone(a.gov, a.area));
+  ROUTE.stops = done.concat(ordered, unknown);
+}
+function routeResort(){ if(!ROUTE) return; ROUTE.manual = false; routeSortStops(); routeSave(); renderRoute(); toast("ok", "🔀 تم ترتيب الخط حسب الأقرب من " + tsEscapeHtml(ROUTE.start), 2500); }
+function routeMove(i, d){
+  if(!ROUTE) return;
+  const j = i + d;
+  if(j < 0 || j >= ROUTE.stops.length) return;
+  [ROUTE.stops[i], ROUTE.stops[j]] = [ROUTE.stops[j], ROUTE.stops[i]];
+  ROUTE.manual = true; routeSave(); renderRoute();
+}
+function routeSetStart(v){ ROUTE.start = v; if(!ROUTE.manual) routeSortStops(); routeSave(); renderRoute(); }
+function routeSetDate(v){ if(v){ ROUTE.date = v; routeSave(); renderRoute(); } }
+async function routeClear(){
+  if(!ROUTE) return;
+  const ok = await confirmSheet("🗑 مسح خط السير", "سيُحذف خط سير يوم <b>" + routeDateHtml(ROUTE.date) + "</b> من هذا الموبايل. لن يتغير أي شيء في الطلبات نفسها.", "مسح");
+  if(!ok) return;
+  ROUTE = null; routeSave(); renderRoute(); renderSugs(); if(current) renderCustomer();
+}
+function routeToggle(){ if(ROUTE){ ROUTE.open = !ROUTE.open; routeSave(); renderRoute(); } }
+/** حالة المحطة لايف: لسه عليها طلبات جاهزة؟ ولا اتسلّمت/اتأجلت */
+function routeLive(s){
+  const c = CUSTOMERS.find(x => x.key === s.key);
+  return { c, ready: c ? c.active : 0, done: s.done || (ROWS.length > 0 && (!c || c.active === 0) && !s.hold), hold: s.hold };
+}
+function routeOpen(i){
+  const s = ROUTE && ROUTE.stops[i]; if(!s) return;
+  const c = CUSTOMERS.find(x => x.key === s.key);
+  if(!c) return toast("err", "لا توجد طلبات جاهزة لهذا العميل الآن (ربما تم تسليمها).", 3500);
+  current = c; currentBatch = ""; renderCustomer();
+  document.getElementById("view").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+function routeNextIndex(){
+  if(!ROUTE) return -1;
+  return ROUTE.stops.findIndex(s => { const l = routeLive(s); return !l.done && !l.hold; });
+}
+/** بعد التسليم/التأجيل — بنعلّم المحطة ونقترح اللي بعدها */
+function routeMark(key, kind){
+  if(!ROUTE) return "";
+  const s = ROUTE.stops.find(x => x.key === key);
+  if(!s) return "";
+  if(kind === "done"){ s.done = true; s.hold = false; } else s.hold = true;
+  routeSave(); renderRoute();
+  const n = routeNextIndex();
+  return n === -1 ? '<br>🎉 خلصت كل محطات خط السير' :
+    '<br><a href="#" style="background:var(--blue)" onclick="routeOpen(' + n + ');document.getElementById(\'toast\').className=\'toast\';return false">➡️ المحطة التالية: ' + tsEscapeHtml(ROUTE.stops[n].name || "") + '</a>';
+}
+/** 🧭 Google Maps بالترتيب — الرابط بياخد لحد 9 محطات وسطانية + الوجهة،
+ *  فلو الخط أطول بنقسّمه لرحلات (كل رحلة بتبدأ من آخر محطة في اللي قبلها) */
+function routeMapsLegs(){
+  // المنطقة المجهولة وخارج النطاق مابيدخلوش الخريطة — Google هيخمّن مكانهم غلط
+  const left = ROUTE.stops.filter(s => { const l = routeLive(s); return !l.done && !l.hold && s.area !== -1 && routeInZone(s.gov, s.area); });
+  const q = s => [s.addr, s.area !== -1 ? ROUTE_AREAS[s.area][0] : "", s.gov, "مصر"].filter(Boolean).join(" ");
+  const legs = [];
+  let origin = ROUTE.start + " القاهرة مصر";
+  for(let i = 0; i < left.length; i += 10){
+    const part = left.slice(i, i + 10);
+    const dest = part[part.length - 1], way = part.slice(0, -1);
+    legs.push({ from: i + 1, to: i + part.length, url: "https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=" + encodeURIComponent(origin) +
+      "&destination=" + encodeURIComponent(q(dest)) + (way.length ? "&waypoints=" + encodeURIComponent(way.map(q).join("|")) : "") });
+    origin = q(dest);
+  }
+  return legs;
+}
+/** 🚚 خرجت للتوصيل لكل محطات الخط مرة واحدة (اللي لسه "وصل القاهرة" بس) */
+async function routeMarkOutAll(){
+  if(busy || !ROUTE) return;
+  const keys = ROUTE.stops.filter(s => { const l = routeLive(s); return !l.done && !l.hold; }).map(s => s.key);
+  const rows = ROWS.filter(o => String(o.status).trim() === HUB && keys.indexOf(normPhone(o.phone) || ("name:" + normName(o.customerName))) !== -1);
+  if(!rows.length) return toast("err", "لا توجد منتجات بحالة «وصل مخزن القاهرة» في خط السير — ربما سجّلت خروجك لها بالفعل.", 4000);
+  const ok = await confirmSheet("🚚 خرجتُ للتوصيل — كل الخط",
+    "ستحوّل <b>" + rows.length + "</b> منتج لـ <b>" + keys.length + "</b> عميل إلى «في الطريق إليك»، وستصل إلى كل عميل رسالة بريد إلكتروني بأن طلبه خرج للتوصيل.", "تأكيد");
+  if(!ok) return;
+  lockUI(true);
+  toast("ok", "⏳ جارٍ التسجيل... (" + rows.length + " منتج)");
+  const failed = await sendUpdates(rows.map(o => ({ order: String(o.order), status: OUT })));
+  lockUI(false);
+  if(failed === null) return toast("err", "⚠️ لم نتمكن من التأكد من تسجيل التحديث — لا تُعِد الإرسال، وتواصل مع المكتب.");
+  toast(failed.length ? "err" : "ok", failed.length ? "⚠️ لم تُسجَّل الطلبات التالية: " + failed.map(f => f.order).join("، ") : "✅ تم تسجيل خروجك للتوصيل لكل الخط", failed.length ? 0 : 3500);
+  renderRoute(); if(current) renderCustomer();
+}
+
+function renderRoute(){
+  const box = document.getElementById("routeBox");
+  if(!box) return;
+  if(!ROUTE){ box.innerHTML = '<button class="rt-new" onclick="routeNew()">🗺️ إضافة خط سير ليوم توصيل</button>'; return; }
+  const live = ROUTE.stops.map(routeLive);
+  const doneN = live.filter(l => l.done).length;
+  const next = routeNextIndex();
+  let h = '<div class="route' + (ROUTE.open ? ' open' : '') + '">' +
+    '<div class="rt-head" onclick="routeToggle()"><b>🗺️ خط سير يوم ' + routeDateHtml(ROUTE.date) + '</b>' +
+      '<small>تم ' + doneN + ' من ' + ROUTE.stops.length + '</small><span>' + (ROUTE.open ? '▲' : '▼') + '</span></div>' +
+    '<div class="rt-body">' +
+      '<div class="rt-cfg">' +
+        '<label>📅 يوم التوصيل<input type="date" value="' + tsEscapeHtml(ROUTE.date) + '" onchange="routeSetDate(this.value)"></label>' +
+        '<label>📍 نقطة البداية<select onchange="routeSetStart(this.value)">' +
+          ROUTE_AREAS.map(a => '<option' + (a[0] === ROUTE.start ? ' selected' : '') + '>' + tsEscapeHtml(a[0]) + '</option>').join("") +
+        '</select></label>' +
+      '</div>';
+  if(!ROUTE.stops.length){
+    h += '<div class="rt-hint">🔎 ابحث عن العميل في خانة البحث، واضغط <b>➕ أضف</b> بجانب اسمه — وسيترتب الخط تلقائيًا حسب الأقرب من ' + tsEscapeHtml(ROUTE.start) + '.</div>';
+  } else {
+    if(ROUTE.manual) h += '<div class="rt-hint">✋ رتّبت الخط يدويًا — اضغط «🔀 رتّب حسب الأقرب» للرجوع للترتيب التلقائي.</div>';
+    h += ROUTE.stops.map((s, i) => {
+      const l = live[i];
+      const inZone = routeInZone(s.gov, s.area);
+      const areaTag = !inZone && s.area === -1 ? '<span class="area far">⛔ خارج نطاق المندوب' + (s.gov ? ' (' + tsEscapeHtml(s.gov) + ')' : '') + '</span>'
+        : s.area === -1 ? '<span class="area unk">⚠️ منطقة غير معروفة</span>'
+        : '<span class="area' + (inZone ? '' : ' far') + '">' + tsEscapeHtml(ROUTE_AREAS[s.area][0]) + (inZone ? '' : ' · خارج النطاق') + '</span>';
+      const st = l.done ? '✅ تم التسليم' : l.hold ? '⏸️ مؤجل' : (l.ready ? '📦 ' + l.ready + ' جاهز' : '');
+      return '<div class="stop' + (l.done ? ' done' : l.hold ? ' hold' : '') + (i === next ? ' next' : '') + '">' +
+        '<span class="n">' + (l.done ? '✓' : i + 1) + '</span>' +
+        '<div class="stop-b" onclick="routeOpen(' + i + ')"><div class="stop-nm">' + tsEscapeHtml(s.name || "(بدون اسم)") + '</div>' +
+          '<div class="stop-s">' + areaTag + (st ? '<span>' + st + '</span>' : '') + '</div></div>' +
+        '<div class="stop-x">' +
+          '<button onclick="routeMove(' + i + ',-1)"' + (i === 0 ? ' disabled' : '') + ' aria-label="لأعلى">⬆️</button>' +
+          '<button onclick="routeMove(' + i + ',1)"' + (i === ROUTE.stops.length - 1 ? ' disabled' : '') + ' aria-label="لأسفل">⬇️</button>' +
+          '<button onclick="routeRemove(\'' + tsJsAttr(s.key) + '\')" aria-label="إزالة">✕</button>' +
+        '</div></div>';
+    }).join("");
+    const legs = routeMapsLegs();
+    h += '<div class="rt-acts">' +
+      '<div class="row2"><button class="btn sm sort" onclick="routeResort()">🔀 رتّب حسب الأقرب</button>' +
+        '<button class="btn sm out" onclick="routeMarkOutAll()">🚚 خرجتُ للتوصيل (الكل)</button></div>' +
+      legs.map(l => '<a class="btn sm nav" style="text-decoration:none" href="' + tsSafeHref(l.url) + '" target="_blank" rel="noopener">🧭 افتح في Google Maps' +
+        (legs.length > 1 ? ' — الجزء ' + Math.ceil(l.from / 10) : '') + '</a>').join("") +
+      (ROUTE.stops.some(s => !routeLive(s).done && !routeLive(s).hold && s.area === -1) ? '<div class="rt-hint" style="margin:0">⚠️ المحطات «منطقة غير معروفة» ليست في الخريطة — افتحها من كارت العميل (🗺️ الخريطة).</div>' : '') +
+    '</div>';
+  }
+  h += '<div class="rt-acts"><button class="btn sm del" onclick="routeClear()">🗑 مسح خط السير</button></div></div></div>';
+  box.innerHTML = h;
 }
 
 /* ═══════════ التشغيل ═══════════ */
