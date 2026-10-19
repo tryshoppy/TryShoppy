@@ -79,6 +79,17 @@ const TRYSHOPPY_WEIGHT_RATES = {
 // 1) المعامل العام — بيأثر على كل فئة من غير استثناء
 const TRYSHOPPY_GLOBAL_ADJUSTMENT = 1;
 
+// ⚖️ حد أدنى للسعر حسب الوزن (مراجعة 19 أكتوبر 2026)
+//   السعر ميقلش عن: السعر الأساسي + (سعر كيلو) × كل كيلو فوق الوزن المشمول.
+//   مثال: ملابس $26 وزنها 1 كجم → كانت 2,450 (خسارة) → بقت 3,150.
+//   • المنتجات اللي وزنها ≤ الوزن المشمول (نص كيلو) مابتتأثرش خالص.
+//   • الفئات اللي سعر الكيلو فيها عالي أصلاً (مكملات/تجميل/شامبو) مابتتأثرش عمليًا.
+//   • الرقم بيتضرب في معامل الفئة زي باقي السعر.
+//   ✏️ لو تكلفة الشحن للكيلو اتغيرت، عدّل TRYSHOPPY_HEAVY_PER_KG
+//      (خليه أعلى من تكلفة الكيلو بحوالي 200–250 ج عشان الجمارك والهامش).
+const TRYSHOPPY_HEAVY_INCLUDED_GRAMS = 500;  // الوزن المشمول في السعر الأساسي
+const TRYSHOPPY_HEAVY_PER_KG = 1500;         // جنيه لكل كيلو فوق الوزن المشمول
+
 // 2) معامل كل فئة لوحدها — لازم تفضل نفس أسماء الفئات بالظبط
 //    زي TRYSHOPPY_CATEGORY_BASE فوق (لو فئة مش موجودة هنا أو
 //    القيمة undefined، بتاخد 1 تلقائيًا يعني من غير أي تعديل)
@@ -96,6 +107,12 @@ const TRYSHOPPY_CATEGORY_ADJUSTMENT = {
   //  ⚠️ لو تكلفة الشحن ارتفعت عن 1150 بشكل ملحوظ، راجع الجدول ده
   //     فورًا — الفئات التقيلة (أطعمة/قطع غيار/ملابس) هامشها ضيق
   //     وحساس جدًا لأي زيادة في سعر الكيلو.
+  //
+  //  🔄 مراجعة 19 أكتوبر 2026 (شحن 1280 ج/كجم، الدولار الفعلي ~54.4):
+  //    • اتضافت قاعدة "حد أدنى للوزن" (TRYSHOPPY_HEAVY_* تحت) — بتحمي
+  //      المنتجات التقيلة الرخيصة اللي كان الوزن الزيادة فيها بيتشحن ببلاش
+  //    • الملابس: المعامل اترفع من 0.92 لـ 1.00
+  //    هامش الحاسبة المتوقع على المحفظة بعد التعديل: ~26–28%
   // ═══════════════════════════════════════════════════════════
 
   // ── فئات كثيفة (وزنها خفيف وقيمتها عالية) = هامش سمين ──
@@ -114,7 +131,7 @@ const TRYSHOPPY_CATEGORY_ADJUSTMENT = {
   "Small Size Hand bag (women)": 0.92,  // -8%   (~16%)
   "Large Size Hand bag (women)": 0.93,  // -7%   (~16%)
   "Jacket or BALTO": 0.92,              // -8%   (~12%) ⚠️ هامش ضيق
-  "Clothes (Regular)": 0.92,            // -8%   (~11%) ⚠️ هامش ضيق
+  "Clothes (Regular)": 1.00,            // 0%    (~15%) — مراجعة 19 أكتوبر 2026: اتشال الخصم (كان 0.92 وهامشه ~5–9% على شحن 1280)
   "Shoes (Boot)": 0.92,                 // -8%   (~12%) ⚠️ هامش ضيق
   "CarParts": 0.95,                     // -5%   (~7%)  ⚠️ هامش ضيق جدًا
   "Food": 0.94                          // -6%   (~6%)  ⚠️ هامش ضيق جدًا
@@ -209,6 +226,14 @@ function tryShoppyCalculatePrice({ usd, category, weightGrams, quantity = 1 }) {
 
   if (weightGrams > 300) {
     weightPrice = base + catBase + extra + (weightGrams / 1000 * weightRate * 55);
+  }
+
+  // ⚖️ حد أدنى حسب الوزن: السعر الأساسي + سعر كيلو لكل كيلو فوق الوزن المشمول
+  const heavyIncluded = parseFloat(TRYSHOPPY_HEAVY_INCLUDED_GRAMS);
+  const heavyPerKg = parseFloat(TRYSHOPPY_HEAVY_PER_KG);
+  if (isFinite(heavyIncluded) && isFinite(heavyPerKg) && heavyPerKg > 0 && weightGrams > heavyIncluded) {
+    const heavyPrice = basicPrice + ((weightGrams - heavyIncluded) / 1000 * heavyPerKg);
+    if (heavyPrice > weightPrice) weightPrice = heavyPrice;
   }
 
   // 🎛️ المعاملين بيتطبقوا هنا بس — على أعلى سعر بين الحسبتين (basic
