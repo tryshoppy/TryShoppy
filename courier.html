@@ -190,6 +190,30 @@ button,input,select{font:inherit;color:inherit}
 .c-route{margin-top:10px;width:100%;border:1.5px solid #C9D6F5;background:var(--blue-wash);color:var(--blue);border-radius:12px;padding:10px;font-weight:900;font-size:13.5px;cursor:pointer}
 .c-route.in{background:var(--ok-wash);color:var(--ok);border-color:#B7E4D3}
 
+.today .ti{flex:0 0 auto;font-size:12px;color:var(--blue);font-weight:800}
+.today .ti b{font-size:14px;color:var(--blue)}
+.pay{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:10px}
+.pay button{border:1.5px solid var(--line);background:#FBFCFE;border-radius:12px;padding:10px 4px;font-weight:900;font-size:12.5px;cursor:pointer}
+.pay button.on{background:var(--navy);color:var(--gold);border-color:var(--navy)}
+.pay-mix{display:none;margin-top:10px}
+.rt-warn{font-size:12.5px;font-weight:800;color:#9A3412;background:#FFEDD5;border:1.5px solid #FDBA74;border-radius:12px;padding:10px 12px;margin-bottom:10px;line-height:1.7}
+.stop.unsure{background:#FFF7ED;border-radius:12px}
+.stop-why{font-size:11.5px;font-weight:800;color:var(--warn);margin-top:3px}
+.stop-addr{font-size:11.5px;color:var(--ink-3);font-weight:600;margin-top:3px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}
+.area-sel{width:100%;margin-top:6px;padding:8px;border:1.5px solid #FDBA74;border-radius:10px;background:#fff;font-size:13px;font-weight:800}
+.cf-name{display:block;font-size:22px;font-weight:900;color:var(--ink);margin-bottom:4px}
+.cf-orders{display:block;font-family:var(--fm);font-size:12.5px;color:var(--ink-2);margin-bottom:8px;line-height:1.7}
+.mine{background:var(--panel);border:1px solid var(--line);border-radius:16px;margin-bottom:12px;padding:6px 12px}
+.mine-h{display:flex;align-items:center;gap:8px;font-weight:900;font-size:15px;padding:8px 0}
+.mine-h small{flex:1;font-size:12px;color:var(--ink-3)}
+.mine-empty{font-size:13px;color:var(--ink-2);font-weight:700;padding:8px 0 12px}
+.mine-r{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line-2)}
+.mine-b{flex:1;min-width:0;cursor:pointer}
+.asg-r input{width:22px;height:22px;accent-color:var(--gold);flex-shrink:0}
+.asg-all{display:flex;gap:8px;align-items:center;font-weight:900;font-size:13px;padding:6px 0}
+.asg-all input{width:20px;height:20px;accent-color:var(--gold)}
+.asg .rt-head{background:linear-gradient(120deg,#101B33,#1B2A4A)}
+
 /* ══ رسالة النتيجة ══ */
 .toast{position:fixed;inset-inline:14px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:60;max-width:690px;margin:0 auto;border-radius:16px;padding:14px 16px;font-weight:800;font-size:14px;box-shadow:0 14px 36px rgba(16,27,51,.28);display:none;line-height:1.6}
 .toast.show{display:block}
@@ -237,12 +261,15 @@ button,input,select{font:inherit;color:inherit}
 
   <div class="wrap">
     <div class="today" onclick="document.getElementById('todayList').classList.toggle('open')">
-      <span>💵 تحصيلك اليوم</span>
+      <span>💵 كاش معك اليوم</span>
       <b id="todaySum">0</b><small style="color:var(--ink-3);font-weight:800">ج.م</small>
+      <span class="ti">📲 تحويل <b id="todayInsta" class="mono">0</b></span>
     </div>
     <div class="today-list" id="todayList"></div>
 
+    <div id="assignBox"></div>
     <div id="routeBox"></div>
+    <div id="mineBox"></div>
 
     <div class="search">
       <div class="sbox">
@@ -335,6 +362,8 @@ function showApp(){
   document.getElementById("who").textContent = getCurrentUser();
   renderToday();
   routeLoad(); renderRoute();
+  if(localStorage.getItem("ts_courier_v2") === "1") SERVER_ASSIGN = true;
+  loadAssignStaff();
   loadData(true);
   setTimeout(() => document.getElementById("q").focus(), 150);
 }
@@ -388,11 +417,19 @@ const num = v => parseFloat(tsToEnDigits(v)) || 0;
 const dueOf = o => Math.max(0, num(o.due));
 const money = v => Math.round(v).toLocaleString("en-US");
 
+/** مفتاح العميل: رقمه (موحّد)، ولو مفيش رقم فاسمه */
+function custKey(o){ return normPhone(o.phone) || ("name:" + normName(o.customerName)); }
+/* 🛰️ السيرفر الجديد (بعد نشر Orders_Code.gs بالتوزيع) بيبعت عمود courier مع
+   كل طلب — ده اللي بيشغّل "طلباتك" عند المندوب و"توزيع الطلبات" عند الأدمن */
+let SERVER_ASSIGN = false;
 function setRows(d){
+  // 🔒 أي طلب خارج القاهرة/الجيزة/الشروق/مدينتي/العبور مابيظهرش خالص (شوف routeInZoneRow)
+  d = (d || []).filter(routeInZoneRow);
+  if(d.some(o => o.courier !== undefined)){ SERVER_ASSIGN = true; try{ localStorage.setItem("ts_courier_v2", "1"); }catch(e){} }
   ROWS = d;
   const map = {};
   d.forEach(o => {
-    const key = normPhone(o.phone) || ("name:" + normName(o.customerName));
+    const key = custKey(o);
     if(!map[key]) map[key] = { key, name: "", phone: "", gov: "", addr: "", rows: [], last: 0 };
     const c = map[key];
     c.rows.push(o);
@@ -418,7 +455,7 @@ function setRows(d){
     renderCustomer();
   }
   if(document.getElementById("q").value.trim()) renderSugs();
-  renderRoute();
+  renderRoute(); renderMine(); renderAssign();
 }
 
 /* ═══════════ البحث ═══════════ */
@@ -481,13 +518,25 @@ function renderSugs(){
 function pick(i){
   const c = SUGS[i];
   if(!c) return;
-  current = c;
-  currentBatch = "";
   document.getElementById("sugs").className = "sugs";
   document.getElementById("q").blur();
-  renderCustomer();
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  openCustomer(c);
 }
+/* 🛡️ فتح كارت عميل — من البحث أو "طلباتك" أو خط السير.
+   🐛→✅ (20 أكتوبر) بعد تسليم عميل، ضغطة متكررة كانت بتفتح اللي بعده
+   وكارته جاهز (كل منتجاته متعلّم عليها والمبلغ مكتوب)، فضغطتين كمان
+   بيسجّلوه. دلوقتي أزرار الكارت الجديد بتفضل مقفولة ثانية ونص بعد فتحه */
+let OPENED_AT = 0;
+function openCustomer(c){
+  current = c;
+  currentBatch = "";
+  PAY_M = "";
+  OPENED_AT = Date.now();
+  renderCustomer();
+  document.getElementById("view").scrollIntoView({ behavior: "smooth", block: "start" });
+  setTimeout(() => updateTotals(), 1600);   // نفك قفل الأزرار
+}
+function freshlyOpened(){ return Date.now() - OPENED_AT < 1500; }
 
 /* ═══════════ كارت العميل ═══════════ */
 const MONTHS = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
@@ -576,7 +625,17 @@ function renderCustomer(){
     h += '<div class="sum" id="sum"></div>' +
       '<div class="collect"><label>💵 المبلغ المحصَّل</label>' +
         '<div class="amt"><input id="amt" inputmode="decimal" autocomplete="off" oninput="amtHint()"><span>ج.م</span></div>' +
-        '<div class="amt-hint" id="amtHint"></div></div>' +
+        '<div class="amt-hint" id="amtHint"></div>' +
+        // 💳 طريقة الدفع — إجباري لو فيه مبلغ (كاش في إيد المندوب ≠ تحويل على حسابنا)
+        '<div class="pay" id="pay">' +
+          '<button type="button" data-m="cash" onclick="setPay(\'cash\')">💵 كاش</button>' +
+          '<button type="button" data-m="insta" onclick="setPay(\'insta\')">📲 إنستاباي / تحويل</button>' +
+          '<button type="button" data-m="mix" onclick="setPay(\'mix\')">↔️ الاتنين</button>' +
+        '</div>' +
+        '<div class="pay-mix" id="payMix"><label>📲 منه تحويل (إنستاباي)</label>' +
+          '<div class="amt"><input id="amtInsta" inputmode="decimal" autocomplete="off" oninput="payHint()"><span>ج.م</span></div>' +
+          '<div class="amt-hint" id="payHint"></div></div>' +
+      '</div>' +
       '<div class="acts">' +
         '<button class="btn deliver" id="btnDeliver" onclick="askDeliver()">✅ تم التسليم والتحصيل</button>' +
         '<div class="row2">' +
@@ -661,8 +720,9 @@ function updateTotals(resetAmt){
          : '<div class="due" style="color:var(--ok)">✅ مدفوع بالكامل — لا يوجد تحصيل<b></b></div>');
   const amt = document.getElementById("amt");
   if(amt && (resetAmt || amt.dataset.auto !== "0")){ amt.value = sel.length ? Math.round(due) : ""; amt.dataset.auto = "1"; }
-  const noSel = !sel.length;
+  const noSel = !sel.length || freshlyOpened();
   ["btnDeliver","btnOut","btnHold"].forEach(id => { const b = document.getElementById(id); if(b) b.disabled = noSel; });
+  renderPay();
   const bo = document.getElementById("btnOut");
   if(bo && !noSel) bo.disabled = !sel.some(o => String(o.status).trim() === HUB);
   amtHint();
@@ -672,6 +732,7 @@ function amtHint(){
   const el = document.getElementById("amt"), hint = document.getElementById("amtHint");
   if(!el || !hint) return;
   if(document.activeElement === el) el.dataset.auto = "0";
+  renderPay();
   const due = selectedRows().reduce((s, o) => s + dueOf(o), 0);
   const v = num(el.value);
   if(el.value.trim() === "" || Math.round(v) === Math.round(due)){ hint.className = "amt-hint"; hint.textContent = ""; }
@@ -759,20 +820,26 @@ function lockUI(on){
 
 /* ✅ تسليم + تحصيل */
 async function askDeliver(){
-  if(busy) return;
+  if(busy || freshlyOpened()) return;
   const sel = selectedRows();
   if(!sel.length) return;
   const amtEl = document.getElementById("amt");
   const amount = num(amtEl.value);
   const due = sel.reduce((s, o) => s + dueOf(o), 0);
   if(amtEl.value.trim() === ""){ amtEl.focus(); return toast("err", "اكتب المبلغ المحصَّل (وإذا لم يدفع العميل شيئًا فاكتب 0)", 3500); }
+  // 💳 كاش ولا تحويل — لازم يتحدد لو فيه فلوس
+  const pay = payParts(amount);
+  if(pay.err) return toast("err", pay.err, 4000);
 
   let warn = "";
   if(Math.round(amount) < Math.round(due)) warn = '<br>⚠️ <b>' + money(due - amount) + '</b> ج.م ستبقى مطلوبة من العميل.';
   if(Math.round(amount) > Math.round(due)) warn = '<br>ℹ️ المبلغ أكثر من المطلوب بـ <b>' + money(amount - due) + '</b> ج.م.';
+  // 🛡️ اسم العميل كبير + أرقام الطلبات — عشان يبان فورًا لو الكارت المفتوح مش للعميل اللي قدامه
   const ok = await confirmSheet("✅ تأكيد التسليم",
-    'ستسجّل تسليم <b>' + sel.length + '</b> منتج لـ ' + tsEscapeHtml(current.name) +
-    '<br>والمبلغ المحصَّل: <b>' + money(amount) + '</b> ج.م' + warn, "تأكيد التسليم");
+    '<span class="cf-name">' + tsEscapeHtml(current.name || "(بدون اسم)") + '</span>' +
+    '<span class="cf-orders">' + sel.map(o => '<span dir="ltr">' + tsEscapeHtml(o.order) + '</span>').join(" · ") + '</span>' +
+    'ستسجّل تسليم <b>' + sel.length + '</b> منتج' +
+    '<br>والمبلغ المحصَّل: <b>' + money(amount) + '</b> ج.م' + payLine(pay) + warn, "تأكيد التسليم");
   if(!ok) return;
 
   lockUI(true);
@@ -786,18 +853,24 @@ async function askDeliver(){
   if(live.length !== ids.length){ lockUI(false); return toast("err", "❌ يوجد طلب غير موجود في الشيت — حدّث الصفحة وحاول مرة أخرى.", 6000); }
 
   // 💵 توزيع المبلغ: كل منتج بياخد المطلوب عليه بالترتيب، والزيادة (لو فيه) على آخر واحد
-  let left = amount;
+  let left = amount, cashLeft = pay.cash;
   const updates = live.map((o, i) => {
     const take = i === live.length - 1 ? left : Math.min(dueOf(o), left);
     left = Math.max(0, left - take);
     // collected = اللي اتحصّل بس — السيرفر هو اللي بيجمعه على العربون
     const got = Math.round(Math.max(0, take) * 100) / 100;
+    // 💳 الكاش الأول على الطلبات بالترتيب، والباقي تحويل — المجموع = got بالظبط
+    const c = Math.round(Math.min(got, cashLeft) * 100) / 100;
+    cashLeft = Math.max(0, cashLeft - c);
     return { order: String(o.order), status: "Delivered", collected: got,
-             _take: got, _expectDue: Math.max(0, dueOf(o) - got) };
+             payCash: c, payInsta: Math.round((got - c) * 100) / 100,
+             _take: got, _cash: c, _insta: Math.round((got - c) * 100) / 100, _expectDue: Math.max(0, dueOf(o) - got) };
   });
 
   const failed = await sendUpdates(updates);
   lockUI(false);
+  OPENED_AT = Date.now();   // 🛡️ نفس القفل بعد التسليم — الضغطة المتكررة متتحسبش على الكارت اللي بعده
+  setTimeout(() => updateTotals(), 1600);
   if(failed === null){
     return toast("err", "⚠️ أُرسلت التحديثات، لكن لم نتمكن من التأكد من تسجيلها (ربما بسبب الإنترنت). <b>لا تُعِد الإرسال</b> — تواصل مع المكتب للتأكد من الشيت.");
   }
@@ -805,16 +878,20 @@ async function askDeliver(){
   if(okCount) logCollection(current.name, updates.filter(u => failed.indexOf(u) === -1));
   // 🐛→✅ الإيصال كان بيعدّ كل الطلبات حتى اللي ماتسجلتش — دلوقتي اللي نجح بس
   // 🌐 وبلغة العميل
-  const okList = updates.filter(u => failed.indexOf(u) === -1).map(u => "• " + u.order).join("\n");
+  const okUps = updates.filter(u => failed.indexOf(u) === -1);
+  const okList = okUps.map(u => "• " + u.order).join("\n");
   LAST_RECEIPT = { phone: current.phone || "", text: custLang() === "en"
     ? "Hi " + (current.name || "") + " 👋\nYour Try Shoppy order has been delivered ✅\n" + okList +
       "\nAmount paid: " + money(amount) + " EGP\nThank you for your trust 🌟"
     : "أهلًا " + (current.name || "") + " 👋\nتم تسليم طلبك من Try Shoppy ✅\n" + okList +
-      "\nالمبلغ المدفوع: " + money(amount) + " ج.م\nشكرًا لثقتك 🌟" };
+      "\nالمبلغ المدفوع: " + money(amount) + " ج.م" + (pay.insta && pay.cash ? " (كاش " + money(pay.cash) + " + تحويل " + money(pay.insta) + ")" : pay.insta ? " (تحويل)" : "") + "\nشكرًا لثقتك 🌟" };
   if(failed.length){
-    toast("err", "⚠️ سُجِّل " + okCount + " من " + updates.length + ". لم تُسجَّل الطلبات التالية: " + failed.map(f => f.order).join("، ") + " — أعد المحاولة لها فقط.");
+    // 🔁 إعادة تسجيل اللي فشل بنفس المبالغ بالظبط — بدل ما يفضل معلّق ويتسجل بعدين من مكان تاني
+    RETRY = { key: current.key, name: current.name, updates: failed };
+    toast("err", "⚠️ سُجِّل " + okCount + " من " + updates.length + ". لم تُسجَّل الطلبات التالية: " + failed.map(f => f.order).join("، ") +
+      '<br><a href="#" style="background:#fff;color:var(--dead)" onclick="retryFailed();return false">🔁 أعد تسجيل الطلبات دي (' + failed.length + ')</a>');
   } else {
-    toast("ok", "✅ تم تسجيل التسليم وتحصيل " + money(amount) + " ج.م" +
+    toast("ok", "✅ تم تسجيل التسليم وتحصيل " + money(amount) + " ج.م" + payLine(pay) +
       '<br><a href="#" onclick="waReceipt();return false">📲 أرسل إيصالًا للعميل عبر واتساب</a>' + routeMark(current.key, "done"));
   }
   renderCustomer();
@@ -822,7 +899,7 @@ async function askDeliver(){
 
 /* 🚚 خرج للتوصيل — للمنتجات اللي لسه "وصل القاهرة" بس */
 async function markOut(){
-  if(busy) return;
+  if(busy || freshlyOpened()) return;
   const sel = selectedRows().filter(o => String(o.status).trim() === HUB);
   if(!sel.length) return;
   const ok = await confirmSheet("🚚 خرجتُ للتوصيل", "ستحوّل <b>" + sel.length + "</b> منتج إلى «في الطريق إليك» — وستصل إلى العميل رسالة بريد إلكتروني بأن طلبه خرج للتوصيل.", "تأكيد");
@@ -838,7 +915,7 @@ async function markOut(){
 /* ⏸️ مؤجل — بسبب (بيظهر للعميل في التتبع والإيميل) */
 const COURIER_HOLD_REASONS = ["العميل لا يرد على الهاتف", "طلب العميل تأجيل الاستلام", "العنوان ناقص أو غير صحيح", "العميل غير موجود في العنوان"];
 async function markHold(){
-  if(busy) return;
+  if(busy || freshlyOpened()) return;
   const sel = selectedRows();
   if(!sel.length) return;
   const note = await tsAskStatusNote("On Hold", "", current.name + " — " + sel.length + " منتج", COURIER_HOLD_REASONS);
@@ -851,114 +928,355 @@ async function markHold(){
   renderCustomer();
 }
 
+/* ═══════════ 💳 طريقة الدفع (كاش / تحويل / الاتنين) ═══════════
+   🐛→✅ (20 أكتوبر) التحصيل كان رقم واحد — ومش معروف منه قد إيه كاش في
+   إيد المندوب وقد إيه اتحوّل على حسابنا (إنستاباي). دلوقتي إجباري يختار
+   لو فيه مبلغ، وبيتبعت للسيرفر payCash/payInsta لكل طلب (بيتكتب في
+   History بعد نشر Orders_Code.gs الجديد)، و"تحصيلك اليوم" بيفصلهم. */
+let PAY_M = "";
+function setPay(m){ PAY_M = m; renderPay(); if(m === "mix"){ const el = document.getElementById("amtInsta"); if(el) el.focus(); } }
+function renderPay(){
+  const box = document.getElementById("pay"); if(!box) return;
+  const amount = num((document.getElementById("amt") || {}).value);
+  box.style.display = amount > 0 ? "" : "none";
+  box.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.m === PAY_M));
+  const mix = document.getElementById("payMix");
+  if(mix) mix.style.display = amount > 0 && PAY_M === "mix" ? "block" : "none";
+  payHint();
+}
+function payHint(){
+  const h = document.getElementById("payHint"); if(!h) return;
+  const amount = num((document.getElementById("amt") || {}).value), insta = num((document.getElementById("amtInsta") || {}).value);
+  h.className = "amt-hint" + (insta > amount ? " less" : "");
+  h.textContent = PAY_M !== "mix" ? "" : insta > amount ? "⚠️ التحويل أكبر من المبلغ المحصَّل" : "💵 كاش معك: " + money(Math.max(0, amount - insta)) + " ج.م";
+}
+/** { cash, insta } أو { err } */
+function payParts(amount){
+  if(!(amount > 0)) return { cash: 0, insta: 0 };
+  if(!PAY_M) return { err: "💳 اختر طريقة الدفع: كاش، أو إنستاباي/تحويل، أو الاتنين" };
+  if(PAY_M === "cash") return { cash: amount, insta: 0 };
+  if(PAY_M === "insta") return { cash: 0, insta: amount };
+  const insta = num((document.getElementById("amtInsta") || {}).value);
+  if(!(insta > 0) || insta >= amount) return { err: "↔️ اكتب الجزء المحوَّل (إنستاباي) — لازم يكون أقل من المبلغ كله" };
+  return { cash: Math.round((amount - insta) * 100) / 100, insta };
+}
+function payLine(p){
+  if(!p || (!p.cash && !p.insta)) return "";
+  return '<br>' + (p.cash ? '💵 كاش <b>' + money(p.cash) + '</b>' : '') + (p.cash && p.insta ? ' + ' : '') + (p.insta ? '📲 تحويل <b>' + money(p.insta) + '</b>' : '');
+}
+
+/* 🔁 إعادة تسجيل اللي فشل من آخر تسليم — نفس الطلبات ونفس المبالغ بالظبط.
+   آمن لو كان اتسجل فعلاً: السيرفر بيرفض أي تعديل على طلب اتسلّم. */
+let RETRY = null;
+async function retryFailed(){
+  if(!RETRY || busy) return;
+  const r = RETRY;
+  const ok = await confirmSheet("🔁 إعادة التسجيل",
+    '<span class="cf-name">' + tsEscapeHtml(r.name || "") + '</span>' +
+    '<span class="cf-orders">' + r.updates.map(u => '<span dir="ltr">' + tsEscapeHtml(u.order) + '</span>').join(" · ") + '</span>' +
+    'المبلغ: <b>' + money(r.updates.reduce((s, u) => s + (u._take || 0), 0)) + '</b> ج.م', "تأكيد");
+  if(!ok) return;
+  lockUI(true);
+  const failed = await sendUpdates(r.updates);
+  lockUI(false);
+  if(failed === null) return toast("err", "⚠️ لم نتمكن من التأكد من التسجيل — لا تُعِد الإرسال، وتواصل مع المكتب.");
+  const okUps = r.updates.filter(u => failed.indexOf(u) === -1);
+  if(okUps.length) logCollection(r.name, okUps);
+  RETRY = failed.length ? Object.assign({}, r, { updates: failed }) : null;
+  if(!failed.length) routeMark(r.key, "done");
+  toast(failed.length ? "err" : "ok", failed.length
+    ? "⚠️ ما زالت لم تُسجَّل: " + failed.map(f => f.order).join("، ") + '<br><a href="#" style="background:#fff;color:var(--dead)" onclick="retryFailed();return false">🔁 حاول مرة أخرى</a>'
+    : "✅ تم تسجيل الطلبات المتبقية", failed.length ? 0 : 3500);
+  if(current) renderCustomer();
+}
+
+/* ═══════════ 📦 طلباتك (للمندوب) ═══════════
+   بعد نشر السيرفر الجديد: السيرفر بيبعت للمندوب **بس** العملاء اللي الأدمن
+   وزّعهم عليه — فهنا بيظهروا كلهم لوحدهم من غير بحث، وهو يضيف منهم للخط.
+   قبل النشر القائمة دي مابتظهرش (السيرفر القديم بيبعت كل الطلبات). */
+function isAdminUser(){ return localStorage.getItem("isAdmin") === "1"; }
+function renderMine(){
+  const box = document.getElementById("mineBox"); if(!box) return;
+  if(!SERVER_ASSIGN || isAdminUser()){ box.innerHTML = ""; return; }
+  const list = CUSTOMERS.filter(c => c.active).sort((a, b) => (a.name || "").localeCompare(b.name || "", "ar"));
+  if(!list.length){ box.innerHTML = '<div class="mine"><div class="mine-h">📦 طلباتك</div><div class="mine-empty">لا توجد طلبات موزعة عليك حاليًا — تواصل مع المكتب.</div></div>'; return; }
+  const notIn = list.filter(c => !routeHas(c.key)).length;
+  box.innerHTML = '<div class="mine"><div class="mine-h">📦 طلباتك <small>' + list.length + ' عميل</small>' +
+      (ROUTE && notIn ? '<button class="sug-add" onclick="routeAddAllMine()">➕ أضف الكل للخط (' + notIn + ')</button>' : '') + '</div>' +
+    list.map(c => {
+      const inf = routeAreaInfo(c.addr, c.gov, c.key);
+      return '<div class="mine-r"><div class="mine-b" onclick="openCustomerByKey(\'' + tsJsAttr(c.key) + '\')">' +
+          '<div class="sug-n">' + tsEscapeHtml(c.name || "(بدون اسم)") + '</div>' +
+          '<div class="stop-s">' + routeAreaTag(inf) + '<span>📦 ' + c.active + ' جاهز</span></div>' +
+          '<div class="stop-addr">📍 ' + tsEscapeHtml([c.addr, c.gov].filter(Boolean).join(" — ")) + '</div></div>' +
+        (ROUTE ? '<button class="sug-add' + (routeHas(c.key) ? ' in' : '') + '" onclick="routeToggleMine(\'' + tsJsAttr(c.key) + '\')">' + (routeHas(c.key) ? '✓ في الخط' : '➕ للخط') + '</button>' : '') +
+      '</div>';
+    }).join("") + '</div>';
+}
+function openCustomerByKey(key){ const c = CUSTOMERS.find(x => x.key === key); if(c) openCustomer(c); }
+function routeToggleMine(key){ const c = CUSTOMERS.find(x => x.key === key); if(!c) return; routeHas(key) ? routeRemove(key) : routeAdd(c); renderMine(); }
+function routeAddAllMine(){
+  if(!ROUTE) return;
+  let n = 0;
+  CUSTOMERS.filter(c => c.active && !routeHas(c.key)).forEach(c => { if(routeAdd(c, true)) n++; });
+  renderRoute(); renderMine();
+  toast("ok", "➕ أُضيف " + n + " عميل لخط السير", 2500);
+}
+
+/* ═══════════ 👥 توزيع الطلبات على المندوبين (للأدمن) ═══════════
+   الأدمن بيعلّم على العميل كله (كل طلباته الجاهزة — زيارة واحدة) ويختار
+   المندوب، والسيرفر بيكتب اسمه في عمود courier لكل طلب. المندوب بعد كده
+   بيشوف العملاء دول بس (الفلترة في السيرفر نفسه، مش في الصفحة).
+   ⚠️ بيظهر بس بعد نشر Orders_Code.gs الجديد (SERVER_ASSIGN) — السيرفر
+   القديم مايعرفش action "assignCourier". */
+let ASSIGN = { open: true, only: "free", to: "", picked: {}, staff: [] };
+function renderAssign(){
+  const box = document.getElementById("assignBox"); if(!box) return;
+  if(!isAdminUser()){ box.innerHTML = ""; return; }
+  if(!SERVER_ASSIGN){
+    box.innerHTML = '<div class="rt-hint">👥 توزيع الطلبات على المندوبين يعمل بعد نشر النسخة الجديدة من <b>Orders_Code.gs</b>.</div>';
+    return;
+  }
+  const custs = CUSTOMERS.filter(c => c.active).map(c => {
+    const who = [...new Set(c.rows.filter(o => String(o.status).trim() === HUB).map(o => String(o.courier || "").trim().toLowerCase()))].filter(Boolean);
+    return { c, who };
+  });
+  const list = custs.filter(x => ASSIGN.only === "all" || !x.who.length);
+  const pickedN = Object.keys(ASSIGN.picked).filter(k => ASSIGN.picked[k]).length;
+  const staffOpts = ASSIGN.staff.map(s => '<option value="' + tsEscapeHtml(s.username) + '"' + (s.username === ASSIGN.to ? ' selected' : '') + '>' + tsEscapeHtml(s.label || s.username) + '</option>').join("");
+  let h = '<div class="route open asg"><div class="rt-head" onclick="ASSIGN.open=!ASSIGN.open;renderAssign()"><b>👥 توزيع الطلبات على المندوبين</b>' +
+    '<small>غير موزّع ' + custs.filter(x => !x.who.length).length + '</small><span>' + (ASSIGN.open ? '▲' : '▼') + '</span></div>';
+  if(ASSIGN.open){
+    h += '<div class="rt-body" style="display:block">' +
+      '<div class="rt-cfg"><label>🛵 المندوب<select onchange="ASSIGN.to=this.value">' + (staffOpts || '<option value="">جارٍ التحميل…</option>') + '</select></label>' +
+        '<label>👁️ العرض<select onchange="ASSIGN.only=this.value;renderAssign()"><option value="free"' + (ASSIGN.only === "free" ? " selected" : "") + '>غير الموزّع فقط</option><option value="all"' + (ASSIGN.only === "all" ? " selected" : "") + '>الكل</option></select></label></div>' +
+      (list.length ? '<label class="asg-all"><input type="checkbox" onchange="assignPickAll(this.checked)"> تحديد الكل (' + list.length + ')</label>' : '<div class="rt-hint">لا يوجد عملاء ' + (ASSIGN.only === "free" ? "غير موزعين" : "") + ' حاليًا.</div>') +
+      list.map(x => {
+        const c = x.c, inf = routeAreaInfo(c.addr, c.gov, c.key);
+        return '<label class="mine-r asg-r"><input type="checkbox"' + (ASSIGN.picked[c.key] ? ' checked' : '') + ' onchange="ASSIGN.picked[\'' + tsJsAttr(c.key) + '\']=this.checked;renderAssign()">' +
+          '<div class="mine-b"><div class="sug-n">' + tsEscapeHtml(c.name || "(بدون اسم)") + '</div>' +
+            '<div class="stop-s">' + routeAreaTag(inf) + '<span>📦 ' + c.active + '</span>' +
+              (x.who.length ? '<span class="area" style="background:var(--navy);color:var(--gold)">🛵 ' + tsEscapeHtml(x.who.join("، ")) + '</span>' : '') + '</div>' +
+            '<div class="stop-addr">📍 ' + tsEscapeHtml([c.addr, c.gov].filter(Boolean).join(" — ")) + '</div></div></label>';
+      }).join("") +
+      '<div class="rt-acts"><div class="row2">' +
+        '<button class="btn sm sort" onclick="assignPicked(true)"' + (pickedN ? '' : ' disabled') + '>✅ وزّع المحدد (' + pickedN + ')</button>' +
+        '<button class="btn sm del" onclick="assignPicked(false)"' + (pickedN ? '' : ' disabled') + '>↩️ إلغاء التوزيع</button>' +
+      '</div></div></div>';
+  }
+  box.innerHTML = h + '</div>';
+}
+function assignPickAll(on){
+  CUSTOMERS.filter(c => c.active).forEach(c => {
+    const free = !c.rows.some(o => String(o.courier || "").trim());
+    if(ASSIGN.only === "all" || free) ASSIGN.picked[c.key] = on;
+  });
+  renderAssign();
+}
+async function assignPicked(give){
+  if(busy) return;
+  const keys = Object.keys(ASSIGN.picked).filter(k => ASSIGN.picked[k]);
+  const custs = CUSTOMERS.filter(c => keys.indexOf(c.key) !== -1);
+  // العميل كله: كل طلباته اللي "وصل القاهرة"
+  const orders = [].concat(...custs.map(c => c.rows.filter(o => String(o.status).trim() === HUB).map(o => String(o.order))));
+  if(!orders.length) return;
+  const to = give ? ASSIGN.to : "";
+  if(give && !to) return toast("err", "اختر المندوب أولًا", 3000);
+  const ok = await confirmSheet(give ? "✅ توزيع الطلبات" : "↩️ إلغاء التوزيع",
+    (give ? 'سيُوزَّع <b>' + custs.length + '</b> عميل (' + orders.length + ' طلب) على <b>' + tsEscapeHtml(to) + '</b> — وسيظهرون له وحده.'
+          : 'سيُلغى توزيع <b>' + custs.length + '</b> عميل (' + orders.length + ' طلب) — ولن يظهروا لأي مندوب.'), "تأكيد");
+  if(!ok) return;
+  lockUI(true);
+  let reply = null;
+  try{
+    const res = await fetch(scriptURL, { method: "POST", body: JSON.stringify({ action: "assignCourier", staffToken: getStaffToken(), orders, courier: to }) });
+    reply = JSON.parse(await res.text());
+  }catch(e){ reply = null; }
+  lockUI(false);
+  if(!reply || !reply.success){
+    return toast("err", "❌ لم يتم التوزيع" + (reply && reply.message ? " — " + tsEscapeHtml(reply.message) : " — تحقق من الاتصال وحاول مرة أخرى"), 5000);
+  }
+  ASSIGN.picked = {};
+  toast("ok", (give ? "✅ تم توزيع " : "↩️ تم إلغاء توزيع ") + reply.updated + " طلب", 3000);
+  loadData(false);
+}
+function loadAssignStaff(){
+  if(!isAdminUser() || typeof tsListStaff !== "function") return;
+  tsListStaff().then(list => {
+    ASSIGN.staff = (list || []).filter(s => s && s.username);
+    if(!ASSIGN.to){ const ab = ASSIGN.staff.find(s => String(s.username).toLowerCase() === "abdo"); ASSIGN.to = (ab || ASSIGN.staff[0] || {}).username || ""; }
+    renderAssign();
+  }).catch(() => {});
+}
+
 /* ═══════════ تحصيل النهارده (على الموبايل ده بس — للتسليم آخر اليوم) ═══════════ */
 function todayKey(){ return "ts_courier_log_" + (localStorage.getItem("currentUser") || "") + "_" + new Date().toLocaleDateString("en-CA"); }
 function logCollection(name, ups){
   let log = [];
   try{ log = JSON.parse(localStorage.getItem(todayKey()) || "[]"); }catch(e){}
   const amount = ups.reduce((s, u) => s + (u._take || 0), 0);
-  log.push({ t: new Date().toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" }), name, n: ups.length, amount });
+  const cash = ups.reduce((s, u) => s + (u._cash || 0), 0), insta = ups.reduce((s, u) => s + (u._insta || 0), 0);
+  log.push({ t: new Date().toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" }), name, n: ups.length, amount, cash, insta });
   try{ localStorage.setItem(todayKey(), JSON.stringify(log)); }catch(e){}
   renderToday();
 }
 function renderToday(){
   let log = [];
   try{ log = JSON.parse(localStorage.getItem(todayKey()) || "[]"); }catch(e){}
+  // 💵 الكاش اللي في إيد المندوب (يسلّمه آخر اليوم) منفصل عن 📲 اللي اتحوّل على حسابنا
+  // (التسجيلات القديمة من غير طريقة دفع بتتعدّ "غير محدد")
   const total = log.reduce((s, x) => s + (x.amount || 0), 0);
-  document.getElementById("todaySum").textContent = money(total);
-  document.getElementById("todayList").innerHTML = log.length
-    ? log.slice().reverse().map(x => '<div><span>' + tsEscapeHtml(x.t) + ' · ' + tsEscapeHtml(x.name) + ' (' + x.n + ')</span><b class="mono">' + money(x.amount) + '</b></div>').join("")
-    : '<div><span style="color:var(--ink-3)">لم تحصّل شيئًا اليوم حتى الآن</span></div>';
+  const insta = log.reduce((s, x) => s + (x.insta || 0), 0);
+  const unk = log.reduce((s, x) => s + (x.cash === undefined ? (x.amount || 0) : 0), 0);
+  document.getElementById("todaySum").textContent = money(total - insta - unk);
+  document.getElementById("todayInsta").textContent = money(insta);
+  document.getElementById("todayList").innerHTML = (log.length
+    ? log.slice().reverse().map(x => '<div><span>' + tsEscapeHtml(x.t) + ' · ' + tsEscapeHtml(x.name) + ' (' + x.n + ')</span><b class="mono">' +
+        (x.cash === undefined ? money(x.amount) + ' ❔' : (x.cash ? '💵 ' + money(x.cash) : '') + (x.cash && x.insta ? ' + ' : '') + (x.insta ? '📲 ' + money(x.insta) : '') + (!x.cash && !x.insta ? '0' : '')) +
+      '</b></div>').join("")
+    : '<div><span style="color:var(--ink-3)">لم تحصّل شيئًا اليوم حتى الآن</span></div>') +
+    (unk ? '<div><span style="color:var(--warn)">❔ تحصيل بدون طريقة دفع (قبل التحديث)</span><b class="mono">' + money(unk) + '</b></div>' : '') +
+    (log.length ? '<div><span><b>الإجمالي</b></span><b class="mono">' + money(total) + '</b></div>' : '');
 }
 
 /* ═══════════════════════════════════════════════════════════
    🗺️ خط سير يوم التوصيل
    ═══════════════════════════════════════════════════════════
-   المندوب بيعمل خط سير ليوم (dd-mm-yyyy)، ويضيف العملاء بالبحث، والأداة
-   بترتبهم "الأقرب فالأقرب" بداية من نقطة البداية (الافتراضي التجمع الأول).
+   المندوب بيعمل خط سير ليوم (dd-mm-yyyy)، ويضيف العملاء، والأداة بترتبهم
+   بأقصر مسار بداية من نقطة البداية (الافتراضي التجمع الأول).
    • المحطة = عميل (كل طلباته الجاهزة في زيارة واحدة)، مش طلب.
-   • الترتيب تقريبي بالمنطقة: بنطلّع المنطقة من العنوان (جدول ROUTE_AREAS
-     تحت بإحداثيات تقريبية)، وبعدين "أقرب جار" بالمسافة المباشرة — مش
-     بالشارع ولا الزحمة. اللي منطقته مش معروفة بيروح آخر القايمة بعلامة،
-     والمندوب يقدر يحرّك أي محطة بإيده (⬆️⬇️).
+   • المنطقة بتتطلّع من العنوان (جدول ROUTE_AREAS تحت بإحداثيات تقريبية)،
+     ومعاها درجة ثقة (routeAreaInfo):
+       ✅ ok     → منطقة واحدة واضحة ومتوافقة مع المحافظة — بتدخل الترتيب
+       ⚠️ warn   → كلمة عامة ("التجمع")، أو أكتر من منطقة في العنوان، أو
+                   المحافظة عكس المنطقة، أو مفيش غير المحافظة
+       ❓ none   → مش معروفة
+     أي حاجة مش ✅ مابتدخلش الترتيب التلقائي: بتتحط في الآخر بتحذير، وجنبها
+     قايمة "اختار المنطقة". اختيار المندوب بيتحفظ للعميل ده (ROUTE_FIX_KEY)
+     والمرة الجاية بيتعرف لوحده.
+     🐛→✅ (20 أكتوبر) "الشيخ زايد الحي العاشر" كان بيتعرف "مدينة نصر" لأن
+     "الحي العاشر" كان من كلمات مدينة نصر — كلمات الأحياء دي اتشالت، وأي
+     تعارض بقى بيتعلّم ⚠️ بدل ما يتحط في مكان غلط.
    • محفوظ على موبايل المندوب بس (localStorage) — مفيش أي تعديل على الشيت
      غير الأزرار الموجودة أصلاً (خرج للتوصيل / تسليم / مؤجل). */
 const ROUTE_AREAS = [
-  // [الاسم المعروض, [كلمات البحث], lat, lng]
-  ["التجمع الأول", ["التجمع الاول","التجمع 1","first settlement","1st settlement"], 30.0640, 31.4690],
-  ["التجمع الثالث", ["التجمع الثالث","التجمع 3","third settlement","3rd settlement"], 30.0230, 31.4380],
-  ["التجمع الخامس", ["التجمع الخامس","التجمع 5","fifth settlement","5th settlement","القاهره الجديده","new cairo","النرجس","البنفسج","اللوتس","الياسمين","جاردينيا","التسعين","90 street","الاندلس","بيت الوطن","ميفيدا","التجمع"], 30.0075, 31.4700],
-  ["القطامية", ["القطاميه","katameya","kattameya"], 29.9860, 31.4000],
-  ["الرحاب", ["الرحاب","rehab"], 30.0610, 31.4950],
-  ["مدينتي", ["مدينتي","madinaty"], 30.0990, 31.6380],
-  ["الشروق", ["الشروق","shorouk","el shorouk"], 30.1430, 31.6290],
-  ["العبور", ["العبور","obour","el obour"], 30.2270, 31.4790],
-  ["مدينة نصر", ["مدينه نصر","مدينة نصر","nasr city","الحي السابع","الحي الثامن","الحي العاشر","عباس العقاد","مكرم عبيد","مصطفي النحاس","زهراء مدينه نصر","الحي السادس"], 30.0560, 31.3400],
-  ["مصر الجديدة", ["مصر الجديده","heliopolis","الكوربه","روكسي","الماظه","الميرغني","الخليفه المامون","ارض الجولف","الحجاز"], 30.0900, 31.3240],
-  ["النزهة", ["النزهه","شيراتون","sheraton","مساكن شيراتون","الف مسكن","جسر السويس"], 30.1080, 31.3650],
-  ["عين شمس", ["عين شمس","ain shams"], 30.1310, 31.3290],
-  ["المطرية", ["المطريه","matareya"], 30.1210, 31.3130],
-  ["المرج", ["المرج","el marg"], 30.1560, 31.3370],
-  ["السلام", ["مدينه السلام","مدينة السلام","el salam"], 30.1700, 31.4100],
-  ["الزيتون", ["الزيتون","zeitoun"], 30.1060, 31.3100],
-  ["حدائق القبة", ["حدائق القبه","القبه","kobba"], 30.0860, 31.2860],
-  ["العباسية", ["العباسيه","abbasiya","abbassia"], 30.0720, 31.2840],
-  ["شبرا", ["شبرا","shubra","روض الفرج"], 30.0880, 31.2450],
-  ["شبرا الخيمة", ["شبرا الخيمه","shubra el kheima"], 30.1250, 31.2450],
-  ["وسط البلد", ["وسط البلد","downtown","عابدين","ميدان التحرير","باب اللوق","رمسيس","الازبكيه","العتبه","الموسكي","باب الشعريه"], 30.0480, 31.2420],
-  ["الزمالك", ["الزمالك","zamalek"], 30.0610, 31.2190],
-  ["جاردن سيتي", ["جاردن سيتي","garden city"], 30.0360, 31.2310],
-  ["المنيل", ["المنيل","manial"], 30.0250, 31.2280],
-  ["السيدة زينب", ["السيده زينب","sayeda zeinab"], 30.0330, 31.2420],
-  ["مصر القديمة", ["مصر القديمه","old cairo","الفسطاط"], 30.0060, 31.2310],
-  ["المقطم", ["المقطم","mokattam","mokkatam"], 30.0170, 31.3020],
-  ["البساتين", ["البساتين","دار السلام","basateen"], 29.9840, 31.2710],
-  ["زهراء المعادي", ["زهراء المعادي","زهراء المعادى","zahraa maadi","zahraa el maadi"], 29.9650, 31.3050],
-  ["المعادي", ["المعادي","المعادى","maadi","دجله","ثكنات المعادي","حدائق المعادي"], 29.9600, 31.2580],
-  ["المعصرة", ["المعصره","maasara"], 29.9000, 31.2990],
-  ["حلوان", ["حلوان","helwan","15 مايو"], 29.8500, 31.3340],
-  ["الدقي", ["الدقي","الدقى","dokki"], 30.0380, 31.2110],
-  ["المهندسين", ["المهندسين","mohandessin","mohandeseen","جامعه الدول","شارع شهاب"], 30.0560, 31.2000],
-  ["العجوزة", ["العجوزه","agouza"], 30.0570, 31.2130],
-  ["إمبابة", ["امبابه","imbaba","الوراق"], 30.0770, 31.2080],
-  ["بولاق الدكرور", ["بولاق الدكرور","ناهيا","boulak"], 30.0330, 31.1870],
-  ["الجيزة", ["الجيزه","giza","بين السرايات","ميدان الجيزه"], 30.0130, 31.2090],
-  ["المنيب", ["المنيب","moneeb"], 29.9850, 31.2120],
-  ["فيصل", ["فيصل","faisal","العشرين","الطالبيه","المريوطيه"], 30.0020, 31.1750],
-  ["الهرم", ["الهرم","haram","pyramids","المساحه","العمرانيه","الكوم الاخضر"], 29.9920, 31.1550],
-  ["حدائق الأهرام", ["حدائق الاهرام","hadayek el ahram","pyramids gardens"], 29.9760, 31.1080],
-  ["الشيخ زايد", ["الشيخ زايد","زايد","sheikh zayed","zayed","بيفرلي هيلز"], 30.0400, 30.9800],
-  ["حدائق أكتوبر", ["حدائق اكتوبر","hadayek october"], 29.8900, 30.9900],
-  ["6 أكتوبر", ["اكتوبر","6 october","october","السادس من اكتوبر","الحصري","الحي المتميز"], 29.9700, 30.9400],
+  // [الاسم المعروض, [كلمات البحث — "~" قبل الكلمة = كلمة عامة، ثقتها ⚠️], lat, lng, المحافظة: c قاهرة / g جيزة / q قليوبية]
+  ["التجمع الأول", ["التجمع الاول","التجمع 1","first settlement","1st settlement"], 30.0640, 31.4690, "c"],
+  ["التجمع الثالث", ["التجمع الثالث","التجمع 3","third settlement","3rd settlement"], 30.0230, 31.4380, "c"],
+  ["التجمع الخامس", ["التجمع الخامس","التجمع 5","fifth settlement","5th settlement","5th settelment","5th setlement","~النرجس","~البنفسج","~الياسمين","~جاردينيا","التسعين","90 street","~الاندلس","بيت الوطن","ميفيدا","mivida","hyde park","hydepark","هايد بارك","mountain view","ماونتن فيو","sodic","ednc","auc","الجامعه الامريكيه","~التجمع","~القاهره الجديده","~new cairo"], 30.0075, 31.4700, "c"],
+  ["القطامية", ["القطاميه","katameya","kattameya"], 29.9860, 31.4000, "c"],
+  ["الرحاب", ["الرحاب","rehab"], 30.0610, 31.4950, "c"],
+  ["مدينتي", ["مدينتي","madinaty"], 30.0990, 31.6380, "c"],
+  ["الشروق", ["الشروق","shorouk","el shorouk"], 30.1430, 31.6290, "c"],
+  ["العبور", ["العبور","obour","el obour"], 30.2270, 31.4790, "q"],
+  ["مدينة نصر", ["مدينه نصر","مدينة نصر","nasr city","nasr","عباس العقاد","مكرم عبيد","مصطفي النحاس","رابعه","ميدان الساعه","حي السفارات","حافظ رمضان"], 30.0560, 31.3400, "c"],
+  ["مصر الجديدة", ["مصر الجديده","heliopolis","misr el gedida","misr elgedida","الكوربه","korba","روكسي","الماظه","الميرغني","الخليفه المامون","ارض الجولف","الحجاز","قصر الاتحاديه","نزيه خليفه","اسماء فهمي"], 30.0900, 31.3240, "c"],
+  ["النزهة", ["النزهه","شيراتون","sheraton","مساكن شيراتون","الف مسكن","جسر السويس"], 30.1080, 31.3650, "c"],
+  ["عين شمس", ["عين شمس","ain shams"], 30.1310, 31.3290, "c"],
+  ["المطرية", ["المطريه","matareya"], 30.1210, 31.3130, "c"],
+  ["المرج", ["المرج","el marg"], 30.1560, 31.3370, "c"],
+  ["السلام", ["مدينه السلام","مدينة السلام","el salam city"], 30.1700, 31.4100, "c"],
+  ["الزيتون", ["الزيتون","zeitoun"], 30.1060, 31.3100, "c"],
+  ["حدائق القبة", ["حدائق القبه","القبه","kobba"], 30.0860, 31.2860, "c"],
+  ["العباسية", ["العباسيه","abbasiya","abbassia"], 30.0720, 31.2840, "c"],
+  ["شبرا", ["شبرا مصر","روض الفرج","~شبرا","~shubra"], 30.0880, 31.2450, "c"],
+  ["شبرا الخيمة", ["شبرا الخيمه","shubra el kheima"], 30.1250, 31.2450, "q"],
+  ["وسط البلد", ["وسط البلد","downtown","عابدين","ميدان التحرير","باب اللوق","رمسيس","الازبكيه","العتبه","الموسكي","باب الشعريه","القصر العيني","قصر العيني"], 30.0480, 31.2420, "c"],
+  ["الزمالك", ["الزمالك","zamalek"], 30.0610, 31.2190, "c"],
+  ["جاردن سيتي", ["جاردن سيتي","جاردن ستي","garden city"], 30.0360, 31.2310, "c"],
+  ["المنيل", ["المنيل","manial"], 30.0250, 31.2280, "c"],
+  ["السيدة زينب", ["السيده زينب","sayeda zeinab"], 30.0330, 31.2420, "c"],
+  ["مصر القديمة", ["مصر القديمه","old cairo","الفسطاط"], 30.0060, 31.2310, "c"],
+  ["المقطم", ["المقطم","mokattam","mokkatam","ابتاون كايرو","uptown cairo","البارون سيتي"], 30.0170, 31.3020, "c"],
+  ["البساتين", ["البساتين","دار السلام","basateen"], 29.9840, 31.2710, "c"],
+  ["زهراء المعادي", ["زهراء المعادي","زهراء المعادى","zahraa maadi","zahraa el maadi"], 29.9650, 31.3050, "c"],
+  ["المعادي", ["المعادي","المعادى","maadi","دجله","ثكنات المعادي","حدائق المعادي"], 29.9600, 31.2580, "c"],
+  ["المعصرة", ["المعصره","maasara"], 29.9000, 31.2990, "c"],
+  ["حلوان", ["حلوان","helwan","15 مايو"], 29.8500, 31.3340, "c"],
+  ["الدقي", ["الدقي","الدقى","dokki"], 30.0380, 31.2110, "g"],
+  ["المهندسين", ["المهندسين","mohandessin","mohandeseen","جامعه الدول","شارع شهاب"], 30.0560, 31.2000, "g"],
+  ["العجوزة", ["العجوزه","agouza"], 30.0570, 31.2130, "g"],
+  ["إمبابة", ["امبابه","imbaba","الوراق"], 30.0770, 31.2080, "g"],
+  ["بولاق الدكرور", ["بولاق الدكرور","ناهيا","boulak"], 30.0330, 31.1870, "g"],
+  ["الجيزة", ["بين السرايات","ميدان الجيزه","~الجيزه","~giza"], 30.0130, 31.2090, "g"],
+  ["المنيب", ["المنيب","moneeb"], 29.9850, 31.2120, "g"],
+  ["الحوامدية", ["الحوامديه","hawamdeya"], 29.9000, 31.2500, "g"],
+  ["فيصل", ["فيصل","faisal","العشرين","الطالبيه","المريوطيه"], 30.0020, 31.1750, "g"],
+  ["الهرم", ["الهرم","haram","pyramids","المساحه","العمرانيه","الكوم الاخضر","ترعه الزمر"], 29.9920, 31.1550, "g"],
+  ["حدائق الأهرام", ["حدائق الاهرام","hadayek el ahram","pyramids gardens"], 29.9760, 31.1080, "g"],
+  ["الشيخ زايد", ["الشيخ زايد","زايد","sheikh zayed","zayed","بيفرلي هيلز"], 30.0400, 30.9800, "g"],
+  ["حدائق أكتوبر", ["حدائق اكتوبر","hadayek october","hada2eq october"], 29.8900, 30.9900, "g"],
+  // "حدائق المهندسين" كمبوند على طريق الواحات (أكتوبر) — مش المهندسين
+  ["6 أكتوبر", ["اكتوبر","6 october","october","السادس من اكتوبر","الحصري","الحي المتميز","غرب سوميد","سوميد","حدائق المهندسين","palm hills","بالم هيلز","الواحات"], 29.9700, 30.9400, "g"]
 ];
 const ROUTE_DEFAULT_START = "التجمع الأول";
-const ROUTE_ZONE_GOVS = ["القاهره", "الجيزه", "cairo", "giza"];
-const ROUTE_ZONE_EXTRA = ["الشروق", "مدينتي", "العبور"];   // خارج القاهرة/الجيزة إداريًا بس جوه نطاق المندوب
+const ROUTE_FIX_KEY = "ts_courier_area_fix";     // { مفتاح العميل: اسم المنطقة } — اختيار المندوب بإيده
 // كلمات البحث موحّدة مرة واحدة، والأطول الأول (عشان "زهراء المعادي" تتلقط قبل "المعادي")
 const ROUTE_KEYS = [];
-ROUTE_AREAS.forEach((a, i) => a[1].concat([a[0]]).forEach(k => {
-  const n = routeNorm(k);
+ROUTE_AREAS.forEach((a, i) => a[1].concat([a[0]]).forEach(raw => {
+  const generic = raw[0] === "~";
+  const n = routeNorm(generic ? raw.slice(1) : raw);
   // بداية كلمة (مسموح بحرف و/ب/ل/ف قبلها: "بالمعادي"، "والتجمع") ونهاية كلمة —
   // عشان "المرج" ماتتلقطش من "المرجان"
-  ROUTE_KEYS.push({ k: n, i, re: new RegExp("(^|\\s)(و|ب|ل|ف|بال|وال)?" + n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/^ال/, "(ال)?") + "(?=\\s|$)") });
+  ROUTE_KEYS.push({ k: n, i, generic, re: new RegExp("(^|\\s)(و|ب|ل|ف|بال|وال)?" + n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/^ال/, "(ال)?") + "(?=\\s|$)", "g") });
 }));
 ROUTE_KEYS.sort((a, b) => b.k.length - a.k.length);
 
-function routeNorm(s){ return normName(tsToEnDigits(s)).replace(/[،,.\-_/\\()]+/g, " ").replace(/\s+/g, " ").trim(); }
-/** المنطقة من العنوان + المحافظة — بترجّع رقمها في ROUTE_AREAS أو -1 */
-function routeAreaOf(addr, gov){
-  // العنوان الأول — المحافظة بس لو العنوان مفيهوش منطقة ("الجيزة" ماتغلبش "شارع الهرم")
-  const t = routeNorm(addr);
-  for(const x of ROUTE_KEYS){ if(x.re.test(t)) return x.i; }
-  const g = routeNorm(gov);
-  for(const x of ROUTE_KEYS){ if(x.re.test(g)) return x.i; }
-  return -1;
+function routeNorm(s){ return normName(tsToEnDigits(s)).replace(/[،,.\-_/\\()|:]+/g, " ").replace(/\s+/g, " ").trim(); }
+/** كل المناطق اللي في النص — من غير تداخل (الكلمة الأطول بتاخد مكانها الأول) */
+function routeMatches(text){
+  const t = " " + routeNorm(text) + " ", taken = [], out = [];
+  ROUTE_KEYS.forEach(x => {
+    x.re.lastIndex = 0;
+    let m;
+    while((m = x.re.exec(t))){
+      const a = m.index, b = m.index + m[0].length;
+      if(!taken.some(r => a < r[1] && b > r[0])){ taken.push([a, b]); out.push({ i: x.i, generic: x.generic }); }
+      if(x.re.lastIndex === m.index) x.re.lastIndex++;
+    }
+  });
+  return out;
 }
-function routeInZone(gov, areaIdx){
-  if(areaIdx !== -1 && ROUTE_ZONE_EXTRA.indexOf(ROUTE_AREAS[areaIdx][0]) !== -1) return true;
+function routeGovCode(gov){
   const g = routeNorm(gov);
-  return !g || ROUTE_ZONE_GOVS.some(z => g.indexOf(z) !== -1);
+  if(!g) return "";
+  if(/القاهره|cairo/.test(g)) return "c";
+  if(/الجيزه|giza/.test(g)) return "g";
+  if(/القليوبيه|qalyub/.test(g)) return "q";
+  return "x";   // محافظة تانية
 }
+/** المنطقة + درجة الثقة: { area: رقمها أو -1، conf: ok/warn/none/manual، why: السبب لو مش ok } */
+function routeAreaInfo(addr, gov, key){
+  const fixName = key && routeFixes()[key];
+  if(fixName){ const fi = ROUTE_AREAS.findIndex(a => a[0] === fixName); if(fi !== -1) return { area: fi, conf: "manual", why: "" }; }
+  const ms = routeMatches(addr);
+  const areas = [...new Set(ms.map(m => m.i))];
+  if(!areas.length){
+    // مفيش غير المحافظة ("الجيزة") — مكان تقريبي جدًا
+    const gm = routeMatches(gov);
+    if(gm.length) return { area: gm[0].i, conf: "warn", why: "العنوان ليس فيه منطقة — حسب المحافظة فقط" };
+    return { area: -1, conf: "none", why: "منطقة غير معروفة" };
+  }
+  // لو فيه كلمة واضحة وكلمة عامة لنفس الحتة، الواضحة تكسب ("التجمع الخامس ... التجمع")
+  const specific = [...new Set(ms.filter(m => !m.generic).map(m => m.i))];
+  const pool = specific.length ? specific : areas;
+  const area = pool[0];
+  if(pool.length > 1) return { area, conf: "warn", why: "العنوان فيه أكتر من منطقة: " + pool.map(i => ROUTE_AREAS[i][0]).join(" / ") };
+  if(!specific.length) return { area, conf: "warn", why: "كلمة عامة — حدّد المكان بالظبط" };
+  const gc = routeGovCode(gov), ac = ROUTE_AREAS[area][4];
+  // العبور قليوبية إداريًا بس الناس بتكتب "القاهرة" — مش تعارض
+  if(gc && gc !== "x" && gc !== ac && !(ac === "q" && gc === "c"))
+    return { area, conf: "warn", why: "المحافظة «" + gov + "» والعنوان «" + ROUTE_AREAS[area][0] + "»" };
+  return { area, conf: "ok", why: "" };
+}
+/** 🔒 نطاق المندوب: القاهرة والجيزة (شاملة أكتوبر وزايد) + الشروق ومدينتي والعبور.
+ *  أي طلب لمحافظة تانية مابيظهرش في الأداة خالص (بيتشحن مع شركة الشحن). */
+function routeInZoneRow(o){
+  const gc = routeGovCode(o.governorate);
+  if(gc === "" || gc === "c" || gc === "g") return true;
+  return routeMatches(o.address).some(m => ["العبور", "الشروق", "مدينتي"].indexOf(ROUTE_AREAS[m.i][0]) !== -1);
+}
+function routeFixes(){ try{ return JSON.parse(localStorage.getItem(ROUTE_FIX_KEY) || "{}"); }catch(e){ return {}; } }
 function routeDist(a, b){   // كم (هافرسين) — كفاية للترتيب
   const R = 6371, r = Math.PI / 180;
   const dLa = (b[2] - a[2]) * r, dLo = (b[3] - a[3]) * r;
@@ -967,6 +1285,7 @@ function routeDist(a, b){   // كم (هافرسين) — كفاية للترتي
 }
 
 let ROUTE = null;
+let ROUTE_EDIT = -1;   // المحطة اللي قايمة "اختار المنطقة" مفتوحة عندها
 function routeKey(){ return "ts_courier_route_" + (localStorage.getItem("currentUser") || ""); }
 function routeLoad(){ try{ ROUTE = JSON.parse(localStorage.getItem(routeKey()) || "null"); }catch(e){ ROUTE = null; } }
 function routeSave(){ try{ ROUTE ? localStorage.setItem(routeKey(), JSON.stringify(ROUTE)) : localStorage.removeItem(routeKey()); }catch(e){} }
@@ -974,24 +1293,30 @@ function routeDateTxt(iso){ const p = String(iso || "").split("-"); return p.len
 // ⚠️ التاريخ بالأرقام والشرَط بيتقلب في RTL (18-10-2026 بيبان 2026-10-18) — فبيتلف في span باتجاه ltr
 function routeDateHtml(iso){ return '<span dir="ltr" style="unicode-bidi:isolate">' + tsEscapeHtml(routeDateTxt(iso)) + '</span>'; }
 function routeStartArea(){ const i = ROUTE_AREAS.findIndex(a => a[0] === (ROUTE && ROUTE.start)); return i === -1 ? ROUTE_AREAS.findIndex(a => a[0] === ROUTE_DEFAULT_START) : i; }
+/** المنطقة والثقة لايف (عشان أي تصحيح في الجدول أو اختيار يدوي يتطبق على الخط الموجود) */
+function routeInfo(s){ return routeAreaInfo(s.addr, s.gov, s.key); }
+function routeSure(s){ const c = routeInfo(s).conf; return c === "ok" || c === "manual"; }
 
 function routeNew(){
   ROUTE = { date: new Date().toLocaleDateString("en-CA"), start: ROUTE_DEFAULT_START, stops: [], manual: false, open: true };
-  routeSave(); renderRoute();
-  toast("ok", "🗺️ تم إنشاء خط السير — ابحث عن العميل واضغط «➕ أضف»", 4000);
-  setTimeout(() => document.getElementById("q").focus(), 100);
+  routeSave(); renderRoute(); renderMine();
+  toast("ok", "🗺️ تم إنشاء خط السير — أضف العملاء بزر «➕»", 4000);
 }
 function routeHas(key){ return !!(ROUTE && ROUTE.stops.some(s => s.key === key)); }
-function routeAdd(c){
-  if(!ROUTE || !c || routeHas(c.key)) return;
-  if(!c.active) return toast("err", "لا توجد طلبات جاهزة للتسليم لـ " + tsEscapeHtml(c.name || "هذا العميل") + " — لم يُضف إلى الخط.", 3500);
-  const area = routeAreaOf(c.addr, c.gov);
-  ROUTE.stops.push({ key: c.key, name: c.name || "", phone: c.phone || "", addr: c.addr || "", gov: c.gov || "", area, done: false, hold: false });
+function routeAdd(c, quiet){
+  if(!ROUTE || !c || routeHas(c.key)) return false;
+  if(!c.active){ if(!quiet) toast("err", "لا توجد طلبات جاهزة للتسليم لـ " + tsEscapeHtml(c.name || "هذا العميل") + " — لم يُضف إلى الخط.", 3500); return false; }
+  ROUTE.stops.push({ key: c.key, name: c.name || "", phone: c.phone || "", addr: c.addr || "", gov: c.gov || "", done: false, hold: false });
   if(!ROUTE.manual) routeSortStops();
-  routeSave(); renderRoute();
-  const s = ROUTE.stops.find(x => x.key === c.key);
-  toast("ok", "➕ أُضيف " + tsEscapeHtml(c.name || "العميل") + " — محطة رقم " + (ROUTE.stops.indexOf(s) + 1) +
-    (area === -1 ? "<br>⚠️ لم نتعرف على المنطقة من العنوان، فوُضع في آخر الخط" : " (" + tsEscapeHtml(ROUTE_AREAS[area][0]) + ")"), 3500);
+  routeSave();
+  if(!quiet){
+    renderRoute(); renderMine();
+    const inf = routeAreaInfo(c.addr, c.gov, c.key);
+    const s = ROUTE.stops.find(x => x.key === c.key);
+    toast(inf.conf === "ok" || inf.conf === "manual" ? "ok" : "err", "➕ أُضيف " + tsEscapeHtml(c.name || "العميل") + " — محطة رقم " + (ROUTE.stops.indexOf(s) + 1) +
+      (inf.conf === "ok" || inf.conf === "manual" ? " (" + tsEscapeHtml(ROUTE_AREAS[inf.area][0]) + ")" : "<br>⚠️ " + tsEscapeHtml(inf.why) + " — وُضع في آخر الخط، اختر منطقته من القائمة"), 4000);
+  }
+  return true;
 }
 function routeAddCurrent(){ if(current){ routeHas(current.key) ? routeRemove(current.key) : routeAdd(current); renderCustomer(); } }
 function routeAddSug(i, ev){
@@ -1003,7 +1328,7 @@ function routeAddSug(i, ev){
 function routeRemove(key){
   if(!ROUTE) return;
   ROUTE.stops = ROUTE.stops.filter(s => s.key !== key);
-  routeSave(); renderRoute();
+  routeSave(); renderRoute(); renderMine();
 }
 /** أقصر مسار مفتوح يبدأ من start ويمر على كل النقاط مرة واحدة.
  *  لحد 13 منطقة: الحل الدقيق (Held-Karp) — أقل من ثانية على الموبايل.
@@ -1055,21 +1380,20 @@ function routeBestOrder(start, pts){
   }
   return ord;
 }
-/** ترتيب المحطات: أقصر مسار من نقطة البداية (routeBestOrder). اللي
- *  اتسلّم بيفضل فوق بترتيبه، والمنطقة المجهولة/خارج النطاق في الآخر */
+/** ترتيب المحطات: أقصر مسار من نقطة البداية للمحطات المتأكدين من منطقتها
+ *  بس. اللي اتسلّم بيفضل فوق بترتيبه، واللي مش متأكدين منها في الآخر. */
 function routeSortStops(){
   const done = ROUTE.stops.filter(s => s.done || s.hold);
   const left = ROUTE.stops.filter(s => !s.done && !s.hold);
-  const known = left.filter(s => s.area !== -1), unknown = left.filter(s => s.area === -1);
+  const sure = left.filter(routeSure), unsure = left.filter(s => !routeSure(s));
   const start = ROUTE_AREAS[routeStartArea()];
+  const areaOf = s => routeInfo(s).area;
   // نجمّع المحطات حسب المنطقة (نفس المنطقة = ورا بعض)، ونرتّب المناطق نفسها
-  const areas = [...new Set(known.map(s => s.area))];
+  const areas = [...new Set(sure.map(areaOf))];
   const order = routeBestOrder(start, areas.map(i => ROUTE_AREAS[i]));
   const ordered = [];
-  order.forEach(k => known.filter(s => s.area === areas[k]).forEach(s => ordered.push(s)));
-  // المجهول جوه النطاق قبل اللي خارج النطاق
-  unknown.sort((a, b) => routeInZone(b.gov, b.area) - routeInZone(a.gov, a.area));
-  ROUTE.stops = done.concat(ordered, unknown);
+  order.forEach(k => sure.filter(s => areaOf(s) === areas[k]).forEach(s => ordered.push(s)));
+  ROUTE.stops = done.concat(ordered, unsure);
 }
 function routeResort(){ if(!ROUTE) return; ROUTE.manual = false; routeSortStops(); routeSave(); renderRoute(); toast("ok", "🔀 تم ترتيب الخط حسب الأقرب من " + tsEscapeHtml(ROUTE.start), 2500); }
 function routeMove(i, d){
@@ -1081,11 +1405,22 @@ function routeMove(i, d){
 }
 function routeSetStart(v){ ROUTE.start = v; if(!ROUTE.manual) routeSortStops(); routeSave(); renderRoute(); }
 function routeSetDate(v){ if(v){ ROUTE.date = v; routeSave(); renderRoute(); } }
+function routeEditArea(i){ ROUTE_EDIT = ROUTE_EDIT === i ? -1 : i; renderRoute(); }
+/** اختيار المنطقة بإيد المندوب — بيتحفظ للعميل، والخط بيترتب تاني */
+function routeSetArea(i, name){
+  const s = ROUTE && ROUTE.stops[i]; if(!s) return;
+  const fx = routeFixes();
+  if(name) fx[s.key] = name; else delete fx[s.key];
+  try{ localStorage.setItem(ROUTE_FIX_KEY, JSON.stringify(fx)); }catch(e){}
+  ROUTE_EDIT = -1;
+  if(!ROUTE.manual) routeSortStops();
+  routeSave(); renderRoute(); renderMine();
+}
 async function routeClear(){
   if(!ROUTE) return;
   const ok = await confirmSheet("🗑 مسح خط السير", "سيُحذف خط سير يوم <b>" + routeDateHtml(ROUTE.date) + "</b> من هذا الموبايل. لن يتغير أي شيء في الطلبات نفسها.", "مسح");
   if(!ok) return;
-  ROUTE = null; routeSave(); renderRoute(); renderSugs(); if(current) renderCustomer();
+  ROUTE = null; routeSave(); renderRoute(); renderSugs(); renderMine(); if(current) renderCustomer();
 }
 function routeToggle(){ if(ROUTE){ ROUTE.open = !ROUTE.open; routeSave(); renderRoute(); } }
 /** حالة المحطة لايف: لسه عليها طلبات جاهزة؟ ولا اتسلّمت/اتأجلت */
@@ -1097,14 +1432,16 @@ function routeOpen(i){
   const s = ROUTE && ROUTE.stops[i]; if(!s) return;
   const c = CUSTOMERS.find(x => x.key === s.key);
   if(!c) return toast("err", "لا توجد طلبات جاهزة لهذا العميل الآن (ربما تم تسليمها).", 3500);
-  current = c; currentBatch = ""; renderCustomer();
-  document.getElementById("view").scrollIntoView({ behavior: "smooth", block: "start" });
+  openCustomer(c);
 }
 function routeNextIndex(){
   if(!ROUTE) return -1;
   return ROUTE.stops.findIndex(s => { const l = routeLive(s); return !l.done && !l.hold; });
 }
-/** بعد التسليم/التأجيل — بنعلّم المحطة ونقترح اللي بعدها */
+/** بعد التسليم/التأجيل — بنعلّم المحطة. 🐛→✅ (20 أكتوبر) كان بيرجّع رابط
+ *  "➡️ المحطة التالية" جوه رسالة النتيجة، في نفس مكان زرار التأكيد تقريبًا
+ *  — ضغطة متكررة كانت بتفتح العميل اللي بعده (وكارته جاهز بالمبلغ) فيتسجل
+ *  هو كمان. دلوقتي نص بس، والانتقال من قايمة الخط بإيد المندوب. */
 function routeMark(key, kind){
   if(!ROUTE) return "";
   const s = ROUTE.stops.find(x => x.key === key);
@@ -1112,15 +1449,14 @@ function routeMark(key, kind){
   if(kind === "done"){ s.done = true; s.hold = false; } else s.hold = true;
   routeSave(); renderRoute();
   const n = routeNextIndex();
-  return n === -1 ? '<br>🎉 خلصت كل محطات خط السير' :
-    '<br><a href="#" style="background:var(--blue)" onclick="routeOpen(' + n + ');document.getElementById(\'toast\').className=\'toast\';return false">➡️ المحطة التالية: ' + tsEscapeHtml(ROUTE.stops[n].name || "") + '</a>';
+  return n === -1 ? '<br>🎉 خلصت كل محطات خط السير' : '<br>📍 التالي في الخط: ' + tsEscapeHtml(ROUTE.stops[n].name || "") + ' — افتحه من القائمة';
 }
 /** 🧭 Google Maps بالترتيب — الرابط بياخد لحد 9 محطات وسطانية + الوجهة،
  *  فلو الخط أطول بنقسّمه لرحلات (كل رحلة بتبدأ من آخر محطة في اللي قبلها) */
 function routeMapsLegs(){
-  // المنطقة المجهولة وخارج النطاق مابيدخلوش الخريطة — Google هيخمّن مكانهم غلط
-  const left = ROUTE.stops.filter(s => { const l = routeLive(s); return !l.done && !l.hold && s.area !== -1 && routeInZone(s.gov, s.area); });
-  const q = s => [s.addr, s.area !== -1 ? ROUTE_AREAS[s.area][0] : "", s.gov, "مصر"].filter(Boolean).join(" ");
+  // اللي مش متأكدين من منطقتها مابتدخلش الخريطة — Google هيخمّن مكانها غلط
+  const left = ROUTE.stops.filter(s => { const l = routeLive(s); return !l.done && !l.hold && routeSure(s); });
+  const q = s => [s.addr, ROUTE_AREAS[routeInfo(s).area][0], s.gov, "مصر"].filter(Boolean).join(" ");
   const legs = [];
   let origin = ROUTE.start + " القاهرة مصر";
   for(let i = 0; i < left.length; i += 10){
@@ -1136,7 +1472,7 @@ function routeMapsLegs(){
 async function routeMarkOutAll(){
   if(busy || !ROUTE) return;
   const keys = ROUTE.stops.filter(s => { const l = routeLive(s); return !l.done && !l.hold; }).map(s => s.key);
-  const rows = ROWS.filter(o => String(o.status).trim() === HUB && keys.indexOf(normPhone(o.phone) || ("name:" + normName(o.customerName))) !== -1);
+  const rows = ROWS.filter(o => String(o.status).trim() === HUB && keys.indexOf(custKey(o)) !== -1);
   if(!rows.length) return toast("err", "لا توجد منتجات بحالة «وصل مخزن القاهرة» في خط السير — ربما سجّلت خروجك لها بالفعل.", 4000);
   const ok = await confirmSheet("🚚 خرجتُ للتوصيل — كل الخط",
     "ستحوّل <b>" + rows.length + "</b> منتج لـ <b>" + keys.length + "</b> عميل إلى «في الطريق إليك»، وستصل إلى كل عميل رسالة بريد إلكتروني بأن طلبه خرج للتوصيل.", "تأكيد");
@@ -1150,6 +1486,26 @@ async function routeMarkOutAll(){
   renderRoute(); if(current) renderCustomer();
 }
 
+/** شارة المنطقة + سببها لو مش متأكدين */
+function routeAreaTag(inf, onclick){
+  const oc = onclick ? ' onclick="' + onclick + '" style="cursor:pointer"' : '';
+  if(inf.conf === "none") return '<span class="area unk"' + oc + '>❓ ' + tsEscapeHtml(inf.why) + '</span>';
+  const nm = tsEscapeHtml(ROUTE_AREAS[inf.area][0]);
+  if(inf.conf === "warn") return '<span class="area unk"' + oc + '>⚠️ ' + nm + '؟</span>';
+  return '<span class="area"' + oc + '>' + (inf.conf === "manual" ? "✋ " : "") + nm + (onclick ? ' ✏️' : '') + '</span>';
+}
+/** قايمة اختيار المنطقة — بتبدأ دايمًا على "اختر" (عشان تأكيد المقترح نفسه
+ *  يبقى اختيار فعلي)، والمقترح أول اختيار فيها */
+function routeAreaSelect(i, inf){
+  const sug = inf.conf === "warn" ? inf.area : -1;
+  return '<select class="area-sel" onchange="if(this.value!==\'__\')routeSetArea(' + i + ', this.value)">' +
+    '<option value="__" selected>📍 ' + (inf.conf === "manual" ? 'غيّر المنطقة…' : sug !== -1 ? 'أكّد أو اختر المنطقة…' : 'اختر المنطقة…') + '</option>' +
+    (sug !== -1 ? '<option value="' + tsEscapeHtml(ROUTE_AREAS[sug][0]) + '">✓ ' + tsEscapeHtml(ROUTE_AREAS[sug][0]) + ' (المقترح)</option>' : '') +
+    (inf.conf === "manual" ? '<option value="">↩️ رجوع للتحديد التلقائي</option>' : '') +
+    ROUTE_AREAS.map(a => '<option value="' + tsEscapeHtml(a[0]) + '">' + tsEscapeHtml(a[0]) + '</option>').join("") +
+  '</select>';
+}
+
 function renderRoute(){
   const box = document.getElementById("routeBox");
   if(!box) return;
@@ -1157,6 +1513,7 @@ function renderRoute(){
   const live = ROUTE.stops.map(routeLive);
   const doneN = live.filter(l => l.done).length;
   const next = routeNextIndex();
+  const unsureN = ROUTE.stops.filter((s, i) => !live[i].done && !live[i].hold && !routeSure(s)).length;
   let h = '<div class="route' + (ROUTE.open ? ' open' : '') + '">' +
     '<div class="rt-head" onclick="routeToggle()"><b>🗺️ خط سير يوم ' + routeDateHtml(ROUTE.date) + '</b>' +
       '<small>تم ' + doneN + ' من ' + ROUTE.stops.length + '</small><span>' + (ROUTE.open ? '▲' : '▼') + '</span></div>' +
@@ -1168,20 +1525,23 @@ function renderRoute(){
         '</select></label>' +
       '</div>';
   if(!ROUTE.stops.length){
-    h += '<div class="rt-hint">🔎 ابحث عن العميل في خانة البحث، واضغط <b>➕ أضف</b> بجانب اسمه — وسيترتب الخط تلقائيًا حسب الأقرب من ' + tsEscapeHtml(ROUTE.start) + '.</div>';
+    h += '<div class="rt-hint">➕ أضف العملاء من قائمة «طلباتك» أو من البحث — وسيترتب الخط تلقائيًا حسب الأقرب من ' + tsEscapeHtml(ROUTE.start) + '.</div>';
   } else {
+    if(unsureN) h += '<div class="rt-warn">⚠️ <b>الترتيب غير مؤكد لـ ' + unsureN + ' محطة</b> — لم نتأكد من منطقتها، فوُضعت في آخر الخط. اختر المنطقة الصحيحة من القائمة تحت كل واحدة (وستتحفظ للمرة القادمة)، أو رتّبها بنفسك بالأسهم.</div>';
     if(ROUTE.manual) h += '<div class="rt-hint">✋ رتّبت الخط يدويًا — اضغط «🔀 رتّب حسب الأقرب» للرجوع للترتيب التلقائي.</div>';
     h += ROUTE.stops.map((s, i) => {
-      const l = live[i];
-      const inZone = routeInZone(s.gov, s.area);
-      const areaTag = !inZone && s.area === -1 ? '<span class="area far">⛔ خارج نطاق المندوب' + (s.gov ? ' (' + tsEscapeHtml(s.gov) + ')' : '') + '</span>'
-        : s.area === -1 ? '<span class="area unk">⚠️ منطقة غير معروفة</span>'
-        : '<span class="area' + (inZone ? '' : ' far') + '">' + tsEscapeHtml(ROUTE_AREAS[s.area][0]) + (inZone ? '' : ' · خارج النطاق') + '</span>';
+      const l = live[i], inf = routeInfo(s);
+      const sure = inf.conf === "ok" || inf.conf === "manual";
       const st = l.done ? '✅ تم التسليم' : l.hold ? '⏸️ مؤجل' : (l.ready ? '📦 ' + l.ready + ' جاهز' : '');
-      return '<div class="stop' + (l.done ? ' done' : l.hold ? ' hold' : '') + (i === next ? ' next' : '') + '">' +
+      const showSel = !l.done && !l.hold && (!sure || ROUTE_EDIT === i);
+      return '<div class="stop' + (l.done ? ' done' : l.hold ? ' hold' : '') + (i === next ? ' next' : '') + (!sure && !l.done && !l.hold ? ' unsure' : '') + '">' +
         '<span class="n">' + (l.done ? '✓' : i + 1) + '</span>' +
-        '<div class="stop-b" onclick="routeOpen(' + i + ')"><div class="stop-nm">' + tsEscapeHtml(s.name || "(بدون اسم)") + '</div>' +
-          '<div class="stop-s">' + areaTag + (st ? '<span>' + st + '</span>' : '') + '</div></div>' +
+        '<div class="stop-b"><div class="stop-nm" onclick="routeOpen(' + i + ')">' + tsEscapeHtml(s.name || "(بدون اسم)") + '</div>' +
+          '<div class="stop-s">' + routeAreaTag(inf, sure && !l.done ? 'routeEditArea(' + i + ')' : '') + (st ? '<span>' + st + '</span>' : '') + '</div>' +
+          (inf.conf === "warn" ? '<div class="stop-why">' + tsEscapeHtml(inf.why) + '</div>' : '') +
+          '<div class="stop-addr" onclick="routeOpen(' + i + ')">📍 ' + tsEscapeHtml([s.addr, s.gov].filter(Boolean).join(" — ") || "بدون عنوان") + '</div>' +
+          (showSel ? routeAreaSelect(i, inf) : '') +
+        '</div>' +
         '<div class="stop-x">' +
           '<button onclick="routeMove(' + i + ',-1)"' + (i === 0 ? ' disabled' : '') + ' aria-label="لأعلى">⬆️</button>' +
           '<button onclick="routeMove(' + i + ',1)"' + (i === ROUTE.stops.length - 1 ? ' disabled' : '') + ' aria-label="لأسفل">⬇️</button>' +
@@ -1194,7 +1554,7 @@ function renderRoute(){
         '<button class="btn sm out" onclick="routeMarkOutAll()">🚚 خرجتُ للتوصيل (الكل)</button></div>' +
       legs.map(l => '<a class="btn sm nav" style="text-decoration:none" href="' + tsSafeHref(l.url) + '" target="_blank" rel="noopener">🧭 افتح في Google Maps' +
         (legs.length > 1 ? ' — الجزء ' + Math.ceil(l.from / 10) : '') + '</a>').join("") +
-      (ROUTE.stops.some(s => !routeLive(s).done && !routeLive(s).hold && s.area === -1) ? '<div class="rt-hint" style="margin:0">⚠️ المحطات «منطقة غير معروفة» ليست في الخريطة — افتحها من كارت العميل (🗺️ الخريطة).</div>' : '') +
+      (unsureN ? '<div class="rt-hint" style="margin:0">⚠️ المحطات غير المؤكدة ليست في الخريطة — حدّد منطقتها أولًا، أو افتحها من كارت العميل (🗺️ الخريطة).</div>' : '') +
     '</div>';
   }
   h += '<div class="rt-acts"><button class="btn sm del" onclick="routeClear()">🗑 مسح خط السير</button></div></div></div>';
