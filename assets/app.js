@@ -429,6 +429,26 @@ function tsOrderChanges(cur, wanted){
    • العربون أكبر من الإجمالي (غالبًا صفر زيادة بالغلط) */
 const TS_STATUS_FLOW = ['Pending Review', 'Confirmed Via Try', 'Processing', 'Placed', 'Arrived USA HUB',
                         'In transit', 'Arrived Cairo HUB', 'Shipped To You', 'Delivered'];
+
+/* 📅 موعد وصول فات؟ — للطلبات اللي لسه ماوصلتش مصر بس.
+   ---------------------------------------------------------------
+   🐞 اتكرر إن طلب جديد يتأكد بموعد شحنة قديمة (O-27SEP2026) لما
+   خانة الموعد تكون فاضية وقت التأكيد — اقتراح قديم بيتختار بالغلط.
+   طلب لسه في مرحلة الشراء مينفعش يكون موعد وصوله عدّى، فبنسأل
+   قبل الحفظ. بيرجّع نص الموعد المفهوم لو فات، وإلا "". */
+const TS_PRE_ARRIVAL = ['Pending Review', 'Confirmed Via Try', 'Processing', 'Placed'];
+function tsPastArrivalLabel(raw, status){
+  if(TS_PRE_ARRIVAL.indexOf(String(status || '').trim()) === -1) return '';
+  const v = tsParseArrival(raw);
+  if(!v || v.m < 0 || v.m > 11 || v.d < 1 || v.d > 31 || v.y < 2000) return '';
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return new Date(v.y, v.m, v.d) < today ? tsFormatArrival(raw, 'ar') : '';
+}
+function tsPastArrivalWarning(label){
+  return '📅 موعد الوصول (' + label + ') فات بالفعل، والطلب لسه في مرحلة الشراء — غالبًا اتختار موعد شحنة قديمة بالغلط. اختار موعد الشحنة الجاية.';
+}
+
 function tsOrderWarnings(cur, next){
   const out = [];
   const total = parseFloat(next.finalPrice !== undefined ? next.finalPrice : cur.finalPrice) || 0;
@@ -443,6 +463,11 @@ function tsOrderWarnings(cur, next){
     out.push('↩️ ستعود الحالة إلى مرحلة سابقة: ' + tsStatusLabel(oldSt) + ' ← ' + tsStatusLabel(newSt));
   if(dep > total + ship + 0.5 && total > 0)
     out.push('💰 العربون (' + Math.round(dep).toLocaleString('en-US') + ') أكبر من إجمالي الطلب (' + Math.round(total + ship).toLocaleString('en-US') + ') — هل يوجد صفر زائد؟');
+  // بنسأل بس لما الموعد أو الحالة بيتغيروا في الحفظ ده — مش على كل تعديل سعر
+  if(next.arrivaldate !== undefined || next.status !== undefined){
+    const past = tsPastArrivalLabel(next.arrivaldate !== undefined ? next.arrivaldate : cur.arrivaldate, newSt);
+    if(past) out.push(tsPastArrivalWarning(past));
+  }
   return out;
 }
 

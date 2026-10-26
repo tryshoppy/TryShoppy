@@ -462,7 +462,7 @@ body.sb-open{overflow:hidden}
              هنجبر الموظف على تاريخ كامل بصيغة واحدة، والفلتر
              وتجميع الشحنات بيشتغلوا على النص زي ما هو. -->
         <div class="ao-f"><label>موعد الوصول</label>
-          <input id="aoArrival" type="text" list="aoArrivalList" placeholder="مثل: 18 Sep 2026">
+          <input id="aoArrival" type="text" list="aoArrivalList" placeholder="أدخل أو اختر موعد الوصول">
           <datalist id="aoArrivalList"></datalist>
         </div>
         <!-- 💰 عربون واحد للطلب كله — بيتسجل على أول منتج في السلة،
@@ -531,7 +531,7 @@ body.sb-open{overflow:hidden}
       <div class="ao-grid">
         <div class="ao-f"><label>النوع *</label><select id="exType"></select></div>
         <div class="ao-f"><label>موعد الوصول (الشحنة)</label>
-          <input id="exArrival" type="text" list="exArrivalList" placeholder="O-27SEP2026 — أو اتركه فارغًا">
+          <input id="exArrival" type="text" list="exArrivalList" placeholder="أدخل أو اختر موعد الوصول — أو اتركه فارغًا">
           <datalist id="exArrivalList"></datalist></div>
         <div class="ao-f"><label>التاريخ</label><input id="exDate" type="date"></div>
       </div>
@@ -702,7 +702,7 @@ body.sb-open{overflow:hidden}
 
 <script src="assets/config.js?v=20261017b"></script>
 <script src="assets/function_calc.js?v=20261019a"></script><!-- 💡 سعر الحاسبة المقترح (tsPriceSanity) -->
-<script src="assets/app.js?v=20261017b"></script>
+<script src="assets/app.js?v=20261026a"></script>
 <script>
 
 
@@ -1350,7 +1350,7 @@ function createRowHTML(o) {
 
         <td class="c-usd"><input type="number" id="usd-${safeOrder}" class="inp usd" value="${parseFloat(o.usd || 0).toFixed(2)}"></td>
 
-        <td class="c-arr"><input type="text" id="arrival-${safeOrder}" class="inp" list="arrSuggest" value="${safeArrival}" placeholder="O-27SEP2026"></td>
+        <td class="c-arr"><input type="text" id="arrival-${safeOrder}" class="inp" list="arrSuggest" value="${safeArrival}" placeholder="أدخل أو اختر موعد الوصول"></td>
 
         <td class="c-status">
             <!-- 📋 من القائمة الموحّدة في assets/app.js — وأي حالة مش فيها
@@ -2474,6 +2474,10 @@ async function submitAddOrder(){
       : "الاسم ورقم الهاتف مطلوبان.";
     return;
   }
+
+  // 📅 موعد وصول فات لطلب لسه هيتشري — غالبًا اقتراح قديم اتختار بالغلط
+  const pastArr = tsPastArrivalLabel(v("aoArrival"), document.getElementById("aoStatus").value);
+  if(pastArr && !confirm('⚠️ ' + tsPastArrivalWarning(pastArr) + '\n\nهل تريد الحفظ على أي حال؟')) return;
 
   const email   = v("aoEmail");
   const notifyCustomer = document.getElementById("aoNotifyCustomer").checked;
