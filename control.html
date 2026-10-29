@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>TRY SHOPPY — Control Room</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#101B33;--panel:#17233F;--line:#24324F;--txt:#E8EDF7;--mute:#8E9BB8;--gold:#F5B820;
+--red:#EF4444;--redbg:rgba(239,68,68,.12);--yel:#F5B820;--yelbg:rgba(245,184,32,.12);--grn:#22C55E;--grnbg:rgba(34,197,94,.10)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--navy);color:var(--txt);font-family:Cairo,Tahoma,sans-serif;padding:18px;min-height:100vh}
+a{color:var(--gold)}
+.hidden{display:none!important}
+/* الدخول */
+#loginScreen{min-height:90vh;display:flex;align-items:center;justify-content:center}
+.login{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:26px;width:100%;max-width:360px;display:grid;gap:10px}
+.login h1{font-size:20px;font-weight:900;text-align:center}.login h1 b{color:var(--gold)}
+.login input{background:#0E1730;border:1px solid var(--line);border-radius:12px;color:var(--txt);font:inherit;padding:10px 12px;outline:0}
+.login .err{color:var(--red);font-size:13px;font-weight:800;text-align:center}
+/* الهيدر */
+.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.brand{font-weight:900;font-size:20px}.brand b{color:var(--gold)}
+.sync{color:var(--mute);font-size:12.5px}
+.sync.err{color:var(--red)}
+.kpis{display:flex;gap:8px;margin-inline-start:auto;flex-wrap:wrap}
+.kpi{border-radius:12px;padding:6px 14px;font-weight:900;font-size:14px}
+.k-r{background:var(--redbg);color:var(--red)}.k-y{background:var(--yelbg);color:var(--yel)}.k-g{background:var(--grnbg);color:var(--grn)}
+.ghost{background:transparent;border:1px solid var(--line);color:var(--mute);border-radius:10px;padding:5px 10px;font:inherit;font-size:12.5px;cursor:pointer}
+.banner{background:var(--yelbg);color:var(--yel);border-radius:12px;padding:10px 14px;font-size:13px;font-weight:700;margin-bottom:14px}
+/* الأوامر */
+.master{display:flex;gap:8px;background:var(--panel);border:1px solid var(--gold);border-radius:16px;padding:10px;margin-bottom:6px}
+.master input{flex:1;min-width:0;background:transparent;border:0;color:var(--txt);font:inherit;font-size:15px;outline:0;padding:4px 8px}
+.btn{background:var(--gold);color:var(--navy);border:0;border-radius:11px;padding:8px 16px;font:inherit;font-weight:900;cursor:pointer}
+.btn:disabled{opacity:.5;cursor:default}
+.preview{font-size:13px;border-radius:10px;padding:8px 10px;background:#0E1730;border:1px dashed var(--gold);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.preview span{flex:1;min-width:160px}
+.preview .btn{padding:5px 12px;font-size:12.5px}
+#masterBox{margin-bottom:16px}
+/* الأقسام */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.card.soon{opacity:.55}
+.ch{display:flex;align-items:center;gap:8px}
+.ch h2{font-size:16px;font-weight:900}
+.ch a{font-size:12px;text-decoration:none;color:var(--mute)}
+.badges{margin-inline-start:auto;display:flex;gap:5px}
+.b{border-radius:8px;padding:1px 8px;font-size:12px;font-weight:900}
+.b.r{background:var(--redbg);color:var(--red)}.b.y{background:var(--yelbg);color:var(--yel)}.b.g{background:var(--grnbg);color:var(--grn)}
+.items{display:flex;flex-direction:column;gap:6px}
+.it{border-radius:11px;padding:8px 10px;font-size:13px;line-height:1.55;border-inline-start:4px solid;display:flex;gap:8px;align-items:flex-start}
+.it>div{flex:1;min-width:0;overflow-wrap:anywhere}
+.it.r{background:var(--redbg);border-color:var(--red)}.it.y{background:var(--yelbg);border-color:var(--yel)}.it.g{background:var(--grnbg);border-color:var(--grn)}
+.it b{font-weight:800}.it small{display:block;color:var(--mute);font-size:11.5px}
+.it .done{background:transparent;border:1px solid var(--line);color:var(--mute);border-radius:8px;cursor:pointer;font-size:12px;padding:2px 7px}
+.more{font-size:12px;color:var(--mute)}
+.empty{font-size:13px;color:var(--mute)}
+.cmd{display:flex;gap:6px;border-top:1px dashed var(--line);padding-top:10px}
+.cmd input{flex:1;min-width:0;background:#0E1730;border:1px solid var(--line);border-radius:10px;color:var(--txt);font:inherit;font-size:13px;padding:7px 10px;outline:0}
+.cmd input:focus,.master input:focus{border-color:var(--gold)}
+.cmd .btn{padding:6px 12px;font-size:13px}
+.log{font-size:11.5px;color:var(--mute);display:flex;flex-direction:column;gap:3px}
+.log span{overflow-wrap:anywhere}
+.ok{color:var(--grn)}.q{color:var(--yel)}.bad{color:var(--red)}
+@media (max-width:420px){body{padding:12px}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="login">
+    <h1>🛰️ TRY SHOPPY <b>Control Room</b></h1>
+    <input id="loginUser" placeholder="اسم المستخدم" autocomplete="username">
+    <input id="loginPass" type="password" placeholder="كلمة المرور" autocomplete="current-password">
+    <button class="btn" id="loginBtn">دخول</button>
+    <div class="err" id="loginError"></div>
+  </div>
+</div>
+
+<div id="app" class="hidden">
+  <div class="top">
+    <div class="brand">🛰️ TRY SHOPPY <b>Control Room</b></div>
+    <div class="sync" id="sync">جارٍ التحميل…</div>
+    <button class="ghost" id="refreshBtn">↻ تحديث</button>
+    <div class="kpis" id="kpis"></div>
+    <button class="ghost" id="logoutBtn">خروج</button>
+  </div>
+  <div class="banner hidden" id="setupBanner">⚙️ سكريبت اللوحة (Control_Code.gs) لسه ما اتنشرش — الأوامر الفورية شغالة، بس المهام وسجل الأوامر والطابور هيشتغلوا بعد ما تحط رابطه في CONTROL_API_URL.</div>
+  <div id="masterBox">
+    <div class="master">
+      <span style="font-size:20px">🧠</span>
+      <input id="cmd-general" placeholder="أمر عام… مثال: «1182 Placed» أو «عيّن 1190 1191 لكريم» أو أي طلب بالكلام وأنا أوجّهه">
+      <button class="btn" data-sec="general">نفّذ</button>
+    </div>
+    <div class="log" id="log-general" style="margin-top:6px"></div>
+  </div>
+  <div class="grid" id="grid"></div>
+</div>
+
+<script src="assets/config.js?v=20261029"></script>
+<script src="assets/app.js?v=20261029"></script>
+<script src="staff-auth.js?v=20261029"></script>
+<script>
+/* ============================================================
+   🛰️ Control Room — كل حاجة في شاشة واحدة، وتحت كل قسم بوكس أوامر.
+   ------------------------------------------------------------
+   • الأوامر الواضحة بتتنفذ فورًا من هنا على نفس الـ APIs بتاعة
+     الداشبوردات (السيرفر هو اللي بيتحقق من التوكن والصلاحية).
+   • أي أمر تاني بيتسجل "في الطابور" في شيت Commands، وClaude
+     بيلمّه وينفذه ويكتب النتيجة — بتظهر هنا تحت القسم.
+   • اللوحة للأدمن بس (السيرفر بيرفض أي توكن مش أدمن).
+   ============================================================ */
+
+// ⚠️ رابط /exec بتاع Control_Code.gs (Backend_SECURED على الدرايف) بعد النشر
+const CONTROL_API_URL = "https://script.google.com/macros/s/AKfycbwcylrh1GEzsYdGv2Aieplv5nx0-p2SYTZhvXctsBFDVfrlNGSuRFzf8-MZhoJmMky1/exec";
+const ORDERS_URL = TS_CONFIG.ORDERS_SCRIPT_URL;
+const RAMA_URL = "https://script.google.com/macros/s/AKfycbxAcx8kL2vtU_cZ70Bl311zWlKhjnwgPVyzpDeVLcfRsGLygpODEHbVVnefzj-RIk5wAQ/exec";
+const REFRESH_MS = 5 * 60 * 1000;
+const HUB = "Arrived Cairo HUB", OUT = "Shipped To You";
+
+const SECTIONS = [
+  { key: "orders",   icon: "📦", title: "الطلبات",         link: "Dashboard945.html", ph: "مثال: 1182 Canceled العميل اعتذر" },
+  { key: "delivery", icon: "🛵", title: "التسليم والمندوب", link: "courier.html",      ph: "مثال: عيّن 1190 1191 لكريم" },
+  { key: "mart",     icon: "🛒", title: "المارت",           link: "mart-admin.html",   ph: "مثال: ارفع سعر D3 لـ 650 (بيروح الطابور)" },
+  { key: "rama",     icon: "🟣", title: "RAMA",             link: "rama-admin.html",   ph: "مثال: وافق RAMA-41 أو ارفض RAMA-41" },
+  { key: "tasks",    icon: "✅", title: "مهام سريعة",       link: "",                  ph: "مثال: ! دفع شحنة 27SEP النهارده" },
+  { key: "email",    icon: "✉️", title: "الإيميل",          link: "", soon: "مرحلة 2 — بعد ربط Gmail", ph: "مثال: رد على إيميل Aramex بإننا موافقين" },
+  { key: "whatsapp", icon: "💬", title: "واتساب",           link: "", soon: "مرحلة 3 — بعد ربط WhatsApp Business API", ph: "مثال: رد على منى إن الطلب هيوصل الأحد" }
+];
+
+const S = { orders: [], courier: [], rama: [], mart: [], tasks: [], commands: [], staff: [], controlOk: false, pending: {} };
+const esc = tsEscapeHtml;
+const num = v => parseFloat(tsToEnDigits(v)) || 0;
+const money = v => Math.round(v).toLocaleString("en-US");
+function getStaffToken(){ return localStorage.getItem("staffToken") || ""; }
+function getCurrentUser(){ return localStorage.getItem("currentUserLabel") || localStorage.getItem("currentUser") || ""; }
+
+/* ═══════════ الدخول ═══════════ */
+async function doLogin(){
+  const u = document.getElementById("loginUser").value.trim();
+  const p = document.getElementById("loginPass").value;
+  if(!u || !p) return;
+  const btn = document.getElementById("loginBtn");
+  tsSetBtnLoading(btn, "جارٍ التحقق...");
+  let res;
+  try { res = await tsStaffLogin(u, p); } catch(e){ res = { success:false }; }
+  tsClearBtnLoading(btn);
+  const er = document.getElementById("loginError");
+  if(res && res.success){
+    localStorage.setItem("currentUser", u.toLowerCase());
+    localStorage.setItem("currentUserLabel", res.label || u);
+    localStorage.setItem("loginTime", Date.now());
+    localStorage.setItem("staffToken", res.token || "");
+    localStorage.setItem("isAdmin", res.isAdmin ? "1" : "");
+    showApp();
+  } else {
+    er.textContent = (res && res.code === "locked") ? "⏳ " + res.message : "❌ اسم المستخدم أو كلمة المرور غير صحيحة";
+  }
+}
+function logout(){
+  ["currentUser","currentUserLabel","loginTime","staffToken","isAdmin","staffTools"].forEach(k => localStorage.removeItem(k));
+  location.reload();
+}
+function showApp(){
+  if(localStorage.getItem("isAdmin") !== "1"){
+    document.getElementById("loginError").textContent = "🔒 الـ Control Room للأدمن بس";
+    ["staffToken","isAdmin"].forEach(k => localStorage.removeItem(k));
+    return;
+  }
+  document.getElementById("loginScreen").classList.add("hidden");
+  document.getElementById("app").classList.remove("hidden");
+  document.getElementById("setupBanner").classList.toggle("hidden", !!CONTROL_API_URL);
+  buildGrid();
+  tsListStaff().then(l => { S.staff = l || []; }).catch(() => {});
+  loadAll();
+  setInterval(loadAll, REFRESH_MS);
+}
+
+/* ═══════════ تحميل البيانات (كل مصدر لوحده — واحد يقع مايوقعش الباقي) ═══════════ */
+async function getJson(url){
+  const res = await fetch(url, { redirect: "follow" });
+  return res.json();
+}
+async function postJson(url, body){
+  const res = await fetch(url, { method: "POST", body: JSON.stringify(Object.assign({ staffToken: getStaffToken() }, body)) });
+  const txt = await res.text();
+  try { return JSON.parse(txt); } catch(e){ return { success: false, message: "رد غير متوقع من السيرفر" }; }
+}
+async function loadAll(){
+  const sync = document.getElementById("sync");
+  sync.className = "sync"; sync.textContent = "جارٍ التحديث…";
+  const t = encodeURIComponent(getStaffToken());
+  const jobs = {
+    orders:  getJson(ORDERS_URL + "?staffToken=" + t),
+    courier: getJson(ORDERS_URL + "?scope=courier&staffToken=" + t + "&_=" + Date.now()),
+    rama:    getJson(RAMA_URL + "?scope=staff&staffToken=" + t),
+    mart:    tsFetchMartProducts(),
+    control: CONTROL_API_URL ? getJson(CONTROL_API_URL + "?action=state&staffToken=" + t) : Promise.resolve(null)
+  };
+  const keys = Object.keys(jobs);
+  const out = await Promise.allSettled(keys.map(k => jobs[k]));
+  const failed = [];
+  out.forEach((r, i) => {
+    const k = keys[i], v = r.status === "fulfilled" ? r.value : null;
+    if(k === "control"){
+      if(v && v.success){ S.tasks = v.tasks || []; S.commands = v.commands || []; S.controlOk = true; }
+      else if(CONTROL_API_URL) failed.push("سكريبت اللوحة");
+      return;
+    }
+    const arr = Array.isArray(v) ? v : (v && Array.isArray(v.products) ? v.products : null);
+    if(arr) S[k] = arr; else failed.push({ orders: "الطلبات", courier: "المندوب", rama: "RAMA", mart: "المارت" }[k]);
+  });
+  // التوكن خلص؟ الطلبات بترجع object بدل array
+  if(out[0].status === "fulfilled" && out[0].value && !Array.isArray(out[0].value) && /unauthor|session|expired/i.test(JSON.stringify(out[0].value))){
+    alert("⚠️ انتهت الجلسة — يُرجى تسجيل الدخول مرة أخرى."); return logout();
+  }
+  render();
+  const now = new Date().toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" });
+  sync.className = "sync" + (failed.length ? " err" : "");
+  sync.textContent = "آخر تحديث: " + now + (failed.length ? " · ⚠️ تعذّر: " + failed.join("، ") : " · تلقائي كل 5 دقائق");
+}
+
+/* ═══════════ قواعد الأولوية — r عاجل / y مهم / g ماشي ═══════════ */
+const it = (p, html, sub, extra) => Object.assign({ p, html, sub: sub || "" }, extra || {});
+const st = o => String(o.status || "").trim();
+const isMart = o => /^MART/i.test(String(o.order || ""));
+const dueOf = o => o.due !== undefined && o.due !== "" ? Math.max(0, num(o.due)) : Math.max(0, num(o.finalPrice) + num(o.shipping) - num(o.deposit));
+const who = o => esc(o.customerName || o.phone || "");
+const ageH = d => { const t = new Date(d).getTime(); return t ? (Date.now() - t) / 36e5 : 0; };
+
+function ordersItems(){
+  const open = S.orders.filter(o => !isMart(o) && st(o) && !tsIsClosedStatus(st(o)));
+  const out = [];
+  open.filter(o => st(o) === "On Hold" || st(o) === "Delayed").forEach(o =>
+    out.push(it("r", "<b>#" + esc(o.order) + " · " + who(o) + "</b> — " + esc(st(o)) + (o.statusNote ? ": " + esc(o.statusNote) : ""), "🔴 " + tsStatusLabel(st(o)))));
+  open.forEach(o => {
+    const past = tsPastArrivalLabel(o.arrivaldate, st(o));
+    if(past) out.push(it("r", "<b>#" + esc(o.order) + " · " + who(o) + "</b> — موعد الوصول " + esc(past) + " فات والطلب لسه " + esc(st(o)), "🔴 موعد وصول فات"));
+  });
+  const pend = open.filter(o => st(o) === "Pending Review");
+  const oldPend = pend.filter(o => ageH(o.date) > 24);
+  if(oldPend.length) out.push(it("r", "<b>" + oldPend.length + " طلب</b> Pending Review من أكتر من 24 ساعة: " + oldPend.slice(0, 6).map(o => "#" + esc(o.order)).join(" "), "🔴 محتاجة تأكيد"));
+  if(pend.length - oldPend.length > 0) out.push(it("y", "<b>" + (pend.length - oldPend.length) + " طلب</b> جديد Pending Review", "🟡 محتاجة تأكيد"));
+  const green = open.length - out.filter(x => x.p !== "g").length;
+  return { items: out, green: Math.max(0, green), greenTxt: "طلب مفتوح ماشي طبيعي" };
+}
+
+function deliveryItems(){
+  const rows = S.courier.length ? S.courier : S.orders;
+  const hub = rows.filter(o => st(o) === HUB), outR = rows.filter(o => st(o) === OUT);
+  const out = [];
+  const unassigned = hub.filter(o => !String(o.courier || "").trim());
+  if(unassigned.length) out.push(it(unassigned.length > 5 ? "r" : "y", "<b>" + unassigned.length + " طلب</b> في مخزن القاهرة من غير مندوب: " + unassigned.slice(0, 6).map(o => "#" + esc(o.order)).join(" "), unassigned.length > 5 ? "🔴 تكدّس في المخزن" : "🟡 محتاج توزيع"));
+  const byC = {};
+  outR.forEach(o => { const c = String(o.courier || "").trim() || "بدون مندوب"; (byC[c] = byC[c] || { n: 0, due: 0 }); byC[c].n++; byC[c].due += dueOf(o); });
+  Object.keys(byC).forEach(c => {
+    const v = byC[c];
+    out.push(it(c === "بدون مندوب" ? "r" : (v.due > 0 ? "y" : "g"), "<b>" + esc(staffLabel(c)) + "</b> — " + v.n + " طلب في الطريق" + (v.due > 0 ? " · تحصيل " + money(v.due) + " ج" : ""), v.due > 0 ? "🟡 فلوس مطلوبة عند التسليم" : "🟢"));
+  });
+  return { items: out, green: hub.length - unassigned.length, greenTxt: "طلب في المخزن متوزّع" };
+}
+
+function martItems(){
+  const out = [];
+  const act = S.mart.filter(p => p.active !== false);
+  act.filter(p => num(p.stock) <= 0).forEach(p => out.push(it("r", "<b>" + esc(p.nameEn || p.nameAr || p.id) + "</b> — نفد من المخزون", "🔴 ستوك صفر وهو ظاهر على الموقع")));
+  act.filter(p => num(p.stock) > 0 && num(p.stock) <= 2).forEach(p => out.push(it("y", "<b>" + esc(p.nameEn || p.nameAr || p.id) + "</b> — باقي " + num(p.stock), "🟡 ستوك قليل")));
+  const mo = S.orders.filter(o => isMart(o) && !tsIsClosedStatus(st(o)));
+  mo.filter(o => st(o) === "Pending Review").forEach(o => out.push(it("y", "<b>طلب مارت #" + esc(o.order) + " · " + who(o) + "</b> — Pending Review", "🟡 محتاج تأكيد")));
+  return { items: out, green: act.filter(p => num(p.stock) > 2).length, greenTxt: "منتج متاح بستوك كويس" };
+}
+
+function ramaItems(){
+  const out = [], name = p => esc(p.productName || p.id);
+  S.rama.forEach(p => {
+    const s = String(p.status || "");
+    if(s === "PendingReview") out.push(it("r", "<b>" + esc(p.id) + " · " + name(p) + "</b>" + (num(p.clientCounterEgp) ? " — العميل طالب " + money(num(p.clientCounterEgp)) + " ج بدل " + money(num(p.finalEgp || p.staffEgp)) : " — محتاج مراجعتك"), "🔴 مستني ردك"));
+    else if(s === "Delayed") out.push(it("r", "<b>" + esc(p.id) + " · " + name(p) + "</b> — Delayed", "🔴 متأخر"));
+    else if(s === "PendingPrice") out.push(it("y", "<b>" + esc(p.id) + " · " + name(p) + "</b> — مستني تسعير", "🟡 بانتظار السعر"));
+  });
+  const green = S.rama.filter(p => ["PendingApproval", "Confirmed", "Placed"].indexOf(String(p.status)) !== -1).length;
+  return { items: out, green, greenTxt: "طلب ماشي (عند العميل / متأكد / اتطلب)" };
+}
+
+function tasksItems(){
+  const today = new Date().toLocaleDateString("en-CA");
+  const open = S.tasks.filter(t => t.Status !== "done");
+  const out = open.map(t => {
+    const due = String(t.Due || "").slice(0, 10);
+    const late = due && due <= today;
+    const p = late ? "r" : (t.Priority === "red" ? "r" : t.Priority === "green" ? "g" : "y");
+    return it(p, "<b>" + esc(t.Title) + "</b>", due ? (due < today ? "🔴 متأخرة من " + due : due === today ? "🔴 النهارده" : "📅 " + due) : "", { taskId: t.ID });
+  }).sort((a, b) => "ryg".indexOf(a.p) - "ryg".indexOf(b.p));
+  return { items: out, green: S.tasks.filter(t => t.Status === "done").length, greenTxt: "مهمة خلصت النهارده" };
+}
+
+const BUILDERS = { orders: ordersItems, delivery: deliveryItems, mart: martItems, rama: ramaItems, tasks: tasksItems };
+
+/* ═══════════ الرسم ═══════════ */
+function buildGrid(){
+  document.getElementById("grid").innerHTML = SECTIONS.map(s =>
+    '<div class="card' + (s.soon ? " soon" : "") + '" id="card-' + s.key + '">' +
+      '<div class="ch"><span>' + s.icon + '</span><h2>' + s.title + '</h2>' +
+        (s.link ? '<a href="' + s.link + '" target="_blank">فتح ↗</a>' : '') +
+        '<div class="badges" id="badges-' + s.key + '"></div></div>' +
+      '<div class="items" id="items-' + s.key + '">' + (s.soon ? '<div class="it y"><div>' + s.soon + '</div></div>' : '<div class="empty">جارٍ التحميل…</div>') + '</div>' +
+      '<div id="prev-' + s.key + '"></div>' +
+      '<div class="cmd"><input id="cmd-' + s.key + '" placeholder="' + esc(s.ph) + '"><button class="btn" data-sec="' + s.key + '">↵</button></div>' +
+      '<div class="log" id="log-' + s.key + '"></div>' +
+    '</div>').join("");
+}
+
+const MAX_ITEMS = 7;
+function render(){
+  const tot = { r: 0, y: 0, g: 0 };
+  Object.keys(BUILDERS).forEach(k => {
+    const { items, green, greenTxt } = BUILDERS[k]();
+    const c = { r: 0, y: 0, g: 0 };
+    items.forEach(x => c[x.p]++);
+    c.g += green;
+    tot.r += c.r; tot.y += c.y; tot.g += c.g;
+    document.getElementById("badges-" + k).innerHTML =
+      '<span class="b r">' + c.r + '</span><span class="b y">' + c.y + '</span><span class="b g">' + c.g + '</span>';
+    const shown = items.slice(0, MAX_ITEMS);
+    let html = shown.map(x =>
+      '<div class="it ' + x.p + '"><div>' + x.html + (x.sub ? '<small>' + x.sub + '</small>' : '') + '</div>' +
+      (x.taskId ? '<button class="done" data-task="' + esc(x.taskId) + '" title="خلصت">✓</button>' : '') + '</div>').join("");
+    if(items.length > MAX_ITEMS) html += '<div class="more">+ ' + (items.length - MAX_ITEMS) + ' كمان</div>';
+    if(green > 0) html += '<div class="it g"><div><b>' + green + '</b> ' + greenTxt + '</div></div>';
+    if(!html) html = '<div class="empty">' + (k === "tasks" && !CONTROL_API_URL ? "المهام هتشتغل بعد نشر سكريبت اللوحة" : "🟢 مفيش حاجة محتاجة انتباه") + '</div>';
+    document.getElementById("items-" + k).innerHTML = html;
+  });
+  document.getElementById("kpis").innerHTML =
+    '<span class="kpi k-r">🔴 ' + tot.r + ' عاجل</span><span class="kpi k-y">🟡 ' + tot.y + ' مهم</span><span class="kpi k-g">🟢 ' + tot.g + ' ماشي</span>';
+  renderLogs();
+}
+
+function renderLogs(){
+  const by = {};
+  S.commands.forEach(c => { (by[c.Section] = by[c.Section] || []).push(c); });
+  ["general"].concat(SECTIONS.map(s => s.key)).forEach(k => {
+    const el = document.getElementById("log-" + k);
+    if(!el) return;
+    el.innerHTML = (by[k] || []).slice(0, 3).map(c => {
+      const t = new Date(c.Time).toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" });
+      const cls = c.Status === "done" ? "ok" : c.Status === "failed" ? "bad" : "q";
+      const ic = c.Status === "done" ? "✅" : c.Status === "failed" ? "❌" : c.Status === "working" ? "⚙️" : "⏳";
+      const tail = c.Result ? " → " + esc(c.Result) : (c.Status === "queued" ? " — في الطابور" : "");
+      return '<span class="' + cls + '">' + ic + " " + t + " — " + esc(c.Command) + tail + '</span>';
+    }).join("");
+  });
+}
+
+function staffLabel(u){
+  const s = S.staff.find(x => String(x.username).toLowerCase() === String(u).toLowerCase());
+  return s ? (s.label || s.username) : u;
+}
+
+/* ═══════════ تحليل الأوامر ═══════════
+   كل parser بيرجّع { summary, run } لو فهم الأمر بثقة، أو null.
+   الأمر اللي مافيش parser فهمه بيروح الطابور. */
+const norm = s => tsToEnDigits(String(s || "")).toLowerCase()
+  .replace(/[ًٌٍَُِّْـ]/g, "").replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").replace(/\s+/g, " ").trim();
+
+function findOrder(tok){
+  const t = norm(tok).replace(/^#/, "");
+  if(!t || !/\d/.test(t)) return null;
+  const all = S.orders.concat(S.courier);
+  const exact = all.find(o => norm(o.order) === t);
+  if(exact) return exact.order;
+  const hits = Array.from(new Set(all.filter(o => norm(o.order).replace(/\D/g, "").endsWith(t.replace(/\D/g, "")) && t.replace(/\D/g, "").length >= 3).map(o => o.order)));
+  return hits.length === 1 ? hits[0] : null;
+}
+
+/* الحالة: الاسم الإنجليزي (أي حالة حروف) أو العربي اللي في التتبع */
+function matchStatus(rest){
+  const r = norm(rest);
+  const cands = [];
+  TS_STATUSES.forEach(s => { cands.push([norm(s), s]); if(TS_STATUS_AR[s]) cands.push([norm(TS_STATUS_AR[s]), s]); });
+  cands.push(["cancel", "Canceled"], ["cancelled", "Canceled"], ["الغاء", "Canceled"], ["اتسلم", "Delivered"], ["delivered", "Delivered"], ["shipped", OUT]);
+  cands.sort((a, b) => b[0].length - a[0].length);
+  for(const [k, s] of cands){
+    if(r === k || r.startsWith(k + " ")) return { status: s, note: rest.trim().slice(rest.trim().length - (r.length - k.length)).trim() };
+  }
+  return null;
+}
+
+function parseOrderStatus(text){
+  const toks = text.trim().split(/[\s,،]+/);
+  const ids = [];
+  while(toks.length && findOrder(toks[0])) ids.push(findOrder(toks.shift()));
+  if(!ids.length || !toks.length) return null;
+  const m = matchStatus(toks.join(" "));
+  if(!m) return null;
+  const note = m.note;
+  if(TS_NOTE_STATUSES.indexOf(m.status) !== -1 && !note) return { error: "حالة " + m.status + " محتاجة سبب بعدها — مثال: " + ids[0] + " " + m.status + " مستنيين صورة المقاس" };
+  return {
+    summary: "تغيير حالة " + ids.map(i => "#" + i).join(" ") + " ← <b>" + esc(m.status) + "</b> (" + esc(tsStatusLabel(m.status)) + ")" + (note ? " · ملاحظة: " + esc(note) : ""),
+    run: async () => {
+      const res = await Promise.all(ids.map(order => postJson(ORDERS_URL, { action: "updateStatus", order, status: m.status, statusNote: note || undefined, user: getCurrentUser() })));
+      const bad = res.filter(r => r && r.success === false);
+      if(bad.length) throw new Error(bad[0].message || "رفض السيرفر");
+      return ids.length + " طلب ← " + m.status;
+    }
+  };
+}
+
+function parseAssign(text){
+  const m = norm(text).match(/^(?:عين|وزع|assign)\s+(.+?)\s+(?:ل|لـ|على|علي|to)\s*(\S+)$/);
+  if(!m) return null;
+  const ids = m[1].split(/[\s,،و]+/).filter(Boolean).map(findOrder);
+  if(!ids.length || ids.some(x => !x)) return null;
+  const c = S.staff.find(s => norm(s.username) === norm(m[2]).replace(/^ل/, "") || norm(s.label) === norm(m[2]).replace(/^ل/, "") || norm(s.label).split(" ")[0] === norm(m[2]).replace(/^ل/, ""));
+  if(!c) return { error: "مش لاقي مندوب اسمه «" + m[2] + "» في شيت الموظفين" };
+  return {
+    summary: "توزيع " + ids.map(i => "#" + i).join(" ") + " على <b>" + esc(c.label || c.username) + "</b>",
+    run: async () => {
+      const r = await postJson(ORDERS_URL, { action: "assignCourier", orders: ids.map(String), courier: c.username });
+      if(!r || !r.success) throw new Error((r && r.message) || "رفض السيرفر");
+      return "اتوزع " + (r.updated || ids.length) + " طلب على " + (c.label || c.username);
+    }
+  };
+}
+
+function parseRama(text){
+  const m = norm(text).match(/^(وافق|اقبل|approve|ارفض|reject)\s+(?:علي\s+)?(\S+)$/);
+  if(!m) return null;
+  const id = m[2].toUpperCase();
+  const p = S.rama.find(x => String(x.id).toUpperCase() === id || String(x.id).toUpperCase().replace(/\D/g, "") === id.replace(/\D/g, ""));
+  if(!p) return null;
+  if(String(p.status) !== "PendingReview" || !num(p.clientCounterEgp)) return null; // مش عرض مضاد — يروح الطابور
+  const approve = /^(وافق|اقبل|approve)/.test(m[1]);
+  return {
+    summary: (approve ? "الموافقة على" : "رفض") + " عرض العميل في <b>" + esc(p.id) + "</b> (" + money(num(p.clientCounterEgp)) + " ج)",
+    run: async () => {
+      const r = await postJson(RAMA_URL, { action: "staffResolveCounter", id: p.id, approve });
+      if(!r || r.success === false) throw new Error((r && r.message) || "رفض السيرفر");
+      return p.id + (approve ? " اتوافق عليه" : " اترفض");
+    }
+  };
+}
+
+function parseTask(text, force){
+  let t = text.trim();
+  if(!force){
+    const m = t.match(/^(?:مهمه|مهمة|task|فكرني|فكّرني)\s*[:：]?\s*(.+)$/i);
+    if(!m) return null;
+    t = /^فك/.test(t) ? t : m[1];
+  }
+  if(!CONTROL_API_URL) return { error: "المهام محتاجة سكريبت اللوحة يتنشر الأول" };
+  let pr = "yellow", due = "";
+  if(/^!/.test(t) || /عاجل/.test(t)){ pr = "red"; t = t.replace(/^!\s*/, ""); }
+  const d = new Date();
+  if(/النهارده|النهاردة|اليوم/.test(t)) due = d.toLocaleDateString("en-CA");
+  else if(/بكر[ةه]/.test(t)){ d.setDate(d.getDate() + 1); due = d.toLocaleDateString("en-CA"); }
+  const iso = tsToEnDigits(t).match(/\d{4}-\d{2}-\d{2}/); if(iso) due = iso[0];
+  return {
+    summary: "مهمة جديدة: <b>" + esc(t) + "</b>" + (pr === "red" ? " 🔴" : "") + (due ? " · 📅 " + due : ""),
+    run: async () => {
+      const r = await postJson(CONTROL_API_URL, { action: "addTask", title: t, priority: pr, due });
+      if(!r || !r.success) throw new Error((r && r.message) || "رفض السيرفر");
+      return "اتضافت";
+    }
+  };
+}
+
+function interpret(sec, text){
+  const order = {
+    orders:   [parseOrderStatus, parseAssign],
+    delivery: [parseAssign, parseOrderStatus],
+    rama:     [parseRama],
+    tasks:    [t => parseTask(t, true)],
+    general:  [parseOrderStatus, parseAssign, parseRama, parseTask]
+  }[sec] || [];
+  for(const fn of order){ const r = fn(text); if(r) return r; }
+  return null;
+}
+
+/* ═══════════ تنفيذ الأوامر — معاينة الأول، وبعدين تأكيد ═══════════ */
+async function logCommand(sec, text, lane, status, result){
+  if(!CONTROL_API_URL) return null;
+  try { return await postJson(CONTROL_API_URL, { action: "logCommand", section: sec, text, lane, status, result }); }
+  catch(e){ return null; }
+}
+
+function submit(sec){
+  const input = document.getElementById("cmd-" + sec);
+  const text = input.value.trim();
+  if(!text) return;
+  const prev = document.getElementById(sec === "general" ? "log-general" : "prev-" + sec);
+  const r = interpret(sec, text);
+  const box = document.createElement("div");
+  box.className = "preview";
+  if(r && r.error){
+    box.innerHTML = '<span class="bad">⚠️ ' + esc(r.error) + '</span><button class="ghost">إلغاء</button>';
+  } else if(r){
+    box.innerHTML = '<span>⚡ هيتنفذ فورًا: ' + r.summary + '</span><button class="btn">تأكيد</button><button class="ghost">إلغاء</button>';
+  } else {
+    if(!CONTROL_API_URL){ box.innerHTML = '<span class="bad">⚠️ مافهمتش الأمر كأمر فوري، والطابور محتاج سكريبت اللوحة يتنشر الأول.</span><button class="ghost">إلغاء</button>'; }
+    else box.innerHTML = '<span>⏳ هيروح الطابور وClaude هينفذه ويكتب النتيجة هنا</span><button class="btn">ابعت</button><button class="ghost">إلغاء</button>';
+  }
+  S.pending[sec] && S.pending[sec].remove();
+  S.pending[sec] = box;
+  prev.prepend(box);
+  const ok = box.querySelector(".btn"), cancel = box.querySelector(".ghost");
+  cancel.onclick = () => { box.remove(); S.pending[sec] = null; input.focus(); };
+  if(ok){
+    ok.focus();
+    ok.onclick = async () => {
+      ok.disabled = true; cancel.disabled = true;
+      if(r && r.run){
+        let msg, okRun = true;
+        try { msg = await r.run(); } catch(e){ okRun = false; msg = e.message || String(e); }
+        box.innerHTML = '<span class="' + (okRun ? "ok" : "bad") + '">' + (okRun ? "✅ " : "❌ ") + esc(msg) + '</span>';
+        await logCommand(sec, text, "instant", okRun ? "done" : "failed", msg);
+      } else {
+        const res = await logCommand(sec, text, "queue");
+        box.innerHTML = res && res.success ? '<span class="q">⏳ اتسجل في الطابور (' + esc(res.id) + ')</span>' : '<span class="bad">❌ ماتسجلش — جرّب تاني</span>';
+      }
+      input.value = "";
+      setTimeout(() => { box.remove(); if(S.pending[sec] === box) S.pending[sec] = null; }, 6000);
+      loadAll();
+    };
+  }
+}
+
+async function finishTask(btn){
+  btn.disabled = true;
+  const r = await postJson(CONTROL_API_URL, { action: "setTask", id: btn.dataset.task, status: "done" });
+  if(r && r.success){ const t = S.tasks.find(x => x.ID === btn.dataset.task); if(t) t.Status = "done"; render(); }
+  else { btn.disabled = false; alert("❌ ماتحدثتش — جرّب تاني"); }
+}
+
+/* ═══════════ الأحداث ═══════════ */
+document.getElementById("loginBtn").onclick = doLogin;
+document.getElementById("loginPass").addEventListener("keydown", e => { if(e.key === "Enter") doLogin(); });
+document.getElementById("logoutBtn").onclick = logout;
+document.getElementById("refreshBtn").onclick = loadAll;
+document.addEventListener("click", e => {
+  const b = e.target.closest("button[data-sec]"); if(b) return submit(b.dataset.sec);
+  const d = e.target.closest("button[data-task]"); if(d) return finishTask(d);
+});
+document.addEventListener("keydown", e => {
+  if(e.key === "Enter" && e.target.id && e.target.id.indexOf("cmd-") === 0){ e.preventDefault(); submit(e.target.id.slice(4)); }
+  if(e.key === "Escape" && e.target.id && e.target.id.indexOf("cmd-") === 0){ const s = e.target.id.slice(4); S.pending[s] && S.pending[s].remove(); S.pending[s] = null; }
+});
+if(localStorage.getItem("staffToken")) showApp();
+</script>
+</body>
+</html>
