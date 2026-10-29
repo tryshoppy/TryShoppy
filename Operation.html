@@ -202,6 +202,14 @@
                 </div>
                 <i class="fa-solid fa-user-shield"></i>
             </a>
+            <!-- 🛰️ الـ Control Room — للأدمن بس، فبيتخفى لأي حد تاني -->
+            <a href="control.html" class="menu-btn btn-admin" id="controlBtn" style="display:none">
+                <div class="btn-content">
+                    <span>غرفة التحكم — كل حاجة في شاشة واحدة</span>
+                    <span class="btn-text-en">Control Room</span>
+                </div>
+                <i class="fa-solid fa-satellite-dish"></i>
+            </a>
         </div>
 
         <div class="lang-switch" onclick="toggleLanguage()">
@@ -233,6 +241,7 @@
                     const i = a.querySelector('i'); if (i) i.className = 'fa-solid fa-lock';
                 }
             });
+            if (localStorage.getItem('isAdmin') === '1') document.getElementById('controlBtn').style.display = '';
             const who = localStorage.getItem('currentUserLabel');
             if (who) {
                 const s = document.getElementById('subTitle');
