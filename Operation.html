@@ -202,8 +202,9 @@
                 </div>
                 <i class="fa-solid fa-user-shield"></i>
             </a>
-            <!-- 🛰️ الـ Control Room — للأدمن بس، فبيتخفى لأي حد تاني -->
-            <a href="control.html" class="menu-btn btn-admin" id="controlBtn" style="display:none">
+            <!-- 🛰️ الـ Control Room — ظاهر دايماً (الصفحة نفسها بتطلب دخول أدمن).
+                 لو فيه موظف مش أدمن مسجّل، markTools بتقفله زي باقي الأدوات -->
+            <a href="control.html" class="menu-btn btn-admin" id="controlBtn">
                 <div class="btn-content">
                     <span>غرفة التحكم — كل حاجة في شاشة واحدة</span>
                     <span class="btn-text-en">Control Room</span>
@@ -241,7 +242,20 @@
                     const i = a.querySelector('i'); if (i) i.className = 'fa-solid fa-lock';
                 }
             });
-            if (localStorage.getItem('isAdmin') === '1') document.getElementById('controlBtn').style.display = '';
+            /* 🐛→✅ الزرار كان بيعتمد على isAdmin في المتصفح، واللي بيتمسح لما الجلسة
+               (8 ساعات) تخلص أو لما تدخل من صفحة مبتحفظوش (QuickOrder/DirectOrder)،
+               فكان بيظهر مرة ويختفي مرة. دلوقتي بنقرا "admin" من التوكن الموقّع نفسه. */
+            let admin = localStorage.getItem('isAdmin') === '1';
+            try {
+                const p = JSON.parse(atob(localStorage.getItem('staffToken').split('.')[0].replace(/-/g,'+').replace(/_/g,'/')));
+                if (p && typeof p.admin !== 'undefined') admin = !!p.admin;
+            } catch (e) {}
+            if (!admin) {
+                const c = document.getElementById('controlBtn');
+                c.style.opacity = '.45';
+                c.title = 'غرفة التحكم للأدمن فقط';
+                const i = c.querySelector('i'); if (i) i.className = 'fa-solid fa-lock';
+            }
             const who = localStorage.getItem('currentUserLabel');
             if (who) {
                 const s = document.getElementById('subTitle');
