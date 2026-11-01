@@ -125,11 +125,11 @@ const SECTIONS = [
   { key: "mart",     icon: "🛒", title: "المارت",           link: "mart-admin.html",   ph: "مثال: ارفع سعر D3 لـ 650 (بيروح الطابور)" },
   { key: "rama",     icon: "🟣", title: "RAMA",             link: "rama-admin.html",   ph: "مثال: وافق RAMA-41 أو ارفض RAMA-41" },
   { key: "tasks",    icon: "✅", title: "مهام سريعة",       link: "",                  ph: "مثال: ! دفع شحنة 27SEP النهارده" },
-  { key: "email",    icon: "✉️", title: "الإيميل",          link: "", soon: "مرحلة 2 — بعد ربط Gmail", ph: "مثال: رد على إيميل Aramex بإننا موافقين" },
+  { key: "email",    icon: "✉️", title: "الإيميل",          link: "https://mail.google.com/", ph: "مثال: رد على إيميل Aramex بإننا موافقين (مسودة في الطابور)" },
   { key: "whatsapp", icon: "💬", title: "واتساب",           link: "", soon: "مرحلة 3 — بعد ربط WhatsApp Business API", ph: "مثال: رد على منى إن الطلب هيوصل الأحد" }
 ];
 
-const S = { orders: [], courier: [], rama: [], mart: [], tasks: [], commands: [], staff: [], controlOk: false, pending: {} };
+const S = { orders: [], courier: [], rama: [], mart: [], tasks: [], commands: [], staff: [], inbox: null, inboxError: "", controlOk: false, pending: {} };
 const esc = tsEscapeHtml;
 const num = v => parseFloat(tsToEnDigits(v)) || 0;
 const money = v => Math.round(v).toLocaleString("en-US");
@@ -204,7 +204,7 @@ async function loadAll(){
   out.forEach((r, i) => {
     const k = keys[i], v = r.status === "fulfilled" ? r.value : null;
     if(k === "control"){
-      if(v && v.success){ S.tasks = v.tasks || []; S.commands = v.commands || []; S.controlOk = true; }
+      if(v && v.success){ S.tasks = v.tasks || []; S.commands = v.commands || []; S.inbox = v.inbox || null; S.inboxError = v.inboxError || ""; S.controlOk = true; }
       else if(CONTROL_API_URL) failed.push("سكريبت اللوحة");
       return;
     }
@@ -295,7 +295,23 @@ function tasksItems(){
   return { items: out, green: S.tasks.filter(t => t.Status === "done").length, greenTxt: "مهمة خلصت النهارده" };
 }
 
-const BUILDERS = { orders: ordersItems, delivery: deliveryItems, mart: martItems, rama: ramaItems, tasks: tasksItems };
+/* ✉️ الوارد غير المقروء (آخر 14 يوم) — أقدم من 24 ساعة = عاجل، المهم عند Gmail = مهم */
+function emailItems(){
+  if(!S.inbox){
+    const msg = S.inboxError ? "⚠️ Gmail: " + esc(S.inboxError) : (S.controlOk ? "⚙️ الإيميل محتاج نسخة جديدة من سكريبت اللوحة (Manage deployments ← New version)" : "جارٍ التحميل…");
+    return { items: [it("y", msg)], green: 0, greenTxt: "" };
+  }
+  const out = S.inbox.items.map(m => {
+    const h = ageH(m.date);
+    const p = h > 24 ? "r" : "y";
+    const when = h < 1 ? "من شوية" : h < 24 ? "من " + Math.round(h) + " ساعة" : "من " + Math.round(h / 24) + " يوم";
+    return it(p, '<a href="' + esc(m.link) + '" target="_blank" style="color:inherit;text-decoration:none"><b>' + esc(m.from) + "</b> — " + esc(m.subject) + "</a>" + (m.count > 1 ? " (" + m.count + ")" : ""),
+      (p === "r" ? "🔴 مستني رد " : "🟡 ") + when + (m.snippet ? " · " + esc(m.snippet.slice(0, 90)) : ""));
+  }).sort((a, b) => "ryg".indexOf(a.p) - "ryg".indexOf(b.p));
+  return { items: out, green: S.inbox.autoCount || 0, greenTxt: "إشعار آلي (noreply) مش محتاج رد" };
+}
+
+const BUILDERS = { orders: ordersItems, delivery: deliveryItems, mart: martItems, rama: ramaItems, tasks: tasksItems, email: emailItems };
 
 /* ═══════════ الرسم ═══════════ */
 function buildGrid(){
