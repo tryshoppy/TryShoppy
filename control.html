@@ -99,7 +99,7 @@ a{color:var(--gold)}
 </div>
 
 <script src="assets/config.js?v=20261029"></script>
-<script src="assets/app.js?v=20261029"></script>
+<script src="assets/app.js?v=20261110a"></script>
 <script src="staff-auth.js?v=20261029"></script>
 <script>
 /* ============================================================
@@ -414,7 +414,7 @@ function parseOrderStatus(text){
   return {
     summary: "تغيير حالة " + ids.map(i => "#" + i).join(" ") + " ← <b>" + esc(m.status) + "</b> (" + esc(tsStatusLabel(m.status)) + ")" + (note ? " · ملاحظة: " + esc(note) : ""),
     run: async () => {
-      const res = await Promise.all(ids.map(order => postJson(ORDERS_URL, { action: "updateStatus", order, status: m.status, statusNote: note || undefined, user: getCurrentUser() })));
+      const res = await Promise.all(ids.map(order => postJson(ORDERS_URL, Object.assign({ action: "updateStatus", order, status: m.status, statusNote: note || undefined, user: getCurrentUser() }, m.status === "Canceled" ? { arrivaldate: "" } : {}))));
       const bad = res.filter(r => r && r.success === false);
       if(bad.length) throw new Error(bad[0].message || "رفض السيرفر");
       return ids.length + " طلب ← " + m.status;

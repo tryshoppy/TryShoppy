@@ -217,6 +217,8 @@ const TS_STATUSES = [
    ملخص الطلبات غير المستلمة ومن "طلباتك المفتوحة" في التتبع.
    On Hold و Delayed **مش** منها — الطلب لسه شغال، بس متعطّل. */
 const TS_CLOSED_STATUSES = ['Delivered', 'Canceled', 'Returned', 'Lost'];
+/* 🖨️ حالات مالهاش بوليصة شحن ولا تدخل ملف الشحن (هيثم 10/11/2026) */
+const TS_NO_LABEL_STATUSES = ['Canceled', 'Returned', 'Lost'];
 function tsIsClosedStatus(s){ return TS_CLOSED_STATUSES.indexOf(String(s == null ? '' : s).trim()) !== -1; }
 
 /* ═══════════════════════════════════════════════════════════
@@ -482,6 +484,10 @@ async function tsSaveOrderEdit(o){
   const cur = o.cur || {};
   const wanted = Object.assign({}, o.wanted);
   if(wanted.arrivaldate !== undefined) wanted.arrivaldate = tsNormArrival(wanted.arrivaldate);
+  /* ❌ طلب ملغي مينفعش يفضل له موعد وصول (هيثم 10/11/2026): لما بنفلتر
+     بالموعد ونطبع البوالص، الملغي كان بيتطبع مع الشحنة. فأول ما الحالة
+     تبقى Canceled بنفضّي الموعد في نفس الحفظ. */
+  if(String(wanted.status || '').trim() === 'Canceled') wanted.arrivaldate = '';
   const ch = tsOrderChanges(cur, wanted);
   if(!ch.count){ alert('لا يوجد أي تغيير في الطلب ' + o.orderId + ' لحفظه.'); return false; }
 

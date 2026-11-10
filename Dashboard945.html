@@ -702,7 +702,7 @@ body.sb-open{overflow:hidden}
 
 <script src="assets/config.js?v=20261017b"></script>
 <script src="assets/function_calc.js?v=20261019a"></script><!-- 💡 سعر الحاسبة المقترح (tsPriceSanity) -->
-<script src="assets/app.js?v=20261026a"></script>
+<script src="assets/app.js?v=20261110a"></script>
 <script>
 
 
@@ -1451,7 +1451,10 @@ return dateMatch && searchMatch && statusMatch && arrivalMatch && userMatch;
     if (isGrouped) {
         const groups = {};
         const ramaKeep = filtered.filter(o=>o.isRama);   // صفوف RAMA مش بتتجمّع بالموبايل
-        filtered = filtered.filter(o=>!o.isRama);
+        // ❌ الطلب الملغي مايدخلش في إجمالي العميل المُجمّع (كان بيزوّد مبلغ
+        // التحصيل على البوليصة) — بيفضل صف لوحده
+        const canceledKeep = filtered.filter(o=>!o.isRama && String(o.status||"").trim()==="Canceled");
+        filtered = filtered.filter(o=>!o.isRama && String(o.status||"").trim()!=="Canceled");
         filtered.forEach(o => {
             // نفس العميل لازم يتجمّع حتى لو رقمه متسجل مرة بأرقام عربي ومرة
             // إنجليزي، أو مرة بالصفر ومرة من غيره
@@ -1478,7 +1481,7 @@ return dateMatch && searchMatch && statusMatch && arrivalMatch && userMatch;
                 groups[key].costEgp += o.costEgp;
             }
         });
-        filtered = Object.values(groups).map(g => ({ ...g, order: g.order.join(' + ') })).concat(ramaKeep);
+        filtered = Object.values(groups).map(g => ({ ...g, order: g.order.join(' + ') })).concat(canceledKeep, ramaKeep);
     }
 	
     const totalEGP = filtered.reduce((a,b) => a + parseFloat(b.finalPrice || 0), 0);
@@ -1782,6 +1785,8 @@ function printLabel(phone, orderId) {
                  || ordersData.find(x => String(x.order) === id);
 
     if (!toPrint) return alert("⚠️ لم يُعثر على الطلب " + id + " — حدّث الصفحة وحاول مرة أخرى.");
+    if (TS_NO_LABEL_STATUSES.indexOf(String(toPrint.status || "").trim()) !== -1)
+        return alert("⛔ الطلب " + id + " حالته " + toPrint.status + " — مفيش بوليصة للطلبات الملغية أو المرتجعة أو المفقودة.");
 
     tsOpenHtmlDoc(`<!DOCTYPE html>
         <html dir="rtl" lang="ar">
@@ -1792,8 +1797,12 @@ function printLabel(phone, orderId) {
 function printAllDisplayed() {
     // 🐛→✅ صفوف RAMA المُجمّعة وصفوف الـ OPEX كانت بتطلع بوالص هي كمان
     // (بوليصة باسم "RAMA — إجمالي الموعد" أو "OPEX" وسط بوالص العملاء)
-    const items = currentFilteredData.filter(item => !item.isRama && !isOpexD(item));
-    if (!items.length) return alert("لا توجد بوالص للطباعة في الفلتر الحالي.");
+    // ❌ الملغي / المرتجع / المفقود مالوش بوليصة — كان بيتطبع مع الشحنة لو لسه عليه موعد وصول
+    const all = currentFilteredData.filter(item => !item.isRama && !isOpexD(item));
+    const items = all.filter(item => TS_NO_LABEL_STATUSES.indexOf(String(item.status || "").trim()) === -1);
+    const skipped = all.length - items.length;
+    if (!items.length) return alert("لا توجد بوالص للطباعة في الفلتر الحالي." + (skipped ? "\n(" + skipped + " طلب ملغي/مرتجع/مفقود اتشال)" : ""));
+    if (skipped) tsToast("ℹ️ اتشال " + skipped + " طلب ملغي/مرتجع/مفقود من الطباعة");
     let allHTML = '';
     items.forEach(item => { allHTML += generateLabelHTML(item, true); });
     tsOpenHtmlDoc(`<!DOCTYPE html>
@@ -1825,7 +1834,7 @@ function exportCSV(){
             if (/^[=+\-@]/.test(s)) s = "'" + s;
             return '"' + s + '"';
         };
-        currentFilteredData.filter(o => !o.isRama && !isOpexD(o)).forEach(o => {
+        currentFilteredData.filter(o => !o.isRama && !isOpexD(o) && TS_NO_LABEL_STATUSES.indexOf(String(o.status || "").trim()) === -1).forEach(o => {
             const finalP = parseFloat(o.finalPrice) || 0;
             const ship = isGrouped ? (parseFloat(o.totalShipping) || 0) : (parseFloat(o.shipping) || 0);
             const dep = parseFloat(o.deposit) || 0;
@@ -1966,6 +1975,8 @@ async function applyBulkStatus(){
                 order: orderId,
                 status: status,
                 statusNote: statusNote,
+                // ❌ الملغي بيتشال موعد وصوله (عشان مايتطبعش مع بوالص الشحنة)
+                ...(status === "Canceled" ? { arrivaldate: "" } : {}),
                 user: (typeof getCurrentUser === "function" ? getCurrentUser() : ""),
                 staffToken: getStaffToken()
             }).then(()=>({orderId, ok:true}))
