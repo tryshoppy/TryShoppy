@@ -155,7 +155,7 @@ button:hover{ opacity:.9; }
 
 <script src="assets/config.js?v=20261017b"></script>
 <script src="assets/app.js?v=20261110a"></script>
-<script src="staff-auth.js?v=20261017b"></script>
+<script src="staff-auth.js?v=20261110a"></script>
 <script>
 /* ============================================================
    🔐 صفحة داخلية مقيّدة — الدخول محتاج تحقق من خطوتين مع بعض:
@@ -168,7 +168,7 @@ button:hover{ opacity:.9; }
       يقدر يفتح مرجع الطلبات ده"، زي ما اتطلب بالظبط.
    لازم الاتنين ينجحوا مع بعض، وإلا مفيش دخول للصفحة خالص.
    ============================================================ */
-const SESSION_TIME = 2 * 60 * 60 * 1000;
+const SESSION_TIME = 24 * 60 * 60 * 1000; // 24 ساعة
 const scriptURL = TS_CONFIG.ORDERS_SCRIPT_URL;
 
 function getStaffToken(){ return localStorage.getItem("crefStaffToken") || ""; }

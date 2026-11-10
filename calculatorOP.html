@@ -458,14 +458,14 @@ document.addEventListener('ts-lang-changed', ()=>{
 });
 liveUpdate();
 </script>
-<script src="staff-auth.js?v=20261017b"></script>
+<script src="staff-auth.js?v=20261110a"></script>
 <script>
 /* 🔑 دخول + صلاحية "حاسبة التشغيل" من شيت الموظفين.
    ⚠️ الحاسبة مابتكلمش السيرفر خالص، ومعادلة التسعير نفسها موجودة في
    حاسبة الموقع العامة — فده تحكم في مين يشوف الأداة في التشغيل، مش
    حماية لبيانات سرية. */
 (function calcOpGate(){
-  const fresh = localStorage.getItem("staffToken") && (Date.now() - (+localStorage.getItem("loginTime") || 0)) < 8 * 60 * 60 * 1000;
+  const fresh = localStorage.getItem("staffToken") && (Date.now() - (+localStorage.getItem("loginTime") || 0)) < 24 * 60 * 60 * 1000;
   if (fresh) { tsGateTool("calculatorOP"); return; }
   const w = document.createElement("div");
   w.setAttribute("dir", "rtl");

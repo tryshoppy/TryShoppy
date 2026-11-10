@@ -306,7 +306,7 @@ button,input,select{font:inherit;color:inherit}
 
 <script src="assets/config.js?v=20261017b"></script>
 <script src="assets/app.js?v=20261110a"></script>
-<script src="staff-auth.js?v=20261017b"></script>
+<script src="staff-auth.js?v=20261110a"></script>
 <script>
 const scriptURL = TS_CONFIG.ORDERS_SCRIPT_URL;
 /* 🔒 السيرفر بيبعت للمندوب بس: الطلبات اللي "وصلت القاهرة"، + اللي هو
@@ -1575,7 +1575,7 @@ document.addEventListener("visibilitychange", () => { if(document.visibilityStat
 
 (function init(){
   const t = +localStorage.getItem("loginTime") || 0;
-  if(getStaffToken() && Date.now() - t < 12 * 60 * 60 * 1000) showApp();
+  if(getStaffToken() && Date.now() - t < 24 * 60 * 60 * 1000) showApp();
   else document.getElementById("loginScreen").style.display = "flex";
 })();
 </script>
