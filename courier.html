@@ -312,8 +312,11 @@ const scriptURL = TS_CONFIG.ORDERS_SCRIPT_URL;
 /* 🔒 السيرفر بيبعت للمندوب بس: الطلبات اللي "وصلت القاهرة"، + اللي هو
    نفسه حوّلها "في الطريق" (عشان يقدر يسجّل تسليمها). ومش بيسمحله يعدّل
    أي طلب غيرهم — شوف courierCanTouch_ في Orders_Code.gs. */
-const HUB = "Arrived Cairo HUB", OUT = "Shipped To You";
-const ACTIVE = [HUB, OUT];
+const HUB = "Arrived Cairo HUB", OUT = "Shipped To You", HOLD = "On Hold";
+/* ⏸️ "مؤجل" = لسه مع المندوب ولازم يتسلّم تاني — بيتحسب جاهز (يتضاف للخط
+   ويتسلّم). 🐛→✅ (11 نوفمبر) كان بيختفي خالص من المندوب يوم التأجيل
+   ومايتضافش للخط. السيرفر لازم يبعته كمان (courierCanTouch_ في Orders_Code.gs). */
+const ACTIVE = [HUB, OUT, HOLD];
 const CACHE_KEY = "ts_courier_cache";
 const CACHE_MAX_AGE = 30 * 60 * 1000;      // كاش 30 دقيقة للفتح السريع، وبيتحدّث في الخلفية على طول
 const REFRESH_EVERY = 3 * 60 * 1000;
@@ -614,7 +617,7 @@ function renderCustomer(){
         '<input type="checkbox" class="pick" value="' + tsEscapeHtml(o.order) + '" checked onchange="updateTotals()">' +
         '<div class="item-b">' +
           '<div class="item-top"><span class="item-no">' + tsEscapeHtml(o.order) + '</span>' +
-            '<span class="st ' + (st === OUT ? 'out' : 'hub') + '">' + tsEscapeHtml(tsStatusLabel(st)) + '</span></div>' +
+            '<span class="st ' + (st === OUT ? 'out' : st === HOLD ? 'hold' : 'hub') + '">' + tsEscapeHtml(tsStatusLabel(st)) + '</span></div>' +
           (o.dimensions && o.dimensions !== "-" ? '<div class="item-sp">📝 ' + tsEscapeHtml(o.dimensions) + '</div>' : '') +
           // 💵 المطلوب بس — من غير الإجمالي ولا المدفوع مقدمًا
           '<div class="item-m"><span>الكمية <b>' + q + '</b></span>' +
@@ -724,7 +727,7 @@ function updateTotals(resetAmt){
   ["btnDeliver","btnOut","btnHold"].forEach(id => { const b = document.getElementById(id); if(b) b.disabled = noSel; });
   renderPay();
   const bo = document.getElementById("btnOut");
-  if(bo && !noSel) bo.disabled = !sel.some(o => String(o.status).trim() === HUB);
+  if(bo && !noSel) bo.disabled = !sel.some(o => [HUB, HOLD].indexOf(String(o.status).trim()) !== -1);
   amtHint();
 }
 
@@ -790,6 +793,13 @@ async function sendUpdates(updates){
         return false;
       });
       if(!failed.length || attempt === 2){
+        // 🐛→✅ (11 نوفمبر) لو التحديث بعد الحفظ فشل (نت ضعيف)، الطلبات اللي
+        // اتسلّمت كانت بتفضل "جاهزة" في الصفحة والكاش — فتظهر تاني ويضيفها
+        // للخط. دلوقتي اللي اتأكد بنحدّثه محليًا الأول، وبعدين نجيب من السيرفر.
+        applyLocal(updates.filter(u => failed.indexOf(u) === -1).map(u => {
+          const o = states.find(x => String(x.order) === String(u.order));
+          return { order: u.order, status: o ? String(o.status).trim() : u.status };
+        }));
         try{
           const fresh = await fetchRows();
           setRows(fresh);
@@ -800,6 +810,16 @@ async function sendUpdates(updates){
     }catch(e){ if(e.auth){ alert("⚠️ انتهت الجلسة — يُرجى تسجيل الدخول مرة أخرى."); logout(); return updates; } }
   }
   return null;   // مقدرناش نتأكد
+}
+
+/** بنحدّث حالة طلبات في الصفحة والكاش من غير سيرفر (اللي اتأكد بس) */
+function applyLocal(changes){
+  if(!changes.length) return;
+  const by = {}; changes.forEach(c => { by[String(c.order)] = c.status; });
+  const d = ROWS.map(o => by[String(o.order)] !== undefined ? Object.assign({}, o, { status: by[String(o.order)] }) : o)
+                .filter(o => ACTIVE.indexOf(String(o.status).trim()) !== -1);
+  setRows(d);
+  try{ localStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), d })); }catch(e){}
 }
 
 /** حالة + عربون طلبات محددة بس (من غير أي بيانات عميل) */
@@ -900,7 +920,7 @@ async function askDeliver(){
 /* 🚚 خرج للتوصيل — للمنتجات اللي لسه "وصل القاهرة" بس */
 async function markOut(){
   if(busy || freshlyOpened()) return;
-  const sel = selectedRows().filter(o => String(o.status).trim() === HUB);
+  const sel = selectedRows().filter(o => [HUB, HOLD].indexOf(String(o.status).trim()) !== -1);
   if(!sel.length) return;
   const ok = await confirmSheet("🚚 خرجتُ للتوصيل", "ستحوّل <b>" + sel.length + "</b> منتج إلى «في الطريق إليك» — وستصل إلى العميل رسالة بريد إلكتروني بأن طلبه خرج للتوصيل.", "تأكيد");
   if(!ok) return;
@@ -1287,7 +1307,18 @@ function routeDist(a, b){   // كم (هافرسين) — كفاية للترتي
 let ROUTE = null;
 let ROUTE_EDIT = -1;   // المحطة اللي قايمة "اختار المنطقة" مفتوحة عندها
 function routeKey(){ return "ts_courier_route_" + (localStorage.getItem("currentUser") || ""); }
-function routeLoad(){ try{ ROUTE = JSON.parse(localStorage.getItem(routeKey()) || "null"); }catch(e){ ROUTE = null; } }
+function routeLoad(){
+  try{ ROUTE = JSON.parse(localStorage.getItem(routeKey()) || "null"); }catch(e){ ROUTE = null; }
+  // 🐛→✅ (11 نوفمبر) خط امبارح كان بيفضل زي ما هو — اللي اتسلّم بيظهر تاني
+  // في الخط، واللي اتأجل يفضل "مؤجل" ومايتسلّمش. يوم جديد = نشيل اللي
+  // اتسلّم ونرجّع المؤجل محطة عادية، والتاريخ يبقى النهاردة.
+  const today = new Date().toLocaleDateString("en-CA");
+  if(ROUTE && Array.isArray(ROUTE.stops) && String(ROUTE.date || "") < today){
+    ROUTE.stops = ROUTE.stops.filter(s => !s.done).map(s => Object.assign(s, { hold: false }));
+    ROUTE.date = today;
+    routeSave();
+  }
+}
 function routeSave(){ try{ ROUTE ? localStorage.setItem(routeKey(), JSON.stringify(ROUTE)) : localStorage.removeItem(routeKey()); }catch(e){} }
 function routeDateTxt(iso){ const p = String(iso || "").split("-"); return p.length === 3 ? p[2] + "-" + p[1] + "-" + p[0] : iso; }
 // ⚠️ التاريخ بالأرقام والشرَط بيتقلب في RTL (18-10-2026 بيبان 2026-10-18) — فبيتلف في span باتجاه ltr
@@ -1426,7 +1457,12 @@ function routeToggle(){ if(ROUTE){ ROUTE.open = !ROUTE.open; routeSave(); render
 /** حالة المحطة لايف: لسه عليها طلبات جاهزة؟ ولا اتسلّمت/اتأجلت */
 function routeLive(s){
   const c = CUSTOMERS.find(x => x.key === s.key);
-  return { c, ready: c ? c.active : 0, done: s.done || (ROWS.length > 0 && (!c || c.active === 0) && !s.hold), hold: s.hold };
+  // 🐛→✅ (11 نوفمبر) "اتسلّم" بقى من البيانات نفسها: مفيش حاجة جاهزة = اتسلّم.
+  // قبل كده علامة done كانت بتفضل حتى لو العميل جاله طلب جديد جاهز — فيبان
+  // "✓ في الخط" ومايتسلّمش ولا يتضاف تاني.
+  const ready = c ? c.active : 0;
+  const done = ROWS.length > 0 ? (ready === 0 && !s.hold) : !!s.done;
+  return { c, ready, done, hold: !done && !!s.hold };
 }
 function routeOpen(i){
   const s = ROUTE && ROUTE.stops[i]; if(!s) return;
