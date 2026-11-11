@@ -198,6 +198,17 @@ button,input,select{font:inherit;color:inherit}
 .pay-mix{display:none;margin-top:10px}
 .rt-warn{font-size:12.5px;font-weight:800;color:#9A3412;background:#FFEDD5;border:1.5px solid #FDBA74;border-radius:12px;padding:10px 12px;margin-bottom:10px;line-height:1.7}
 .stop.unsure{background:#FFF7ED;border-radius:12px}
+/* 🚚 خط الشحنة */
+.rt-big{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.rt-big .btn{padding:14px 8px;font-size:14.5px}
+.rt-start{display:flex;flex-direction:column;justify-content:center;font-size:11.5px;font-weight:900;color:var(--ink-2);background:var(--blue-wash);border:1.5px solid #C9D6F5;border-radius:14px;padding:6px 10px}
+.rt-start select{width:100%;margin-top:3px;border:0;background:transparent;font-size:15px;font-weight:900;color:var(--blue);padding:2px 0}
+.stop-area{margin-bottom:4px}
+.area.big{font-size:14px;padding:5px 12px;display:inline-block}
+.area.big.unk{background:#FED7AA;color:#9A3412;border:1.5px solid #FB923C}
+.stop.unsure{border:2px solid #FB923C}
+.stop.done{opacity:.45}
+.stop.done .stop-nm{text-decoration:line-through}
 .stop-why{font-size:11.5px;font-weight:800;color:var(--warn);margin-top:3px}
 .stop-addr{font-size:11.5px;color:var(--ink-3);font-weight:600;margin-top:3px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}
 .area-sel{width:100%;margin-top:6px;padding:8px;border:1.5px solid #FDBA74;border-radius:10px;background:#fff;font-size:13px;font-weight:800}
@@ -513,7 +524,6 @@ function renderSugs(){
       '<div class="sug-b"><div class="sug-n">' + hl(c.name || "(بدون اسم)", q) + '</div>' +
       '<div class="sug-s">' + tsEscapeHtml(c.gov || "") + (c.gov && tail ? " · " : "") + '<span class="mono" dir="ltr">' + tail + '</span></div></div>' +
       (c.active ? '<span class="pill go">📦 ' + c.active + ' جاهز</span>' : '<span class="pill no">لا يوجد ما وصل</span>') +
-      (ROUTE ? '<button class="sug-add' + (routeHas(c.key) ? ' in' : '') + '" onclick="routeAddSug(' + i + ', event)">' + (routeHas(c.key) ? '✓ في الخط' : '➕ أضف') + '</button>' : '') +
     '</div>';
   }).join("") : '<div class="sug-empty">لا يوجد عميل بهذا الاسم أو الرقم في الطلبات الأخيرة</div>';
 }
@@ -530,9 +540,9 @@ function pick(i){
    وكارته جاهز (كل منتجاته متعلّم عليها والمبلغ مكتوب)، فضغطتين كمان
    بيسجّلوه. دلوقتي أزرار الكارت الجديد بتفضل مقفولة ثانية ونص بعد فتحه */
 let OPENED_AT = 0;
-function openCustomer(c){
+function openCustomer(c, bk){
   current = c;
-  currentBatch = "";
+  currentBatch = bk || "";
   PAY_M = "";
   OPENED_AT = Date.now();
   renderCustomer();
@@ -593,8 +603,6 @@ function renderCustomer(){
         '<a class="wa" href="#" onclick="waOnTheWay();return false"><b>💬</b>واتساب</a>' +
         '<a href="https://www.google.com/maps/search/?api=1&query=' + mapQ + '" target="_blank" rel="noopener"><b>🗺️</b>الخريطة</a>' +
       '</div>' +
-      (ROUTE ? '<button class="c-route' + (routeHas(c.key) ? ' in' : '') + '" onclick="routeAddCurrent()">' +
-        (routeHas(c.key) ? '✓ في خط سير يوم ' + routeDateHtml(ROUTE.date) + ' — اضغط للإزالة' : '➕ أضف إلى خط سير يوم ' + routeDateHtml(ROUTE.date)) + '</button>' : '') +
     '</div>';
 
   if(held.length){
@@ -1015,33 +1023,9 @@ async function retryFailed(){
    وزّعهم عليه — فهنا بيظهروا كلهم لوحدهم من غير بحث، وهو يضيف منهم للخط.
    قبل النشر القائمة دي مابتظهرش (السيرفر القديم بيبعت كل الطلبات). */
 function isAdminUser(){ return localStorage.getItem("isAdmin") === "1"; }
-function renderMine(){
-  const box = document.getElementById("mineBox"); if(!box) return;
-  if(!SERVER_ASSIGN || isAdminUser()){ box.innerHTML = ""; return; }
-  const list = CUSTOMERS.filter(c => c.active).sort((a, b) => (a.name || "").localeCompare(b.name || "", "ar"));
-  if(!list.length){ box.innerHTML = '<div class="mine"><div class="mine-h">📦 طلباتك</div><div class="mine-empty">لا توجد طلبات موزعة عليك حاليًا — تواصل مع المكتب.</div></div>'; return; }
-  const notIn = list.filter(c => !routeHas(c.key)).length;
-  box.innerHTML = '<div class="mine"><div class="mine-h">📦 طلباتك <small>' + list.length + ' عميل</small>' +
-      (ROUTE && notIn ? '<button class="sug-add" onclick="routeAddAllMine()">➕ أضف الكل للخط (' + notIn + ')</button>' : '') + '</div>' +
-    list.map(c => {
-      const inf = routeAreaInfo(c.addr, c.gov, c.key);
-      return '<div class="mine-r"><div class="mine-b" onclick="openCustomerByKey(\'' + tsJsAttr(c.key) + '\')">' +
-          '<div class="sug-n">' + tsEscapeHtml(c.name || "(بدون اسم)") + '</div>' +
-          '<div class="stop-s">' + routeAreaTag(inf) + '<span>📦 ' + c.active + ' جاهز</span></div>' +
-          '<div class="stop-addr">📍 ' + tsEscapeHtml([c.addr, c.gov].filter(Boolean).join(" — ")) + '</div></div>' +
-        (ROUTE ? '<button class="sug-add' + (routeHas(c.key) ? ' in' : '') + '" onclick="routeToggleMine(\'' + tsJsAttr(c.key) + '\')">' + (routeHas(c.key) ? '✓ في الخط' : '➕ للخط') + '</button>' : '') +
-      '</div>';
-    }).join("") + '</div>';
-}
+// 📦 "طلباتك" اتلغت (11/11) — الشحنة نفسها بقت القايمة (renderRoute)
+function renderMine(){ const box = document.getElementById("mineBox"); if(box) box.innerHTML = ""; }
 function openCustomerByKey(key){ const c = CUSTOMERS.find(x => x.key === key); if(c) openCustomer(c); }
-function routeToggleMine(key){ const c = CUSTOMERS.find(x => x.key === key); if(!c) return; routeHas(key) ? routeRemove(key) : routeAdd(c); renderMine(); }
-function routeAddAllMine(){
-  if(!ROUTE) return;
-  let n = 0;
-  CUSTOMERS.filter(c => c.active && !routeHas(c.key)).forEach(c => { if(routeAdd(c, true)) n++; });
-  renderRoute(); renderMine();
-  toast("ok", "➕ أُضيف " + n + " عميل لخط السير", 2500);
-}
 
 /* ═══════════ 👥 توزيع الطلبات على المندوبين (للأدمن) ═══════════
    الأدمن بيعلّم على العميل كله (كل طلباته الجاهزة — زيارة واحدة) ويختار
@@ -1304,66 +1288,71 @@ function routeDist(a, b){   // كم (هافرسين) — كفاية للترتي
   return 2 * R * Math.asin(Math.sqrt(h));
 }
 
-let ROUTE = null;
-let ROUTE_EDIT = -1;   // المحطة اللي قايمة "اختار المنطقة" مفتوحة عندها
-function routeKey(){ return "ts_courier_route_" + (localStorage.getItem("currentUser") || ""); }
+/* ═══════════════════════════════════════════════════════════
+   🚚 خط الشحنة (هيثم 11/11/2026)
+   ═══════════════════════════════════════════════════════════
+   • الخط = شحنة بتاريخ الوصول (arrivaldate) — "شحنة 9 نوفمبر".
+   • بيتملي **لوحده**: أي عميل الأدمن وزّعه على المندوب وعنده حاجة جاهزة من
+     الشحنة دي بيظهر فيها أوتوماتيك. المندوب مابيضيفش ولا بيشيل.
+   • اللي اتسلّم بيفضل في مكانه باهت ومشطوب (✅ تم التسليم) — مابيتشالش.
+   • المسح بإيد المندوب بس، وبس للي اتسلّم (واحدة واحدة أو كله).
+   • زرارين: 🔀 رتّب حسب الأقرب + 📍 نقطة البداية. المنطقة باينة كبيرة،
+     واللي مش متأكدين منها برتقاني وتحتها "اختر المنطقة".
+   • محفوظ على موبايل المندوب (localStorage) — مفيش تعديل على الشيت. */
+let SHIP = null;          // { start, open: {bk: bool}, ships: { bk: { label, v, stops: [...] } } }
+let ROUTE_EDIT = "";      // "bk|key" للمحطة اللي قايمة المنطقة مفتوحة عندها
+function routeKey(){ return "ts_courier_ships_" + (localStorage.getItem("currentUser") || ""); }
 function routeLoad(){
-  try{ ROUTE = JSON.parse(localStorage.getItem(routeKey()) || "null"); }catch(e){ ROUTE = null; }
-  // 🐛→✅ (11 نوفمبر) خط امبارح كان بيفضل زي ما هو — اللي اتسلّم بيظهر تاني
-  // في الخط، واللي اتأجل يفضل "مؤجل" ومايتسلّمش. يوم جديد = نشيل اللي
-  // اتسلّم ونرجّع المؤجل محطة عادية، والتاريخ يبقى النهاردة.
-  const today = new Date().toLocaleDateString("en-CA");
-  if(ROUTE && Array.isArray(ROUTE.stops) && String(ROUTE.date || "") < today){
-    ROUTE.stops = ROUTE.stops.filter(s => !s.done).map(s => Object.assign(s, { hold: false }));
-    ROUTE.date = today;
-    routeSave();
-  }
+  try{ SHIP = JSON.parse(localStorage.getItem(routeKey()) || "null"); }catch(e){ SHIP = null; }
+  if(!SHIP || typeof SHIP !== "object" || !SHIP.ships) SHIP = { start: ROUTE_DEFAULT_START, open: {}, ships: {} };
+  if(!SHIP.open) SHIP.open = {};
+  try{ localStorage.removeItem("ts_courier_route_" + (localStorage.getItem("currentUser") || "")); }catch(e){}   // الخط القديم
 }
-function routeSave(){ try{ ROUTE ? localStorage.setItem(routeKey(), JSON.stringify(ROUTE)) : localStorage.removeItem(routeKey()); }catch(e){} }
-function routeDateTxt(iso){ const p = String(iso || "").split("-"); return p.length === 3 ? p[2] + "-" + p[1] + "-" + p[0] : iso; }
-// ⚠️ التاريخ بالأرقام والشرَط بيتقلب في RTL (18-10-2026 بيبان 2026-10-18) — فبيتلف في span باتجاه ltr
-function routeDateHtml(iso){ return '<span dir="ltr" style="unicode-bidi:isolate">' + tsEscapeHtml(routeDateTxt(iso)) + '</span>'; }
-function routeStartArea(){ const i = ROUTE_AREAS.findIndex(a => a[0] === (ROUTE && ROUTE.start)); return i === -1 ? ROUTE_AREAS.findIndex(a => a[0] === ROUTE_DEFAULT_START) : i; }
-/** المنطقة والثقة لايف (عشان أي تصحيح في الجدول أو اختيار يدوي يتطبق على الخط الموجود) */
+function routeSave(){ try{ localStorage.setItem(routeKey(), JSON.stringify(SHIP)); }catch(e){} }
+const AR_MONTHS = ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+function shipLabel(raw){
+  const v = arrValue(raw);
+  if(v > 0){ const d = new Date(v); return d.getDate() + " " + AR_MONTHS[d.getMonth()]; }
+  return String(raw || "").trim() || "بدون موعد";
+}
+function routeStartArea(){ const i = ROUTE_AREAS.findIndex(a => a[0] === (SHIP && SHIP.start)); return i === -1 ? ROUTE_AREAS.findIndex(a => a[0] === ROUTE_DEFAULT_START) : i; }
 function routeInfo(s){ return routeAreaInfo(s.addr, s.gov, s.key); }
 function routeSure(s){ const c = routeInfo(s).conf; return c === "ok" || c === "manual"; }
 
-function routeNew(){
-  ROUTE = { date: new Date().toLocaleDateString("en-CA"), start: ROUTE_DEFAULT_START, stops: [], manual: false, open: true };
-  routeSave(); renderRoute(); renderMine();
-  toast("ok", "🗺️ تم إنشاء خط السير — أضف العملاء بزر «➕»", 4000);
+/** صفوف العميل الجاهزة في شحنة معينة */
+function shipRows(c, bk){ return c ? c.rows.filter(o => ACTIVE.indexOf(String(o.status).trim()) !== -1 && batchKey(o.arrivaldate) === bk) : []; }
+/** حالة المحطة لايف: جاهز / مؤجل / اتسلّم (مش موجود في بيانات السيرفر = اتقفل) */
+function routeLive(bk, s){
+  const c = CUSTOMERS.find(x => x.key === s.key);
+  const rows = shipRows(c, bk);
+  const ready = rows.filter(o => String(o.status).trim() !== HOLD).length;
+  const held = rows.length - ready;
+  if(!ROWS.length) return { c, ready, done: false, hold: !!s.hold };
+  if(ready) return { c, ready, done: false, hold: false };
+  if(held || s.hold) return { c, ready: 0, done: false, hold: true };
+  return { c, ready: 0, done: true, hold: false };
 }
-function routeHas(key){ return !!(ROUTE && ROUTE.stops.some(s => s.key === key)); }
-function routeAdd(c, quiet){
-  if(!ROUTE || !c || routeHas(c.key)) return false;
-  if(!c.active){ if(!quiet) toast("err", "لا توجد طلبات جاهزة للتسليم لـ " + tsEscapeHtml(c.name || "هذا العميل") + " — لم يُضف إلى الخط.", 3500); return false; }
-  ROUTE.stops.push({ key: c.key, name: c.name || "", phone: c.phone || "", addr: c.addr || "", gov: c.gov || "", done: false, hold: false });
-  if(!ROUTE.manual) routeSortStops();
-  routeSave();
-  if(!quiet){
-    renderRoute(); renderMine();
-    const inf = routeAreaInfo(c.addr, c.gov, c.key);
-    const s = ROUTE.stops.find(x => x.key === c.key);
-    toast(inf.conf === "ok" || inf.conf === "manual" ? "ok" : "err", "➕ أُضيف " + tsEscapeHtml(c.name || "العميل") + " — محطة رقم " + (ROUTE.stops.indexOf(s) + 1) +
-      (inf.conf === "ok" || inf.conf === "manual" ? " (" + tsEscapeHtml(ROUTE_AREAS[inf.area][0]) + ")" : "<br>⚠️ " + tsEscapeHtml(inf.why) + " — وُضع في آخر الخط، اختر منطقته من القائمة"), 4000);
-  }
-  return true;
+
+/** بنضيف أي عميل متوزّع وعنده حاجة جاهزة لشحنته — أوتوماتيك */
+function shipSync(){
+  if(!SHIP || !ROWS.length) return;
+  let changed = false;
+  const fresh = {};
+  CUSTOMERS.forEach(c => c.rows.forEach(o => {
+    if(ACTIVE.indexOf(String(o.status).trim()) === -1) return;
+    const bk = batchKey(o.arrivaldate);
+    if(!SHIP.ships[bk]){ SHIP.ships[bk] = { label: shipLabel(o.arrivaldate), v: arrValue(o.arrivaldate), stops: [] }; SHIP.open[bk] = true; changed = true; }
+    const sh = SHIP.ships[bk];
+    let s = sh.stops.find(x => x.key === c.key);
+    if(!s){ s = { key: c.key }; sh.stops.push(s); fresh[bk] = true; changed = true; }
+    // أحدث اسم/عنوان من الشيت
+    ["name", "phone", "addr", "gov"].forEach(f => { const v = c[f] || ""; if(s[f] !== v){ s[f] = v; changed = true; } });
+  }));
+  Object.keys(fresh).forEach(bk => routeSortStops(bk));
+  if(changed) routeSave();
 }
-function routeAddCurrent(){ if(current){ routeHas(current.key) ? routeRemove(current.key) : routeAdd(current); renderCustomer(); } }
-function routeAddSug(i, ev){
-  if(ev){ ev.stopPropagation(); ev.preventDefault(); }
-  const c = SUGS[i]; if(!c) return;
-  routeHas(c.key) ? routeRemove(c.key) : routeAdd(c);
-  renderSugs();
-}
-function routeRemove(key){
-  if(!ROUTE) return;
-  ROUTE.stops = ROUTE.stops.filter(s => s.key !== key);
-  routeSave(); renderRoute(); renderMine();
-}
-/** أقصر مسار مفتوح يبدأ من start ويمر على كل النقاط مرة واحدة.
- *  لحد 13 منطقة: الحل الدقيق (Held-Karp) — أقل من ثانية على الموبايل.
- *  أكتر من كده: "الأقرب فالأقرب" + تحسين بنقل نقطة واحدة لأحسن مكان. */
+
+/** أقصر مسار مفتوح يبدأ من start ويمر على كل النقاط مرة واحدة. */
 function routeBestOrder(start, pts){
   const n = pts.length;
   if(n <= 1) return n ? [0] : [];
@@ -1411,130 +1400,96 @@ function routeBestOrder(start, pts){
   }
   return ord;
 }
-/** ترتيب المحطات: أقصر مسار من نقطة البداية للمحطات المتأكدين من منطقتها
- *  بس. اللي اتسلّم بيفضل فوق بترتيبه، واللي مش متأكدين منها في الآخر. */
-function routeSortStops(){
-  const done = ROUTE.stops.filter(s => s.done || s.hold);
-  const left = ROUTE.stops.filter(s => !s.done && !s.hold);
+/** ترتيب الشحنة: اللي لسه جاهز بأقصر مسار من نقطة البداية (نفس المنطقة ورا
+ *  بعض)، وبعده اللي مش متأكدين من منطقته، وفي الآخر اللي اتسلّم (باهت). */
+function routeSortStops(bk){
+  const sh = SHIP.ships[bk]; if(!sh) return;
+  const live = s => routeLive(bk, s);
+  const left = sh.stops.filter(s => !live(s).done);
+  const done = sh.stops.filter(s => live(s).done);
   const sure = left.filter(routeSure), unsure = left.filter(s => !routeSure(s));
   const start = ROUTE_AREAS[routeStartArea()];
   const areaOf = s => routeInfo(s).area;
-  // نجمّع المحطات حسب المنطقة (نفس المنطقة = ورا بعض)، ونرتّب المناطق نفسها
   const areas = [...new Set(sure.map(areaOf))];
   const order = routeBestOrder(start, areas.map(i => ROUTE_AREAS[i]));
   const ordered = [];
   order.forEach(k => sure.filter(s => areaOf(s) === areas[k]).forEach(s => ordered.push(s)));
-  ROUTE.stops = done.concat(ordered, unsure);
+  sh.stops = ordered.concat(unsure, done);
 }
-function routeResort(){ if(!ROUTE) return; ROUTE.manual = false; routeSortStops(); routeSave(); renderRoute(); toast("ok", "🔀 تم ترتيب الخط حسب الأقرب من " + tsEscapeHtml(ROUTE.start), 2500); }
-function routeMove(i, d){
-  if(!ROUTE) return;
-  const j = i + d;
-  if(j < 0 || j >= ROUTE.stops.length) return;
-  [ROUTE.stops[i], ROUTE.stops[j]] = [ROUTE.stops[j], ROUTE.stops[i]];
-  ROUTE.manual = true; routeSave(); renderRoute();
+function routeResort(bk){
+  routeSortStops(bk); routeSave(); renderRoute();
+  toast("ok", "🔀 اترتّبت حسب الأقرب من " + tsEscapeHtml(SHIP.start), 2500);
 }
-function routeSetStart(v){ ROUTE.start = v; if(!ROUTE.manual) routeSortStops(); routeSave(); renderRoute(); }
-function routeSetDate(v){ if(v){ ROUTE.date = v; routeSave(); renderRoute(); } }
-function routeEditArea(i){ ROUTE_EDIT = ROUTE_EDIT === i ? -1 : i; renderRoute(); }
-/** اختيار المنطقة بإيد المندوب — بيتحفظ للعميل، والخط بيترتب تاني */
-function routeSetArea(i, name){
-  const s = ROUTE && ROUTE.stops[i]; if(!s) return;
+function routeSetStart(v){ SHIP.start = v; Object.keys(SHIP.ships).forEach(routeSortStops); routeSave(); renderRoute(); }
+function routeEditArea(bk, key){ const id = bk + "|" + key; ROUTE_EDIT = ROUTE_EDIT === id ? "" : id; renderRoute(); }
+/** اختيار المنطقة بإيد المندوب — بيتحفظ للعميل، والشحنة بتترتب تاني */
+function routeSetArea(bk, key, name){
   const fx = routeFixes();
-  if(name) fx[s.key] = name; else delete fx[s.key];
+  if(name) fx[key] = name; else delete fx[key];
   try{ localStorage.setItem(ROUTE_FIX_KEY, JSON.stringify(fx)); }catch(e){}
-  ROUTE_EDIT = -1;
-  if(!ROUTE.manual) routeSortStops();
-  routeSave(); renderRoute(); renderMine();
+  ROUTE_EDIT = "";
+  routeSortStops(bk); routeSave(); renderRoute();
 }
-async function routeClear(){
-  if(!ROUTE) return;
-  const ok = await confirmSheet("🗑 مسح خط السير", "سيُحذف خط سير يوم <b>" + routeDateHtml(ROUTE.date) + "</b> من هذا الموبايل. لن يتغير أي شيء في الطلبات نفسها.", "مسح");
+function routeToggle(bk){ SHIP.open[bk] = !SHIP.open[bk]; routeSave(); renderRoute(); }
+function routeOpen(bk, key){
+  const c = CUSTOMERS.find(x => x.key === key);
+  if(!c || !shipRows(c, bk).length) return toast("ok", "✅ العميل ده خلص — مفيش حاجة جاهزة ليه في الشحنة دي.", 3000);
+  openCustomer(c, bk);
+}
+/** 🗑 مسح المسلَّم — واحدة أو كله (اللي لسه ماتسلّمش مابيتمسحش) */
+async function routeDelDone(bk, key){
+  const sh = SHIP.ships[bk]; if(!sh) return;
+  const done = sh.stops.filter(s => routeLive(bk, s).done && (!key || s.key === key));
+  if(!done.length) return;
+  const all = done.length === sh.stops.length;
+  const ok = await confirmSheet("🗑 مسح " + (key ? "محطة" : "المسلَّم"),
+    key ? "هتتمسح <b>" + tsEscapeHtml(done[0].name || "") + "</b> من شحنة " + tsEscapeHtml(sh.label) + "."
+        : "هيتمسح <b>" + done.length + "</b> عميل اتسلّموا من شحنة " + tsEscapeHtml(sh.label) + (all ? " — والشحنة كلها هتتقفل." : "."), "مسح");
   if(!ok) return;
-  ROUTE = null; routeSave(); renderRoute(); renderSugs(); renderMine(); if(current) renderCustomer();
-}
-function routeToggle(){ if(ROUTE){ ROUTE.open = !ROUTE.open; routeSave(); renderRoute(); } }
-/** حالة المحطة لايف: لسه عليها طلبات جاهزة؟ ولا اتسلّمت/اتأجلت */
-function routeLive(s){
-  const c = CUSTOMERS.find(x => x.key === s.key);
-  // 🐛→✅ (11 نوفمبر) "اتسلّم" بقى من البيانات نفسها: مفيش حاجة جاهزة = اتسلّم.
-  // قبل كده علامة done كانت بتفضل حتى لو العميل جاله طلب جديد جاهز — فيبان
-  // "✓ في الخط" ومايتسلّمش ولا يتضاف تاني.
-  const ready = c ? c.active : 0;
-  const done = ROWS.length > 0 ? (ready === 0 && !s.hold) : !!s.done;
-  return { c, ready, done, hold: !done && !!s.hold };
-}
-function routeOpen(i){
-  const s = ROUTE && ROUTE.stops[i]; if(!s) return;
-  const c = CUSTOMERS.find(x => x.key === s.key);
-  if(!c) return toast("err", "لا توجد طلبات جاهزة لهذا العميل الآن (ربما تم تسليمها).", 3500);
-  openCustomer(c);
-}
-function routeNextIndex(){
-  if(!ROUTE) return -1;
-  return ROUTE.stops.findIndex(s => { const l = routeLive(s); return !l.done && !l.hold; });
-}
-/** بعد التسليم/التأجيل — بنعلّم المحطة. 🐛→✅ (20 أكتوبر) كان بيرجّع رابط
- *  "➡️ المحطة التالية" جوه رسالة النتيجة، في نفس مكان زرار التأكيد تقريبًا
- *  — ضغطة متكررة كانت بتفتح العميل اللي بعده (وكارته جاهز بالمبلغ) فيتسجل
- *  هو كمان. دلوقتي نص بس، والانتقال من قايمة الخط بإيد المندوب. */
-function routeMark(key, kind){
-  if(!ROUTE) return "";
-  const s = ROUTE.stops.find(x => x.key === key);
-  if(!s) return "";
-  if(kind === "done"){ s.done = true; s.hold = false; } else s.hold = true;
+  const gone = done.map(s => s.key);
+  sh.stops = sh.stops.filter(s => gone.indexOf(s.key) === -1);
+  if(!sh.stops.length){ delete SHIP.ships[bk]; delete SHIP.open[bk]; }
   routeSave(); renderRoute();
-  const n = routeNextIndex();
-  return n === -1 ? '<br>🎉 خلصت كل محطات خط السير' : '<br>📍 التالي في الخط: ' + tsEscapeHtml(ROUTE.stops[n].name || "") + ' — افتحه من القائمة';
 }
-/** 🧭 Google Maps بالترتيب — الرابط بياخد لحد 9 محطات وسطانية + الوجهة،
- *  فلو الخط أطول بنقسّمه لرحلات (كل رحلة بتبدأ من آخر محطة في اللي قبلها) */
-function routeMapsLegs(){
-  // اللي مش متأكدين من منطقتها مابتدخلش الخريطة — Google هيخمّن مكانها غلط
-  const left = ROUTE.stops.filter(s => { const l = routeLive(s); return !l.done && !l.hold && routeSure(s); });
+/** بعد التسليم/التأجيل من كارت العميل — بنعلّم المحطة في الشحنة المفتوحة */
+function routeMark(key, kind){
+  const bk = currentBatch, sh = SHIP && SHIP.ships[bk];
+  if(!sh) return "";
+  const s = sh.stops.find(x => x.key === key);
+  if(!s) return "";
+  s.hold = kind !== "done";
+  routeSave(); renderRoute();
+  const n = sh.stops.find(x => { const l = routeLive(bk, x); return !l.done && !l.hold && x.key !== key; });
+  return n ? '<br>📍 التالي: ' + tsEscapeHtml(n.name || "") + ' — افتحه من الشحنة' : '<br>🎉 خلصت كل محطات شحنة ' + tsEscapeHtml(sh.label);
+}
+/** 🧭 Google Maps بالترتيب — لحد 10 محطات في الرحلة، والباقي رحلات ورا بعض */
+function routeMapsLegs(bk){
+  const sh = SHIP.ships[bk];
+  const left = sh.stops.filter(s => { const l = routeLive(bk, s); return !l.done && !l.hold && routeSure(s); });
   const q = s => [s.addr, ROUTE_AREAS[routeInfo(s).area][0], s.gov, "مصر"].filter(Boolean).join(" ");
   const legs = [];
-  let origin = ROUTE.start + " القاهرة مصر";
+  let origin = SHIP.start + " القاهرة مصر";
   for(let i = 0; i < left.length; i += 10){
     const part = left.slice(i, i + 10);
     const dest = part[part.length - 1], way = part.slice(0, -1);
-    legs.push({ from: i + 1, to: i + part.length, url: "https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=" + encodeURIComponent(origin) +
+    legs.push({ from: i + 1, url: "https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=" + encodeURIComponent(origin) +
       "&destination=" + encodeURIComponent(q(dest)) + (way.length ? "&waypoints=" + encodeURIComponent(way.map(q).join("|")) : "") });
     origin = q(dest);
   }
   return legs;
 }
-/** 🚚 خرجت للتوصيل لكل محطات الخط مرة واحدة (اللي لسه "وصل القاهرة" بس) */
-async function routeMarkOutAll(){
-  if(busy || !ROUTE) return;
-  const keys = ROUTE.stops.filter(s => { const l = routeLive(s); return !l.done && !l.hold; }).map(s => s.key);
-  const rows = ROWS.filter(o => String(o.status).trim() === HUB && keys.indexOf(custKey(o)) !== -1);
-  if(!rows.length) return toast("err", "لا توجد منتجات بحالة «وصل مخزن القاهرة» في خط السير — ربما سجّلت خروجك لها بالفعل.", 4000);
-  const ok = await confirmSheet("🚚 خرجتُ للتوصيل — كل الخط",
-    "ستحوّل <b>" + rows.length + "</b> منتج لـ <b>" + keys.length + "</b> عميل إلى «في الطريق إليك»، وستصل إلى كل عميل رسالة بريد إلكتروني بأن طلبه خرج للتوصيل.", "تأكيد");
-  if(!ok) return;
-  lockUI(true);
-  toast("ok", "⏳ جارٍ التسجيل... (" + rows.length + " منتج)");
-  const failed = await sendUpdates(rows.map(o => ({ order: String(o.order), status: OUT })));
-  lockUI(false);
-  if(failed === null) return toast("err", "⚠️ لم نتمكن من التأكد من تسجيل التحديث — لا تُعِد الإرسال، وتواصل مع المكتب.");
-  toast(failed.length ? "err" : "ok", failed.length ? "⚠️ لم تُسجَّل الطلبات التالية: " + failed.map(f => f.order).join("، ") : "✅ تم تسجيل خروجك للتوصيل لكل الخط", failed.length ? 0 : 3500);
-  renderRoute(); if(current) renderCustomer();
-}
 
-/** شارة المنطقة + سببها لو مش متأكدين */
+/** شارة المنطقة — كبيرة، وبرتقاني لو فيه مشكلة */
 function routeAreaTag(inf, onclick){
   const oc = onclick ? ' onclick="' + onclick + '" style="cursor:pointer"' : '';
-  if(inf.conf === "none") return '<span class="area unk"' + oc + '>❓ ' + tsEscapeHtml(inf.why) + '</span>';
+  if(inf.conf === "none") return '<span class="area big unk"' + oc + '>❓ ' + tsEscapeHtml(inf.why) + '</span>';
   const nm = tsEscapeHtml(ROUTE_AREAS[inf.area][0]);
-  if(inf.conf === "warn") return '<span class="area unk"' + oc + '>⚠️ ' + nm + '؟</span>';
-  return '<span class="area"' + oc + '>' + (inf.conf === "manual" ? "✋ " : "") + nm + (onclick ? ' ✏️' : '') + '</span>';
+  if(inf.conf === "warn") return '<span class="area big unk"' + oc + '>⚠️ ' + nm + '؟</span>';
+  return '<span class="area big"' + oc + '>📍 ' + (inf.conf === "manual" ? "✋ " : "") + nm + (onclick ? ' ✏️' : '') + '</span>';
 }
-/** قايمة اختيار المنطقة — بتبدأ دايمًا على "اختر" (عشان تأكيد المقترح نفسه
- *  يبقى اختيار فعلي)، والمقترح أول اختيار فيها */
-function routeAreaSelect(i, inf){
+function routeAreaSelect(bk, key, inf){
   const sug = inf.conf === "warn" ? inf.area : -1;
-  return '<select class="area-sel" onchange="if(this.value!==\'__\')routeSetArea(' + i + ', this.value)">' +
+  return '<select class="area-sel" onchange="if(this.value!==\'__\')routeSetArea(\'' + tsJsAttr(bk) + '\',\'' + tsJsAttr(key) + '\', this.value)">' +
     '<option value="__" selected>📍 ' + (inf.conf === "manual" ? 'غيّر المنطقة…' : sug !== -1 ? 'أكّد أو اختر المنطقة…' : 'اختر المنطقة…') + '</option>' +
     (sug !== -1 ? '<option value="' + tsEscapeHtml(ROUTE_AREAS[sug][0]) + '">✓ ' + tsEscapeHtml(ROUTE_AREAS[sug][0]) + ' (المقترح)</option>' : '') +
     (inf.conf === "manual" ? '<option value="">↩️ رجوع للتحديد التلقائي</option>' : '') +
@@ -1544,57 +1499,54 @@ function routeAreaSelect(i, inf){
 
 function renderRoute(){
   const box = document.getElementById("routeBox");
-  if(!box) return;
-  if(!ROUTE){ box.innerHTML = '<button class="rt-new" onclick="routeNew()">🗺️ إضافة خط سير ليوم توصيل</button>'; return; }
-  const live = ROUTE.stops.map(routeLive);
-  const doneN = live.filter(l => l.done).length;
-  const next = routeNextIndex();
-  const unsureN = ROUTE.stops.filter((s, i) => !live[i].done && !live[i].hold && !routeSure(s)).length;
-  let h = '<div class="route' + (ROUTE.open ? ' open' : '') + '">' +
-    '<div class="rt-head" onclick="routeToggle()"><b>🗺️ خط سير يوم ' + routeDateHtml(ROUTE.date) + '</b>' +
-      '<small>تم ' + doneN + ' من ' + ROUTE.stops.length + '</small><span>' + (ROUTE.open ? '▲' : '▼') + '</span></div>' +
-    '<div class="rt-body">' +
-      '<div class="rt-cfg">' +
-        '<label>📅 يوم التوصيل<input type="date" value="' + tsEscapeHtml(ROUTE.date) + '" onchange="routeSetDate(this.value)"></label>' +
-        '<label>📍 نقطة البداية<select onchange="routeSetStart(this.value)">' +
-          ROUTE_AREAS.map(a => '<option' + (a[0] === ROUTE.start ? ' selected' : '') + '>' + tsEscapeHtml(a[0]) + '</option>').join("") +
-        '</select></label>' +
-      '</div>';
-  if(!ROUTE.stops.length){
-    h += '<div class="rt-hint">➕ أضف العملاء من قائمة «طلباتك» أو من البحث — وسيترتب الخط تلقائيًا حسب الأقرب من ' + tsEscapeHtml(ROUTE.start) + '.</div>';
-  } else {
-    if(unsureN) h += '<div class="rt-warn">⚠️ <b>الترتيب غير مؤكد لـ ' + unsureN + ' محطة</b> — لم نتأكد من منطقتها، فوُضعت في آخر الخط. اختر المنطقة الصحيحة من القائمة تحت كل واحدة (وستتحفظ للمرة القادمة)، أو رتّبها بنفسك بالأسهم.</div>';
-    if(ROUTE.manual) h += '<div class="rt-hint">✋ رتّبت الخط يدويًا — اضغط «🔀 رتّب حسب الأقرب» للرجوع للترتيب التلقائي.</div>';
-    h += ROUTE.stops.map((s, i) => {
-      const l = live[i], inf = routeInfo(s);
-      const sure = inf.conf === "ok" || inf.conf === "manual";
-      const st = l.done ? '✅ تم التسليم' : l.hold ? '⏸️ مؤجل' : (l.ready ? '📦 ' + l.ready + ' جاهز' : '');
-      const showSel = !l.done && !l.hold && (!sure || ROUTE_EDIT === i);
-      return '<div class="stop' + (l.done ? ' done' : l.hold ? ' hold' : '') + (i === next ? ' next' : '') + (!sure && !l.done && !l.hold ? ' unsure' : '') + '">' +
-        '<span class="n">' + (l.done ? '✓' : i + 1) + '</span>' +
-        '<div class="stop-b"><div class="stop-nm" onclick="routeOpen(' + i + ')">' + tsEscapeHtml(s.name || "(بدون اسم)") + '</div>' +
-          '<div class="stop-s">' + routeAreaTag(inf, sure && !l.done ? 'routeEditArea(' + i + ')' : '') + (st ? '<span>' + st + '</span>' : '') + '</div>' +
-          (inf.conf === "warn" ? '<div class="stop-why">' + tsEscapeHtml(inf.why) + '</div>' : '') +
-          '<div class="stop-addr" onclick="routeOpen(' + i + ')">📍 ' + tsEscapeHtml([s.addr, s.gov].filter(Boolean).join(" — ") || "بدون عنوان") + '</div>' +
-          (showSel ? routeAreaSelect(i, inf) : '') +
-        '</div>' +
-        '<div class="stop-x">' +
-          '<button onclick="routeMove(' + i + ',-1)"' + (i === 0 ? ' disabled' : '') + ' aria-label="لأعلى">⬆️</button>' +
-          '<button onclick="routeMove(' + i + ',1)"' + (i === ROUTE.stops.length - 1 ? ' disabled' : '') + ' aria-label="لأسفل">⬇️</button>' +
-          '<button onclick="routeRemove(\'' + tsJsAttr(s.key) + '\')" aria-label="إزالة">✕</button>' +
-        '</div></div>';
-    }).join("");
-    const legs = routeMapsLegs();
-    h += '<div class="rt-acts">' +
-      '<div class="row2"><button class="btn sm sort" onclick="routeResort()">🔀 رتّب حسب الأقرب</button>' +
-        '<button class="btn sm out" onclick="routeMarkOutAll()">🚚 خرجتُ للتوصيل (الكل)</button></div>' +
-      legs.map(l => '<a class="btn sm nav" style="text-decoration:none" href="' + tsSafeHref(l.url) + '" target="_blank" rel="noopener">🧭 افتح في Google Maps' +
-        (legs.length > 1 ? ' — الجزء ' + Math.ceil(l.from / 10) : '') + '</a>').join("") +
-      (unsureN ? '<div class="rt-hint" style="margin:0">⚠️ المحطات غير المؤكدة ليست في الخريطة — حدّد منطقتها أولًا، أو افتحها من كارت العميل (🗺️ الخريطة).</div>' : '') +
-    '</div>';
+  if(!box || !SHIP) return;
+  shipSync();
+  const bks = Object.keys(SHIP.ships).sort((a, b) => (SHIP.ships[a].v || 0) - (SHIP.ships[b].v || 0));
+  if(!bks.length){
+    box.innerHTML = ROWS.length ? '<div class="mine"><div class="mine-h">🚚 الشحنات</div><div class="mine-empty">لا توجد طلبات موزعة عليك حاليًا — تواصل مع المكتب.</div></div>' : '';
+    return;
   }
-  h += '<div class="rt-acts"><button class="btn sm del" onclick="routeClear()">🗑 مسح خط السير</button></div></div></div>';
-  box.innerHTML = h;
+  const startSel = '<label class="rt-start">📍 نقطة البداية<select onchange="routeSetStart(this.value)">' +
+    ROUTE_AREAS.map(a => '<option' + (a[0] === SHIP.start ? ' selected' : '') + '>' + tsEscapeHtml(a[0]) + '</option>').join("") + '</select></label>';
+  box.innerHTML = bks.map(bk => {
+    const sh = SHIP.ships[bk], A = tsJsAttr(bk);
+    const live = sh.stops.map(s => routeLive(bk, s));
+    const doneN = live.filter(l => l.done).length;
+    const next = live.findIndex(l => !l.done && !l.hold);
+    const unsureN = sh.stops.filter((s, i) => !live[i].done && !routeSure(s)).length;
+    const open = SHIP.open[bk] !== false;
+    let h = '<div class="route' + (open ? ' open' : '') + '">' +
+      '<div class="rt-head" onclick="routeToggle(\'' + A + '\')"><b>🚚 شحنة ' + tsEscapeHtml(sh.label) + '</b>' +
+        '<small>اتسلّم ' + doneN + ' من ' + sh.stops.length + '</small><span>' + (open ? '▲' : '▼') + '</span></div>' +
+      '<div class="rt-body">' +
+        '<div class="rt-big"><button class="btn sort" onclick="routeResort(\'' + A + '\')">🔀 رتّب حسب الأقرب</button>' + startSel + '</div>';
+    if(unsureN) h += '<div class="rt-warn">⚠️ <b>' + unsureN + ' محطة منطقتها مش مؤكدة</b> — اتحطت في الآخر. اختار المنطقة الصحيحة تحت كل واحدة (بتتحفظ للمرة الجاية).</div>';
+    h += sh.stops.map((s, i) => {
+      const l = live[i], inf = routeInfo(s), K = tsJsAttr(s.key);
+      const sure = inf.conf === "ok" || inf.conf === "manual";
+      const st = l.done ? '✅ تم التسليم' : l.hold ? '⏸️ مؤجل' : '📦 ' + l.ready + ' جاهز';
+      const showSel = !l.done && (!sure || ROUTE_EDIT === bk + "|" + s.key);
+      return '<div class="stop' + (l.done ? ' done' : l.hold ? ' hold' : '') + (i === next ? ' next' : '') + (!sure && !l.done ? ' unsure' : '') + '">' +
+        '<span class="n">' + (l.done ? '✓' : i + 1) + '</span>' +
+        '<div class="stop-b">' +
+          (l.done ? '' : '<div class="stop-area">' + routeAreaTag(inf, sure ? 'routeEditArea(\'' + A + '\',\'' + K + '\')' : '') + '</div>') +
+          '<div class="stop-nm" onclick="routeOpen(\'' + A + '\',\'' + K + '\')">' + tsEscapeHtml(s.name || "(بدون اسم)") + '</div>' +
+          '<div class="stop-s"><span>' + st + '</span></div>' +
+          (!l.done && inf.conf === "warn" ? '<div class="stop-why">' + tsEscapeHtml(inf.why) + '</div>' : '') +
+          (l.done ? '' : '<div class="stop-addr" onclick="routeOpen(\'' + A + '\',\'' + K + '\')">📍 ' + tsEscapeHtml([s.addr, s.gov].filter(Boolean).join(" — ") || "بدون عنوان") + '</div>') +
+          (showSel ? routeAreaSelect(bk, s.key, inf) : '') +
+        '</div>' +
+        (l.done ? '<div class="stop-x"><button onclick="routeDelDone(\'' + A + '\',\'' + K + '\')" aria-label="مسح">✕</button></div>' : '') +
+      '</div>';
+    }).join("");
+    const legs = routeMapsLegs(bk);
+    h += '<div class="rt-acts">' +
+      legs.map(lg => '<a class="btn sm nav" style="text-decoration:none" href="' + tsSafeHref(lg.url) + '" target="_blank" rel="noopener">🧭 افتح في Google Maps' +
+        (legs.length > 1 ? ' — الجزء ' + Math.ceil(lg.from / 10) : '') + '</a>').join("") +
+      (doneN ? '<button class="btn sm del" onclick="routeDelDone(\'' + A + '\')">🗑 مسح المسلَّم (' + doneN + ')' + (doneN === sh.stops.length ? ' — الشحنة خلصت' : '') + '</button>' : '') +
+    '</div></div></div>';
+    return h;
+  }).join("");
 }
 
 /* ═══════════ التشغيل ═══════════ */
