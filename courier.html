@@ -208,6 +208,10 @@ button,input,select{font:inherit;color:inherit}
 .area.big.unk{background:#FED7AA;color:#9A3412;border:1.5px solid #FB923C}
 .stop.unsure{border:2px solid #FB923C}
 .stop.done{opacity:.45}
+.rt-tot{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;background:var(--ok-wash);border:1.5px solid #B7E4D3;border-radius:12px;padding:9px 12px;margin-bottom:10px;font-size:12.5px;font-weight:800;color:var(--ok)}
+.rt-tot span{flex:1 0 100%;color:var(--ink-2)}.rt-tot b{font-size:14px}.rt-tot b.all{margin-inline-start:auto}
+.who{font-size:11.5px;font-weight:900;border-radius:999px;padding:2px 9px;background:var(--ok-wash);color:var(--ok)}
+.who.no{background:var(--dead-wash);color:var(--dead)}
 .stop.done .stop-nm{text-decoration:line-through}
 .stop-why{font-size:11.5px;font-weight:800;color:var(--warn);margin-top:3px}
 .stop-addr{font-size:11.5px;color:var(--ink-3);font-weight:600;margin-top:3px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}
@@ -892,7 +896,7 @@ async function askDeliver(){
     cashLeft = Math.max(0, cashLeft - c);
     return { order: String(o.order), status: "Delivered", collected: got,
              payCash: c, payInsta: Math.round((got - c) * 100) / 100,
-             _take: got, _cash: c, _insta: Math.round((got - c) * 100) / 100, _expectDue: Math.max(0, dueOf(o) - got) };
+             _take: got, _cash: c, _insta: Math.round((got - c) * 100) / 100, _bk: batchKey(o.arrivaldate), _expectDue: Math.max(0, dueOf(o) - got) };
   });
 
   const failed = await sendUpdates(updates);
@@ -1122,7 +1126,17 @@ function logCollection(name, ups){
   const cash = ups.reduce((s, u) => s + (u._cash || 0), 0), insta = ups.reduce((s, u) => s + (u._insta || 0), 0);
   log.push({ t: new Date().toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" }), name, n: ups.length, amount, cash, insta });
   try{ localStorage.setItem(todayKey(), JSON.stringify(log)); }catch(e){}
-  renderToday();
+  // 🚚 تحصيل الشحنة كلها (مهما كان يوم التوصيل) — بالطلب، عشان مايتعدّش مرتين
+  const sl = shipLogGet();
+  ups.forEach(u => { if(!u._bk) return; (sl[u._bk] = sl[u._bk] || {})[u.order] = { cash: u._cash || 0, insta: u._insta || 0 }; });
+  try{ localStorage.setItem(shipLogKey(), JSON.stringify(sl)); }catch(e){}
+  renderToday(); renderRoute();
+}
+function shipLogKey(){ return "ts_courier_shiplog_" + (localStorage.getItem("currentUser") || ""); }
+function shipLogGet(){ try{ return JSON.parse(localStorage.getItem(shipLogKey()) || "{}") || {}; }catch(e){ return {}; } }
+function shipTotals(bk){
+  const l = shipLogGet()[bk] || {}, v = Object.values(l);
+  return { n: v.length, cash: v.reduce((t, x) => t + (x.cash || 0), 0), insta: v.reduce((t, x) => t + (x.insta || 0), 0) };
 }
 function renderToday(){
   let log = [];
@@ -1448,7 +1462,10 @@ async function routeDelDone(bk, key){
   if(!ok) return;
   const gone = done.map(s => s.key);
   sh.stops = sh.stops.filter(s => gone.indexOf(s.key) === -1);
-  if(!sh.stops.length){ delete SHIP.ships[bk]; delete SHIP.open[bk]; }
+  if(!sh.stops.length){
+    delete SHIP.ships[bk]; delete SHIP.open[bk];
+    const sl = shipLogGet(); delete sl[bk]; try{ localStorage.setItem(shipLogKey(), JSON.stringify(sl)); }catch(e){}
+  }
   routeSave(); renderRoute();
 }
 /** بعد التسليم/التأجيل من كارت العميل — بنعلّم المحطة في الشحنة المفتوحة */
@@ -1497,6 +1514,13 @@ function routeAreaSelect(bk, key, inf){
   '</select>';
 }
 
+/** 👤 للأدمن: العميل ده متوزّع على مين في الشحنة دي؟ */
+function shipWho(bk, c){
+  const who = [...new Set(shipRows(c, bk).map(o => String(o.courier || "").trim()))];
+  const named = who.filter(Boolean);
+  if(!named.length) return '<span class="who no">⚪ مش متوزّع</span>';
+  return '<span class="who">👤 ' + tsEscapeHtml(named.join(" + ")) + (who.length > named.length ? ' (جزء)' : '') + '</span>';
+}
 function renderRoute(){
   const box = document.getElementById("routeBox");
   if(!box || !SHIP) return;
@@ -1508,6 +1532,7 @@ function renderRoute(){
   }
   const startSel = '<label class="rt-start">📍 نقطة البداية<select onchange="routeSetStart(this.value)">' +
     ROUTE_AREAS.map(a => '<option' + (a[0] === SHIP.start ? ' selected' : '') + '>' + tsEscapeHtml(a[0]) + '</option>').join("") + '</select></label>';
+  const ADMIN = isAdminUser();
   box.innerHTML = bks.map(bk => {
     const sh = SHIP.ships[bk], A = tsJsAttr(bk);
     const live = sh.stops.map(s => routeLive(bk, s));
@@ -1520,6 +1545,8 @@ function renderRoute(){
         '<small>اتسلّم ' + doneN + ' من ' + sh.stops.length + '</small><span>' + (open ? '▲' : '▼') + '</span></div>' +
       '<div class="rt-body">' +
         '<div class="rt-big"><button class="btn sort" onclick="routeResort(\'' + A + '\')">🔀 رتّب حسب الأقرب</button>' + startSel + '</div>';
+    const tot = shipTotals(bk);
+    h += '<div class="rt-tot"><span>💰 تحصيل الشحنة</span><b>💵 ' + money(tot.cash) + '</b><b>📲 ' + money(tot.insta) + '</b><b class="all">= ' + money(tot.cash + tot.insta) + ' ج.م</b></div>';
     if(unsureN) h += '<div class="rt-warn">⚠️ <b>' + unsureN + ' محطة منطقتها مش مؤكدة</b> — اتحطت في الآخر. اختار المنطقة الصحيحة تحت كل واحدة (بتتحفظ للمرة الجاية).</div>';
     h += sh.stops.map((s, i) => {
       const l = live[i], inf = routeInfo(s), K = tsJsAttr(s.key);
@@ -1531,7 +1558,7 @@ function renderRoute(){
         '<div class="stop-b">' +
           (l.done ? '' : '<div class="stop-area">' + routeAreaTag(inf, sure ? 'routeEditArea(\'' + A + '\',\'' + K + '\')' : '') + '</div>') +
           '<div class="stop-nm" onclick="routeOpen(\'' + A + '\',\'' + K + '\')">' + tsEscapeHtml(s.name || "(بدون اسم)") + '</div>' +
-          '<div class="stop-s"><span>' + st + '</span></div>' +
+          '<div class="stop-s"><span>' + st + '</span>' + (ADMIN && !l.done ? shipWho(bk, l.c) : '') + '</div>' +
           (!l.done && inf.conf === "warn" ? '<div class="stop-why">' + tsEscapeHtml(inf.why) + '</div>' : '') +
           (l.done ? '' : '<div class="stop-addr" onclick="routeOpen(\'' + A + '\',\'' + K + '\')">📍 ' + tsEscapeHtml([s.addr, s.gov].filter(Boolean).join(" — ") || "بدون عنوان") + '</div>') +
           (showSel ? routeAreaSelect(bk, s.key, inf) : '') +
