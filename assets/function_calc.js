@@ -201,6 +201,20 @@ function tryShoppyRoundSmart(price) {
  * @returns {{ finalPrice:number, basicPrice:number, weightPrice:number }}
  */
 function tryShoppyCalculatePrice({ usd, category, weightGrams, quantity = 1 }) {
+  // 🛡️ تأكيد الفئة قبل الحساب (13 Nov 2026): اسم فئة مش موجود في الجدول
+  // بالحرف (مثلاً "Shoes" بدل "Shoes (Regular)") كان بيتحسب من غير تكلفة
+  // الفئة ولا سعر وزنها، فيطلع سعر أقل من الصح من غير أي تحذير. دلوقتي
+  // مفيش سعر بيطلع خالص (finalPrice = 0 + error) عشان الغلط يبان بدل ما
+  // يتباع بخسارة. حاسبة الموقع بتختار من قايمة فمش بتتأثر — ده لأي نداء
+  // تاني (أدوات داخلية، سكريبتات، طلبات قديمة بفئة مكتوبة غلط).
+  // الأسعار للفئات الصحيحة ما اتغيرتش.
+  if (!Object.prototype.hasOwnProperty.call(TRYSHOPPY_CATEGORY_BASE, category)) {
+    if (typeof console !== "undefined" && console.error) {
+      console.error("tryShoppyCalculatePrice: unknown category \"" + category + "\" — no price calculated. Valid: " + Object.keys(TRYSHOPPY_CATEGORY_BASE).join(" | "));
+    }
+    return { finalPrice: 0, basicPrice: 0, weightPrice: 0, error: "unknown_category", category: category };
+  }
+
   let base = 0, extra = 0, mult = 1;
 
   if (usd <= 31.99) { mult = 2.80; base = usd * 27.5; extra = 50; }

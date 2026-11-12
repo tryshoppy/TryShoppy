@@ -738,7 +738,10 @@ function tsPriceSanity(o){
   const res = { suggested: 0, approx: !(parseFloat(o.weightGrams) > 0), warnings: [] };
   if(!(usd > 0)) return res;
   if(typeof tryShoppyCalculatePrice === 'function' && o.category){
-    res.suggested = tryShoppyCalculatePrice({ usd, category: o.category, weightGrams: parseFloat(o.weightGrams) || 0, quantity: 1 }).finalPrice;
+    const calc = tryShoppyCalculatePrice({ usd, category: o.category, weightGrams: parseFloat(o.weightGrams) || 0, quantity: 1 });
+    res.suggested = calc.finalPrice || 0;
+    // 🛡️ فئة مش من فئات الحاسبة → مفيش سعر مقترح (بدل سعر ناقص)، والسبب بيظهر تحت الخانة
+    if(calc.error === 'unknown_category') res.unknownCategory = true;
   }
   if(egp > 0){
     if(egp < usd * tsLossRate())
@@ -766,7 +769,7 @@ function tsAttachPriceHint(ids){
     const unit = ids.weightUnit && el(ids.weightUnit) ? ({ g:1, kg:1000, lb:453.592, oz:28.3495 }[el(ids.weightUnit).value] || 1) : 1;
     const r = tsPriceSanity({ usd: el(ids.usd).value, egp: egpIn.value, category: el(ids.category).value,
                               weightGrams: ids.weight && el(ids.weight) ? (parseFloat(el(ids.weight).value) || 0) * unit : 0 });
-    if(!r.suggested){ hint.textContent = ''; return; }
+    if(!r.suggested){ hint.textContent = r.unknownCategory ? '⚠️ الفئة غير موجودة في الحاسبة — اختر الفئة الصحيحة ليظهر سعر الحاسبة' : ''; return; }
     hint.innerHTML = '💡 سعر الحاسبة للقطعة: <b>' + r.suggested.toLocaleString('en-US') + ' ج.م</b>' + (r.approx ? ' (تقريبي — دون وزن)' : '') +
       (r.warnings.length ? '<div style="color:#B45309">' + r.warnings.map(tsEscapeHtml).join('<br>') + '</div>' : '');
   };
