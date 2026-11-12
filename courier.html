@@ -214,6 +214,8 @@ button,input,select{font:inherit;color:inherit}
 .rt-tot span{flex:1 0 100%;color:var(--ink-2)}.rt-tot b{font-size:14px}.rt-tot b.all{margin-inline-start:auto}
 .who{font-size:11.5px;font-weight:900;border-radius:999px;padding:2px 9px;background:var(--ok-wash);color:var(--ok)}
 .who.no{background:var(--dead-wash);color:var(--dead)}
+.who.arx{background:#FEF3C7;color:#92400E}
+.who-sel{border:1.5px solid var(--line);border-radius:999px;background:#fff;font-size:11.5px;font-weight:900;padding:2px 6px;color:var(--ink-2)}
 .stop.done .stop-nm{font-size:16px;color:#6B7280;text-decoration:line-through;text-decoration-thickness:2px;text-decoration-color:#374151}
 .stop.done .stop-s span{display:inline-block;font-size:14px;font-weight:900;color:#fff;background:var(--ok);border-radius:999px;padding:4px 12px;margin-top:4px}
 .stop-why{font-size:11.5px;font-weight:800;color:var(--warn);margin-top:3px}
@@ -1041,6 +1043,49 @@ function openCustomerByKey(key){ const c = CUSTOMERS.find(x => x.key === key); i
    ⚠️ بيظهر بس بعد نشر Orders_Code.gs الجديد (SERVER_ASSIGN) — السيرفر
    القديم مايعرفش action "assignCourier". */
 let ASSIGN = { open: true, only: "free", to: "", picked: {}, staff: [] };
+/* 📦 أرامكس كـ"مندوب" (هيثم 12/11): طلبات قاهرة/جيزة بتنزل مع أرامكس —
+   بتتكتب "aramex" في عمود courier، فمابتظهرش لأي مندوب وبتبان للأدمن "📦 أرامكس". */
+const ARAMEX = "aramex";
+function courierLabel(u){
+  u = String(u || "").trim();
+  if(u.toLowerCase() === ARAMEX) return "📦 أرامكس";
+  const st = ASSIGN.staff.find(x => String(x.username).toLowerCase() === u.toLowerCase());
+  return st ? (st.label || st.username) : u;
+}
+function assignTargets(sel){
+  return ASSIGN.staff.map(x => '<option value="' + tsEscapeHtml(x.username) + '"' + (x.username === sel ? ' selected' : '') + '>🛵 ' + tsEscapeHtml(x.label || x.username) + '</option>').join("") +
+    '<option value="' + ARAMEX + '"' + (sel === ARAMEX ? ' selected' : '') + '>📦 أرامكس</option>';
+}
+/** بيكتب المندوب (أو أرامكس، أو فاضي = إلغاء) لطلبات معينة في عمود courier */
+async function assignOrders(orders, to){
+  lockUI(true);
+  let reply = null;
+  try{
+    const res = await fetch(scriptURL, { method: "POST", body: JSON.stringify({ action: "assignCourier", staffToken: getStaffToken(), orders, courier: to }) });
+    reply = JSON.parse(await res.text());
+  }catch(e){ reply = null; }
+  lockUI(false);
+  if(!reply || !reply.success){
+    toast("err", "❌ لم يتم التوزيع" + (reply && reply.message ? " — " + tsEscapeHtml(reply.message) : " — تحقق من الاتصال وحاول مرة أخرى"), 5000);
+    return null;
+  }
+  return reply;
+}
+/** 🔁 توزيع سريع من جوه الشحنة (للأدمن): عميل واحد = كل طلباته الجاهزة في الشحنة دي */
+async function shipAssign(bk, key, to){
+  if(busy) return renderRoute();
+  const c = CUSTOMERS.find(x => x.key === key);
+  const orders = shipRows(c, bk).map(o => String(o.order));
+  if(!orders.length) return renderRoute();
+  if(to === "__none") to = "";
+  const ok = await confirmSheet(to ? "🔁 توزيع" : "↩️ إلغاء التوزيع",
+    '<span class="cf-name">' + tsEscapeHtml(c.name || "") + '</span>' + orders.length + ' طلب ' + (to ? '← <b>' + tsEscapeHtml(courierLabel(to)) + '</b>' : '— مش هيظهروا لأي مندوب'), "تأكيد");
+  if(!ok) return renderRoute();
+  const r = await assignOrders(orders, to);
+  if(!r) return renderRoute();
+  toast("ok", to ? "✅ اتوزّع على " + tsEscapeHtml(courierLabel(to)) : "↩️ اتلغى التوزيع", 2500);
+  loadData(false);
+}
 function renderAssign(){
   const box = document.getElementById("assignBox"); if(!box) return;
   if(!isAdminUser()){ box.innerHTML = ""; return; }
@@ -1054,7 +1099,7 @@ function renderAssign(){
   });
   const list = custs.filter(x => ASSIGN.only === "all" || !x.who.length);
   const pickedN = Object.keys(ASSIGN.picked).filter(k => ASSIGN.picked[k]).length;
-  const staffOpts = ASSIGN.staff.map(s => '<option value="' + tsEscapeHtml(s.username) + '"' + (s.username === ASSIGN.to ? ' selected' : '') + '>' + tsEscapeHtml(s.label || s.username) + '</option>').join("");
+  const staffOpts = ASSIGN.staff.length ? assignTargets(ASSIGN.to) : "";
   let h = '<div class="route open asg"><div class="rt-head" onclick="ASSIGN.open=!ASSIGN.open;renderAssign()"><b>👥 توزيع الطلبات على المندوبين</b>' +
     '<small>غير موزّع ' + custs.filter(x => !x.who.length).length + '</small><span>' + (ASSIGN.open ? '▲' : '▼') + '</span></div>';
   if(ASSIGN.open){
@@ -1067,7 +1112,7 @@ function renderAssign(){
         return '<label class="mine-r asg-r"><input type="checkbox"' + (ASSIGN.picked[c.key] ? ' checked' : '') + ' onchange="ASSIGN.picked[\'' + tsJsAttr(c.key) + '\']=this.checked;renderAssign()">' +
           '<div class="mine-b"><div class="sug-n">' + tsEscapeHtml(c.name || "(بدون اسم)") + '</div>' +
             '<div class="stop-s">' + routeAreaTag(inf) + '<span>📦 ' + c.active + '</span>' +
-              (x.who.length ? '<span class="area" style="background:var(--navy);color:var(--gold)">🛵 ' + tsEscapeHtml(x.who.join("، ")) + '</span>' : '') + '</div>' +
+              (x.who.length ? '<span class="area" style="background:var(--navy);color:var(--gold)">' + tsEscapeHtml(x.who.map(courierLabel).join("، ")) + '</span>' : '') + '</div>' +
             '<div class="stop-addr">📍 ' + tsEscapeHtml([c.addr, c.gov].filter(Boolean).join(" — ")) + '</div></div></label>';
       }).join("") +
       '<div class="rt-acts"><div class="row2">' +
@@ -1097,16 +1142,8 @@ async function assignPicked(give){
     (give ? 'سيُوزَّع <b>' + custs.length + '</b> عميل (' + orders.length + ' طلب) على <b>' + tsEscapeHtml(to) + '</b> — وسيظهرون له وحده.'
           : 'سيُلغى توزيع <b>' + custs.length + '</b> عميل (' + orders.length + ' طلب) — ولن يظهروا لأي مندوب.'), "تأكيد");
   if(!ok) return;
-  lockUI(true);
-  let reply = null;
-  try{
-    const res = await fetch(scriptURL, { method: "POST", body: JSON.stringify({ action: "assignCourier", staffToken: getStaffToken(), orders, courier: to }) });
-    reply = JSON.parse(await res.text());
-  }catch(e){ reply = null; }
-  lockUI(false);
-  if(!reply || !reply.success){
-    return toast("err", "❌ لم يتم التوزيع" + (reply && reply.message ? " — " + tsEscapeHtml(reply.message) : " — تحقق من الاتصال وحاول مرة أخرى"), 5000);
-  }
+  const reply = await assignOrders(orders, to);
+  if(!reply) return;
   ASSIGN.picked = {};
   toast("ok", (give ? "✅ تم توزيع " : "↩️ تم إلغاء توزيع ") + reply.updated + " طلب", 3000);
   loadData(false);
@@ -1116,7 +1153,7 @@ function loadAssignStaff(){
   tsListStaff().then(list => {
     ASSIGN.staff = (list || []).filter(s => s && s.username);
     if(!ASSIGN.to){ const ab = ASSIGN.staff.find(s => String(s.username).toLowerCase() === "abdo"); ASSIGN.to = (ab || ASSIGN.staff[0] || {}).username || ""; }
-    renderAssign();
+    renderAssign(); renderRoute();
   }).catch(() => {});
 }
 
@@ -1521,8 +1558,13 @@ function routeAreaSelect(bk, key, inf){
 function shipWho(bk, c){
   const who = [...new Set(shipRows(c, bk).map(o => String(o.courier || "").trim()))];
   const named = who.filter(Boolean);
-  if(!named.length) return '<span class="who no">⚪ مش متوزّع</span>';
-  return '<span class="who">👤 ' + tsEscapeHtml(named.join(" + ")) + (who.length > named.length ? ' (جزء)' : '') + '</span>';
+  const cur = named.length === 1 && who.length === 1 ? named[0] : "";
+  const tag = !named.length ? '<span class="who no">⚪ مش متوزّع</span>'
+    : '<span class="who' + (named.some(n => n.toLowerCase() === ARAMEX) ? ' arx' : '') + '">' + tsEscapeHtml(named.map(n => n.toLowerCase() === ARAMEX ? courierLabel(n) : "👤 " + courierLabel(n)).join(" + ")) + (who.length > named.length ? ' (جزء)' : '') + '</span>';
+  const sel = '<select class="who-sel" onchange="shipAssign(\'' + tsJsAttr(bk) + '\',\'' + tsJsAttr(c ? c.key : "") + '\',this.value)">' +
+    '<option value="" selected disabled>🔁 وزّع…</option>' + assignTargets("") +
+    (named.length ? '<option value="__none">↩️ إلغاء التوزيع</option>' : '') + '</select>';
+  return tag + (c ? sel : '');
 }
 function renderRoute(){
   const box = document.getElementById("routeBox");
