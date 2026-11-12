@@ -1046,15 +1046,31 @@ let ASSIGN = { open: true, only: "free", to: "", picked: {}, staff: [] };
 /* 📦 أرامكس كـ"مندوب" (هيثم 12/11): طلبات قاهرة/جيزة بتنزل مع أرامكس —
    بتتكتب "aramex" في عمود courier، فمابتظهرش لأي مندوب وبتبان للأدمن "📦 أرامكس". */
 const ARAMEX = "aramex";
+/* 🏬 Pick up (العميل بيستلم بنفسه) و🚚 شركة أخرى + ملاحظة ("other:اوبر package")
+   — نفس الفكرة: مش مندوب، فمابيظهروش لحد. السيرفر بيحوّل للحروف الصغيرة وحد 40 حرف. */
+const PICKUP = "pickup", OTHER = "other:";
+const isExternal = u => { u = String(u || "").trim().toLowerCase(); return u === ARAMEX || u === PICKUP || u.indexOf(OTHER) === 0; };
 function courierLabel(u){
   u = String(u || "").trim();
   if(u.toLowerCase() === ARAMEX) return "📦 أرامكس";
+  if(u.toLowerCase() === PICKUP) return "🏬 Pick up";
+  if(u.toLowerCase().indexOf(OTHER) === 0) return "🚚 " + (u.slice(OTHER.length).trim() || "شركة أخرى");
   const st = ASSIGN.staff.find(x => String(x.username).toLowerCase() === u.toLowerCase());
   return st ? (st.label || st.username) : u;
 }
 function assignTargets(sel){
   return ASSIGN.staff.map(x => '<option value="' + tsEscapeHtml(x.username) + '"' + (x.username === sel ? ' selected' : '') + '>🛵 ' + tsEscapeHtml(x.label || x.username) + '</option>').join("") +
-    '<option value="' + ARAMEX + '"' + (sel === ARAMEX ? ' selected' : '') + '>📦 أرامكس</option>';
+    '<option value="' + ARAMEX + '"' + (sel === ARAMEX ? ' selected' : '') + '>📦 أرامكس</option>' +
+    '<option value="' + PICKUP + '"' + (sel === PICKUP ? ' selected' : '') + '>🏬 Pick up</option>' +
+    '<option value="' + OTHER + '"' + (String(sel).indexOf(OTHER) === 0 ? ' selected' : '') + '>🚚 شركة أخرى…</option>';
+}
+/** "شركة أخرى" → بنسأل مين (اوبر package مثلًا). null = اتلغى */
+function resolveTarget(to){
+  if(to !== OTHER) return to;
+  const n = window.prompt("🚚 شركة أخرى — اكتب مين (مثلًا: اوبر package)", "");
+  if(n === null) return null;
+  const clean = String(n).replace(/[,<>"']/g, " ").replace(/\s+/g, " ").trim().slice(0, 40 - OTHER.length);
+  return OTHER + clean;
 }
 /** بيكتب المندوب (أو أرامكس، أو فاضي = إلغاء) لطلبات معينة في عمود courier */
 async function assignOrders(orders, to){
@@ -1078,6 +1094,8 @@ async function shipAssign(bk, key, to){
   const orders = shipRows(c, bk).map(o => String(o.order));
   if(!orders.length) return renderRoute();
   if(to === "__none") to = "";
+  to = resolveTarget(to);
+  if(to === null) return renderRoute();
   const ok = await confirmSheet(to ? "🔁 توزيع" : "↩️ إلغاء التوزيع",
     '<span class="cf-name">' + tsEscapeHtml(c.name || "") + '</span>' + orders.length + ' طلب ' + (to ? '← <b>' + tsEscapeHtml(courierLabel(to)) + '</b>' : '— مش هيظهروا لأي مندوب'), "تأكيد");
   if(!ok) return renderRoute();
@@ -1136,7 +1154,8 @@ async function assignPicked(give){
   // العميل كله: كل طلباته اللي "وصل القاهرة"
   const orders = [].concat(...custs.map(c => c.rows.filter(o => String(o.status).trim() === HUB).map(o => String(o.order))));
   if(!orders.length) return;
-  const to = give ? ASSIGN.to : "";
+  const to = give ? resolveTarget(ASSIGN.to) : "";
+  if(to === null) return;
   if(give && !to) return toast("err", "اختر المندوب أولًا", 3000);
   const ok = await confirmSheet(give ? "✅ توزيع الطلبات" : "↩️ إلغاء التوزيع",
     (give ? 'سيُوزَّع <b>' + custs.length + '</b> عميل (' + orders.length + ' طلب) على <b>' + tsEscapeHtml(to) + '</b> — وسيظهرون له وحده.'
@@ -1560,7 +1579,7 @@ function shipWho(bk, c){
   const named = who.filter(Boolean);
   const cur = named.length === 1 && who.length === 1 ? named[0] : "";
   const tag = !named.length ? '<span class="who no">⚪ مش متوزّع</span>'
-    : '<span class="who' + (named.some(n => n.toLowerCase() === ARAMEX) ? ' arx' : '') + '">' + tsEscapeHtml(named.map(n => n.toLowerCase() === ARAMEX ? courierLabel(n) : "👤 " + courierLabel(n)).join(" + ")) + (who.length > named.length ? ' (جزء)' : '') + '</span>';
+    : '<span class="who' + (named.some(isExternal) ? ' arx' : '') + '">' + tsEscapeHtml(named.map(n => isExternal(n) ? courierLabel(n) : "👤 " + courierLabel(n)).join(" + ")) + (who.length > named.length ? ' (جزء)' : '') + '</span>';
   const sel = '<select class="who-sel" onchange="shipAssign(\'' + tsJsAttr(bk) + '\',\'' + tsJsAttr(c ? c.key : "") + '\',this.value)">' +
     '<option value="" selected disabled>🔁 وزّع…</option>' + assignTargets("") +
     (named.length ? '<option value="__none">↩️ إلغاء التوزيع</option>' : '') + '</select>';
