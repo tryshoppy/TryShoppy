@@ -38,7 +38,11 @@ const I18N = {
   /* ── customer reviews + trust points (13 Nov 2026) ── */
   rev_eyebrow:     { en: "CUSTOMER REVIEWS", ar: "آراء العملاء" },
   rev_title:       { en: "What our customers say", ar: "عملاؤنا بيقولوا إيه" },
-  rev_sub:         { en: "Real reviews from our Facebook page, shown with first names only.", ar: "تقييمات حقيقية من صفحتنا على فيسبوك، بالاسم الأول فقط." },
+  rev_sub:         { en: "Real reviews from our Facebook page and WhatsApp, shown with first names only.", ar: "تقييمات حقيقية من صفحتنا على فيسبوك ومن واتساب، بالاسم الأول فقط." },
+  rev_src_wa:      { en: "WhatsApp review · translated from Arabic", ar: "تقييم على واتساب" },
+  rev_q7:          { en: "Thank you so much, the item is really lovely.", ar: "شكرا خالص الحاجه جميله جدا" },
+  rev_q8:          { en: "The item arrived and everything is perfect, mashallah.", ar: "الحاجه وصلت و كل حاجه تمام ما شاء الله" },
+  rev_q9:          { en: "Thank you very much for delivering the product, and God willing we will keep dealing with each other.", ar: "شكرا جدا علي وصول المنتج وان شاء الله حيكون في تعامل دائم ما بينا" },
   rev_fb_badge:    { en: "<b>4.8</b> out of 5 · 96% recommend us · 20 reviews on Facebook", ar: "<b>4.8</b> من 5 · 96% بيرشّحونا · 20 تقييم على فيسبوك" },
   rev_rec:         { en: "Recommends Try Shoppy", ar: "بيرشّح Try Shoppy" },
   rev_fb_link:     { en: "Read all reviews on Facebook", ar: "اقرأ كل التقييمات على فيسبوك" },
