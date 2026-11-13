@@ -411,3 +411,23 @@ body.has-sticky-bar .ts-wa-fab{bottom:84px}
 /* ✅ أخطاء حقول الدفع (tsCheckoutValidate في app.js) */
 .field-err{border-color:#DC2626 !important;box-shadow:0 0 0 3px rgba(220,38,38,.12) !important}
 .field-err-msg{font-size:12px;font-weight:700;color:#DC2626;margin-top:5px;line-height:1.5}
+
+/* ═══════════════ trust points + customer reviews (13 Nov 2026) ═══════════════ */
+.ts-trust{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:9px;text-align:start}
+.ts-trust li{position:relative;padding-inline-start:27px;font-size:13px;line-height:1.6;color:var(--ink-2);font-weight:600}
+.ts-trust li::before{content:'✓';position:absolute;inset-inline-start:0;top:2px;width:18px;height:18px;border-radius:50%;background:var(--ok-bg);color:var(--ok);
+  font-size:10.5px;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
+.ts-trust a{color:var(--blue-link);font-weight:700}
+.ts-trust-box{background:var(--white);border:1px solid var(--line);border-radius:var(--r2);padding:16px 18px;margin:16px 0}
+.ts-trust-box h4{margin:0;font-size:13.5px;font-weight:800;color:var(--ink)}
+.rev-badge{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:center;margin:-22px auto 34px;font-size:14px;color:var(--ink-2);font-weight:600}
+.rev-badge .pill{background:var(--white);border:1px solid var(--line);border-radius:var(--pill);padding:8px 16px;box-shadow:var(--sh-1);color:var(--ink)}
+.rev-badge .pill b{color:var(--ok);font-weight:800}
+.rev-badge a{color:var(--blue-link);font-weight:700}
+.rev-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px}
+.rev-card{margin:0;background:var(--white);border:1px solid var(--line);border-radius:var(--r3);padding:22px;display:flex;flex-direction:column;gap:14px;box-shadow:var(--sh-1)}
+.rev-card blockquote{margin:0;font-size:14.5px;line-height:1.85;color:var(--ink);flex:1}
+.rev-card figcaption{font-size:13.5px;font-weight:800;color:var(--ink);display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline}
+.rev-card figcaption span{font-size:12px;font-weight:600;color:var(--ink-2)}
+.rev-mini{font-size:13px;line-height:1.7;color:var(--ink);margin:10px 0 0}
+.rev-mini cite{display:block;font-style:normal;font-weight:800;font-size:12.5px;margin-top:6px;color:var(--ink-2)}

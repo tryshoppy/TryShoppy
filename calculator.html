@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#F9C22E">
 <link rel="icon" href="assets/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
-<link rel="stylesheet" href="assets/style.css?v=20261017b">
+<link rel="stylesheet" href="assets/style.css?v=20261113a">
 <link rel="canonical" href="https://try-shoppy.com/calculator.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Try Shoppy">
@@ -411,6 +411,7 @@ html[lang="ar"] #stepCalc input::placeholder{font-family:var(--f-ar, var(--f))}
         </div>
         <button class="btn btn-dark btn-lg btn-block" id="addCartBtn" type="button" onclick="addCurrentToCart()" disabled data-i18n="calc_btn_addcart">➕ Add to Cart</button>
       </div>
+      <ul class="ts-trust"><li data-i18n="tr_calc_1">Nothing is bought until we review the order with you.</li><li data-i18n="tr_calc_2">The price includes international shipping, customs and delivery to your address.</li><li data-i18n="tr_calc_3">Arrives damaged, defective or not as ordered? That is our responsibility — <a href="returns-policy.html">returns policy</a>.</li></ul>
     </div>
 
     <!-- ================= STEP 2: cart summary ================= -->
@@ -425,6 +426,7 @@ html[lang="ar"] #stepCalc input::placeholder{font-family:var(--f-ar, var(--f))}
       <div class="result-note hidden" id="cartDepositNote" style="margin:-4px 0 12px;text-align:center" data-i18n="calc_result_deposit_note"></div>
       <button class="btn btn-dark btn-lg btn-block" type="button" onclick="goToCheckout()" data-i18n="calc_btn_checkout">✅ Checkout</button>
       <button class="btn btn-ghost btn-block" type="button" style="margin-top:10px" onclick="backToAddItem()" data-i18n="calc_btn_additem">➕ Add Another Item</button>
+      <ul class="ts-trust"><li data-i18n="tr_co_1">No payment is taken on this page.</li><li data-i18n="tr_calc_2">The price includes international shipping, customs and delivery to your address.</li><li data-i18n="tr_co_3">Cancel free of charge any time before we purchase — <a href="cancellation-policy.html">cancellation policy</a>.</li></ul>
     </div>
 
     <!-- ================= STEP 3: checkout (customer info) ================= -->
@@ -471,6 +473,7 @@ html[lang="ar"] #stepCalc input::placeholder{font-family:var(--f-ar, var(--f))}
       </div>
       <div class="field"><label for="address" data-i18n="calc_address_label">Detailed Address</label><textarea id="address" rows="2" data-i18n-ph="calc_address_ph" placeholder="Building number, street name, apartment..."></textarea></div>
 
+      <div class="ts-trust-box"><h4 data-i18n="tr_co_title">Before you confirm</h4><ul class="ts-trust"><li data-i18n="tr_co_1">No payment is taken on this page.</li><li data-i18n="tr_co_2">We contact you to review the order before we buy anything.</li><li data-i18n="tr_co_3">Cancel free of charge any time before we purchase — <a href="cancellation-policy.html">cancellation policy</a>.</li><li data-i18n="tr_calc_3">Arrives damaged, defective or not as ordered? That is our responsibility — <a href="returns-policy.html">returns policy</a>.</li><li data-i18n="tr_co_4">Your details are used only for your order and its delivery — <a href="privacy.html">privacy policy</a>.</li></ul></div>
       <button id="confirmBtn" class="btn btn-primary btn-lg btn-block" type="button" onclick="confirmOrder()" data-i18n="calc_btn_confirm_all">Confirm All Orders</button>
       <button class="btn btn-ghost btn-block" type="button" style="margin-top:10px" onclick="showStep('cart')" data-i18n="calc_btn_back_cart">← Back to Cart</button>
     </div>
@@ -483,6 +486,7 @@ html[lang="ar"] #stepCalc input::placeholder{font-family:var(--f-ar, var(--f))}
         <div id="successEmailNote" class="hidden" style="font-size:13px;color:var(--ink-2);margin-top:14px" data-i18n="order_email_note">A confirmation email is on its way to you.</div>
         <div id="successOrderNos" style="margin-top:12px;font-family:var(--fm);font-size:13.5px;font-weight:700;color:var(--ink);word-break:break-word"></div>
       </div>
+      <div class="ts-trust-box"><h4 data-i18n="tr_ok_title">What happens next</h4><ul class="ts-trust"><li data-i18n="tr_ok_1">We review your order and contact you to confirm before buying.</li><li data-i18n="tr_ok_2">You can follow every step with your order number.</li><li data-i18n="tr_ok_3">Delivery takes 7 to 21 days from purchase confirmation.</li></ul></div>
       <div style="font-size:12.5px;color:var(--ink-3);text-align:center;margin:18px 0 10px" data-i18n="order_wa_optional">You can also confirm on WhatsApp (optional):</div>
       <button id="whatsappBtn" class="btn btn-whatsapp btn-block" type="button" onclick="sendWhatsApp()" data-i18n="mart_cart_whatsapp_btn">Send WhatsApp Confirmation (optional)</button>
       <button class="btn btn-secondary btn-block" type="button" style="margin-top:10px" onclick="window.location.href = lastOrders.length ? 'track.html?order='+encodeURIComponent(lastOrders[0].orderNo) : 'track.html'">🔍 <span data-i18n="calc_btn_track">Track Your Order</span></button>
@@ -501,6 +505,12 @@ html[lang="ar"] #stepCalc input::placeholder{font-family:var(--f-ar, var(--f))}
       </ul>
     </div>
 
+    <div class="aside-card">
+      <h4 data-i18n="rev_eyebrow">CUSTOMER REVIEWS</h4>
+      <p class="aside-note" data-i18n="rev_fb_badge"><b>96%</b> recommend us · 20 reviews on Facebook</p>
+      <p class="rev-mini" dir="rtl" lang="ar">الاوردر وصل مظبوط و في معاده و نفس السعر المتفق عليه .. حقيقي شركة محترمة جدا جدا .<cite dir="ltr">Aya E. · 09/2026</cite></p>
+      <p class="aside-note" style="margin-top:10px"><a href="https://www.facebook.com/TryShoppy.eg/reviews" target="_blank" rel="noopener" data-i18n="rev_fb_link">Read all reviews on Facebook</a></p>
+    </div>
     <div class="aside-card">
       <h4 data-i18n="foot_payments_t">Accepted Payments</h4>
       <div class="aside-pays">
@@ -543,7 +553,7 @@ html[lang="ar"] #stepCalc input::placeholder{font-family:var(--f-ar, var(--f))}
 </footer>
 <script src="assets/config.js?v=20261017b"></script>
 <script src="assets/gtag.js?v=20261017b"></script>
-<script src="assets/i18n.js?v=20261017b"></script>
+<script src="assets/i18n.js?v=20261113a"></script>
 <script src="assets/app.js?v=20261110a"></script>
 <script>
 tsInitNav();
