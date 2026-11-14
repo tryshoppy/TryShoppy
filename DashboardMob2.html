@@ -971,6 +971,11 @@ function applyFilters(){
 
    if(isGrouped){
     const groups={};
+    /* ❌📭 الملغي و Unclaimed مايتجمعوش مع باقي طلبات العميل — كانوا بيزوّدوا
+       الإجمالي والمطلوب تحصيله في الكارت المُجمّع. بيفضلوا صف لوحدهم (زي 945). */
+    const _soloSt = s => { s = String(s||"").trim(); return s==="Canceled" || s==="Unclaimed"; };
+    const soloKeep = filtered.filter(o => _soloSt(o.status));
+    filtered = filtered.filter(o => !_soloSt(o.status));
     filtered.forEach(o=>{
       // نفس العميل يتجمّع حتى لو رقمه متسجل بأرقام عربي مرة وإنجليزي مرة
       const key=normalizePhone(o.phone)||"Unknown";
@@ -996,7 +1001,7 @@ function applyFilters(){
         if (o.lang === "en") groups[key].lang = "en";   // 🌐 أي طلب إنجليزي = العميل إنجليزي
       }
     });
-    filtered = Object.values(groups);
+    filtered = Object.values(groups).concat(soloKeep);
   }
   
   let finalData = filtered.reverse();

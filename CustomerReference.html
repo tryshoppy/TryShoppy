@@ -465,9 +465,11 @@ function renderCustomer(orders){
   const openOrders = sorted.filter(o => isOpenStatus(o.status));
   const deliveredOrders = sorted.filter(o => o.status === "Delivered");
   const canceledOrders = sorted.filter(o => o.status === "Canceled");
+  // 📭 طلبات وصلت والعميل ماستلمهاش — مهم تبان عشان نعرف العميل اللي بيكررها
+  const unclaimedOrders = sorted.filter(o => o.status === "Unclaimed");
   const totalSpent = sorted.reduce((sum,o) => {
-    // بنجمع بس الطلبات اللي مش ملغية — الملغي مش حصل فيه تحصيل فعلي غالبًا
-    if(o.status === "Canceled") return sum;
+    // بنجمع بس الطلبات اللي مش ملغية ولا Unclaimed — مفيش فيهم تحصيل فعلي
+    if(o.status === "Canceled" || o.status === "Unclaimed") return sum;
     const end = (o.EndPrice !== undefined && o.EndPrice !== null && o.EndPrice !== "")
       ? parseFloat(o.EndPrice) : (parseFloat(o.finalPrice||0) + parseFloat(o.shipping||0) - parseFloat(o.deposit||0));
     return sum + (isNaN(end) ? 0 : end);
@@ -485,6 +487,7 @@ function renderCustomer(orders){
   h += '<div class="stat-box open"><div class="num">' + openOrders.length + '</div><div class="lbl">طلبات مفتوحة/جارية</div></div>';
   h += '<div class="stat-box"><div class="num">' + deliveredOrders.length + '</div><div class="lbl">تم التسليم</div></div>';
   h += '<div class="stat-box"><div class="num">' + canceledOrders.length + '</div><div class="lbl">ملغية</div></div>';
+  if(unclaimedOrders.length) h += '<div class="stat-box"><div class="num">📭 ' + unclaimedOrders.length + '</div><div class="lbl">لم يُستلم</div></div>';
   h += '<div class="stat-box spent"><div class="num">' + fmt(totalSpent) + '</div><div class="lbl">إجمالي المحصّل (EGP)</div></div>';
   h += '</div></div>';
 
