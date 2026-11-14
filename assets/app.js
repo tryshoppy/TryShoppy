@@ -177,6 +177,7 @@ const TS_STATUS_AR = {
   'Delayed':          'متأخر',
   'Canceled':         'ملغي',
   'Returned':         'مرتجع',
+  'Unclaimed':        'لم يُستلم',
   'Lost':             'مفقود'
 };
 /* نفس الحالات بصياغة إنجليزي مفهومة للعميل (مش أسماء الشيت الداخلية) */
@@ -184,7 +185,7 @@ const TS_STATUS_EN = {
   'Pending Review':'Under review', 'Confirmed Via Try':'Confirmed', 'Processing':'Processing',
   'Placed':'Purchased from the store', 'Arrived USA HUB':'At our USA hub', 'In transit':'On its way to Egypt',
   'Arrived Cairo HUB':'Arrived in Cairo', 'Shipped To You':'Out for delivery', 'Delivered':'Delivered',
-  'On Hold':'On hold', 'Delayed':'Delayed', 'Canceled':'Canceled', 'Returned':'Returned', 'Lost':'Lost'
+  'On Hold':'On hold', 'Delayed':'Delayed', 'Canceled':'Canceled', 'Returned':'Returned', 'Unclaimed':'Not collected', 'Lost':'Lost'
 };
 function tsStatusLabel(s, lang){
   const k = String(s == null ? '' : s).trim();
@@ -210,15 +211,18 @@ function tsStatusLabel(s, lang){
 const TS_STATUSES = [
   'Pending Review', 'Confirmed Via Try', 'Processing', 'Placed',
   'Arrived USA HUB', 'In transit', 'Arrived Cairo HUB', 'Shipped To You', 'Delivered',
-  'On Hold', 'Delayed', 'Canceled', 'Returned', 'Lost'
+  'On Hold', 'Delayed', 'Canceled', 'Returned', 'Unclaimed', 'Lost'
 ];
 
 /* الحالات "المقفولة" — الطلب خلص (اتسلّم أو مش هيكمل). بتتستبعد من
    ملخص الطلبات غير المستلمة ومن "طلباتك المفتوحة" في التتبع.
    On Hold و Delayed **مش** منها — الطلب لسه شغال، بس متعطّل. */
-const TS_CLOSED_STATUSES = ['Delivered', 'Canceled', 'Returned', 'Lost'];
+/* 📭 Unclaimed (هيثم 14/11/2026): الطلب وصل وجاهز، والعميل ماستلمهوش خلال
+   الـ 10 أيام (مبيردش / بيتهرب / رافض) — حسب سياسة الشحن. مختلف عن Canceled
+   (إلغاء قبل الشراء) وعن Returned (استلم ورجّع / رجع للراسل). */
+const TS_CLOSED_STATUSES = ['Delivered', 'Canceled', 'Returned', 'Unclaimed', 'Lost'];
 /* 🖨️ حالات مالهاش بوليصة شحن ولا تدخل ملف الشحن (هيثم 10/11/2026) */
-const TS_NO_LABEL_STATUSES = ['Canceled', 'Returned', 'Lost'];
+const TS_NO_LABEL_STATUSES = ['Canceled', 'Returned', 'Unclaimed', 'Lost'];
 function tsIsClosedStatus(s){ return TS_CLOSED_STATUSES.indexOf(String(s == null ? '' : s).trim()) !== -1; }
 
 /* ═══════════════════════════════════════════════════════════
@@ -230,7 +234,7 @@ function tsIsClosedStatus(s){ return TS_CLOSED_STATUSES.indexOf(String(s == null
 
    الملاحظة بتفضل في العمود بعد ما الطلب يكمل، فبتتعرض **بس** مع
    الحالات دي. (Orders_Code.gs عنده STATUS_NOTE_STATUSES للإيميل والتقرير.) */
-const TS_NOTE_STATUSES = ['On Hold', 'Delayed', 'Canceled', 'Lost'];
+const TS_NOTE_STATUSES = ['On Hold', 'Delayed', 'Canceled', 'Unclaimed', 'Lost'];
 
 /** محتاج نسأل؟ بس لما الحالة **بتتحوّل** لواحدة منهم — لو الطلب أصلاً
  *  On Hold والموظف بيحفظ الكارت عشان يغيّر موعد الوصول، مانزعجوش. */
@@ -246,12 +250,15 @@ const TS_NOTE_SUGGESTIONS = {
                'الشحنة قيد الإجراءات الجمركية، ونتابعها يوميًا', 'تأخر بسيط في الفرز بمخزن القاهرة'],
   'Canceled': ['تم الإلغاء بناءً على طلب العميل', 'المنتج غير متاح في المتجر، وسيتم رد المبلغ المدفوع',
                'ألغى المتجر الطلب من جهته، وسيتم رد المبلغ المدفوع', 'لم يتم تأكيد الطلب أو تحويل العربون'],
+  'Unclaimed':['لم يتم الاستلام خلال 10 أيام رغم محاولات التواصل', 'تعذّر التواصل مع العميل لتحديد موعد التسليم',
+               'رفض العميل استلام الطلب عند التسليم', 'لم يتم الاستلام خلال المدة المحددة، ويُطبَّق خصم العربون وفق السياسة'],
   'Lost':     ['أبلغت شركة الشحن بفقدان الطرد، ونتابع معها', 'الشحنة متأخرة لدى شركة الشحن، ونتابعها']
 };
 const TS_NOTE_UI = {
   'On Hold':  { icon: '⏸️', color: '#7E22CE', bg: '#F3EEFF', q: 'السبب أو المطلوب من العميل' },
   'Delayed':  { icon: '⏳', color: '#B4770A', bg: '#FFF6E0', q: 'سبب التأخير' },
   'Canceled': { icon: '❌', color: '#D93A3A', bg: '#FDECEC', q: 'سبب الإلغاء' },
+  'Unclaimed':{ icon: '📭', color: '#475569', bg: '#F1F5F9', q: 'سبب عدم الاستلام' },
   'Lost':     { icon: '⚠️', color: '#D93A3A', bg: '#FDECEC', q: 'ما الذي حدث؟' }
 };
 

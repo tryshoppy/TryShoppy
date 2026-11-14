@@ -267,7 +267,7 @@ let lastData=null,lastMode=null,lastVal=null;
    المتجر" — لأن الشحن بقى ليه مرحلة لوحده، فالصياغة القديمة كانت
    هتتكرر مع "في الشحن الدولي" اللي بعدها على طول. */
 const STAGES=[{key:"Pending Review",ar:"قيد المراجعة",en:"Pending Review"},{key:"Confirmed Via Try",ar:"تم تأكيد الطلب",en:"Confirmed"},{key:"Processing",ar:"جارٍ التجهيز والشراء",en:"Processing"},{key:"Placed",ar:"تم الشراء من المتجر",en:"Ordered from the store"},{key:"Arrived USA HUB",ar:"وصل مخزن أمريكا",en:"Arrived at our USA hub"},{key:"In transit",ar:"في الشحن الدولي ✈️",en:"In transit to Egypt"},{key:"Arrived Cairo HUB",ar:"وصل مخزن القاهرة",en:"Arrived Cairo HUB"},{key:"Shipped To You",ar:"في الطريق إليك",en:"Out for delivery"},{key:"Delivered",ar:"تم التسليم 🎉",en:"Delivered"}];
-const SB={"Pending Review":{ar:"قيد المراجعة",en:"Pending Review",cls:"b-gray"},"Confirmed Via Try":{ar:"تم التأكيد",en:"Confirmed",cls:"b-blue"},"Processing":{ar:"جارٍ التجهيز",en:"Processing",cls:"b-orange"},"Placed":{ar:"تم الشراء",en:"Ordered",cls:"b-orange"},"Arrived USA HUB":{ar:"وصل مخزن أمريكا",en:"At USA hub",cls:"b-blue"},"In transit":{ar:"في الشحن الدولي",en:"In transit",cls:"b-blue"},"Arrived Cairo HUB":{ar:"وصل مخزن القاهرة",en:"Arrived Cairo HUB",cls:"b-blue"},"Shipped To You":{ar:"في الطريق إليك",en:"Out for delivery",cls:"b-blue"},"Delivered":{ar:"تم التسليم",en:"Delivered",cls:"b-green"},"On Hold":{ar:"معلّق مؤقتًا",en:"On hold",cls:"b-purple"},"Delayed":{ar:"متأخر",en:"Delayed",cls:"b-yellow"},"Canceled":{ar:"ملغي",en:"Canceled",cls:"b-red"},"Returned":{ar:"مرتجع",en:"Returned",cls:"b-slate"},"Lost":{ar:"مشكلة في الشحنة",en:"Shipment issue",cls:"b-red"}};
+const SB={"Pending Review":{ar:"قيد المراجعة",en:"Pending Review",cls:"b-gray"},"Confirmed Via Try":{ar:"تم التأكيد",en:"Confirmed",cls:"b-blue"},"Processing":{ar:"جارٍ التجهيز",en:"Processing",cls:"b-orange"},"Placed":{ar:"تم الشراء",en:"Ordered",cls:"b-orange"},"Arrived USA HUB":{ar:"وصل مخزن أمريكا",en:"At USA hub",cls:"b-blue"},"In transit":{ar:"في الشحن الدولي",en:"In transit",cls:"b-blue"},"Arrived Cairo HUB":{ar:"وصل مخزن القاهرة",en:"Arrived Cairo HUB",cls:"b-blue"},"Shipped To You":{ar:"في الطريق إليك",en:"Out for delivery",cls:"b-blue"},"Delivered":{ar:"تم التسليم",en:"Delivered",cls:"b-green"},"On Hold":{ar:"معلّق مؤقتًا",en:"On hold",cls:"b-purple"},"Delayed":{ar:"متأخر",en:"Delayed",cls:"b-yellow"},"Canceled":{ar:"ملغي",en:"Canceled",cls:"b-red"},"Returned":{ar:"مرتجع",en:"Returned",cls:"b-slate"},"Unclaimed":{ar:"لم يُستلم",en:"Not collected",cls:"b-slate"},"Lost":{ar:"مشكلة في الشحنة",en:"Shipment issue",cls:"b-red"}};
 
 /* 🚩 حالات الاستثناء — بتظهر كبانر بدل شريط المراحل (شريط المراحل
    فيها هيبقى مضلل: الطلب مش ماشي في المسار). اللي محتاج تدخّل من
@@ -277,6 +277,7 @@ const STATUS_BANNERS={
   "Delayed": {cls:"delayed", icon:"⏳",key:"trk_delayedMsg"},
   "On Hold": {cls:"onhold",  icon:"⏸️",key:"trk_onHoldMsg",  wa:true},
   "Returned":{cls:"returned",icon:"↩️",key:"trk_returnedMsg",wa:true},
+  "Unclaimed":{cls:"returned",icon:"📭",key:"trk_unclaimedMsg",wa:true},
   "Lost":    {cls:"canceled",icon:"⚠️",key:"trk_lostMsg",    wa:true}
 };
 function fmt(v){return parseFloat(v||0).toLocaleString();}
