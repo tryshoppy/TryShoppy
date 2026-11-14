@@ -389,8 +389,8 @@ function showNameSearchWarning(groups){
 }
 
 const OPEN_STATUSES_LABELS = { "Pending Review":"قيد المراجعة","Confirmed Via Try":"تم التأكيد","Processing":"جارٍ التجهيز","Placed":"تم الشراء من المتجر","Arrived USA HUB":"وصل مخزن أمريكا","In transit":"في الشحن الدولي","Arrived Cairo HUB":"وصل مخزن القاهرة","Shipped To You":"في الطريق إليك","On Hold":"معلّق مؤقتًا","Delayed":"متأخر" };
-const STATUS_LABELS = Object.assign({ "Delivered":"تم التسليم 🎉","Canceled":"ملغي","Returned":"مرتجع","Lost":"مفقود" }, OPEN_STATUSES_LABELS);
-const STATUS_BADGE_CLASS = { "Delivered":"b-green","Canceled":"b-red","Lost":"b-red","Returned":"b-slate","Delayed":"b-yellow","On Hold":"b-purple","Pending Review":"b-gray","Confirmed Via Try":"b-blue","Processing":"b-orange","Placed":"b-orange","Arrived USA HUB":"b-blue","In transit":"b-blue","Arrived Cairo HUB":"b-blue","Shipped To You":"b-blue" };
+const STATUS_LABELS = Object.assign({ "Delivered":"تم التسليم 🎉","Canceled":"ملغي","Returned":"مرتجع","Unclaimed":"لم يُستلم","Lost":"مفقود" }, OPEN_STATUSES_LABELS);
+const STATUS_BADGE_CLASS = { "Delivered":"b-green","Canceled":"b-red","Lost":"b-red","Returned":"b-slate","Unclaimed":"b-slate","Delayed":"b-yellow","On Hold":"b-purple","Pending Review":"b-gray","Confirmed Via Try":"b-blue","Processing":"b-orange","Placed":"b-orange","Arrived USA HUB":"b-blue","In transit":"b-blue","Arrived Cairo HUB":"b-blue","Shipped To You":"b-blue" };
 
 function statusLabel(s){ return STATUS_LABELS[s] || s || "—"; }
 function statusClass(s){ return STATUS_BADGE_CLASS[s] || "b-gray"; }

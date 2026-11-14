@@ -563,6 +563,7 @@ const I18N = {
   trk_delayedMsg:       { en: "This order is slightly delayed — we're following up on it", ar: "هذا الطلب متأخر قليلًا عن الموعد المتوقع، ونعمل على متابعته." },
   trk_onHoldMsg:        { en: "This order is on hold — it needs a review or some extra information before it can continue. Our team will contact you.", ar: "الطلب متوقف مؤقتًا، ويحتاج إلى مراجعة أو معلومات إضافية قبل استكماله، وسيتواصل معك فريقنا." },
   trk_returnedMsg:      { en: "This order has been returned. Our team will contact you with the details.", ar: "تم إرجاع هذا الطلب، وسيتواصل معك فريقنا بالتفاصيل." },
+  trk_unclaimedMsg:     { en: "This order arrived and was ready for delivery, but it wasn't collected within the 10-day period stated in our shipping policy. Contact us on WhatsApp if you have any questions.", ar: "وصل هذا الطلب وكان جاهزًا للتسليم، لكن لم يتم استلامه خلال مدة الـ 10 أيام المذكورة في سياسة الشحن. تواصل معنا على واتساب لأي استفسار." },
   trk_lostMsg:          { en: "There's an issue with this shipment and we're following up with the carrier. Our team will contact you with the details.", ar: "حدثت مشكلة في شحنة هذا الطلب، ونتابعها مع شركة الشحن، وسيتواصل معك فريقنا بالتفاصيل." },
   trk_historyTitle:     { en: "Update History", ar: "سجل التحديثات" },
   trk_siblingsTitle:    { en: "Your other in-progress orders", ar: "طلباتك الجارية الأخرى" },

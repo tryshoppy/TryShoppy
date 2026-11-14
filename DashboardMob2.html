@@ -486,12 +486,12 @@ document.addEventListener("change", e=>{
 /* أيقونة لكل حالة — لشارة الحالة في راس الكارت */
 const STATUS_ICON = { "Pending Review":"⏳", "Confirmed Via Try":"✅", "Processing":"🛒", "Placed":"🧾", "Arrived USA HUB":"🏬",
   "In transit":"✈️", "Arrived Cairo HUB":"📦", "Shipped To You":"🚚", "Delivered":"🎉", "On Hold":"⏸️", "Delayed":"⏱️",
-  "Canceled":"❌", "Returned":"↩️", "Lost":"⚠️" };
+  "Canceled":"❌", "Returned":"↩️", "Unclaimed":"📭", "Lost":"⚠️" };
 function statusIcon(st){ return STATUS_ICON[String(st||"").trim()] || "•"; }
 function statusTone(st){
   st = String(st||"");
   if(st.indexOf("Delivered")!==-1) return "done";
-  if(st.indexOf("Canceled")!==-1 || st==="Lost" || st==="Returned") return "dead";
+  if(st.indexOf("Canceled")!==-1 || st==="Lost" || st==="Returned" || st==="Unclaimed") return "dead";
   if(st.indexOf("Pending")!==-1)   return "wait";
   if(st.indexOf("Delayed")!==-1 || st==="On Hold") return "late";
   return "move";

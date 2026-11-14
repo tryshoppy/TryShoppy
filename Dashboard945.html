@@ -1300,7 +1300,7 @@ function createRowHTML(o) {
     // تصنيف الحالة لخانة لونية — بيتحكم في شريط الصف الجانبي كمان
     let tone = "hold";
     if (cur.indexOf("Delivered") !== -1) tone = "done";
-    else if (cur.indexOf("Canceled") !== -1 || cur === "Lost" || cur === "Returned") tone = "dead";
+    else if (cur.indexOf("Canceled") !== -1 || cur === "Lost" || cur === "Returned" || cur === "Unclaimed") tone = "dead";
     else if (cur.indexOf("Pending") !== -1) tone = "wait";
     else if (cur.indexOf("Delayed") !== -1 || cur === "On Hold") tone = "late";
     else tone = "move";
@@ -1453,8 +1453,10 @@ return dateMatch && searchMatch && statusMatch && arrivalMatch && userMatch;
         const ramaKeep = filtered.filter(o=>o.isRama);   // صفوف RAMA مش بتتجمّع بالموبايل
         // ❌ الطلب الملغي مايدخلش في إجمالي العميل المُجمّع (كان بيزوّد مبلغ
         // التحصيل على البوليصة) — بيفضل صف لوحده
-        const canceledKeep = filtered.filter(o=>!o.isRama && String(o.status||"").trim()==="Canceled");
-        filtered = filtered.filter(o=>!o.isRama && String(o.status||"").trim()!=="Canceled");
+        // 📭 وكمان Unclaimed — العميل ماستلمش، فمايتجمعش مع طلباته التانية
+        const _soloSt = s => { s = String(s||"").trim(); return s==="Canceled" || s==="Unclaimed"; };
+        const canceledKeep = filtered.filter(o=>!o.isRama && _soloSt(o.status));
+        filtered = filtered.filter(o=>!o.isRama && !_soloSt(o.status));
         filtered.forEach(o => {
             // نفس العميل لازم يتجمّع حتى لو رقمه متسجل مرة بأرقام عربي ومرة
             // إنجليزي، أو مرة بالصفر ومرة من غيره

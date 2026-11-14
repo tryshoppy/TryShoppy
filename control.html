@@ -394,7 +394,7 @@ function matchStatus(rest){
   const r = norm(rest);
   const cands = [];
   TS_STATUSES.forEach(s => { cands.push([norm(s), s]); if(TS_STATUS_AR[s]) cands.push([norm(TS_STATUS_AR[s]), s]); });
-  cands.push(["cancel", "Canceled"], ["cancelled", "Canceled"], ["الغاء", "Canceled"], ["اتسلم", "Delivered"], ["delivered", "Delivered"], ["shipped", OUT]);
+  cands.push(["cancel", "Canceled"], ["cancelled", "Canceled"], ["الغاء", "Canceled"], ["unclaimed", "Unclaimed"], ["ماستلمش", "Unclaimed"], ["مستلمش", "Unclaimed"], ["اتسلم", "Delivered"], ["delivered", "Delivered"], ["shipped", OUT]);
   cands.sort((a, b) => b[0].length - a[0].length);
   for(const [k, s] of cands){
     if(r === k || r.startsWith(k + " ")) return { status: s, note: rest.trim().slice(rest.trim().length - (r.length - k.length)).trim() };
