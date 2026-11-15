@@ -1334,7 +1334,20 @@ function groupLockMsg(){
 function sendUndeliveredSummary(orderId) {
   const order = currentViewData.find(o => String(o.order).split(' + ')[0] === orderId);
   if (!order) return alert("حدث خطأ في جلب بيانات العميل.");
-  generateUndeliveredSummary(order);
+  /* الملخص لازم يتعمل من كل طلبات العميل (نفس الموبايل) في ordersData،
+     مش من الكارت اللي اتداس عليه بس. الملغي و Unclaimed بيفضلوا كارت
+     لوحدهم في التجميع، فلو الموظف داس من كارت ملغي كان الملخص بيطلع
+     "لا توجد طلبات" رغم إن العميل عنده طلبات تانية في الطريق.
+     الفلاتر مابتأثرش هنا لأن الرسالة "كل طلبات حضرتك اللي لسه في الطريق". */
+  const key = normalizePhone(order.phone);
+  const same = key ? ordersData.filter(o => normalizePhone(o.phone) === key) : [];
+  if (!same.length) return generateUndeliveredSummary(order);
+  const merged = {
+    ...order,
+    lang: same.some(o => o.lang === "en") ? "en" : (order.lang || ""),
+    items: same.map(o => ({link: o.link, price: o.finalPrice, qty: parseInt(o.quantity)||1, status: o.status || "", arrivaldate: o.arrivaldate || "", order: o.order || "", deposit: parseFloat(o.deposit)||0, dimensions: o.dimensions || "", lang: o.lang || "", category: o.category || "", shipping: parseFloat(o.shipping)||0}))
+  };
+  generateUndeliveredSummary(merged);
 }
 
 function generateUndeliveredSummary(o) {
