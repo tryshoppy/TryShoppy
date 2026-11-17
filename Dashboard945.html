@@ -531,6 +531,7 @@ body.sb-open{overflow:hidden}
       <div class="ao-grid">
         <div class="ao-f"><label>النوع *</label><select id="exType"></select></div>
         <div class="ao-f"><label>موعد الوصول (الشحنة)</label>
+          <select id="exArrivalPick" onchange="if(this.value){document.getElementById('exArrival').value=this.value;} this.value='';" style="margin-bottom:6px"></select>
           <input id="exArrival" type="text" list="exArrivalList" placeholder="أدخل أو اختر موعد الوصول — أو اتركه فارغًا">
           <datalist id="exArrivalList"></datalist></div>
         <div class="ao-f"><label>التاريخ</label><input id="exDate" type="date"></div>
@@ -976,6 +977,9 @@ async function loadRama(){
         const arr = Array.isArray(raw) ? raw : (raw && Array.isArray(raw.items) ? raw.items : []);
         const groups = {};
         arr.forEach(p=>{
+            // ❌ صنف RAMA المرفوض / غير المتاح (Rejected) = زي الطلب الملغي،
+            // مايدخلش في إجمالي الموعد ولا في الأرباح
+            if(String(p.status||"").trim() === "Rejected") return;
             const dateRaw = String(p.arrivalDate||"").trim();
             const k = arrKeyD(dateRaw) || "__none";
             if(!groups[k]) groups[k] = { dateRaw, items:0, qty:0, usd:0, egp:0, dep:0 };
@@ -1122,12 +1126,32 @@ function expenseMatches(e, f){
 
 function fmtEgp(n){ return Math.round(n).toLocaleString() + " ج.م"; }
 
+/** آخر n مواعيد وصول (طلبات + RAMA + مصروفات)، الأحدث تاريخًا الأول.
+ *  بنفس النص المتخزن في الشيت (ARR_LABEL_D) عشان المصروف يتطابق مع
+ *  طلبات الشحنة في الفلتر وسعر الدولار. الصيغة غير المفهومة في الآخر. */
+function exRecentArrivals(n){
+    return [...ARR_LABEL_D.values()]
+        .map(v => [v, arrDateValueD(v)])
+        .sort((a, b) => {
+            if(a[1] !== null && b[1] !== null) return b[1] - a[1];
+            if(a[1] !== null) return -1;
+            if(b[1] !== null) return 1;
+            return String(b[0]).localeCompare(String(a[0]));
+        }).slice(0, n).map(e => e[0]);
+}
+
 function openExpenses(){
     if(!EXP_ON){ alert("💸 المصروفات غير متاحة حاليًا\n\n" + (EXP_REASON || "حدّث الصفحة وحاول مرة أخرى.")); return; }
     const typeSel = document.getElementById("exType");
     if(!typeSel.options.length) typeSel.innerHTML = EXP_TYPES.map(t => `<option>${tsEscapeHtml(t)}</option>`).join("");
+    // 📅 آخر 20 موعد وصول — الأحدث الأول، بالشكل الموحّد ومن غير تكرار
+    // (كانت كل المواعيد بترتيب ظهورها في الشيت، ومن غير قايمة تتفتح)
+    const recentArr = exRecentArrivals(20);
     document.getElementById("exArrivalList").innerHTML =
-        [...ARR_LABEL_D.values()].map(v => `<option value="${tsEscapeHtml(v)}">`).join("");
+        recentArr.map(v => `<option value="${tsEscapeHtml(v)}">`).join("");
+    document.getElementById("exArrivalPick").innerHTML =
+        `<option value="">— اختر من آخر ${recentArr.length} موعد —</option>` +
+        recentArr.map(v => `<option value="${tsEscapeHtml(v)}">${tsEscapeHtml(v)} — ${tsEscapeHtml(tsFormatArrival(v))}</option>`).join("");
     // موعد واحد متعلّم في الفلتر = أغلب الظن المصروف ده للشحنة دي
     const picks = msValues("arrivalSelect").filter(k => k !== "__none");
     const arr = document.getElementById("exArrival");
@@ -1394,6 +1418,12 @@ function renderTable(data) {
     }
 }
 
+/** حالات مالهاش ربح: ملغي (أي صيغة فيها Canceled) / مرتجع / ماتستلمش / ضايع */
+function noProfitStD(st){
+    st = String(st || "").trim();
+    return st.indexOf("Canceled") !== -1 || st === "Returned" || st === "Unclaimed" || st === "Lost";
+}
+
 function applyFilters() {
      const arrivalSearch = document.getElementById("searchArrival").value.toLowerCase();
     // 🆕 فلتر موعد الوصول من قايمة جاهزة — بيشتغل جنب البحث النصي:
@@ -1448,6 +1478,12 @@ return dateMatch && searchMatch && statusMatch && arrivalMatch && userMatch;
     // ياخد سعر شحنته هو
     filtered = filtered.reverse().map(o => ({ ...o, costEgp: (parseFloat(o.usd) || 0) * rateForArrival(o.arrivaldate) }));
 
+    // 🚫 الطلبات الملغية والمرتجعة والضايعة (Lost) واللي العميل ماستلمهاش (Unclaimed) مش
+    // بيعات — مبيعاتها ودولارها وتكلفتها وربحها مابيدخلوش في الإجماليات.
+    // بتتحسب هنا قبل التجميع بالموبايل، عشان المرتجع كان بيتجمّع مع باقي
+    // طلبات العميل ويدخل في الإجمالي من غير ما يتشاف.
+    const profitRows = filtered.filter(o => !noProfitStD(o.status));
+
     if (isGrouped) {
         const groups = {};
         const ramaKeep = filtered.filter(o=>o.isRama);   // صفوف RAMA مش بتتجمّع بالموبايل
@@ -1486,8 +1522,8 @@ return dateMatch && searchMatch && statusMatch && arrivalMatch && userMatch;
         filtered = Object.values(groups).map(g => ({ ...g, order: g.order.join(' + ') })).concat(canceledKeep, ramaKeep);
     }
 	
-    const totalEGP = filtered.reduce((a,b) => a + parseFloat(b.finalPrice || 0), 0);
-    const totalUSD = filtered.reduce((a,b) => a + parseFloat(b.usd || 0), 0);
+    const totalEGP = profitRows.reduce((a,b) => a + parseFloat(b.finalPrice || 0), 0);
+    const totalUSD = profitRows.reduce((a,b) => a + parseFloat(b.usd || 0), 0);
     // 🆕 إجمالي العربون المحصّل — بيتبع نفس الفلتر المطبّق بالظبط
     // (شامل صفوف RAMA المُجمّعة، لأن عربونها متجمّع فيها أصلاً)
     const totalDeposit = filtered.reduce((a,b) => a + parseFloat(b.deposit || 0), 0);
@@ -1495,7 +1531,7 @@ return dateMatch && searchMatch && statusMatch && arrivalMatch && userMatch;
         const ship = isGrouped ? (parseFloat(b.totalShipping)||0) : (parseFloat(b.shipping)||0);
         return a + (parseFloat(b.finalPrice||0) + ship - parseFloat(b.deposit||0));
     }, 0);
-    const totalCostEgp = filtered.reduce((a,b) => a + (b.costEgp || 0), 0);
+    const totalCostEgp = profitRows.reduce((a,b) => a + (b.costEgp || 0), 0);
     const totalProfit = totalEGP - totalCostEgp;
     document.getElementById("totalCostEgp").innerText = totalUSD
         ? "= " + fmtEgp(totalCostEgp) + " (متوسط " + (totalCostEgp / totalUSD).toFixed(2) + " ج.م/$)" : "";
