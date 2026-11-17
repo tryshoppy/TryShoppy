@@ -1418,10 +1418,10 @@ function renderTable(data) {
     }
 }
 
-/** حالات مالهاش ربح: ملغي (أي صيغة فيها Canceled) / مرتجع / ماتستلمش */
+/** حالات مالهاش ربح: ملغي (أي صيغة فيها Canceled) / مرتجع / ماتستلمش / ضايع */
 function noProfitStD(st){
     st = String(st || "").trim();
-    return st.indexOf("Canceled") !== -1 || st === "Returned" || st === "Unclaimed";
+    return st.indexOf("Canceled") !== -1 || st === "Returned" || st === "Unclaimed" || st === "Lost";
 }
 
 function applyFilters() {
@@ -1478,7 +1478,7 @@ return dateMatch && searchMatch && statusMatch && arrivalMatch && userMatch;
     // ياخد سعر شحنته هو
     filtered = filtered.reverse().map(o => ({ ...o, costEgp: (parseFloat(o.usd) || 0) * rateForArrival(o.arrivaldate) }));
 
-    // 🚫 الطلبات الملغية والمرتجعة واللي العميل ماستلمهاش (Unclaimed) مش
+    // 🚫 الطلبات الملغية والمرتجعة والضايعة (Lost) واللي العميل ماستلمهاش (Unclaimed) مش
     // بيعات — مبيعاتها ودولارها وتكلفتها وربحها مابيدخلوش في الإجماليات.
     // بتتحسب هنا قبل التجميع بالموبايل، عشان المرتجع كان بيتجمّع مع باقي
     // طلبات العميل ويدخل في الإجمالي من غير ما يتشاف.
