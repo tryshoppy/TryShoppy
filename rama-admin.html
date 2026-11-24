@@ -170,6 +170,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 #loginScreen #loginBtn{background:var(--ts-gold);color:var(--ts-navy);min-height:48px;font-size:15px;}
 </style>
 <link rel="stylesheet" href="assets/staff-ui.css?v=20261124a">
+<!-- 🔑 جلسة موحّدة + إشعارات داخل الصفحة (لازم يتحمّل قبل أي سكريبت تاني) -->
+<script src="assets/staff-kit.js?v=20261124a"></script>
 </head>
 <body class="ts-staff">
 
@@ -309,7 +311,7 @@ function numAttr(v){
 // عرض رقم بشكل آدمي — من غير "NaN" لو العمود فاضي في الشيت
 function fmtNum(v){
   const n = parseFloat(v);
-  return (isFinite(n) ? n : 0).toLocaleString();
+  return (isFinite(n) ? n : 0).toLocaleString('en-US');
 }
 // 🐞 بناء selector بالـid الخام كان بيرمي SyntaxError من
 // querySelector نفسها لو الـid فيه " أو ]
@@ -668,7 +670,7 @@ function updateLastRefreshLabel(){
   const lbl = document.getElementById("lastRefreshLbl");
   if(!lbl) return;
   const now = new Date();
-  lbl.textContent = "آخر تحديث: " + now.toLocaleTimeString("ar-EG", {hour:"2-digit", minute:"2-digit"});
+  lbl.textContent = "آخر تحديث: " + now.toLocaleTimeString("ar-EG-u-nu-latn", {hour:"2-digit", minute:"2-digit"});
 }
 
 async function manualRefresh(btn){
@@ -714,14 +716,14 @@ function renderStats(items, paymentsTotal, statusF){
   // العميل، مش محتاجينه كإحصائية منفصلة دلوقتي
   const showTotalValue = statusF !== "Delivered";
   const moneyBoxes = showMoney ? `
-    <div class="stat-box"><div class="num">$${totalUsd.toLocaleString()}</div><div class="lbl">💵 إجمالي الدولار (USD)</div></div>
-    ${showTotalValue ? `<div class="stat-box"><div class="num">${totalFinal.toLocaleString()}</div><div class="lbl">💰 إجمالي القيمة (EGP)</div></div>` : ""}
-    <div class="stat-box"><div class="num" style="color:var(--danger)">${totalRemaining.toLocaleString()}</div><div class="lbl">⏳ المتبقي تحصيله (EGP)</div></div>
+    <div class="stat-box"><div class="num">$${totalUsd.toLocaleString('en-US')}</div><div class="lbl">💵 إجمالي الدولار (USD)</div></div>
+    ${showTotalValue ? `<div class="stat-box"><div class="num">${totalFinal.toLocaleString('en-US')}</div><div class="lbl">💰 إجمالي القيمة (EGP)</div></div>` : ""}
+    <div class="stat-box"><div class="num" style="color:var(--danger)">${totalRemaining.toLocaleString('en-US')}</div><div class="lbl">⏳ المتبقي تحصيله (EGP)</div></div>
   ` : "";
 
   document.getElementById("statsGrid").innerHTML = `
     <div class="stat-box"><div class="num">${items.length}</div><div class="lbl">📦 إجمالي المنتجات${items.length !== allProducts.filter(p=>p.status!=="Payment").length ? ' (مفلترة)' : ''}</div></div>
-    <div class="stat-box"><div class="num">${totalQty.toLocaleString()}</div><div class="lbl">🔢 إجمالي الكمية (قطعة)</div></div>
+    <div class="stat-box"><div class="num">${totalQty.toLocaleString('en-US')}</div><div class="lbl">🔢 إجمالي الكمية (قطعة)</div></div>
     <div class="stat-box"><div class="num">${confirmedCount}</div><div class="lbl">✅ مؤكدة</div></div>
     <div class="stat-box"><div class="num">${deliveredCount}</div><div class="lbl">🎉 تم التسليم</div></div>
     ${moneyBoxes}
@@ -1086,13 +1088,13 @@ function calcPreview(id){
   if(!preview) return;
   const customEl = document.getElementById("customPrice-"+id);
   const custom = customEl ? parseFloat(customEl.value) : NaN;
-  if(custom){ preview.textContent = "✏️ سعر مخصص: " + custom.toLocaleString() + " EGP / قطعة"; return; }
+  if(custom){ preview.textContent = "✏️ سعر مخصص: " + custom.toLocaleString('en-US') + " EGP / قطعة"; return; }
   const usdEl = document.getElementById("usd-"+id);
   const usd = usdEl ? parseFloat(usdEl.value) : NaN;
   const weight = resolveWeight(id);
   if(!usd || !weight){ preview.textContent = ""; return; }
   const { finalPrice } = tryShoppyCalculatePrice({ usd, category:"Vitamin or Supplements", weightGrams:weight, quantity:1 });
-  preview.textContent = "≈ " + finalPrice.toLocaleString() + " EGP / للوحدة";
+  preview.textContent = "≈ " + finalPrice.toLocaleString('en-US') + " EGP / للوحدة";
 }
 
 async function submitPrice(id){
@@ -1145,7 +1147,7 @@ async function submitPrice(id){
     })});
     const data = await res.json();
     if(data.success){
-      logActivity("💰 تسعير", p ? p.productName : id, `${finalPrice.toLocaleString()} EGP / قطعة`);
+      logActivity("💰 تسعير", p ? p.productName : id, `${finalPrice.toLocaleString('en-US')} EGP / قطعة`);
       pricedThisSessionCount++;
       await refreshAfterAction(data);
       // 🎉 لو مفيش حاجة تانية لسه بانتظار تسعير، يبقى خلص "دفعة"
@@ -1203,7 +1205,7 @@ function updateStaffCounterPreview(id){
   const egp = egpEl ? (parseFloat(egpEl.value) || 0) : 0;
   const qty = Math.max(1, (qtyEl ? parseInt(qtyEl.value) : 1) || 1);
   if(!egp){ box.textContent = "اكتب السعر الجديد للوحدة"; return; }
-  box.textContent = `سيُرسل إلى العميل: ${egp.toLocaleString()} × ${qty} = ${(egp*qty).toLocaleString()} EGP إجمالي`;
+  box.textContent = `سيُرسل إلى العميل: ${egp.toLocaleString('en-US')} × ${qty} = ${(egp*qty).toLocaleString('en-US')} EGP إجمالي`;
 }
 
 async function sendStaffCounter(id){
@@ -1223,7 +1225,7 @@ async function sendStaffCounter(id){
     })});
     const data = await res.json();
     if(data.success){
-      logActivity("💬 عرض مضاد للعميل", p ? p.productName : id, `${unitEgp.toLocaleString()} EGP × ${qty}`);
+      logActivity("💬 عرض مضاد للعميل", p ? p.productName : id, `${unitEgp.toLocaleString('en-US')} EGP × ${qty}`);
       showToast("✅ تم إرسال عرضك إلى العميل", "success");
       refreshAfterAction(data);
     } else {
@@ -1249,8 +1251,8 @@ function updateConfirmedTotals(id, unitEgp, unitUsd){
   const dep = depEl ? (parseFloat(depEl.value) || 0) : 0;
   const totalEgp = (parseFloat(unitEgp) || 0) * qty;
   const totalUsd = (parseFloat(unitUsd) || 0) * qty;
-  box.innerHTML = `💵 الإجمالي: <b>${totalEgp.toLocaleString()} EGP</b> | <b>${totalUsd.toLocaleString()}$</b>`
-    + ` &nbsp;—&nbsp; ⏳ المتبقي: <b>${Math.max(0, totalEgp - dep).toLocaleString()} EGP</b>`;
+  box.innerHTML = `💵 الإجمالي: <b>${totalEgp.toLocaleString('en-US')} EGP</b> | <b>${totalUsd.toLocaleString('en-US')}$</b>`
+    + ` &nbsp;—&nbsp; ⏳ المتبقي: <b>${Math.max(0, totalEgp - dep).toLocaleString('en-US')} EGP</b>`;
 }
 
 async function saveStatus(id){
@@ -1315,7 +1317,7 @@ async function cancelProduct(id, btn){
   const reason = prompt("إلغاء الطلب: " + name + "\n\nسبب الإلغاء (سيظهر للعميل):", "تم إلغاء الطلب بناءً على طلبكم");
   if(reason === null) return;
   const paid = p ? (parseFloat(p.deposit) || 0) : 0;
-  if(!confirm("هل تؤكد إلغاء هذا الطلب؟\n\n" + name + (paid > 0 ? "\n\n⚠️ عليه عربون " + paid.toLocaleString() + " EGP — رتّب رده أو خصمه مع العميل." : "") + "\n\nسيبقى الصف في الشيت بحالة Rejected، ويخرج من الإجماليات والدفعات.")) return;
+  if(!confirm("هل تؤكد إلغاء هذا الطلب؟\n\n" + name + (paid > 0 ? "\n\n⚠️ عليه عربون " + paid.toLocaleString('en-US') + " EGP — رتّب رده أو خصمه مع العميل." : "") + "\n\nسيبقى الصف في الشيت بحالة Rejected، ويخرج من الإجماليات والدفعات.")) return;
   setBtnLoading(btn, "جارٍ الإلغاء...");
   try{
     const res = await fetch(RMA_SCRIPT_URL, { method:"POST", body: JSON.stringify({ action:"updateStatus", staffToken:getStaffToken(), id, status:"Rejected", notes:reason }) });
@@ -1404,8 +1406,8 @@ function updateAddItemPreview(){
   const qty = Math.max(1, parseInt((document.getElementById("addItemQty")||{}).value) || 1);
   if(!unitEgp && !unitUsd){ box.textContent = "سيُسجَّل في الشيت: سعر الوحدة × العدد"; return; }
   box.innerHTML = `📄 سيُسجَّل في الشيت:<br>`
-    + `TotalEGP = ${unitEgp.toLocaleString()} × ${qty} = <b>${(unitEgp*qty).toLocaleString()} EGP</b><br>`
-    + `TotalUSD = ${unitUsd.toLocaleString()} × ${qty} = <b>${(unitUsd*qty).toLocaleString()}$</b>`;
+    + `TotalEGP = ${unitEgp.toLocaleString('en-US')} × ${qty} = <b>${(unitEgp*qty).toLocaleString('en-US')} EGP</b><br>`
+    + `TotalUSD = ${unitUsd.toLocaleString('en-US')} × ${qty} = <b>${(unitUsd*qty).toLocaleString('en-US')}$</b>`;
 }
 
 async function fetchForAddItem(){
@@ -1454,7 +1456,7 @@ async function submitAddItem(){
     })});
     const data = await res.json();
     if(data.success){
-      logActivity("➕ إضافة مباشرة (مؤكد)", name || link, unitEgp.toLocaleString()+" EGP × "+qty);
+      logActivity("➕ إضافة مباشرة (مؤكد)", name || link, unitEgp.toLocaleString('en-US')+" EGP × "+qty);
       closeModal();
       showToast("✅ تمت إضافة المنتج", "success");
       refreshAfterAction(data);
@@ -1550,9 +1552,9 @@ function updateReorderPreview(){
   const totalEgp = egp * qty;
 
   box.innerHTML = `📄 سيُسجَّل في الشيت:<br>`
-    + `TotalEGP = ${egp.toLocaleString()} × ${qty} = <b>${totalEgp.toLocaleString()} EGP</b><br>`
-    + `TotalUSD = ${usd.toLocaleString()} × ${qty} = <b>${(usd*qty).toLocaleString()}$</b><br>`
-    + `المتبقي بعد العربون: <b>${Math.max(0, totalEgp - dep).toLocaleString()} EGP</b>`;
+    + `TotalEGP = ${egp.toLocaleString('en-US')} × ${qty} = <b>${totalEgp.toLocaleString('en-US')} EGP</b><br>`
+    + `TotalUSD = ${usd.toLocaleString('en-US')} × ${qty} = <b>${(usd*qty).toLocaleString('en-US')}$</b><br>`
+    + `المتبقي بعد العربون: <b>${Math.max(0, totalEgp - dep).toLocaleString('en-US')} EGP</b>`;
 
   // تحذير التكرار
   const warn = document.getElementById("reorderWarn");
@@ -1598,7 +1600,7 @@ async function submitReorder(){
     const data = await res.json();
     if(data.success){
       logActivity("🔁 شحنة جديدة", reorderSource.productName || reorderSource.link,
-        `${arrival} — ${egp.toLocaleString()} EGP × ${qty}`);
+        `${arrival} — ${egp.toLocaleString('en-US')} EGP × ${qty}`);
       closeModal();
       reorderSource = null;
       showToast("✅ تم التسجيل في الشحنة الجديدة", "success");
@@ -1626,7 +1628,7 @@ let currentBatches = []; // آخر حساب دفعات — تستخدمه أزر
 function formatPaymentDate(d){
   if(!d) return "";
   try{
-    return new Date(d).toLocaleString("ar-EG", {day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit"});
+    return new Date(d).toLocaleString("ar-EG-u-nu-latn", {day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit"});
   }catch(e){ return ""; }
 }
 
@@ -1681,9 +1683,9 @@ function openPaymentsModal(){
   const cardsHtml = currentBatches.map((b, i) => `
     <div style="border:1.5px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;text-align:right;">
       <div style="font-weight:900;color:var(--primary);margin-bottom:8px;">📅 ${escapeHtml(b.arrivalDate)}</div>
-      <div class="meta-line">💰 الإجمالي: ${b.total.toLocaleString()} EGP</div>
-      <div class="meta-line" style="color:var(--success);">✅ المدفوع: ${b.paid.toLocaleString()} EGP</div>
-      <div class="meta-line" style="color:var(--danger);font-weight:800;">⏳ المتبقي: ${b.remaining.toLocaleString()} EGP</div>
+      <div class="meta-line">💰 الإجمالي: ${b.total.toLocaleString('en-US')} EGP</div>
+      <div class="meta-line" style="color:var(--success);">✅ المدفوع: ${b.paid.toLocaleString('en-US')} EGP</div>
+      <div class="meta-line" style="color:var(--danger);font-weight:800;">⏳ المتبقي: ${b.remaining.toLocaleString('en-US')} EGP</div>
       <div class="row" style="margin-top:10px;">
         <input type="number" id="payAmount-${i}" placeholder="💵 مبلغ الدفعة">
         <input type="text" id="payNote-${i}" placeholder="📝 ملاحظة (اختياري)">
@@ -1732,7 +1734,7 @@ async function submitPayment(i, btn){
     })});
     const data = await res.json();
     if(data.success){
-      logActivity("💰 دفعة جديدة", "موعد وصول " + batch.arrivalDate, amount.toLocaleString()+" EGP");
+      logActivity("💰 دفعة جديدة", "موعد وصول " + batch.arrivalDate, amount.toLocaleString('en-US')+" EGP");
       await refreshAfterAction(data);
       openPaymentsModal(); // إعادة الرسم بالأرقام المحدثة فورًا
       showToast("✅ تمت إضافة الدفعة", "success");
@@ -1809,7 +1811,7 @@ function showActivityLog(){
     ? log.map(e => `
         <div style="text-align:right;border-bottom:1px solid #f1f5f9;padding:8px 0;">
           <div style="font-weight:800;font-size:13px;">${escapeHtml(e.action)} — ${escapeHtml(e.productName)}</div>
-          <div style="font-size:11.5px;color:var(--gray);">${escapeHtml(e.detail)} · ${new Date(e.time).toLocaleString("ar-EG")}</div>
+          <div style="font-size:11.5px;color:var(--gray);">${escapeHtml(e.detail)} · ${new Date(e.time).toLocaleString('en-US')}</div>
         </div>`).join("")
     : `<div class="empty-hint">لا يوجد نشاط مسجل حتى الآن</div>`;
   showModal(`

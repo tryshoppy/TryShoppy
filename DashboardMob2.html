@@ -275,6 +275,8 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 a[href^="tel:"]{display:inline-block;padding:9px 0;min-height:40px}
 </style>
 <link rel="stylesheet" href="assets/staff-ui.css?v=20261124a">
+<!-- 🔑 جلسة موحّدة + إشعارات داخل الصفحة (لازم يتحمّل قبل أي سكريبت تاني) -->
+<script src="assets/staff-kit.js?v=20261124a"></script>
 </head>
 <body>
 
@@ -340,6 +342,8 @@ a[href^="tel:"]{display:inline-block;padding:9px 0;min-height:40px}
         <!-- بتتملى من TS_STATUSES (assets/app.js) — شوف fillStatusFilter -->
         <select id="searchStatus">
           <option value="">كل الحالات</option>
+          <!-- 🟢 اللوحة بتفتح عليها: كل ما عدا (Delivered / Canceled / Returned / Unclaimed / Lost) -->
+          <option value="__open" selected>🟢 المفتوحة فقط</option>
         </select>
       </div>
       <div class="fgrp">
@@ -352,7 +356,14 @@ a[href^="tel:"]{display:inline-block;padding:9px 0;min-height:40px}
   </div>
 
   <div class="wrap">
+    <!-- 🟢 سطر يوضّح إن المعروض الطلبات المفتوحة بس + رجوع سريع لكل الطلبات -->
+    <div id="viewHint" style="display:none;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 10px;padding:10px 12px;border-radius:12px;background:var(--ok-wash);color:var(--ok);font-weight:800;font-size:13.5px">
+      <span id="viewHintTxt" style="flex:1;min-width:0"></span>
+      <button type="button" onclick="showAllStatuses()" style="border:1.5px solid currentColor;background:#fff;color:inherit;border-radius:10px;min-height:40px;padding:0 12px;font:inherit;cursor:pointer">عرض كل الطلبات</button>
+    </div>
     <div id="cardsContainer"></div>
+    <!-- ⬇️ الكروت بتتحمّل 30 بـ 30 (كانت كلها بتترسم مرة واحدة) -->
+    <button type="button" id="moreBtn" onclick="renderMoreCards()" style="display:none;width:100%;min-height:48px;margin:6px 0 24px;border:1.5px solid var(--line);border-radius:14px;background:#fff;color:var(--ink);font:inherit;font-weight:900;font-size:15px;cursor:pointer"></button>
   </div>
 
   <!-- ══ مودال إضافة منتج ══ -->
@@ -604,7 +615,7 @@ function renderCards(data, append = false){
     if (isGrouped && o.items) {
       linksHTML = o.items.map((item, i) => `
         <a href="${tsSafeHref(item.link)}" target="_blank" rel="noopener noreferrer" class="link-btn has-qty">
-          <span>🔗 منتج ${i + 1} - ${parseFloat(item.price).toLocaleString()} ج.م</span>
+          <span>🔗 منتج ${i + 1} - ${parseFloat(item.price).toLocaleString('en-US')} ج.م</span>
           <span class="qty-tag">الكمية: ${tsEscapeHtml(item.qty || 1)}</span>
         </a>
       `).join('');
@@ -672,18 +683,18 @@ if (isGrouped && o.items) {
 message += TS_WA_RULE + (en
 ? `
 📦 Total items: *${totalQty}*
-💰 Order total: *${total.toLocaleString()} EGP*
-${ship > 0 ? "🚚 Local delivery: " + ship.toLocaleString() + " EGP" : "🚚 Local delivery: on us 🎁"}
-💵 Paid in advance: ${dep.toLocaleString()} EGP
-📌 Due on delivery: *${net.toLocaleString()} EGP*
+💰 Order total: *${total.toLocaleString('en-US')} EGP*
+${ship > 0 ? "🚚 Local delivery: " + ship.toLocaleString('en-US') + " EGP" : "🚚 Local delivery: on us 🎁"}
+💵 Paid in advance: ${dep.toLocaleString('en-US')} EGP
+📌 Due on delivery: *${net.toLocaleString('en-US')} EGP*
 
 Please confirm you'll be available to receive it 🙏`
 : `
 📦 إجمالي عدد المنتجات: *${totalQty}*
-💰 إجمالي الحساب: *${total.toLocaleString()} ج.م*
-${ship > 0 ? "🚚 الشحن الداخلي: " + ship.toLocaleString() + " ج.م" : "🚚 الشحن الداخلي: هدية مننا لحضرتك 🎁"}
-💵 المدفوع مقدمًا: ${dep.toLocaleString()} ج.م
-📌 المطلوب عند الاستلام: *${net.toLocaleString()} ج.م*
+💰 إجمالي الحساب: *${total.toLocaleString('en-US')} ج.م*
+${ship > 0 ? "🚚 الشحن الداخلي: " + ship.toLocaleString('en-US') + " ج.م" : "🚚 الشحن الداخلي: هدية مننا لحضرتك 🎁"}
+💵 المدفوع مقدمًا: ${dep.toLocaleString('en-US')} ج.م
+📌 المطلوب عند الاستلام: *${net.toLocaleString('en-US')} ج.م*
 
 ياريت تأكدلنا إن حضرتك موجود وقت الاستلام 🙏`);
 
@@ -777,7 +788,7 @@ const arriveHref = (isGrouped && o.status === "Arrived Cairo HUB" && phone)
 
       <div class="oc-net">
         <span>🏷️ المطلوب تحصيله</span>
-        <b id="net-${cleanOrderId}">${net.toLocaleString()} ج.م</b>
+        <b id="net-${cleanOrderId}">${net.toLocaleString('en-US')} ج.م</b>
       </div>
 
       <label class="fl full">
@@ -841,7 +852,7 @@ function onQtyChange(id, ship) {
 function recalc(id, ship) {
     const egp = parseFloat(document.getElementById('egp-'+id).value) || 0;
     const dep = parseFloat(document.getElementById('deposit-'+id).value) || 0;
-    document.getElementById('net-'+id).innerText = (egp + ship - dep).toLocaleString() + " ج.م";
+    document.getElementById('net-'+id).innerText = (egp + ship - dep).toLocaleString('en-US') + " ج.م";
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -964,7 +975,9 @@ function applyFilters(){
   let filtered = ordersData.filter(o=>{
     const d = o.date || "";
     const dateMatch = (!from||d>=from) && (!to||d<=to);
-    const statusMatch = !status||o.status===status;
+    /* 🟢 "__open" = المفتوحة فقط. لو فيه بحث بالاسم/الرقم بنعرض كل حالات
+       العميل (اللي بيدوّر على طلب اتسلّم لازم يلاقيه). */
+    const statusMatch = !status || (status === "__open" ? (!!search || !tsIsClosedStatus(o.status)) : o.status===status);
     const arrivalMatch = !searchArr || arrNormM(o.arrivaldate).includes(searchArr);
     const cleanOrder = String(o.order || "").toLowerCase().replace(/\s/g, "");
     const userMatch = !userFilter || (o.user || "").trim().toLowerCase() === userFilter;
@@ -1025,13 +1038,43 @@ function applyFilters(){
   // نفسها اتنقلت لتاب Expenses (للأدمن وصاحب الصلاحية بس)، ده احتياطي لو اتسجل صف كده بالغلط
   const displayData = finalData.filter(o => !isOpexM(o));
 
-  renderCards(displayData.slice(0, 30), false);
+  /* ⬇️ 30 كارت في المرة — الباقي بزرار "عرض المزيد" أو لما توصل لآخر الصفحة.
+     currentViewData (الطباعة/التجميع/الرسائل) لسه فيه كل النتايج زي ما هو. */
+  pagedData = displayData; pagedShown = 0;
+  renderCards([], false);
+  renderMoreCards();
 
-  if(displayData.length > 30) {
-    renderTimer = setTimeout(() => {
-        renderCards(displayData.slice(30), true);
-    }, 500);
+  const hint = document.getElementById("viewHint");
+  if(hint){
+    const openOnly = status === "__open" && !search;
+    hint.style.display = openOnly ? "flex" : "none";
+    if(openOnly) document.getElementById("viewHintTxt").textContent = "🟢 المعروض: الطلبات المفتوحة فقط (" + displayData.length + ")";
   }
+}
+
+const PAGE_SIZE_M = 30;
+let pagedData = [], pagedShown = 0;
+function renderMoreCards(){
+  const next = pagedData.slice(pagedShown, pagedShown + PAGE_SIZE_M);
+  if(next.length) renderCards(next, true);
+  pagedShown += next.length;
+  const btn = document.getElementById("moreBtn");
+  if(btn){
+    const left = pagedData.length - pagedShown;
+    btn.style.display = left > 0 ? "" : "none";
+    btn.textContent = "⬇️ عرض المزيد (باقي " + left + ")";
+  }
+}
+function showAllStatuses(){
+  document.getElementById("searchStatus").value = "";
+  applyFilters(); updateFilterCount();
+}
+/* تحميل تلقائي لما زرار "عرض المزيد" يقرب يظهر على الشاشة */
+if("IntersectionObserver" in window){
+  window.addEventListener("load", () => {
+    const btn = document.getElementById("moreBtn");
+    if(btn) new IntersectionObserver(es => { if(es[0].isIntersecting && btn.style.display !== "none") renderMoreCards(); }, { rootMargin: "600px" }).observe(btn);
+  });
 }
 
 function toggleGrouping(){
@@ -1455,8 +1498,8 @@ function generateUndeliveredSummary(o) {
 
     grandTotal += groupTotal;
     message += sEn
-      ? `\n📌 Total for this date: *${groupTotal.toLocaleString()} EGP*\n`
-      : `\n📌 إجمالي طلبات هذا الموعد: *${groupTotal.toLocaleString()} ج.م*\n`;
+      ? `\n📌 Total for this date: *${groupTotal.toLocaleString('en-US')} EGP*\n`
+      : `\n📌 إجمالي طلبات هذا الموعد: *${groupTotal.toLocaleString('en-US')} ج.م*\n`;
   });
 
   const grandDeposit = pendingItems.reduce((s, it) => s + (parseFloat(it.deposit) || 0), 0);
@@ -1465,17 +1508,17 @@ function generateUndeliveredSummary(o) {
   const trackLink = firstOrder ? TS_TRACK_URL + "?order=" + encodeURIComponent(firstOrder) : TS_TRACK_URL;
 
   if (sEn) {
-    message += `\n═══════════════\n💰 *Grand total of all orders still on the way: ${grandTotal.toLocaleString()} EGP*`;
+    message += `\n═══════════════\n💰 *Grand total of all orders still on the way: ${grandTotal.toLocaleString('en-US')} EGP*`;
     if (grandDeposit > 0) {
-      message += `\n💵 Paid in advance: ${grandDeposit.toLocaleString()} EGP`;
-      message += `\n📌 *Due on delivery: ${(grandTotal - grandDeposit).toLocaleString()} EGP*`;
+      message += `\n💵 Paid in advance: ${grandDeposit.toLocaleString('en-US')} EGP`;
+      message += `\n📌 *Due on delivery: ${(grandTotal - grandDeposit).toLocaleString('en-US')} EGP*`;
     }
     message += `\n═══════════════\n\nTrack your orders anytime here:\n${trackLink}\n\nWe're here if you have any questions 🙏`;
   } else {
-    message += `\n═══════════════\n💰 *الإجمالي الكلي لكل الطلبات غير المستلمة: ${grandTotal.toLocaleString()} ج.م*`;
+    message += `\n═══════════════\n💰 *الإجمالي الكلي لكل الطلبات غير المستلمة: ${grandTotal.toLocaleString('en-US')} ج.م*`;
     if (grandDeposit > 0) {
-      message += `\n💵 المدفوع مقدمًا: ${grandDeposit.toLocaleString()} ج.م`;
-      message += `\n📌 *المطلوب عند الاستلام: ${(grandTotal - grandDeposit).toLocaleString()} ج.م*`;
+      message += `\n💵 المدفوع مقدمًا: ${grandDeposit.toLocaleString('en-US')} ج.م`;
+      message += `\n📌 *المطلوب عند الاستلام: ${(grandTotal - grandDeposit).toLocaleString('en-US')} ج.م*`;
     }
     message += `\n═══════════════\n\nتابع طلباتك في أي وقت من هنا:\n${trackLink}\n\nلأي استفسار إحنا معاك 🙏`;
   }

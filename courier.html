@@ -265,6 +265,8 @@ input[type=checkbox]{min-width:24px;min-height:24px}
 .who-sel{min-height:40px}
 </style>
 <link rel="stylesheet" href="assets/staff-ui.css?v=20261124a">
+<!-- 🔑 جلسة موحّدة + إشعارات داخل الصفحة (لازم يتحمّل قبل أي سكريبت تاني) -->
+<script src="assets/staff-kit.js?v=20261124a"></script>
 </head>
 <body>
 
@@ -1198,7 +1200,7 @@ function logCollection(name, ups){
   try{ log = JSON.parse(localStorage.getItem(todayKey()) || "[]"); }catch(e){}
   const amount = ups.reduce((s, u) => s + (u._take || 0), 0);
   const cash = ups.reduce((s, u) => s + (u._cash || 0), 0), insta = ups.reduce((s, u) => s + (u._insta || 0), 0);
-  log.push({ t: new Date().toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" }), name, n: ups.length, amount, cash, insta });
+  log.push({ t: new Date().toLocaleTimeString("ar-EG-u-nu-latn", { hour: "2-digit", minute: "2-digit" }), name, n: ups.length, amount, cash, insta });
   try{ localStorage.setItem(todayKey(), JSON.stringify(log)); }catch(e){}
   // 🚚 تحصيل الشحنة كلها (مهما كان يوم التوصيل) — بالطلب، عشان مايتعدّش مرتين
   const sl = shipLogGet();

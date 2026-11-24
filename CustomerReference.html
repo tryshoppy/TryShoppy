@@ -115,6 +115,8 @@ button:hover{ opacity:.9; }
 .search-row input{ flex:1; min-width:0; }
 </style>
 <link rel="stylesheet" href="assets/staff-ui.css?v=20261124a">
+<!-- 🔑 جلسة موحّدة + إشعارات داخل الصفحة (لازم يتحمّل قبل أي سكريبت تاني) -->
+<script src="assets/staff-kit.js?v=20261124a"></script>
 </head>
 <body class="ts-staff">
 
@@ -362,7 +364,7 @@ function normPhone(v){
 /* بحث بالموبايل = أرقام بس (مسموح مسافات و + و -). قبل كده أي رقم في
    الكلام كان بيحوّل البحث لموبايل، فاسم فيه رقم كان بيدوّر في التليفونات */
 function isPhoneSearch(v){ const s = tsToEnDigits(String(v || "")).trim(); return /\d/.test(s) && /^[\d\s+()-]+$/.test(s); }
-function fmt(v){ return parseFloat(v||0).toLocaleString(); }
+function fmt(v){ return parseFloat(v||0).toLocaleString('en-US'); }
 var nameSearchCandidates = [];
 
 function escapeHtml(v){
@@ -501,7 +503,7 @@ function renderCustomer(orders){
     h += '<div class="order-row" onclick="toggleHistory(\'' + rowId + '\')">';
     h += '<div class="order-top"><span class="order-id">🔖 ' + escapeHtml(o.order || "—") + '</span><span class="badge ' + statusClass(o.status) + '">' + statusLabel(o.status) + '</span></div>';
     h += '<div class="order-meta">';
-    h += '<span>📅 ' + (o.date ? new Date(o.date).toLocaleDateString('ar-EG') : "—") + '</span>';
+    h += '<span>📅 ' + (o.date ? new Date(o.date).toLocaleDateString('ar-EG-u-nu-latn') : "—") + '</span>';
     if(o.arrivaldate) h += '<span>🚚 وصول متوقع: ' + escapeHtml(o.arrivaldate) + '</span>';
     h += '</div>';
 

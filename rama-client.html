@@ -182,6 +182,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{
 #loginScreen .btn-block{background:var(--ts-gold);color:var(--ts-navy);min-height:48px;font-size:15px;}
 </style>
 <link rel="stylesheet" href="assets/staff-ui.css?v=20261124a">
+<script src="assets/staff-kit.js?v=20261124a"></script>
 </head>
 <body class="ts-staff">
 
@@ -318,7 +319,7 @@ function numAttr(v){
 // عرض رقم بشكل آدمي — من غير "NaN" لو العمود فاضي
 function fmtNum(v){
   const n = parseFloat(v);
-  return (isFinite(n) ? n : 0).toLocaleString();
+  return (isFinite(n) ? n : 0).toLocaleString('en-US');
 }
 
 /* ---------------------------------------------------------
@@ -797,7 +798,7 @@ function updateLastRefreshLabel(){
   const lbl = document.getElementById("lastRefreshLbl");
   if(!lbl) return;
   const now = new Date();
-  lbl.textContent = "آخر تحديث: " + now.toLocaleTimeString("ar-EG", {hour:"2-digit", minute:"2-digit"});
+  lbl.textContent = "آخر تحديث: " + now.toLocaleTimeString("ar-EG-u-nu-latn", {hour:"2-digit", minute:"2-digit"});
 }
 
 async function manualRefresh(btn){
@@ -835,13 +836,13 @@ function renderStats(items, paymentsTotal, statusF){
   // بالظبط. "إجمالي المدفوع" اتشال خالص، مش محتاجينه هنا
   const showTotalValue = statusF !== "Delivered";
   const moneyBoxes = showMoney ? `
-    ${showTotalValue ? `<div class="stat-box"><div class="num">${totalFinal.toLocaleString()}</div><div class="lbl">💰 إجمالي القيمة (EGP)</div></div>` : ""}
-    <div class="stat-box"><div class="num" style="color:var(--danger)">${totalRemaining.toLocaleString()}</div><div class="lbl">⏳ المتبقي عليك (EGP)</div></div>
+    ${showTotalValue ? `<div class="stat-box"><div class="num">${totalFinal.toLocaleString('en-US')}</div><div class="lbl">💰 إجمالي القيمة (EGP)</div></div>` : ""}
+    <div class="stat-box"><div class="num" style="color:var(--danger)">${totalRemaining.toLocaleString('en-US')}</div><div class="lbl">⏳ المتبقي عليك (EGP)</div></div>
   ` : "";
 
   document.getElementById("statsGrid").innerHTML = `
     <div class="stat-box"><div class="num">${items.length}</div><div class="lbl">📦 إجمالي المنتجات${items.length !== allProducts.filter(p=>p.status!=="Payment").length ? ' (مفلترة)' : ''}</div></div>
-    <div class="stat-box"><div class="num">${totalQty.toLocaleString()}</div><div class="lbl">🔢 إجمالي الكمية (قطعة)</div></div>
+    <div class="stat-box"><div class="num">${totalQty.toLocaleString('en-US')}</div><div class="lbl">🔢 إجمالي الكمية (قطعة)</div></div>
     <div class="stat-box"><div class="num">${confirmedLike.length}</div><div class="lbl">✅ مؤكدة</div></div>
     <div class="stat-box"><div class="num">${deliveredCount}</div><div class="lbl">🎉 تم التسليم</div></div>
     ${moneyBoxes}
@@ -969,7 +970,7 @@ function renderProducts(items){
         <div class="meta-line">🔢 العدد: ${escapeHtml(p.quantity || 1)}</div>
         <div class="price-tag">💵 الإجمالي: ${fmtNum(p.finalEgp)} EGP</div>
         <div class="meta-line">📅 موعد الوصول: ${escapeHtml(normArrival(p.arrivalDate) || "—")}</div>
-        <div class="meta-line">💰 العربون: ${fmtNum(p.deposit)} EGP — المتبقي: ${Math.max(0, (parseFloat(p.finalEgp)||0) - (parseFloat(p.deposit)||0)).toLocaleString()} EGP</div>
+        <div class="meta-line">💰 العربون: ${fmtNum(p.deposit)} EGP — المتبقي: ${Math.max(0, (parseFloat(p.finalEgp)||0) - (parseFloat(p.deposit)||0)).toLocaleString('en-US')} EGP</div>
         <button class="mini-btn btn-ghost" style="margin-top:8px;" onclick="reorderProduct('${jid}', this)">🔁 إعادة طلب نفس المنتج</button>`;
     }
 
@@ -1009,7 +1010,7 @@ function updateQtyPreview(id, unitPrice){
   if(!qtyEl || !previewEl) return;
   const qty = parseInt(qtyEl.value) || 1;
   const total = qty * (parseFloat(unitPrice) || 0);
-  previewEl.textContent = `= ${qty} × ${Number(unitPrice).toLocaleString()} = ${total.toLocaleString()} EGP إجمالي`;
+  previewEl.textContent = `= ${qty} × ${Number(unitPrice).toLocaleString('en-US')} = ${total.toLocaleString('en-US')} EGP إجمالي`;
 }
 
 /* 🐞 كل الدوال دي كانت بتقرا .value من عنصر من غير ما تتأكد إنه
@@ -1194,7 +1195,7 @@ function exportCSV(){
 function formatPaymentDate(d){
   if(!d) return "";
   try{
-    return new Date(d).toLocaleString("ar-EG", {day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit"});
+    return new Date(d).toLocaleString("ar-EG-u-nu-latn", {day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit"});
   }catch(e){ return ""; }
 }
 
@@ -1248,9 +1249,9 @@ function openPaymentsModal(){
   const cardsHtml = batches.map(b => `
     <div style="border:1.5px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;text-align:right;">
       <div style="font-weight:900;color:var(--primary);margin-bottom:8px;">📅 ${escapeHtml(b.arrivalDate)}</div>
-      <div class="meta-line">💰 الإجمالي: ${b.total.toLocaleString()} EGP</div>
-      <div class="meta-line" style="color:var(--success);">✅ المدفوع: ${b.paid.toLocaleString()} EGP</div>
-      <div class="meta-line" style="color:var(--danger);font-weight:800;">⏳ المتبقي: ${b.remaining.toLocaleString()} EGP</div>
+      <div class="meta-line">💰 الإجمالي: ${b.total.toLocaleString('en-US')} EGP</div>
+      <div class="meta-line" style="color:var(--success);">✅ المدفوع: ${b.paid.toLocaleString('en-US')} EGP</div>
+      <div class="meta-line" style="color:var(--danger);font-weight:800;">⏳ المتبقي: ${b.remaining.toLocaleString('en-US')} EGP</div>
       ${b.payments.length ? `
         <div style="margin-top:10px;border-top:1px dashed var(--border);padding-top:8px;">
           <div style="font-size:12px;color:var(--gray);font-weight:800;margin-bottom:6px;">سجل الدفعات:</div>

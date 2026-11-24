@@ -82,6 +82,8 @@ button:hover{ opacity:.9; }
 #cartFab{ top:auto !important; bottom:18px !important; }
 </style>
 <link rel="stylesheet" href="assets/staff-ui.css?v=20261124a">
+<!-- 🔑 جلسة موحّدة + إشعارات داخل الصفحة (لازم يتحمّل قبل أي سكريبت تاني) -->
+<script src="assets/staff-kit.js?v=20261124a"></script>
 </head>
 <body class="ts-staff">
 
@@ -553,11 +555,11 @@ function renderCart(){
     return '<div class="cart-item">'+
       '<div><div class="cart-item-link">'+linkHtml+'</div>'+
       '<div class="cart-item-meta">'+(item.category?'🏷️ '+tsEscapeHtml(item.category)+' · ':'')+'الكمية: '+tsEscapeHtml(item.qty)+'</div>'+specsLine+'</div>'+
-      '<div class="cart-item-right"><div class="cart-item-price">'+item.totalEgp.toLocaleString()+' EGP</div>'+
+      '<div class="cart-item-right"><div class="cart-item-price">'+item.totalEgp.toLocaleString('en-US')+' EGP</div>'+
       '<button class="cart-item-remove" onclick="removeCartItem(\''+tsJsAttr(item.tempId)+'\')">🗑 حذف</button></div>'+
     '</div>';
   }).join('');
-  document.getElementById("cartTotalDisplay").textContent = tsQuickCartTotal().toLocaleString()+' EGP';
+  document.getElementById("cartTotalDisplay").textContent = tsQuickCartTotal().toLocaleString('en-US')+' EGP';
   updateCartFab();
 }
 

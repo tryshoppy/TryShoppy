@@ -413,6 +413,8 @@ tr.rama-row .odate,tr.rama-row .cphone{font-family:var(--f);direction:rtl}
 :focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 </style>
 <link rel="stylesheet" href="assets/staff-ui.css?v=20261124a">
+<!-- 🔑 جلسة موحّدة + إشعارات داخل الصفحة (لازم يتحمّل قبل أي سكريبت تاني) -->
+<script src="assets/staff-kit.js?v=20261124a"></script>
 </head>
 <body>
 
@@ -649,6 +651,8 @@ tr.rama-row .odate,tr.rama-row .cphone{font-family:var(--f);direction:rtl}
       <!-- بتتملى من TS_STATUSES (assets/app.js) — شوف tsFillStatusSelects -->
       <select id="searchStatus" onchange="applyFilters();autoCloseSb()">
         <option value="">كل الحالات</option>
+        <!-- 🟢 كل ما عدا (Delivered / Canceled / Returned / Unclaimed / Lost) — اختيارية، اللوحة لسه بتفتح على كل الطلبات -->
+        <option value="__open">🟢 المفتوحة فقط</option>
       </select>
     </div>
     <div class="sbf">
@@ -748,6 +752,7 @@ tr.rama-row .odate,tr.rama-row .cphone{font-family:var(--f);direction:rtl}
       </thead>
       <tbody id="tableBody"></tbody>
     </table>
+    <button type="button" id="moreRowsBtn" onclick="renderMoreRows()" style="display:none;position:sticky;inset-inline-start:0;width:100%;min-height:46px;border:0;border-top:1px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;font-weight:900;cursor:pointer"></button>
   </div>
 </main>
 
@@ -1174,7 +1179,7 @@ function expenseMatches(e, f){
     return true;
 }
 
-function fmtEgp(n){ return Math.round(n).toLocaleString() + " ج.م"; }
+function fmtEgp(n){ return Math.round(n).toLocaleString('en-US') + " ج.م"; }
 
 /** آخر n مواعيد وصول (طلبات + RAMA + مصروفات)، الأحدث تاريخًا الأول.
  *  بنفس النص المتخزن في الشيت (ARR_LABEL_D) عشان المصروف يتطابق مع
@@ -1226,7 +1231,7 @@ function exCalc(){
     const rate = parseFloat(document.getElementById("exRate").value) || EXP_DEFAULT_RATE;
     const box = document.getElementById("exCalc");
     box.innerHTML = !amt ? "اكتب المبلغ"
-        : usd ? `$${amt.toLocaleString()} × ${rate} = <b>${fmtEgp(amt * rate)}</b>`
+        : usd ? `$${amt.toLocaleString('en-US')} × ${rate} = <b>${fmtEgp(amt * rate)}</b>`
               : `<b>${fmtEgp(amt)}</b>`;
 }
 document.addEventListener("input", e => { if(e.target && /^ex(Amount|Rate)$/.test(e.target.id)) exCalc(); });
@@ -1248,7 +1253,7 @@ function renderExpenseList(){
                 <small>📅 ${tsEscapeHtml(e.arrivaldate || "بدون موعد وصول")} · ${tsEscapeHtml(dayKeyD(e.date))}${e.user ? " · " + tsEscapeHtml(e.user) : ""}</small>
                 ${e.note ? `<small>📝 ${tsEscapeHtml(e.note)}</small>` : ""}
               </div>
-              <div class="ex-amt">${fmtEgp(expEgp(e))}${usd ? `<small>$${(parseFloat(e.amount)||0).toLocaleString()} × ${tsEscapeHtml(e.rate)}</small>` : ""}</div>
+              <div class="ex-amt">${fmtEgp(expEgp(e))}${usd ? `<small>$${(parseFloat(e.amount)||0).toLocaleString('en-US')} × ${tsEscapeHtml(e.rate)}</small>` : ""}</div>
               ${admin ? `<button class="ao-ci-x" title="مسح" onclick="deleteExpense('${tsJsAttr(e.id)}')">✕</button>` : ""}
             </div>`;
         }).join("");
@@ -1419,7 +1424,7 @@ function createRowHTML(o) {
         <td class="c-money">
             <label class="mrow"><span>إجمالي</span><input type="number" id="egp-${safeOrder}" class="inp" value="${finalP}"></label>
             <label class="mrow"><span>عربون</span><input type="number" id="deposit-${safeOrder}" class="inp dep" value="${dep}"></label>
-            <div class="net" title="الصافي المطلوب تحصيله">${endP.toLocaleString()} <b>EGP</b></div>
+            <div class="net" title="الصافي المطلوب تحصيله">${endP.toLocaleString('en-US')} <b>EGP</b></div>
         </td>
 
         <td class="c-usd"><input type="number" id="usd-${safeOrder}" class="inp usd" value="${parseFloat(o.usd || 0).toFixed(2)}"></td>
@@ -1450,22 +1455,40 @@ function renderTable(data) {
     const tbody = document.getElementById("tableBody");
     tbody.innerHTML = ""; 
 
-    const firstBatch = data.slice(0, 50);
-    let firstHtml = "";
-    firstBatch.forEach(o => { firstHtml += createRowHTML(o); });
-    tbody.innerHTML = firstHtml;
-    updateSelectionUI();
+    /* ⬇️ 100 صف في المرة — الباقي بزرار "عرض المزيد" أو لما توصل لآخر الجدول.
+       الأرقام والتحديد والطباعة والتصدير شغالين على currentFilteredData
+       (كل النتايج) زي ما هم، مش على الصفوف المرسومة. */
+    pagedRows = data; pagedRowsShown = 0;
+    renderMoreRows();
+}
 
-    if (data.length > 50) {
-        setTimeout(() => {
-            const remainingBatch = data.slice(50);
-            let remainingHtml = "";
-            remainingBatch.forEach(o => { remainingHtml += createRowHTML(o); });
-            tbody.insertAdjacentHTML('beforeend', remainingHtml);
-            updateSelectionUI();
-            console.log("تم تحميل بقية الطلبات في الخلفية...");
-        }, 100); 
+const PAGE_SIZE_D = 100;
+let pagedRows = [], pagedRowsShown = 0;
+function renderMoreRows(){
+    const tbody = document.getElementById("tableBody");
+    const next = pagedRows.slice(pagedRowsShown, pagedRowsShown + PAGE_SIZE_D);
+    let html = "";
+    next.forEach(o => { html += createRowHTML(o); });
+    if(html) tbody.insertAdjacentHTML('beforeend', html);
+    pagedRowsShown += next.length;
+    /* الصفوف الجديدة تاخد حالة التحديد الحالية (لو "تحديد الكل" متعلّم) */
+    tbody.querySelectorAll(".row-check").forEach(c => {
+        const on = selectedOrderIds.has(c.value);
+        if(c.checked !== on){ c.checked = on; const tr = c.closest("tr"); if(tr) tr.classList.toggle("is-sel", on); }
+    });
+    updateSelectionUI();
+    const btn = document.getElementById("moreRowsBtn");
+    if(btn){
+        const left = pagedRows.length - pagedRowsShown;
+        btn.style.display = left > 0 ? "" : "none";
+        btn.textContent = "⬇️ عرض المزيد (باقي " + left + " من " + pagedRows.length + ")";
     }
+}
+if("IntersectionObserver" in window){
+    window.addEventListener("load", () => {
+        const btn = document.getElementById("moreRowsBtn");
+        if(btn) new IntersectionObserver(es => { if(es[0].isIntersecting && btn.style.display !== "none") renderMoreRows(); }, { rootMargin: "500px" }).observe(btn);
+    });
 }
 
 /** حالات مالهاش ربح: ملغي (أي صيغة فيها Canceled) / مرتجع / ماتستلمش / ضايع */
@@ -1514,7 +1537,7 @@ const searchMatch = !search ||
     (o.customerName || "").toLowerCase().includes(search) ||
     phoneMatch ||
     cleanOrder.includes(search.replace(/\s/g, ""));
-        const statusMatch = !status || o.status === status;
+        const statusMatch = !status || (status === "__open" ? !tsIsClosedStatus(o.status) : o.status === status);
         const arrivalRaw = (o.arrivaldate || "").toString();
         const arrivalMatch = (!arrivalSearch || arrivalRaw.toLowerCase().includes(arrivalSearch))
             && (!arrivalSet.size || arrivalSet.has(arrivalRaw.trim() ? arrKeyD(arrivalRaw) : "__none"));
@@ -1586,11 +1609,11 @@ return dateMatch && searchMatch && statusMatch && arrivalMatch && userMatch;
     document.getElementById("totalCostEgp").innerText = totalUSD
         ? "= " + fmtEgp(totalCostEgp) + " (متوسط " + (totalCostEgp / totalUSD).toFixed(2) + " ج.م/$)" : "";
     
-    document.getElementById("totalEGP").innerText = Math.round(totalEGP).toLocaleString() + " EGP";
-    document.getElementById("totalUSD").innerText = Math.round(totalUSD).toLocaleString() + " $";
-    document.getElementById("totalDeposit").innerText = Math.round(totalDeposit).toLocaleString() + " ج.م";
-    document.getElementById("totalNet").innerText = Math.round(totalNet).toLocaleString() + " ج.م";
-    document.getElementById("totalProfit").innerText = Math.round(totalProfit).toLocaleString() + " ج.م";
+    document.getElementById("totalEGP").innerText = Math.round(totalEGP).toLocaleString('en-US') + " EGP";
+    document.getElementById("totalUSD").innerText = Math.round(totalUSD).toLocaleString('en-US') + " $";
+    document.getElementById("totalDeposit").innerText = Math.round(totalDeposit).toLocaleString('en-US') + " ج.م";
+    document.getElementById("totalNet").innerText = Math.round(totalNet).toLocaleString('en-US') + " ج.م";
+    document.getElementById("totalProfit").innerText = Math.round(totalProfit).toLocaleString('en-US') + " ج.م";
     // 💸 المصروفات بنفس فلتر موعد الوصول/التاريخ، وصافي الربح بعدها.
     // الـ 25% بقت من صافي الربح — زي ما كانت فعليًا أيام صفوف OPEX
     // (اللي كانت بتتخصم من الربح نفسه).
@@ -1605,7 +1628,7 @@ return dateMatch && searchMatch && statusMatch && arrivalMatch && userMatch;
         if (document.getElementById("exOverlay").classList.contains("show")) renderExpenseList();
     }
     // 🆕 25% — عرض فقط، مش بيتخزن ولا بيتبعت لأي حد
-    document.getElementById("totalShare25").innerText = Math.round(profitBase * 0.25).toLocaleString() + " ج.م";
+    document.getElementById("totalShare25").innerText = Math.round(profitBase * 0.25).toLocaleString('en-US') + " ج.م";
     // صفوف الـ OPEX مصاريف مش طلبات — متتعدّش في عدد الطلبات
     // (لكن الدولار بتاعها لسه بيتخصم من الربح زي ما هو، ده المقصود منها)
     document.getElementById("totalCount").innerText = filtered.filter(o => !isOpexD(o)).length;
@@ -1616,7 +1639,7 @@ return dateMatch && searchMatch && statusMatch && arrivalMatch && userMatch;
        من الزرار (kpiPinned)، ساعتها بتفضل مفتوحة. */
     const activeFilters = [
       search && "بحث",
-      status && "حالة: " + status,
+      status && "حالة: " + (status === "__open" ? "المفتوحة فقط" : status),
       userPicks.length && "موظف: " + userPicks.join("، "),
       arrivalPicks.length && "موعد وصول: " + arrivalPicks.map(k => k === "__none" ? "بدون موعد" : (ARR_LABEL_D.get(k) || k)).join("، "),
       arrivalSearch && "موعد فيه \"" + arrivalSearch + "\"",
@@ -2028,7 +2051,7 @@ async function applyBulkStatus(){
     if (status === "Delivered") {
         const withDue = rows.filter(o => (parseFloat(o.finalPrice)||0) + (parseFloat(o.shipping)||0) - (parseFloat(o.deposit)||0) > 0.5);
         if (withDue.length) extra.push("💵 " + withDue.length + " منها ما زال عليها مبالغ مطلوبة (" +
-            Math.round(withDue.reduce((s,o)=>s+(parseFloat(o.finalPrice)||0)+(parseFloat(o.shipping)||0)-(parseFloat(o.deposit)||0),0)).toLocaleString() + " ج.م)");
+            Math.round(withDue.reduce((s,o)=>s+(parseFloat(o.finalPrice)||0)+(parseFloat(o.shipping)||0)-(parseFloat(o.deposit)||0),0)).toLocaleString('en-US') + " ج.م)");
     }
     const back = rows.filter(o => tsOrderWarnings(o, { status }).some(w => w.indexOf("↩️") === 0));
     if (back.length) extra.push("↩️ " + back.length + " منها ستعود حالتها إلى مرحلة سابقة");
@@ -2099,11 +2122,11 @@ function createRamaRowHTML(o){
         <td class="c-cust"><div class="cname">${tsEscapeHtml(o.customerName)}</div><div class="cphone muted">نظام منفصل — للعرض فقط</div></td>
         <td class="c-spec"><div class="chips"><span class="chip">×${tsEscapeHtml(o.quantity)}</span></div><div class="dims">${tsEscapeHtml(o.dimensions)}</div></td>
         <td class="c-money">
-            <div class="rmoney"><span>إجمالي</span><b class="mono">${finalP.toLocaleString()}</b></div>
-            <div class="rmoney"><span>عربون</span><b class="mono">${dep.toLocaleString()}</b></div>
-            <div class="net">${endP.toLocaleString()} <b>EGP</b></div>
+            <div class="rmoney"><span>إجمالي</span><b class="mono">${finalP.toLocaleString('en-US')}</b></div>
+            <div class="rmoney"><span>عربون</span><b class="mono">${dep.toLocaleString('en-US')}</b></div>
+            <div class="net">${endP.toLocaleString('en-US')} <b>EGP</b></div>
         </td>
-        <td class="c-usd"><span class="rusd mono">$${(parseFloat(o.usd)||0).toLocaleString(undefined,{maximumFractionDigits:2})}</span></td>
+        <td class="c-usd"><span class="rusd mono">$${(parseFloat(o.usd)||0).toLocaleString('en-US',{maximumFractionDigits:2})}</span></td>
         <td class="c-arr"><span class="rarr">${tsEscapeHtml(o.arrivaldate || "—")}</span></td>
         <td class="c-status"><span class="rstatus">إجمالي RAMA</span></td>
         <td class="c-user"><span class="muted">—</span></td>
@@ -2266,9 +2289,9 @@ function aoRenderCart(){
       '<span class="ao-ci-n">' + tsEscapeHtml(it.order) + '</span>' +
       '<div class="ao-ci-b">' +
         '<b>' + tsEscapeHtml(it.link || "(دون رابط)") + '</b>' +
-        '<small>' + it.quantity + ' × ' + it.unitEgp.toLocaleString() + ' ج.م = ' +
-          it.finalPrice.toLocaleString() + ' ج.م' +
-          (it.unitUsd ? ' · ' + it.quantity + ' × $' + it.unitUsd.toLocaleString() + ' = $' + it.usd.toLocaleString() : '') +
+        '<small>' + it.quantity + ' × ' + it.unitEgp.toLocaleString('en-US') + ' ج.م = ' +
+          it.finalPrice.toLocaleString('en-US') + ' ج.م' +
+          (it.unitUsd ? ' · ' + it.quantity + ' × $' + it.unitUsd.toLocaleString('en-US') + ' = $' + it.usd.toLocaleString('en-US') : '') +
           (it.dimensions ? ' — ' + tsEscapeHtml(it.dimensions) : '') +
         '</small>' +
       '</div>' +
@@ -2276,7 +2299,7 @@ function aoRenderCart(){
     '</div>').join("");
 
   tot.innerText = AO_CART.length + (AO_CART.length > 1 ? " منتجات" : " منتج") +
-                  " — " + aoCartTotal().toLocaleString() + " ج.م";
+                  " — " + aoCartTotal().toLocaleString('en-US') + " ج.م";
 }
 
 /** بتقرا الكمية وسعر الوحدة وترجّع الإجمالي المحسوب.
@@ -2303,8 +2326,8 @@ function aoUpdateLineTotal(){
   if(!L.unitEgp && !L.unitUsd){ box.className = "ao-calc"; box.innerHTML = ""; return; }
   box.className = "ao-calc on";
   box.innerHTML =
-    L.qty + ' × ' + L.unitEgp.toLocaleString() + ' ج.م = <b>' + L.totalEgp.toLocaleString() + ' ج.م</b>' +
-    (L.unitUsd ? '<br>' + L.qty + ' × $' + L.unitUsd.toLocaleString() + ' = <b>$' + L.totalUsd.toLocaleString() + '</b>' : '');
+    L.qty + ' × ' + L.unitEgp.toLocaleString('en-US') + ' ج.م = <b>' + L.totalEgp.toLocaleString('en-US') + ' ج.م</b>' +
+    (L.unitUsd ? '<br>' + L.qty + ' × $' + L.unitUsd.toLocaleString('en-US') + ' = <b>$' + L.totalUsd.toLocaleString('en-US') + '</b>' : '');
 }
 
 function aoAddToCart(){

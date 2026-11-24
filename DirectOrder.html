@@ -107,6 +107,8 @@
         .picked-banner{background:#f0fdf4;border:1.5px solid #22c55e;border-radius:12px;padding:12px 16px;margin-bottom:14px;font-size:13.5px;color:#166534;font-weight:700}
     </style>
 <link rel="stylesheet" href="assets/staff-ui.css?v=20261124a">
+<!-- 🔑 جلسة موحّدة + إشعارات داخل الصفحة (لازم يتحمّل قبل أي سكريبت تاني) -->
+<script src="assets/staff-kit.js?v=20261124a"></script>
 </head>
 <body class="ts-staff">
 
@@ -560,11 +562,11 @@ function renderCart(){
       '<div><div class="cart-item-cat">'+tsEscapeHtml(item.category||'بدون فئة')+'</div>'+
       '<div class="cart-item-link">'+linkHtml+'</div>'+
       '<div class="cart-item-meta">الكمية: '+tsEscapeHtml(item.qty)+'</div></div>'+
-      '<div class="cart-item-right"><div class="cart-item-price">'+item.finalEGP.toLocaleString()+' EGP</div>'+
+      '<div class="cart-item-right"><div class="cart-item-price">'+item.finalEGP.toLocaleString('en-US')+' EGP</div>'+
       '<button class="cart-item-remove" onclick="removeCartItem(\''+tsJsAttr(item.tempId)+'\')">🗑 حذف</button></div>'+
     '</div>';
   }).join('');
-  document.getElementById("cartTotalDisplay").textContent = tsDirectCartTotal().toLocaleString()+' EGP';
+  document.getElementById("cartTotalDisplay").textContent = tsDirectCartTotal().toLocaleString('en-US')+' EGP';
 }
 
 function removeCartItem(tempId){
