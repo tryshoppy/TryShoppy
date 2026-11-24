@@ -1050,8 +1050,8 @@ function applyFilters(){
     const openOnly = status === "__open";
     ot.classList.toggle("is-open", openOnly);
     ot.textContent = openOnly
-      ? "🟢 المفتوحة فقط (" + displayData.length + ") · اضغط لعرض الكل"
-      : "📋 " + (status ? status : "كل الطلبات") + " (" + displayData.length + ") · اضغط للمفتوحة فقط";
+      ? "🟢 معروض حاليا الطلبات المفتوحة فقط (" + displayData.length + ") — اضغط هنا لعرض الكل"
+      : "📋 " + (status ? "معروض حاليا " + status : "معروض كل الطلبات") + " (" + displayData.length + ") — اضغط هنا لعرض المفتوحة فقط";
   }
 }
 function toggleOpenOnly(){
