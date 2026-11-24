@@ -84,9 +84,17 @@
       b.setAttribute("dir", "rtl");
       b.setAttribute("role", "status");
       b.setAttribute("aria-live", "polite");
-      /* تحت الشاشة — عشان ماتغطيش الشريط العلوي وأزرار الفلاتر */
-      b.style.cssText = "position:fixed;bottom:14px;left:12px;right:12px;z-index:100000;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none";
+      /* فوق أول الصفحة + وميض ملفت (طلب هيثم 24/11) — الموظف لازم ياخد باله منها */
+      b.style.cssText = "position:fixed;top:10px;left:10px;right:10px;z-index:100000;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none";
       (document.body || document.documentElement).appendChild(b);
+      var st = document.createElement("style");
+      st.textContent =
+        "@keyframes tsNoticeIn{from{transform:translateY(-18px);opacity:0}to{transform:none;opacity:1}}" +
+        "@keyframes tsNoticeGlow{0%,100%{box-shadow:0 12px 34px rgba(16,27,51,.25),0 0 0 0 var(--tsn)}50%{box-shadow:0 12px 34px rgba(16,27,51,.25),0 0 0 9px transparent}}" +
+        "@keyframes tsNoticeFlash{0%,100%{background:var(--tsn-bg)}50%{background:#fff}}" +
+        ".ts-notice{animation:tsNoticeIn .25s ease-out,tsNoticeGlow 1.2s ease-in-out .25s infinite,tsNoticeFlash 1.2s ease-in-out .25s infinite}" +
+        "@media (prefers-reduced-motion:reduce){.ts-notice{animation:none}}";
+      document.head.appendChild(st);
     }
     return b;
   }
@@ -94,12 +102,14 @@
     msg = String(msg == null ? "" : msg);
     var ok = /^\s*(✅|🎉|✔)/.test(msg);
     var bad = /❌|⛔|🚫|خطأ|تعذ|فشل/.test(msg);   /* ⚠️ و🔒 تنبيه (ذهبي) — الأحمر للخطأ بس */
+    var tone = ok ? "#087F58" : bad ? "#C81E1E" : "#F5B820";
+    var wash = ok ? "#D9F2E8" : bad ? "#FDDCDC" : "#FFE9A8";
     var el = document.createElement("div");
-    el.style.cssText = "pointer-events:auto;max-width:520px;width:100%;display:flex;gap:10px;align-items:flex-start;" +
-      "background:#fff;color:#101B33;border-radius:14px;padding:12px 14px;" +
-      "font-family:Cairo,Tahoma,sans-serif;font-size:14.5px;font-weight:700;line-height:1.7;" +
-      "box-shadow:0 12px 34px rgba(16,27,51,.22);border:1px solid #DCE2EE;border-inline-start:6px solid " +
-      (ok ? "#087F58" : bad ? "#C81E1E" : "#F5B820");
+    el.className = "ts-notice";
+    el.style.cssText = "--tsn:" + tone + ";--tsn-bg:" + wash + ";pointer-events:auto;max-width:520px;width:100%;display:flex;gap:10px;align-items:flex-start;" +
+      "background:" + wash + ";color:#101B33;border-radius:14px;padding:12px 14px;" +
+      "font-family:Cairo,Tahoma,sans-serif;font-size:15px;font-weight:800;line-height:1.7;" +
+      "box-shadow:0 12px 34px rgba(16,27,51,.25);border:2px solid " + tone + ";border-inline-start-width:8px";
     var t = document.createElement("div");
     t.style.cssText = "flex:1;min-width:0;white-space:pre-wrap;overflow-wrap:anywhere;max-height:38vh;overflow:auto";
     t.textContent = msg;
@@ -107,7 +117,7 @@
     x.type = "button";
     x.setAttribute("aria-label", "إغلاق");
     x.textContent = "✕";
-    x.style.cssText = "flex:none;width:36px;height:36px;min-height:36px;border:0;border-radius:10px;background:#EEF2F8;color:#101B33;" +
+    x.style.cssText = "flex:none;width:40px;height:40px;min-height:40px;border:0;border-radius:10px;background:#101B33;color:#fff;" +
       "font-size:15px;font-weight:900;cursor:pointer;padding:0";
     var close = function () { if (el.parentNode) el.parentNode.removeChild(el); };
     x.onclick = close;
