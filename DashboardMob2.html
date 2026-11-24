@@ -273,6 +273,10 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .hdr .ts-home-link{padding:0 11px}
 /* رقم العميل: مساحة لمس أكبر للاتصال (كانت 21px ارتفاع) */
 a[href^="tel:"]{display:inline-block;padding:9px 0;min-height:40px}
+/* 🟢 زرار "المفتوحة فقط / كل الطلبات" — سطر كامل ثابت تحت الفلاتر والتجميع */
+.tools{flex-wrap:wrap}
+.tool.tool-open{flex:1 1 100%;min-height:46px;font-size:14px;background:#fff;color:var(--navy);border-color:var(--navy);box-shadow:0 3px 10px rgba(15,27,51,.12)}
+.tool.tool-open.is-open{background:var(--ok);border-color:var(--ok);color:#fff}
 </style>
 <link rel="stylesheet" href="assets/staff-ui.css?v=20261124a">
 <!-- 🔑 جلسة موحّدة + إشعارات داخل الصفحة (لازم يتحمّل قبل أي سكريبت تاني) -->
@@ -311,6 +315,8 @@ a[href^="tel:"]{display:inline-block;padding:9px 0;min-height:40px}
   <div class="tools">
     <button class="tool" id="filterToggle" onclick="toggleFilters()">⚙️ الفلاتر <span class="n" id="fCount" style="display:none">0</span></button>
     <button class="tool" id="groupToggle" onclick="toggleGrouping()">👥 تجميع</button>
+    <!-- 🟢 زرار ثابت مع الفلاتر والتجميع: يبدّل بين "المفتوحة فقط" و"كل الطلبات" (طلب هيثم 24/11) -->
+    <button class="tool tool-open" id="openToggle" onclick="toggleOpenOnly()"></button>
   </div>
 
   <div class="fbackdrop" id="fbackdrop" onclick="closeFilters()"></div>
@@ -356,11 +362,6 @@ a[href^="tel:"]{display:inline-block;padding:9px 0;min-height:40px}
   </div>
 
   <div class="wrap">
-    <!-- 🟢 سطر يوضّح إن المعروض الطلبات المفتوحة بس + رجوع سريع لكل الطلبات -->
-    <div id="viewHint" style="display:none;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 10px;padding:10px 12px;border-radius:12px;background:var(--ok-wash);color:var(--ok);font-weight:800;font-size:13.5px">
-      <span id="viewHintTxt" style="flex:1;min-width:0"></span>
-      <button type="button" onclick="showAllStatuses()" style="border:1.5px solid currentColor;background:#fff;color:inherit;border-radius:10px;min-height:40px;padding:0 12px;font:inherit;cursor:pointer">عرض كل الطلبات</button>
-    </div>
     <div id="cardsContainer"></div>
     <!-- ⬇️ الكروت بتتحمّل 30 بـ 30 (كانت كلها بتترسم مرة واحدة) -->
     <button type="button" id="moreBtn" onclick="renderMoreCards()" style="display:none;width:100%;min-height:48px;margin:6px 0 24px;border:1.5px solid var(--line);border-radius:14px;background:#fff;color:var(--ink);font:inherit;font-weight:900;font-size:15px;cursor:pointer"></button>
@@ -1044,12 +1045,19 @@ function applyFilters(){
   renderCards([], false);
   renderMoreCards();
 
-  const hint = document.getElementById("viewHint");
-  if(hint){
-    const openOnly = status === "__open" && !search;
-    hint.style.display = openOnly ? "flex" : "none";
-    if(openOnly) document.getElementById("viewHintTxt").textContent = "🟢 المعروض: الطلبات المفتوحة فقط (" + displayData.length + ")";
+  const ot = document.getElementById("openToggle");
+  if(ot){
+    const openOnly = status === "__open";
+    ot.classList.toggle("is-open", openOnly);
+    ot.textContent = openOnly
+      ? "🟢 المفتوحة فقط (" + displayData.length + ") · اضغط لعرض الكل"
+      : "📋 " + (status ? status : "كل الطلبات") + " (" + displayData.length + ") · اضغط للمفتوحة فقط";
   }
+}
+function toggleOpenOnly(){
+  const sel = document.getElementById("searchStatus");
+  sel.value = sel.value === "__open" ? "" : "__open";
+  applyFilters(); updateFilterCount();
 }
 
 const PAGE_SIZE_M = 30;
@@ -1064,10 +1072,6 @@ function renderMoreCards(){
     btn.style.display = left > 0 ? "" : "none";
     btn.textContent = "⬇️ عرض المزيد (باقي " + left + ")";
   }
-}
-function showAllStatuses(){
-  document.getElementById("searchStatus").value = "";
-  applyFilters(); updateFilterCount();
 }
 /* تحميل تلقائي لما زرار "عرض المزيد" يقرب يظهر على الشاشة */
 if("IntersectionObserver" in window){
