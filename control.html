@@ -64,7 +64,14 @@ a{color:var(--gold)}
 .log span{overflow-wrap:anywhere}
 .ok{color:var(--grn)}.q{color:var(--yel)}.bad{color:var(--red)}
 @media (max-width:420px){body{padding:12px}.grid{grid-template-columns:1fr}}
+
+/* ═════ 🎨 تحديث الشكل (نوفمبر 2026) — CSS فقط ═════ */
+.ghost{min-height:40px;padding:0 12px;color:#C3CCE0}
+.top .ts-home-link{border-color:var(--line)}
 </style>
+<link rel="stylesheet" href="assets/staff-ui.css?v=20261124a">
+<!-- 🔑 جلسة موحّدة + إشعارات داخل الصفحة (لازم يتحمّل قبل أي سكريبت تاني) -->
+<script src="assets/staff-kit.js?v=20261124a"></script>
 </head>
 <body>
 
@@ -80,6 +87,7 @@ a{color:var(--gold)}
 
 <div id="app" class="hidden">
   <div class="top">
+    <a class="ts-home-link" href="Operation.html" title="كل الأدوات" aria-label="كل الأدوات"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1.5"/><rect x="9" y="1" width="6" height="6" rx="1.5"/><rect x="1" y="9" width="6" height="6" rx="1.5"/><rect x="9" y="9" width="6" height="6" rx="1.5"/></svg></a>
     <div class="brand">🛰️ TRY SHOPPY <b>Control Room</b></div>
     <div class="sync" id="sync">جارٍ التحميل…</div>
     <button class="ghost" id="refreshBtn">↻ تحديث</button>
@@ -216,7 +224,7 @@ async function loadAll(){
     alert("⚠️ انتهت الجلسة — يُرجى تسجيل الدخول مرة أخرى."); return logout();
   }
   render();
-  const now = new Date().toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" });
+  const now = new Date().toLocaleTimeString("ar-EG-u-nu-latn", { hour: "2-digit", minute: "2-digit" });
   sync.className = "sync" + (failed.length ? " err" : "");
   sync.textContent = "آخر تحديث: " + now + (failed.length ? " · ⚠️ تعذّر: " + failed.join("، ") : " · تلقائي كل 5 دقائق");
 }
@@ -359,7 +367,7 @@ function renderLogs(){
     const el = document.getElementById("log-" + k);
     if(!el) return;
     el.innerHTML = (by[k] || []).slice(0, 3).map(c => {
-      const t = new Date(c.Time).toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" });
+      const t = new Date(c.Time).toLocaleTimeString("ar-EG-u-nu-latn", { hour: "2-digit", minute: "2-digit" });
       const cls = c.Status === "done" ? "ok" : c.Status === "failed" ? "bad" : "q";
       const ic = c.Status === "done" ? "✅" : c.Status === "failed" ? "❌" : c.Status === "working" ? "⚙️" : "⏳";
       const tail = c.Result ? " → " + esc(c.Result) : (c.Status === "queued" ? " — في الطابور" : "");

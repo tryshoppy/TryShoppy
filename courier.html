@@ -250,7 +250,23 @@ button,input,select{font:inherit;color:inherit}
 .sheet p b{color:var(--ink);font-family:var(--fm)}
 .sheet .row2{margin-top:16px}
 .btn.ghost{background:var(--line-2);color:var(--ink-2)}
+
+/* ═════ 🎨 تحديث الشكل (نوفمبر 2026) — CSS فقط ═════ */
+/* العناوين والنص الثانوي كانوا 2.6:1 — المندوب بيقراهم في الشمس */
+:root{--ink-3:#5F6C88;--ok:#087F58;--warn:#B45309}
+.out{min-height:40px;padding:0 13px;font-size:13px;border:1px solid rgba(255,255,255,.22)}
+.hdr h1 small{font-size:12.5px;color:#C5CCE2}
+.sync{font-size:12px;color:#C5CCE2}
+input[type=checkbox]{min-width:24px;min-height:24px}
+/* العنوان وسبب التوقف: 13px بدل 11.5px — دي أهم سطور بيقراها المندوب */
+.stop-addr,.stop-why{font-size:13px}
+.pill,.st,.area,.who-sel,.rt-start{font-size:12px}
+.sec{font-size:12.5px;letter-spacing:0}
+.who-sel{min-height:40px}
 </style>
+<link rel="stylesheet" href="assets/staff-ui.css?v=20261124a">
+<!-- 🔑 جلسة موحّدة + إشعارات داخل الصفحة (لازم يتحمّل قبل أي سكريبت تاني) -->
+<script src="assets/staff-kit.js?v=20261124a"></script>
 </head>
 <body>
 
@@ -273,6 +289,7 @@ button,input,select{font:inherit;color:inherit}
 <div id="app" style="display:none">
   <header class="hdr">
     <div class="hdr-row">
+      <a class="ts-home-link" href="Operation.html" title="كل الأدوات" aria-label="كل الأدوات"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1.5"/><rect x="9" y="1" width="6" height="6" rx="1.5"/><rect x="1" y="9" width="6" height="6" rx="1.5"/><rect x="9" y="9" width="6" height="6" rx="1.5"/></svg></a>
       <h1>🛵 أداة المندوب<small id="who"></small></h1>
       <span class="sync" id="sync"><i></i><span id="syncTxt">جارٍ التحميل</span></span>
       <button class="out" onclick="logout()">خروج</button>
@@ -1183,7 +1200,7 @@ function logCollection(name, ups){
   try{ log = JSON.parse(localStorage.getItem(todayKey()) || "[]"); }catch(e){}
   const amount = ups.reduce((s, u) => s + (u._take || 0), 0);
   const cash = ups.reduce((s, u) => s + (u._cash || 0), 0), insta = ups.reduce((s, u) => s + (u._insta || 0), 0);
-  log.push({ t: new Date().toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" }), name, n: ups.length, amount, cash, insta });
+  log.push({ t: new Date().toLocaleTimeString("ar-EG-u-nu-latn", { hour: "2-digit", minute: "2-digit" }), name, n: ups.length, amount, cash, insta });
   try{ localStorage.setItem(todayKey(), JSON.stringify(log)); }catch(e){}
   // 🚚 تحصيل الشحنة كلها (مهما كان يوم التوصيل) — بالطلب، عشان مايتعدّش مرتين
   const sl = shipLogGet();

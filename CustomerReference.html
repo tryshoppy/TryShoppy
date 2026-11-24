@@ -111,9 +111,14 @@ button:hover{ opacity:.9; }
 .customer-choice{ width:100%; margin-top:10px; padding:12px 14px; text-align:right; background:#fff; color:var(--text); border:1px solid #fde68a; box-shadow:none; }
 .customer-choice:hover{ background:#fffbeb; opacity:1; }
 .customer-choice small{ display:block; margin-top:3px; color:var(--gray); font-weight:700; }
+/* 🐛→✅ حقل البحث كان من غير أي تنسيق (القاعدة القديمة كانت على .input-group بس) */
+.search-row input{ flex:1; min-width:0; }
 </style>
+<link rel="stylesheet" href="assets/staff-ui.css?v=20261124a">
+<!-- 🔑 جلسة موحّدة + إشعارات داخل الصفحة (لازم يتحمّل قبل أي سكريبت تاني) -->
+<script src="assets/staff-kit.js?v=20261124a"></script>
 </head>
-<body>
+<body class="ts-staff">
 
 <!-- ====== شاشة الدخول ====== -->
 <div id="loginScreen" style="display:flex;">
@@ -131,15 +136,16 @@ button:hover{ opacity:.9; }
 
 <!-- ====== المحتوى الرئيسي ====== -->
 <div id="mainContent">
-<div class="container">
+<!-- 🧭 الشريط العلوي الموحّد (assets/staff-ui.css) — رجوع للأدوات + اسم الأداة + الموظف + خروج -->
+<header class="ts-bar">
+  <a class="ts-bar__home" href="Operation.html" title="كل الأدوات"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1.5"/><rect x="9" y="1" width="6" height="6" rx="1.5"/><rect x="1" y="9" width="6" height="6" rx="1.5"/><rect x="9" y="9" width="6" height="6" rx="1.5"/></svg><span>الأدوات</span></a>
+  <div class="ts-bar__title">مرجع طلبات العملاء</div>
+  <span id="userBadge" class="ts-bar__user"></span>
+  <button type="button" class="ts-bar__out" onclick="doLogout()">خروج</button>
+</header>
+<div class="container ts-page">
 
   <div class="card">
-    <h2>📇 مرجع طلبات العملاء</h2>
-    <div class="topbar">
-      <span id="userBadge" class="user-badge"></span>
-      <button class="btn-logout" onclick="doLogout()">خروج</button>
-    </div>
-
     <div class="search-row">
       <input type="text" id="customerSearchInput" placeholder="اسم العميل أو رقم الهاتف (01xxxxxxxxx)" autocomplete="off" oninput="searchAsYouType()" onkeydown="if(event.key==='Enter') doSearch();">
       <button id="searchBtn" onclick="doSearch()">🔍 بحث</button>
@@ -358,7 +364,7 @@ function normPhone(v){
 /* بحث بالموبايل = أرقام بس (مسموح مسافات و + و -). قبل كده أي رقم في
    الكلام كان بيحوّل البحث لموبايل، فاسم فيه رقم كان بيدوّر في التليفونات */
 function isPhoneSearch(v){ const s = tsToEnDigits(String(v || "")).trim(); return /\d/.test(s) && /^[\d\s+()-]+$/.test(s); }
-function fmt(v){ return parseFloat(v||0).toLocaleString(); }
+function fmt(v){ return parseFloat(v||0).toLocaleString('en-US'); }
 var nameSearchCandidates = [];
 
 function escapeHtml(v){
@@ -497,7 +503,7 @@ function renderCustomer(orders){
     h += '<div class="order-row" onclick="toggleHistory(\'' + rowId + '\')">';
     h += '<div class="order-top"><span class="order-id">🔖 ' + escapeHtml(o.order || "—") + '</span><span class="badge ' + statusClass(o.status) + '">' + statusLabel(o.status) + '</span></div>';
     h += '<div class="order-meta">';
-    h += '<span>📅 ' + (o.date ? new Date(o.date).toLocaleDateString('ar-EG') : "—") + '</span>';
+    h += '<span>📅 ' + (o.date ? new Date(o.date).toLocaleDateString('ar-EG-u-nu-latn') : "—") + '</span>';
     if(o.arrivaldate) h += '<span>🚚 وصول متوقع: ' + escapeHtml(o.arrivaldate) + '</span>';
     h += '</div>';
 

@@ -138,9 +138,53 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{
   .notif-badge:not(.hidden){animation:none;}
   #paymentsBtn{animation:none;}
 }
+
+/* ───── 🎨 تحديث الشكل (نوفمبر 2026) — شكل فقط ───── */
+.ts-actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-start;gap:8px;margin-bottom:14px;}
+.ts-actions button{white-space:nowrap;}
+.ts-actions .notif-badge{white-space:nowrap;}
+.ts-actions button{padding:8px 14px;font-size:13.5px;background:#fff;border:1px solid var(--ts-line);color:var(--ts-ink);}
+.ts-actions button:hover{opacity:1;background:var(--ts-paper);}
+.ts-actions__time{margin-inline-start:auto;font-size:12px;color:var(--ts-ink-2);font-weight:700;}
+/* 💰 دفعات: أغمق شوية عشان الأبيض يتقري عليه (كان 3.2:1)، ومن غير نبض مستمر */
+#paymentsBtn{background:#B45309;border-color:#B45309;color:#fff;animation:none;}
+#paymentsBtn:hover{background:#9A4607;}
+/* 🔄 الأيقونة بس هي اللي تلف وقت التحديث — مش الزرار كله بالكلام */
+#refreshBtn.spinning{animation:none;}
+#refreshBtn .ico{display:inline-block;}
+#refreshBtn.spinning .ico{animation:spin .8s linear infinite;}
+/* الأرقام والشارات: كحلي بدل الأزرق، وألوان أغمق للقراءة */
+.stat-box{border:1px solid var(--ts-line);box-shadow:none;}
+.stat-box .lbl{font-size:12.5px;color:var(--ts-ink-2);}
+.badge{font-size:12px;}
+.b-blue{background:var(--ts-blue-wash);color:var(--ts-blue);} .b-green{background:var(--ts-ok-wash);color:#06704D;} .b-red{color:#B91C1C;} .b-orange{color:#9A3412;}
+.notif-badge{color:#B91C1C;min-height:40px;display:inline-flex;align-items:center;}
+.chip{min-height:40px;background:#fff;color:var(--ts-ink);border-color:var(--ts-line);}
+.chip:hover{background:var(--ts-paper);}
+.chip.active{background:var(--ts-navy);color:#fff;border-color:var(--ts-navy);}
+.search-bar{background:var(--ts-gold-wash);border-color:#F1DFA6;}
+.search-bar input{border-color:var(--ts-line);}
+.btn-search,.btn-reorder{background:var(--ts-gold);color:var(--ts-navy);border:0;box-shadow:none;}
+.btn-search:hover,.btn-reorder:hover{background:var(--ts-gold-2);}
+.btn-search:active{transform:scale(.98);box-shadow:none;}
+.btn-ghost{background:#EEF2F8;}
+.btn-success{background:var(--ts-ok);} .btn-danger{background:var(--ts-dead);} .btn-warning{background:#B45309;}
+.product-card{background:#fff;border-color:var(--ts-line);}
+.product-link-btn{min-height:40px;background:var(--ts-blue-wash);border-color:#C7D7FB;color:var(--ts-blue);}
+.meta-line,.empty-hint{color:var(--ts-ink-2);}
+/* 📱 فلاتر الحالة السريعة: سطر واحد بيتسحب بالإصبع بدل 4 سطور */
+@media(max-width:480px){
+  .chips{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin-inline:-4px;padding:2px 4px 6px;}
+  .chips::-webkit-scrollbar{display:none;}
+  .ts-actions button{flex:1 1 auto;}
+}
+#loginScreen .login-box{border-top:4px solid var(--ts-gold);}
+#loginScreen .btn-block{background:var(--ts-gold);color:var(--ts-navy);min-height:48px;font-size:15px;}
 </style>
+<link rel="stylesheet" href="assets/staff-ui.css?v=20261124a">
+<script src="assets/staff-kit.js?v=20261124a"></script>
 </head>
-<body>
+<body class="ts-staff">
 
 <div id="loginScreen">
   <div class="login-box">
@@ -153,7 +197,11 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{
 </div>
 
 <div id="mainContent" class="hidden">
-<div class="container">
+<!-- 🧭 شريط علوي بهوية Try Shoppy (بوابة العميل — من غير رابط أدوات الموظفين) -->
+<header class="ts-bar">
+  <div class="ts-bar__title">RAMA — طلبات الفيتامينات<small>Try Shoppy</small></div>
+</header>
+<div class="container ts-page">
 
   <div class="card">
     <h2>➕ إضافة منتج جديد</h2>
@@ -181,14 +229,13 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{
     <button class="btn-block btn-success" id="sendAllBtn" onclick="sendAllCart()">✅ إرسال كل المنتجات للفريق</button>
   </div>
 
-  <div class="topbar" style="justify-content:space-between;">
-    <div style="display:flex;align-items:center;gap:8px;">
-      <span id="lastRefreshLbl" style="font-size:11px;color:var(--gray);"></span>
-      <button id="refreshBtn" class="btn-ghost" onclick="manualRefresh(this)" title="تحديث القائمة" style="padding:8px 12px;">🔄</button>
-      <button class="btn-ghost" onclick="exportCSV()" title="تصدير طلباتي كـ CSV" style="padding:8px 12px;">📊</button>
-      <button id="paymentsBtn" class="btn-ghost" onclick="openPaymentsModal()" title="دفعات الوصول" style="padding:8px 12px;">💰 دفعات</button>
-    </div>
+  <!-- 🧰 شريط الإجراءات: كل زرار عليه اسمه — نفس الـ ids والـ onclick -->
+  <div class="topbar ts-actions">
+    <button id="paymentsBtn" class="btn-ghost" onclick="openPaymentsModal()" title="دفعات الوصول">💰 دفعات</button>
+    <button id="refreshBtn" class="btn-ghost" onclick="manualRefresh(this)" title="تحديث القائمة"><span class="ico">🔄</span> تحديث</button>
+    <button class="btn-ghost" onclick="exportCSV()" title="تصدير طلباتي كـ CSV">📊 تصدير CSV</button>
     <div id="notifBadge" class="notif-badge hidden" style="cursor:pointer;" onclick="jumpToNeedsReview()" title="اضغط للانتقال إلى المنتجات التي تحتاج إلى ردك"></div>
+    <span id="lastRefreshLbl" class="ts-actions__time"></span>
   </div>
 
   <div class="stats-grid" id="statsGrid"></div>
@@ -272,7 +319,7 @@ function numAttr(v){
 // عرض رقم بشكل آدمي — من غير "NaN" لو العمود فاضي
 function fmtNum(v){
   const n = parseFloat(v);
-  return (isFinite(n) ? n : 0).toLocaleString();
+  return (isFinite(n) ? n : 0).toLocaleString('en-US');
 }
 
 /* ---------------------------------------------------------
@@ -751,7 +798,7 @@ function updateLastRefreshLabel(){
   const lbl = document.getElementById("lastRefreshLbl");
   if(!lbl) return;
   const now = new Date();
-  lbl.textContent = "آخر تحديث: " + now.toLocaleTimeString("ar-EG", {hour:"2-digit", minute:"2-digit"});
+  lbl.textContent = "آخر تحديث: " + now.toLocaleTimeString("ar-EG-u-nu-latn", {hour:"2-digit", minute:"2-digit"});
 }
 
 async function manualRefresh(btn){
@@ -789,13 +836,13 @@ function renderStats(items, paymentsTotal, statusF){
   // بالظبط. "إجمالي المدفوع" اتشال خالص، مش محتاجينه هنا
   const showTotalValue = statusF !== "Delivered";
   const moneyBoxes = showMoney ? `
-    ${showTotalValue ? `<div class="stat-box"><div class="num">${totalFinal.toLocaleString()}</div><div class="lbl">💰 إجمالي القيمة (EGP)</div></div>` : ""}
-    <div class="stat-box"><div class="num" style="color:var(--danger)">${totalRemaining.toLocaleString()}</div><div class="lbl">⏳ المتبقي عليك (EGP)</div></div>
+    ${showTotalValue ? `<div class="stat-box"><div class="num">${totalFinal.toLocaleString('en-US')}</div><div class="lbl">💰 إجمالي القيمة (EGP)</div></div>` : ""}
+    <div class="stat-box"><div class="num" style="color:var(--danger)">${totalRemaining.toLocaleString('en-US')}</div><div class="lbl">⏳ المتبقي عليك (EGP)</div></div>
   ` : "";
 
   document.getElementById("statsGrid").innerHTML = `
     <div class="stat-box"><div class="num">${items.length}</div><div class="lbl">📦 إجمالي المنتجات${items.length !== allProducts.filter(p=>p.status!=="Payment").length ? ' (مفلترة)' : ''}</div></div>
-    <div class="stat-box"><div class="num">${totalQty.toLocaleString()}</div><div class="lbl">🔢 إجمالي الكمية (قطعة)</div></div>
+    <div class="stat-box"><div class="num">${totalQty.toLocaleString('en-US')}</div><div class="lbl">🔢 إجمالي الكمية (قطعة)</div></div>
     <div class="stat-box"><div class="num">${confirmedLike.length}</div><div class="lbl">✅ مؤكدة</div></div>
     <div class="stat-box"><div class="num">${deliveredCount}</div><div class="lbl">🎉 تم التسليم</div></div>
     ${moneyBoxes}
@@ -923,7 +970,7 @@ function renderProducts(items){
         <div class="meta-line">🔢 العدد: ${escapeHtml(p.quantity || 1)}</div>
         <div class="price-tag">💵 الإجمالي: ${fmtNum(p.finalEgp)} EGP</div>
         <div class="meta-line">📅 موعد الوصول: ${escapeHtml(normArrival(p.arrivalDate) || "—")}</div>
-        <div class="meta-line">💰 العربون: ${fmtNum(p.deposit)} EGP — المتبقي: ${Math.max(0, (parseFloat(p.finalEgp)||0) - (parseFloat(p.deposit)||0)).toLocaleString()} EGP</div>
+        <div class="meta-line">💰 العربون: ${fmtNum(p.deposit)} EGP — المتبقي: ${Math.max(0, (parseFloat(p.finalEgp)||0) - (parseFloat(p.deposit)||0)).toLocaleString('en-US')} EGP</div>
         <button class="mini-btn btn-ghost" style="margin-top:8px;" onclick="reorderProduct('${jid}', this)">🔁 إعادة طلب نفس المنتج</button>`;
     }
 
@@ -963,7 +1010,7 @@ function updateQtyPreview(id, unitPrice){
   if(!qtyEl || !previewEl) return;
   const qty = parseInt(qtyEl.value) || 1;
   const total = qty * (parseFloat(unitPrice) || 0);
-  previewEl.textContent = `= ${qty} × ${Number(unitPrice).toLocaleString()} = ${total.toLocaleString()} EGP إجمالي`;
+  previewEl.textContent = `= ${qty} × ${Number(unitPrice).toLocaleString('en-US')} = ${total.toLocaleString('en-US')} EGP إجمالي`;
 }
 
 /* 🐞 كل الدوال دي كانت بتقرا .value من عنصر من غير ما تتأكد إنه
@@ -1148,7 +1195,7 @@ function exportCSV(){
 function formatPaymentDate(d){
   if(!d) return "";
   try{
-    return new Date(d).toLocaleString("ar-EG", {day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit"});
+    return new Date(d).toLocaleString("ar-EG-u-nu-latn", {day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit"});
   }catch(e){ return ""; }
 }
 
@@ -1202,9 +1249,9 @@ function openPaymentsModal(){
   const cardsHtml = batches.map(b => `
     <div style="border:1.5px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;text-align:right;">
       <div style="font-weight:900;color:var(--primary);margin-bottom:8px;">📅 ${escapeHtml(b.arrivalDate)}</div>
-      <div class="meta-line">💰 الإجمالي: ${b.total.toLocaleString()} EGP</div>
-      <div class="meta-line" style="color:var(--success);">✅ المدفوع: ${b.paid.toLocaleString()} EGP</div>
-      <div class="meta-line" style="color:var(--danger);font-weight:800;">⏳ المتبقي: ${b.remaining.toLocaleString()} EGP</div>
+      <div class="meta-line">💰 الإجمالي: ${b.total.toLocaleString('en-US')} EGP</div>
+      <div class="meta-line" style="color:var(--success);">✅ المدفوع: ${b.paid.toLocaleString('en-US')} EGP</div>
+      <div class="meta-line" style="color:var(--danger);font-weight:800;">⏳ المتبقي: ${b.remaining.toLocaleString('en-US')} EGP</div>
       ${b.payments.length ? `
         <div style="margin-top:10px;border-top:1px dashed var(--border);padding-top:8px;">
           <div style="font-size:12px;color:var(--gray);font-weight:800;margin-bottom:6px;">سجل الدفعات:</div>
