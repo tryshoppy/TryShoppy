@@ -4,224 +4,202 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
-    <title>TRY SHOPPY - Home</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>أدوات التشغيل — Try Shoppy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* 🎨 بوابة الأدوات — نفس ألوان لوحة الطلبات (كحلي + ذهبي)، الأدوات
+           مجمّعة حسب الشغل الفعلي، وشبكة بتتمدد على الكمبيوتر بدل عمود واحد طويل. */
         :root {
-            --brand-yellow: #ffdc5e;
-            --brand-orange: #f39c12;
-            --brand-blue: #2563eb;
-            --brand-dark: #1a1a1a;
-            --white: #ffffff;
-            --soft-bg: #f8fafc;
+            --navy:#101B33; --navy-2:#1B2A4A; --gold:#F5B820; --gold-2:#FFD35C; --gold-wash:#FFF8E6;
+            --paper:#F4F6FB; --line:#DCE2EE; --ink:#101B33; --ink-2:#4A5876; --ink-3:#5F6C88;
+            --blue:#1D4ED8; --ok:#0B8A60; --violet:#6D28D9; --dead:#C81E1E;
         }
-
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        
-        body {
-            font-family: 'Cairo', sans-serif;
-            background-color: var(--soft-bg);
-            background-image: radial-gradient(var(--brand-yellow) 0.5px, transparent 0.5px);
-            background-size: 30px 30px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 40px 20px;
+        body { font-family: 'Cairo', system-ui, sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; display: flex; flex-direction: column; }
+
+        .hub-bar { background: var(--navy); color: #fff; border-bottom: 3px solid var(--gold); }
+        .hub-bar-in { max-width: 1080px; margin: 0 auto; padding: 14px 18px; display: flex; align-items: center; gap: 14px; }
+        .logo img { width: 52px; height: 52px; display: block; border-radius: 50%; background: var(--gold); }
+        .hub-head { flex: 1; min-width: 0; }
+        h1 { font-weight: 900; font-size: 1.15rem; line-height: 1.4; }
+        .sub-title { color: var(--gold-2); font-size: .85rem; font-weight: 700; }
+        .sub-title a { color: #fff !important; font-weight: 800; text-underline-offset: 3px; display: inline-block; padding: 6px 4px; }
+        .lang-switch { flex-shrink: 0; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border-radius: 10px; cursor: pointer;
+                       background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.16); color: #fff; font-weight: 800; font-size: .85rem; user-select: none; }
+        .lang-switch:hover { background: rgba(255,255,255,.16); }
+
+        .container { max-width: 1080px; width: 100%; margin: 0 auto; padding: 8px 18px 28px; }
+        .hub-group { margin-top: 22px; }
+        .hub-group h2 { font-size: .8rem; font-weight: 800; color: var(--ink-2); margin: 0 4px 10px; display: flex; align-items: center; gap: 10px; }
+        .hub-group h2::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+
+        .menu-btn { display: flex; align-items: center; gap: 14px; min-height: 76px; padding: 14px 16px; background: #fff; color: var(--ink); text-decoration: none;
+                    border: 1px solid var(--line); border-radius: 14px; font-weight: 800; font-size: 1rem; transition: border-color .15s, box-shadow .15s, transform .15s; }
+        .menu-btn i { order: -1; flex-shrink: 0; width: 46px; height: 46px; border-radius: 12px; display: grid; place-items: center; font-size: 1.15rem;
+                      background: var(--tone-wash, #EAF1FE); color: var(--tone, var(--blue)); }
+        .menu-btn:hover { border-color: var(--navy); box-shadow: 0 8px 22px rgba(16,27,51,.10); transform: translateY(-1px); }
+        .menu-btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+        .btn-content { display: flex; flex-direction: column; align-items: flex-start; text-align: start; min-width: 0; line-height: 1.45; }
+        .btn-text-en { font-size: .8rem; color: var(--ink-3); font-weight: 600; }
+
+        /* لون كل مجموعة (على الأيقونة بس — مش على حدود الكارت) */
+        .btn-calc, .btn-direct { --tone: #1D4ED8; --tone-wash: #EAF1FE; }
+        .btn-dash, .btn-ref, .btn-track { --tone: #101B33; --tone-wash: #E7EBF3; }
+        .btn-courier { --tone: #0B8A60; --tone-wash: #E6F6F0; }
+        .btn-rama-admin { --tone: #6D28D9; --tone-wash: #EFE9FC; }
+        .btn-mart { --tone: #B45309; --tone-wash: #FEF4E5; }
+        .btn-admin { --tone: #7A5A08; --tone-wash: var(--gold-wash); border-color: #F1DFA6; }
+
+        body.en-mode { direction: ltr; }
+        body.en-mode .btn-text-en { display: none; }
+
+        footer { margin-top: auto; padding: 18px; text-align: center; font-size: .78rem; color: var(--ink-3); font-weight: 600; }
+        @media (max-width: 560px) {
+            .hub-bar-in { padding: 12px 14px; gap: 10px; }
+            .logo img { width: 44px; height: 44px; }
+            .lang-switch span { display: none; }
+            .container { padding: 4px 14px 24px; }
+            .menu-grid { grid-template-columns: 1fr; gap: 10px; }
+            .menu-btn { min-height: 68px; }
         }
-
-        .container {
-            max-width: 500px;
-            width: 100%;
-            text-align: center;
-        }
-
-        .logo { margin-bottom: 30px; }
-        .logo img { max-width: 180px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1)); }
-
-        h1 { font-weight: 900; font-size: 1.8rem; color: var(--brand-dark); margin-bottom: 10px; }
-        .sub-title { color: #64748b; font-size: 1rem; margin-bottom: 40px; font-weight: 600; }
-
-        .menu-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
-            width: 100%;
-        }
-
-        .menu-btn {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 20px 25px;
-            background: var(--white);
-            color: var(--brand-dark);
-            text-decoration: none;
-            border-radius: 20px;
-            font-weight: 800;
-            font-size: 1.1rem;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            border: 2px solid transparent;
-            transition: all 0.3s ease;
-        }
-
-        .menu-btn i { font-size: 1.5rem; color: var(--brand-blue); }
-        .menu-btn:hover {
-            transform: translateY(-3px);
-            border-color: var(--brand-yellow);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
-
-        .btn-text-en { font-family: 'Poppins', sans-serif; font-size: 0.85rem; opacity: 0.6; font-weight: 400; }
-        .btn-content { display: flex; flex-direction: column; align-items: flex-start; text-align: right; }
-
-        /* الألوان الخاصة لكل زر */
-        .btn-calc { border-right: 6px solid var(--brand-blue); }
-        .btn-direct { border-right: 6px solid var(--brand-orange); }
-        .btn-track { border-right: 6px solid var(--brand-yellow); }
-        .btn-dash { border-right: 6px solid var(--brand-dark); }
-        .btn-ref { border-right: 6px solid #7c3aed; }
-        .btn-rama-admin { border-right: 6px solid #dc2626; }
-        .btn-courier { border-right: 6px solid #0F9D6E; }
-        .btn-courier i { color: #0F9D6E; }
-        .btn-admin { border-right: 6px solid #101B33; background: linear-gradient(90deg,#fff 70%,#FFF8DB 100%); }
-        .btn-admin i { color: #101B33; }
-
-        .lang-switch {
-            margin-top: 50px;
-            background: var(--brand-dark);
-            color: var(--brand-yellow);
-            padding: 10px 25px;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        /* تعديلات اللغة الإنجليزية */
-        body.en-mode { direction: ltr; font-family: 'Poppins', sans-serif; }
-        body.en-mode .btn-content { align-items: flex-end; text-align: left; }
-        body.en-mode .menu-btn { flex-direction: row-reverse; }
-        body.en-mode .btn-calc { border-right: none; border-left: 6px solid var(--brand-blue); }
-        body.en-mode .btn-direct { border-right: none; border-left: 6px solid var(--brand-orange); }
-        body.en-mode .btn-track { border-right: none; border-left: 6px solid var(--brand-yellow); }
-        body.en-mode .btn-dash { border-right: none; border-left: 6px solid var(--brand-dark); }
-        body.en-mode .btn-ref { border-right: none; border-left: 6px solid #7c3aed; }
-        body.en-mode .btn-rama-admin { border-right: none; border-left: 6px solid #dc2626; }
-        body.en-mode .btn-courier { border-right: none; border-left: 6px solid #0F9D6E; }
-        body.en-mode .btn-admin { border-right: none; border-left: 6px solid #101B33; background: linear-gradient(270deg,#fff 70%,#FFF8DB 100%); }
-
-        footer { margin-top: auto; padding-top: 40px; font-size: 0.8rem; color: #94a3b8; font-weight: 600; }
     </style>
 </head>
 <body dir="rtl">
 
+    <header class="hub-bar">
+        <div class="hub-bar-in">
+            <div class="logo"><img src="assets/logo.png" alt="TRY SHOPPY"></div>
+            <div class="hub-head">
+                <h1 id="title">أدوات التشغيل — Try Shoppy</h1>
+                <p class="sub-title" id="subTitle">اختر الأداة التي تريد العمل عليها</p>
+            </div>
+            <div class="lang-switch" onclick="toggleLanguage()" role="button" tabindex="0" onkeydown="if(event.key==='Enter')toggleLanguage()">
+                <i class="fa-solid fa-globe"></i>
+                <span id="langBtn">English</span>
+            </div>
+        </div>
+    </header>
+
     <div class="container">
-        <div class="logo">
-            <img src="assets/logo.png" alt="TRY SHOPPY">
-        </div>
+        <!-- 🧭 الأدوات مجمّعة حسب الشغل: طلب جديد ← متابعة ← تسليم ← RAMA والمارت ← الإدارة.
+             كل الروابط والـ ids زي ما هي (markTools و toggleLanguage شغالين عليها). -->
+        <section class="hub-group">
+            <h2>طلب جديد</h2>
+            <div class="menu-grid">
+                <a href="calculatorOP.html" class="menu-btn btn-calc">
+                    <div class="btn-content">
+                        <span id="btn1_ar">حاسبة التشغيل</span>
+                        <span class="btn-text-en">تسعير سريع قبل تسجيل الطلب</span>
+                    </div>
+                    <i class="fa-solid fa-calculator"></i>
+                </a>
+                <a href="QuickOrder.html" class="menu-btn btn-direct">
+                    <div class="btn-content">
+                        <span>طلب لعميل سابق</span>
+                        <span class="btn-text-en">البحث عن العميل ثم إضافة منتجاته</span>
+                    </div>
+                    <i class="fa-solid fa-repeat"></i>
+                </a>
+                <a href="DirectOrder.html" class="menu-btn btn-direct">
+                    <div class="btn-content">
+                        <span id="btn2_ar">تسجيل طلب مباشر</span>
+                        <span class="btn-text-en">عميل جديد أو طلب كامل من البداية</span>
+                    </div>
+                    <i class="fa-solid fa-cart-plus"></i>
+                </a>
+            </div>
+        </section>
 
-        <h1 id="title">مرحباً بك في تراي شوبي</h1>
-        <p class="sub-title" id="subTitle">بوابتك للتسوق من أمريكا بسهولة</p>
+        <section class="hub-group">
+            <h2>متابعة الطلبات</h2>
+            <div class="menu-grid">
+                <a href="DashboardMob2.html" class="menu-btn btn-dash">
+                    <div class="btn-content">
+                        <span id="btn4_ar">لوحة الطلبات</span>
+                        <span class="btn-text-en">تعديل الحالات والمبالغ — مناسبة للموبايل</span>
+                    </div>
+                    <i class="fa-solid fa-list-check"></i>
+                </a>
+                <!-- لوحة المدير = Dashboard945 (الحسابات والمصروفات والفلاتر الكاملة).
+                     صلاحيتها عمود Dash945 في شيت الموظفين — markTools تحت بيقفلها لغيرهم -->
+                <a href="Dashboard945.html" class="menu-btn btn-dash">
+                    <div class="btn-content">
+                        <span id="btn9_ar">لوحة المدير (945)</span>
+                        <span class="btn-text-en">الحسابات والمصروفات والفلاتر الكاملة</span>
+                    </div>
+                    <i class="fa-solid fa-chart-line"></i>
+                </a>
+                <a href="CustomerReference.html" class="menu-btn btn-ref">
+                    <div class="btn-content">
+                        <span id="btn5_ar">مرجع طلبات العملاء</span>
+                        <span class="btn-text-en">كل طلبات العميل وحسابه في صفحة واحدة</span>
+                    </div>
+                    <i class="fa-solid fa-address-book"></i>
+                </a>
+                <a href="track.html" class="menu-btn btn-track">
+                    <div class="btn-content">
+                        <span id="btn3_ar">تتبع طلب</span>
+                        <span class="btn-text-en">صفحة التتبع كما يراها العميل</span>
+                    </div>
+                    <i class="fa-solid fa-truck-fast"></i>
+                </a>
+            </div>
+        </section>
 
-        <div class="menu-grid">
-            <a href="calculatorOP.html" class="menu-btn btn-calc">
-                <div class="btn-content">
-                    <span id="btn1_ar">حساب تكلفة طلب</span>
-                    <span class="btn-text-en">Calculator Cost</span>
-                </div>
-                <i class="fa-solid fa-calculator"></i>
-            </a>
-			
-<a href="QuickOrder.html" class="menu-btn btn-direct">
-    <div class="btn-content">
-        <span>إضافة طلب لعميل سابق</span>
-        <span class="btn-text-en">Quick Order</span>
+        <section class="hub-group">
+            <h2>التسليم والتحصيل</h2>
+            <div class="menu-grid">
+                <a href="courier.html" class="menu-btn btn-courier">
+                    <div class="btn-content">
+                        <span id="btn8_ar">أداة المندوب</span>
+                        <span class="btn-text-en">توزيع الطلبات والتسليم والتحصيل</span>
+                    </div>
+                    <i class="fa-solid fa-motorcycle"></i>
+                </a>
+            </div>
+        </section>
+
+        <section class="hub-group">
+            <h2>RAMA والمارت</h2>
+            <div class="menu-grid">
+                <a href="rama-admin.html" class="menu-btn btn-rama-admin">
+                    <div class="btn-content">
+                        <span id="btn7_ar">RAMA — لوحة الموظف</span>
+                        <span class="btn-text-en">تسعير ومتابعة طلبات الفيتامينات</span>
+                    </div>
+                    <i class="fa-solid fa-user-shield"></i>
+                </a>
+                <a href="mart-admin.html" class="menu-btn btn-mart">
+                    <div class="btn-content">
+                        <span>إدارة المارت</span>
+                        <span class="btn-text-en">منتجات المارت والمخزون والأسعار</span>
+                    </div>
+                    <i class="fa-solid fa-store"></i>
+                </a>
+            </div>
+        </section>
+
+        <section class="hub-group">
+            <h2>الإدارة</h2>
+            <div class="menu-grid">
+                <!-- 🛰️ الـ Control Room — ظاهر دايماً (الصفحة نفسها بتطلب دخول أدمن).
+                     لو فيه موظف مش أدمن مسجّل، markTools بتقفله زي باقي الأدوات -->
+                <a href="control.html" class="menu-btn btn-admin" id="controlBtn">
+                    <div class="btn-content">
+                        <span>غرفة التحكم</span>
+                        <span class="btn-text-en">كل ما يحتاج متابعة في شاشة واحدة</span>
+                    </div>
+                    <i class="fa-solid fa-satellite-dish"></i>
+                </a>
+            </div>
+        </section>
     </div>
 
-    <i class="fa-solid fa-repeat"></i>
-</a>
-            <a href="DirectOrder.html" class="menu-btn btn-direct">
-                <div class="btn-content">
-                    <span id="btn2_ar">تسجيل طلب مباشر</span>
-                    <span class="btn-text-en">Direct Order Registration</span>
-                </div>
-                <i class="fa-solid fa-cart-plus"></i>
-            </a>
-
-            <a href="track.html" class="menu-btn btn-track">
-                <div class="btn-content">
-                    <span id="btn3_ar">تتبع حالة طلبك</span>
-                    <span class="btn-text-en">Track Your Order</span>
-                </div>
-                <i class="fa-solid fa-truck-fast"></i>
-            </a>
-
-            <a href="DashboardMob2.html" class="menu-btn btn-dash">
-                <div class="btn-content">
-                    <span id="btn4_ar">لوحة التحكم</span>
-                    <span class="btn-text-en">Orders Dashboard</span>
-                </div>
-                <i class="fa-solid fa-user-gear"></i>
-            </a>
-
-            <!-- 🆕 لوحة المدير = Dashboard945 (الحسابات والمصروفات والفلاتر الكاملة).
-                 صلاحيتها عمود Dash945 في شيت الموظفين — markTools تحت بيقفلها لغيرهم -->
-            <a href="Dashboard945.html" class="menu-btn btn-admin">
-                <div class="btn-content">
-                    <span id="btn9_ar">لوحة المدير</span>
-                    <span class="btn-text-en">Manager Dashboard</span>
-                </div>
-                <i class="fa-solid fa-chart-line"></i>
-            </a>
-
-            <a href="courier.html" class="menu-btn btn-courier">
-                <div class="btn-content">
-                    <span id="btn8_ar">أداة المندوب — تسليم وتحصيل</span>
-                    <span class="btn-text-en">Courier Delivery Tool</span>
-                </div>
-                <i class="fa-solid fa-motorcycle"></i>
-            </a>
-
-            <a href="CustomerReference.html" class="menu-btn btn-ref">
-                <div class="btn-content">
-                    <span id="btn5_ar">مرجع طلبات العملاء</span>
-                    <span class="btn-text-en">Customer Reference</span>
-                </div>
-                <i class="fa-solid fa-address-book"></i>
-            </a>
-
-            <a href="rama-admin.html" class="menu-btn btn-rama-admin">
-                <div class="btn-content">
-                    <span id="btn7_ar">RAMA — لوحة الموظف</span>
-                    <span class="btn-text-en">Rama Admin</span>
-                </div>
-                <i class="fa-solid fa-user-shield"></i>
-            </a>
-            <!-- 🛰️ الـ Control Room — ظاهر دايماً (الصفحة نفسها بتطلب دخول أدمن).
-                 لو فيه موظف مش أدمن مسجّل، markTools بتقفله زي باقي الأدوات -->
-            <a href="control.html" class="menu-btn btn-admin" id="controlBtn">
-                <div class="btn-content">
-                    <span>غرفة التحكم — كل حاجة في شاشة واحدة</span>
-                    <span class="btn-text-en">Control Room</span>
-                </div>
-                <i class="fa-solid fa-satellite-dish"></i>
-            </a>
-        </div>
-
-        <div class="lang-switch" onclick="toggleLanguage()">
-            <i class="fa-solid fa-globe"></i>
-            <span id="langBtn">English</span>
-        </div>
-
-        <footer>
-            &copy; 2026 TRY SHOPPY - Your Global Shopping Partner
-        </footer>
-    </div>
+    <footer>
+        &copy; 2026 TRY SHOPPY - Your Global Shopping Partner
+    </footer>
 
     <script>
         /* 🔑 لو فيه موظف مسجّل دخول، الأدوات اللي مالوش صلاحية عليها
@@ -259,7 +237,7 @@
             const who = localStorage.getItem('currentUserLabel');
             if (who) {
                 const s = document.getElementById('subTitle');
-                s.innerHTML = '👤 ' + who.replace(/[&<>"]/g, '') + ' · <a href="#" id="opOut" style="color:#2563eb">خروج</a>';
+                s.innerHTML = '👤 ' + who.replace(/[&<>"]/g, '') + ' · <a href="#" id="opOut">خروج</a>';
                 document.getElementById('opOut').onclick = e => {
                     e.preventDefault();
                     ['currentUser','currentUserLabel','loginTime','staffToken','isAdmin','staffTools'].forEach(k => localStorage.removeItem(k));
@@ -279,7 +257,7 @@
             if (currentLang === 'ar') {
                 body.classList.add('en-mode');
                 body.dir = 'ltr';
-                title.innerText = 'Welcome to TRY SHOPPY';
+                title.innerText = 'Try Shoppy — Staff Tools';
                 subTitle.innerText = 'Your gateway to shop from USA easily';
                 langBtn.innerText = 'العربية';
                 
@@ -297,18 +275,18 @@
             } else {
                 body.classList.remove('en-mode');
                 body.dir = 'rtl';
-                title.innerText = 'مرحباً بك في تراي شوبي';
+                title.innerText = 'أدوات التشغيل — Try Shoppy';
                 subTitle.innerText = 'بوابتك للتسوق من أمريكا بسهولة';
                 langBtn.innerText = 'English';
 
-                document.getElementById('btn1_ar').innerText = 'حساب تكلفة طلب';
+                document.getElementById('btn1_ar').innerText = 'حاسبة التشغيل';
                 document.getElementById('btn2_ar').innerText = 'تسجيل طلب مباشر';
-                document.getElementById('btn3_ar').innerText = 'تتبع حالة طلبك';
-                document.getElementById('btn4_ar').innerText = 'لوحة التحكم';
-                document.getElementById('btn9_ar').innerText = 'لوحة المدير';
+                document.getElementById('btn3_ar').innerText = 'تتبع طلب';
+                document.getElementById('btn4_ar').innerText = 'لوحة الطلبات';
+                document.getElementById('btn9_ar').innerText = 'لوحة المدير (945)';
                 document.getElementById('btn5_ar').innerText = 'مرجع طلبات العملاء';
                 document.getElementById('btn7_ar').innerText = 'RAMA — لوحة الموظف';
-                document.getElementById('btn8_ar').innerText = 'أداة المندوب — تسليم وتحصيل';
+                document.getElementById('btn8_ar').innerText = 'أداة المندوب';
 
                 currentLang = 'ar';
             }

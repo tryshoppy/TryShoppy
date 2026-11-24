@@ -1,0 +1,135 @@
+/* =========================================================
+   TRY SHOPPY — staff-ui.css  (طبقة شكل موحّدة لأدوات التشغيل)
+   ---------------------------------------------------------
+   شكل فقط: ألوان، خطوط، مقاسات لمس، شريط علوي موحّد.
+   مفيش أي JS هنا ولا أي تغيير في وظيفة — الملف ده لو اتشال
+   الصفحات ترجع لشكلها القديم وتشتغل زي ما هي.
+
+   نفس ألوان لوحة الطلبات (Dashboard945) والمندوب:
+   كحلي للهيكل، ذهبي للتمييز، أخضر للتأكيد، أحمر للخطر فقط.
+   ========================================================= */
+:root{
+  --ts-navy:#101B33; --ts-navy-2:#1B2A4A; --ts-navy-3:#2A3D63;
+  --ts-gold:#F5B820; --ts-gold-2:#FFD35C; --ts-gold-wash:#FFF8E6; --ts-gold-ink:#7A5A08;
+  --ts-paper:#F4F6FB; --ts-panel:#FFFFFF; --ts-line:#DCE2EE; --ts-line-2:#EEF2F8;
+  --ts-ink:#101B33; --ts-ink-2:#4A5876; --ts-ink-3:#5F6C88;
+  --ts-ok:#087F58; --ts-ok-wash:#E6F6F0; --ts-warn:#B45309; --ts-dead:#C81E1E; --ts-dead-wash:#FDECEC;
+  --ts-blue:#1D4ED8; --ts-blue-wash:#EAF1FE;
+  --ts-tap:44px;                      /* أقل ارتفاع لأي حاجة بتتداس بالإصبع */
+  --ts-r:12px;
+}
+
+/* ───────── الشريط العلوي الموحّد ─────────
+   [▦ الأدوات]  اسم الأداة            👤 الموظف  [خروج]              */
+.ts-bar{
+  position:sticky; top:0; z-index:900;
+  display:flex; align-items:center; gap:10px;
+  background:var(--ts-navy); color:#fff;
+  padding:8px 14px; min-height:56px;
+  border-bottom:3px solid var(--ts-gold);
+  font-family:'Cairo',system-ui,sans-serif;
+}
+.ts-bar *{ box-sizing:border-box; }
+.ts-bar__home{
+  display:inline-flex; align-items:center; gap:7px; flex-shrink:0;
+  min-height:40px; padding:0 12px; border-radius:10px;
+  background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14);
+  color:#fff; text-decoration:none; font-weight:800; font-size:13.5px; white-space:nowrap;
+}
+.ts-bar__home:hover{ background:rgba(255,255,255,.16); }
+.ts-bar__home svg{ width:16px; height:16px; flex-shrink:0; }
+.ts-bar__title{
+  flex:1; min-width:0; font-weight:900; font-size:16px; line-height:1.3;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.ts-bar__title small{ display:block; font-weight:600; font-size:12px; color:var(--ts-gold-2); }
+.ts-bar__user{
+  flex-shrink:0; max-width:34vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  font-weight:800; font-size:13px; color:var(--ts-gold-2);
+}
+.ts-bar__user:empty{ display:none; }
+.ts-bar .ts-bar__out{
+  flex-shrink:0; width:auto; min-height:40px; padding:0 14px; margin:0;
+  background:transparent; color:#fff; border:1px solid rgba(255,255,255,.28); border-radius:10px;
+  font-family:inherit; font-weight:800; font-size:13px; cursor:pointer; box-shadow:none;
+}
+.ts-bar .ts-bar__out:hover{ background:rgba(255,255,255,.12); opacity:1; }
+@media (max-width:420px){
+  .ts-bar{ padding:8px 10px; gap:8px; }
+  .ts-bar__home span{ display:none; }          /* على الموبايل: أيقونة الأدوات بس */
+  .ts-bar__home{ padding:0 11px; }
+  .ts-bar__title{ font-size:15px; }
+}
+@media print{ .ts-bar{ display:none !important; } }
+
+/* رابط "الأدوات" الصغير للصفحات اللي ليها هيدر خاص بيها (اللوحات/المندوب) */
+.ts-home-link{
+  display:inline-flex; align-items:center; justify-content:center; gap:6px; flex-shrink:0;
+  min-height:40px; padding:0 12px; border-radius:10px; text-decoration:none;
+  background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.16);
+  color:#fff; font-family:'Cairo',system-ui,sans-serif; font-weight:800; font-size:13px; white-space:nowrap;
+}
+.ts-home-link:hover{ background:rgba(255,255,255,.16); }
+.ts-home-link svg{ width:16px; height:16px; }
+.ts-home-link--light{ background:#fff; border-color:var(--ts-line); color:var(--ts-ink); }
+.ts-home-link--light:hover{ background:var(--ts-paper); }
+
+/* ───────── الصفحات القديمة (العيلة الزرقا) ─────────
+   body.ts-staff بيحوّل نفس المتغيرات اللي الصفحة بتستخدمها أصلاً
+   (--primary / --bg / --border) لألوان النظام الموحّد.            */
+body.ts-staff{
+  --primary:var(--ts-navy); --primary-hover:var(--ts-navy-2);
+  --bg:var(--ts-paper); --bg-light:var(--ts-paper);
+  --text:var(--ts-ink); --text-main:var(--ts-ink); --text-muted:var(--ts-ink-2); --gray:var(--ts-ink-2);
+  --border:var(--ts-line);
+  --success:var(--ts-ok); --danger:var(--ts-dead); --warning:var(--ts-warn);
+  background:var(--ts-paper); color:var(--ts-ink);
+  padding:0 !important;                       /* الشريط العلوي بياخد العرض كله */
+}
+body.ts-staff .ts-page{ padding:18px 14px 40px; }
+
+/* حقول الإدخال والقوائم: شكل واحد، ارتفاع لمس مريح، تركيز واضح */
+body.ts-staff input[type=text], body.ts-staff input[type=number], body.ts-staff input[type=tel],
+body.ts-staff input[type=email], body.ts-staff input[type=password], body.ts-staff input[type=search],
+body.ts-staff input[type=date], body.ts-staff input:not([type]), body.ts-staff select, body.ts-staff textarea{
+  min-height:var(--ts-tap); border:1.5px solid var(--ts-line); border-radius:var(--ts-r);
+  background-color:#fff; color:var(--ts-ink); font-family:'Cairo',system-ui,sans-serif; font-size:16px;  /* 16px = iOS مابيعملش zoom */
+  padding:10px 14px; box-sizing:border-box; max-width:100%;
+  transition:border-color .15s, box-shadow .15s;
+}
+body.ts-staff input::placeholder, body.ts-staff textarea::placeholder{ color:var(--ts-ink-3); opacity:1; }
+body.ts-staff input:focus, body.ts-staff select:focus, body.ts-staff textarea:focus{
+  outline:none; border-color:var(--ts-navy); box-shadow:0 0 0 3px rgba(245,184,32,.45);
+}
+/* القوائم كانت رمادي (شكل المتصفح الافتراضي) فتبان كأنها مقفولة */
+body.ts-staff select{
+  -webkit-appearance:none; appearance:none; cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23101B33' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:left 14px center; padding-left:36px;
+}
+[dir=ltr] body.ts-staff select, body.ts-staff[dir=ltr] select{ background-position:right 14px center; padding-left:14px; padding-right:36px; }
+
+/* الأزرار: ارتفاع لمس + تركيز بالكيبورد */
+body.ts-staff button{ min-height:var(--ts-tap); font-family:'Cairo',system-ui,sans-serif; }
+body.ts-staff button:focus-visible, body.ts-staff a:focus-visible, .ts-bar a:focus-visible, .ts-bar button:focus-visible{
+  outline:3px solid var(--ts-gold); outline-offset:2px;
+}
+body.ts-staff button:disabled{ opacity:.55; cursor:not-allowed; }
+body.ts-staff .card{ border:1px solid var(--ts-line); box-shadow:0 1px 2px rgba(16,27,51,.04), 0 8px 24px rgba(16,27,51,.06); }
+body.ts-staff h2{ color:var(--ts-ink); }
+
+/* شاشة الدخول: نفس الهوية في كل الأدوات */
+body.ts-staff .login-logo{ color:var(--ts-navy); }
+body.ts-staff .login-sub{ color:var(--ts-ink-2); }
+body.ts-staff .btn-login{ background:var(--ts-gold); color:var(--ts-navy); box-shadow:none; min-height:48px; }
+body.ts-staff .btn-login:hover{ background:var(--ts-gold-2); }
+body.ts-staff .login-input:focus{ border-color:var(--ts-navy); }
+body.ts-staff .login-box{ border-top:4px solid var(--ts-gold); }
+
+@media (prefers-reduced-motion:reduce){
+  body.ts-staff *, .ts-bar *{ animation-duration:.01ms !important; transition-duration:.01ms !important; }
+}
+
+/* الصفحات اللي كان فيها هامش علوي كبير قبل الكارت — الشريط العلوي بقى هو البداية */
+body.ts-staff .container.ts-page{ margin-top:0; margin-bottom:0; }
+body.ts-staff button + .input-group{ margin-top:16px; }
