@@ -796,8 +796,9 @@ document.getElementById('placeOrderBtn').addEventListener('click',async function
       try{
         // 🐛→✅ بقت بترجع true لو الطلب وصل للسيرفر (مش Response نقرا
         // نصه) — الشرح الكامل جوه tsPostScript في assets/app.js
+        // link: لينك المنتج على الماركت (mart.html?product=TSM-…) علشان يتسجل في عمود اللينك في الشيت والموظفين يوصلوا للمنتج على طول
         // martId: السيرفر بيجيب السعر من الكاتالوج بيه ويقلل المخزون (applyMartCatalog_)
-        await tsSubmitOrderRow({order:o,martId:item.id,lang:TS_LANG,customerName:name,phone,email,country:"Try Shoppy Mart",address:addr,governorate:gov,link:'',quantity:item.qty,usd:'',weight:'',dimensions:(item.name&&item.name.en)||'',category:'Mart - '+item.cat,finalPrice:item.price*item.qty,status:'Pending Review',
+        await tsSubmitOrderRow({order:o,martId:item.id,lang:TS_LANG,customerName:name,phone,email,country:"Try Shoppy Mart",address:addr,governorate:gov,link:'https://try-shoppy.com/mart.html?product='+encodeURIComponent(item.id),quantity:item.qty,usd:'',weight:'',dimensions:(item.name&&item.name.en)||'',category:'Mart - '+item.cat,finalPrice:item.price*item.qty,status:'Pending Review',
           suppressEmail:idx>0,                                  // إيميل واحد فقط للطلب كله
           emailSummary:idx===0?emailSummary:'',
           cartTotal:idx===0?tsCartSubtotal():undefined});       // ✅ إجمالي السلة الحقيقي، منفصل عن finalPrice بتاع الصف الأول بس
