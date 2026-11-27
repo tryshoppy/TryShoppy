@@ -1034,10 +1034,20 @@ async function loadRama(){
         arr.forEach(p=>{
             // ❌ صنف RAMA المرفوض / غير المتاح (Rejected) = زي الطلب الملغي،
             // مايدخلش في إجمالي الموعد ولا في الأرباح
-            if(String(p.status||"").trim() === "Rejected") return;
+            const st = String(p.status||"").trim();
+            if(st === "Rejected") return;
+            /* 🐞→✅ (هيثم 27/11) كان بيجمع أي حالة غير المرفوض — يعني
+               أصناف لسه بانتظار السعر / موافقة العميل / المراجعة كانت
+               بتدخل في إجمالي الموعد والأرباح كأنها مبيعات، وصفوف
+               "Payment" (دفعات الموعد) كانت بتتعد كصنف. دلوقتي:
+               المبيعات = المؤكد بس (زي صفحة راما وملخص الدفعات)،
+               والدفعات بتتضاف للمدفوع بس من غير ما تتعد صنف. */
+            const isPay = st === "Payment";
+            if(!isPay && ["Confirmed","Placed","Delayed","Delivered"].indexOf(st) === -1) return;
             const dateRaw = String(p.arrivalDate||"").trim();
             const k = arrKeyD(dateRaw) || "__none";
             if(!groups[k]) groups[k] = { dateRaw, items:0, qty:0, usd:0, egp:0, dep:0 };
+            if(isPay){ groups[k].dep += parseFloat(p.deposit)||0; return; }
             const q = parseInt(p.quantity)||1;
             groups[k].items += 1;
             groups[k].qty   += q;
@@ -1053,7 +1063,7 @@ async function loadRama(){
             groups[k].egp   += parseFloat(p.finalEgp)||0;
             groups[k].dep   += parseFloat(p.deposit)||0;
         });
-        ramaRows = Object.values(groups).map(g=>({
+        ramaRows = Object.values(groups).filter(g => g.items > 0).map(g=>({   // موعد عليه دفعات بس من غير أصناف مؤكدة مايتعرضش
             isRama: true,
             order: ramaLabel(g.dateRaw),
             customerName: "RAMA — إجمالي الموعد",
