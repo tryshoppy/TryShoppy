@@ -691,25 +691,40 @@ function renderNotifBadge(){
 // ✅ الكروت دلوقتي بتاخد "items" (المجموعة بعد الفلترة/البحث) بدل
 // allProducts كله — يعني لو فلترت بحالة معيّنة أو بحثت عن حاجة،
 // الأرقام فوق بتتغيّر تتبع بالظبط اللي شايفه في القائمة تحتها
-function renderStats(items, paymentsTotal, statusF){
+function renderStats(items, paymentsTotal, statusF, scopeOwed){
   paymentsTotal = paymentsTotal || 0;
-  const totalFinal = items.reduce((s,p)=> s + (parseFloat(p.finalEgp)||0), 0);
+  /* 🐞→✅ (هيثم 27/11) الكروت كانت بتجمع كل الحالات — يعني صنف
+     اتسعّر وبعدين اتعمله Rejected (أو لسه بانتظار العميل) كان سعره
+     بيدخل في "إجمالي القيمة" و"المتبقي تحصيله". دلوقتي:
+     - الفلوس بتتحسب على المؤكد بس (Confirmed/Placed/Delayed/Delivered)
+       زي ملخص الدفعات وصفحة العميل بالظبط؛
+     - لو الفلتر حالة مش مؤكدة (بانتظار السعر/العميل/مراجعة) بيظهر
+       "قيمة المعروض" لوحده من غير متبقي؛ المرفوض مالوش أي فلوس؛
+     - "المتبقي تحصيله" = كل المؤكد في نطاق موعد الوصول ناقص العرابين
+       ودفعات الموعد (scopeOwed) — نفس رقم ملخص الدفعات، ومابيتأثرش
+       بفلتر الحالة أو البحث، لأن الدفعات بتتسجل على الموعد كله مش
+       على صنف بعينه (قبل كده كانت دفعات الموعد كله بتتطرح من جزء
+       بس من الأصناف فالمتبقي كان بيطلع أقل من الحقيقي). */
+  const isConfFilter = !statusF || RAMA_CONFIRMED.includes(statusF);
+  const moneyItems = isConfFilter ? items.filter(p => RAMA_CONFIRMED.includes(p.status))
+                   : (statusF === "Rejected" ? [] : items);
+  const totalFinal = moneyItems.reduce((s,p)=> s + (parseFloat(p.finalEgp)||0), 0);
   // ⚠️ المتبقي بيتحسب مباشرة من finalEgp-deposit هنا، مش من عمود
   // "remaining" المخزّن في الشيت — لو حصل أي عدم تطابق تاريخي بين
   // القيمتين (صفوف قديمة اتلمست بطرق مختلفة قبل توحيد الحساب)،
   // كده مضمون إن الإجمالي = المدفوع + المتبقي دايمًا رياضيًا
-  const totalRemaining = Math.max(0, items.reduce((s,p)=> s + Math.max(0, (parseFloat(p.finalEgp)||0) - (parseFloat(p.deposit)||0)), 0) - paymentsTotal);
+  const totalRemaining = Math.max(0, scopeOwed || 0);
   const totalQty = items.reduce((s,p)=> s + (parseInt(p.quantity)||1), 0);
   // 💱 staffUsd بقى *إجمالي* الدولار جاي مضروب من السيرفر — لو
   // ضربناه في الكمية تاني هنا هيتضرب مرتين. بنجمعه زي ما هو
-  const totalUsd = items.reduce((s,p)=> s + (parseFloat(p.staffUsd)||0), 0);
-  const confirmedCount = items.filter(p=>["Confirmed","Placed","Delayed","Delivered"].includes(p.status)).length;
+  const totalUsd = moneyItems.reduce((s,p)=> s + (parseFloat(p.staffUsd)||0), 0);
+  const confirmedCount = items.filter(p=>RAMA_CONFIRMED.includes(p.status)).length;
   const deliveredCount = items.filter(p=>p.status==="Delivered").length;
 
   // 💡 القيمة/المتبقي بترجع مبالغ مضلّلة لو اتجمعت على كل الحالات
   // مع بعض (منتجات لسه معلّقة قيمتها صفر بتتخلط مع منتجات مؤكدة)
   // — بتظهر بس لو فيه فلتر حالة محدد فعليًا، مش "كل الحالات"
-  const showMoney = !!statusF;
+  const showMoney = !!statusF && statusF !== "Rejected";
   // 🆕 "إجمالي القيمة" تحديدًا بيتخفى لما الفلتر يكون "Delivered"
   // بالظبط — في الحالة دي المتبقي غالبًا صفر فمفيش داعي نكرر نفس
   // الرقم في كارتين. "إجمالي المدفوع" اتشال خالص من هنا ومن صفحة
@@ -717,8 +732,8 @@ function renderStats(items, paymentsTotal, statusF){
   const showTotalValue = statusF !== "Delivered";
   const moneyBoxes = showMoney ? `
     <div class="stat-box"><div class="num">$${totalUsd.toLocaleString('en-US')}</div><div class="lbl">💵 إجمالي الدولار (USD)</div></div>
-    ${showTotalValue ? `<div class="stat-box"><div class="num">${totalFinal.toLocaleString('en-US')}</div><div class="lbl">💰 إجمالي القيمة (EGP)</div></div>` : ""}
-    <div class="stat-box"><div class="num" style="color:var(--danger)">${totalRemaining.toLocaleString('en-US')}</div><div class="lbl">⏳ المتبقي تحصيله (EGP)</div></div>
+    ${showTotalValue ? `<div class="stat-box"><div class="num">${totalFinal.toLocaleString('en-US')}</div><div class="lbl">${isConfFilter ? "💰 إجمالي القيمة (EGP)" : "💰 قيمة المعروض — مش مؤكد (EGP)"}</div></div>` : ""}
+    ${isConfFilter && isHaitham() ? `<div class="stat-box"><div class="num" style="color:var(--danger)">${totalRemaining.toLocaleString('en-US')}</div><div class="lbl">⏳ المتبقي تحصيله — كل المؤكد${document.getElementById("filterArrival").value ? " في الموعد" : ""} (EGP)</div></div>` : ""}
   ` : "";
 
   document.getElementById("statsGrid").innerHTML = `
@@ -729,6 +744,9 @@ function renderStats(items, paymentsTotal, statusF){
     ${moneyBoxes}
   `;
 }
+
+// ✅ الحالات اللي ليها فلوس فعلية (نفس ملخص الدفعات وصفحة العميل)
+const RAMA_CONFIRMED = ["Confirmed","Placed","Delayed","Delivered"];
 
 const STATUS_META = {
   PendingPrice:{label:"⏳ بانتظار السعر",cls:"b-gray"}, PendingApproval:{label:"👤 بانتظار العميل",cls:"b-blue"},
@@ -814,7 +832,14 @@ function renderList(){
     .filter(p => !arrivalF || normArrival(p.arrivalDate) === normArrival(arrivalF))
     .reduce((s,p)=> s + (parseFloat(p.deposit)||0), 0);
 
-  renderStats(items, paymentsTotal, statusF); // ← نفس المجموعة المفلترة اللي هتتعرض تحت
+  // ⏳ المتبقي الحقيقي = كل المؤكد في نطاق موعد الوصول (من غير فلتر
+  // الحالة/البحث) ناقص العرابين والدفعات — نفس حساب ملخص الدفعات
+  const scopeOwed = allProducts
+    .filter(p => RAMA_CONFIRMED.includes(p.status))
+    .filter(p => !arrivalF || normArrival(p.arrivalDate) === normArrival(arrivalF))
+    .reduce((s,p)=> s + (parseFloat(p.finalEgp)||0) - (parseFloat(p.deposit)||0), 0) - paymentsTotal;
+
+  renderStats(items, paymentsTotal, statusF, scopeOwed); // ← نفس المجموعة المفلترة اللي هتتعرض تحت
 
   const box = document.getElementById("productsList");
   if(!items.length){
@@ -1563,6 +1588,7 @@ function updateReorderPreview(){
   const dupe = arrival && allProducts.some(x =>
     String(x.id) !== String(reorderSource.id) &&
     x.status !== "Payment" &&
+    x.status !== "Rejected" && // صنف مرفوض على نفس الموعد مش تكرار فعلي
     (x.link || "") === (reorderSource.link || "") &&
     normArrival(x.arrivalDate) === arrival);
   if(dupe){

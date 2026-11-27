@@ -258,6 +258,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{
         <option value="Placed">📦 تم الشراء</option>
         <option value="Delayed">⏱️ متأخر</option>
         <option value="Delivered">🎉 تم التسليم</option>
+        <option value="Rejected">❌ ملغي / غير متاح</option>
       </select>
       <select id="filterArrival" onchange="renderList()">
         <option value="">📅 كل مواعيد الوصول</option>
@@ -818,26 +819,34 @@ function renderNotifBadge(){
 
 // ✅ بتاخد "items" (بعد الفلترة/البحث) بدل allProducts كله — الأرقام
 // فوق بتتبع بالظبط اللي شايفه في القائمة تحتها
-function renderStats(items, paymentsTotal, statusF){
+function renderStats(items, paymentsTotal, statusF, scopeOwed){
   paymentsTotal = paymentsTotal || 0;
   const confirmedLike = items.filter(p => ["Confirmed","Placed","Delayed","Delivered"].includes(p.status));
-  const totalFinal = confirmedLike.reduce((s,p)=> s + (parseFloat(p.finalEgp)||0), 0);
+  /* 🐞→✅ (هيثم 27/11) لو الفلتر "بانتظار موافقتك" مثلًا، الكروت كانت
+     بتطلع "إجمالي القيمة 0" و"المتبقي" بعد ما تطرح دفعات الموعد كله.
+     دلوقتي: فلتر مؤكد → قيمة المؤكد؛ فلتر بانتظار/مراجعة → "قيمة
+     العروض" من غير متبقي؛ والمتبقي عليك = كل المؤكد في نطاق الموعد
+     ناقص العرابين والدفعات (نفس رقم ملخص الدفعات)، مش متأثر بالبحث
+     أو فلتر الحالة لأن الدفعات بتتسجل على الموعد كله. */
+  const isConfFilter = !statusF || ["Confirmed","Placed","Delayed","Delivered"].includes(statusF);
+  const moneyItems = isConfFilter ? confirmedLike : (statusF === "Rejected" ? [] : items);
+  const totalFinal = moneyItems.reduce((s,p)=> s + (parseFloat(p.finalEgp)||0), 0);
   // ⚠️ المتبقي بيتحسب مباشرة من finalEgp-deposit، مش من عمود
   // "remaining" المخزّن، عشان الإجمالي = المدفوع + المتبقي يفضل
   // متطابق رياضيًا حتى لو حصل عدم تطابق تاريخي في البيانات
-  const totalRemaining = Math.max(0, confirmedLike.reduce((s,p)=> s + Math.max(0, (parseFloat(p.finalEgp)||0) - (parseFloat(p.deposit)||0)), 0) - paymentsTotal);
+  const totalRemaining = Math.max(0, scopeOwed || 0);
   const totalQty = items.reduce((s,p)=> s + (parseInt(p.quantity)||1), 0);
   const deliveredCount = items.filter(p=>p.status==="Delivered").length;
 
   // 💡 القيمة/المتبقي بتظهر بس لو فيه فلتر حالة محدد فعليًا، مش
   // وإنت شايف كل الحالات مع بعض
-  const showMoney = !!statusF;
+  const showMoney = !!statusF && statusF !== "Rejected";
   // 🆕 "إجمالي القيمة" بيتخفى تحديدًا لما الفلتر يكون "Delivered"
   // بالظبط. "إجمالي المدفوع" اتشال خالص، مش محتاجينه هنا
   const showTotalValue = statusF !== "Delivered";
   const moneyBoxes = showMoney ? `
-    ${showTotalValue ? `<div class="stat-box"><div class="num">${totalFinal.toLocaleString('en-US')}</div><div class="lbl">💰 إجمالي القيمة (EGP)</div></div>` : ""}
-    <div class="stat-box"><div class="num" style="color:var(--danger)">${totalRemaining.toLocaleString('en-US')}</div><div class="lbl">⏳ المتبقي عليك (EGP)</div></div>
+    ${showTotalValue ? `<div class="stat-box"><div class="num">${totalFinal.toLocaleString('en-US')}</div><div class="lbl">${isConfFilter ? "💰 إجمالي القيمة (EGP)" : "💰 قيمة العروض — لسه مش مؤكدة (EGP)"}</div></div>` : ""}
+    ${isConfFilter ? `<div class="stat-box"><div class="num" style="color:var(--danger)">${totalRemaining.toLocaleString('en-US')}</div><div class="lbl">⏳ المتبقي عليك — كل المؤكد${document.getElementById("filterArrival").value ? " في الموعد" : ""} (EGP)</div></div>` : ""}
   ` : "";
 
   document.getElementById("statsGrid").innerHTML = `
@@ -907,7 +916,13 @@ function renderList(){
     .filter(p => !arrivalF || normArrival(p.arrivalDate) === normArrival(arrivalF))
     .reduce((s,p)=> s + (parseFloat(p.deposit)||0), 0);
 
-  renderStats(items, paymentsTotal, statusF); // ← نفس المجموعة المفلترة اللي هتتعرض تحت
+  // ⏳ المتبقي الحقيقي = كل المؤكد في نطاق موعد الوصول ناقص العرابين والدفعات
+  const scopeOwed = allProducts
+    .filter(p => ["Confirmed","Placed","Delayed","Delivered"].includes(p.status))
+    .filter(p => !arrivalF || normArrival(p.arrivalDate) === normArrival(arrivalF))
+    .reduce((s,p)=> s + (parseFloat(p.finalEgp)||0) - (parseFloat(p.deposit)||0), 0) - paymentsTotal;
+
+  renderStats(items, paymentsTotal, statusF, scopeOwed); // ← نفس المجموعة المفلترة اللي هتتعرض تحت
   renderProducts(items);
   renderQuickChips();    // الشرايح السريعة تفضل مزامنة مع الفلتر والأعداد
   renderArrivalFilter(); // قايمة آخر 7 مواعيد وصول تفضل محدّثة
